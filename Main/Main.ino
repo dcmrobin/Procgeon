@@ -14,7 +14,7 @@ const int tileSize = 8;    // Size of each tile (in pixels)
 
 // Viewport size (in tiles)
 const int viewportWidth = 128 / tileSize;
-const int viewportHeight = 128 / tileSize;
+const int viewportHeight = 128 / tileSize - 2;
 
 // Map scrolling offset
 int offsetX = 0;
@@ -23,6 +23,9 @@ int offsetY = 0;
 // Player position
 int playerX = 1;
 int playerY = 1;
+
+// Player stats
+int playerHP = 100;
 
 // Dungeon map (2D array)
 int dungeonMap[mapHeight][mapWidth];
@@ -53,6 +56,7 @@ void loop() {
     u8g2.clearBuffer();
     renderDungeon();
     renderPlayer();
+    renderUI();
     u8g2.sendBuffer();
 
     // Handle input
@@ -230,6 +234,17 @@ void renderPlayer() {
   if (screenX >= 0 && screenX < 128 && screenY >= 0 && screenY < 128) {
     u8g2.drawDisc(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
   }
+}
+
+// Render the UI
+void renderUI() { 
+  char HP[4];
+  snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
+  
+  u8g2.setFont(u8g2_font_5x7_tr);
+  u8g2.drawStr(5, 123, "HP:");
+  u8g2.drawStr(20, 123, HP);
+  u8g2.drawFrame(0, 113, 128, 15);
 }
 
 // Handle player input and update position
