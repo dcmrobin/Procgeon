@@ -8,8 +8,8 @@
 #define OLED_RST 9
 #define seedPin A0
 
-const int mapWidth = 32;   // Total map width in tiles
-const int mapHeight = 32;  // Total map height in tiles
+const int mapWidth = 64;   // Total map width in tiles
+const int mapHeight = 64;  // Total map height in tiles
 const int tileSize = 8;    // Size of each tile (in pixels)
 
 // Viewport size (in tiles)
@@ -20,12 +20,16 @@ const int viewportHeight = 128 / tileSize - 2;
 int offsetX = 0;
 int offsetY = 0;
 
+// Smooth scrolling speed
+const float scrollSpeed = 0.5f;
+
 // Player position
 int playerX = 1;
 int playerY = 1;
 
 // Player stats
 int playerHP = 100;
+int level = 1;
 
 // Dungeon map (2D array)
 int dungeonMap[mapHeight][mapWidth];
@@ -35,7 +39,7 @@ U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RS
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
-const unsigned long frameDelay = 100; // Update every 100ms
+const unsigned long frameDelay = 20; // Update every 100ms
 
 void setup() {
   Serial.begin(9600);
@@ -61,7 +65,23 @@ void loop() {
 
     // Handle input
     handleInput();
+
+    updateScrolling();
   }
+}
+
+void updateScrolling() {
+  // Target offsets based on player's position
+  float targetOffsetX = playerX - (viewportWidth / 2.0f) + 0.5f;
+  float targetOffsetY = playerY - (viewportHeight / 2.0f) + 0.5f;
+
+  // Clamp target offsets to map boundaries
+  targetOffsetX = constrain(targetOffsetX, 0, mapWidth - viewportWidth);
+  targetOffsetY = constrain(targetOffsetY, 0, mapHeight - viewportHeight);
+
+  // Smoothly move the offset towards the target
+  offsetX += (targetOffsetX - offsetX) * scrollSpeed;
+  offsetY += (targetOffsetY - offsetY) * scrollSpeed;
 }
 
 void generateDungeon() {
@@ -73,7 +93,7 @@ void generateDungeon() {
   }
 
   // Room generation parameters
-  const int maxRooms = random(8, 16);       // Maximum number of rooms
+  const int maxRooms = random(15, 25);       // Maximum number of rooms
   const int minRoomSize = 4;    // Minimum room size (tiles)
   const int maxRoomSize = 8;    // Maximum room size (tiles)
 
@@ -239,11 +259,15 @@ void renderPlayer() {
 // Render the UI
 void renderUI() { 
   char HP[4];
+  char Lvl[7];
   snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
+  snprintf(Lvl, sizeof(Lvl), "%d", level);
   
   u8g2.setFont(u8g2_font_5x7_tr);
   u8g2.drawStr(5, 123, "HP:");
   u8g2.drawStr(20, 123, HP);
+  u8g2.drawStr(40, 123, "LVL:");
+  u8g2.drawStr(60, 123, Lvl);
   u8g2.drawFrame(0, 113, 128, 15);
 }
 
@@ -278,6 +302,7 @@ void handleInput() {
     // Check if the player reached the exit
     if (dungeonMap[playerY][playerX] == 4) {
       Serial.println("You reached the exit!");
+      level += 1;
       generateDungeon(); // Generate a new dungeon
     }
   }
