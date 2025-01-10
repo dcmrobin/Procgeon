@@ -39,10 +39,21 @@ static const unsigned char PROGMEM stairsSprite[] =
   0b11000000,
   0b11110000,
   0b11110000,
-  0b11111100,
+  0b11111100,//sprite is flipped on its x axis for some reason
   0b11111100,
   0b11111111,
   0b11111111
+};
+
+static const unsigned char PROGMEM wallSprite[] =
+{ 0b11101110,
+  0b11101110,
+  0b00000000,
+  0b10111011,
+  0b10111011,
+  0b00000000,
+  0b11101111,
+  0b00000000,
 };
 
 // SH1107 128x128 SPI Constructor
@@ -275,7 +286,8 @@ void drawTile(int mapX, int mapY, int screenX, int screenY) {
       //u8g2.drawFrame(screenX, screenY, tileSize, tileSize);
       break;
     case 2: // Wall
-      u8g2.drawBox(screenX, screenY, tileSize, tileSize);
+      //u8g2.drawBox(screenX, screenY, tileSize, tileSize);
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
       break;
     case 4: // Exit
       u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
