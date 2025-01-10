@@ -34,6 +34,17 @@ int level = 1;
 // Dungeon map (2D array)
 int dungeonMap[mapHeight][mapWidth];
 
+static const unsigned char PROGMEM stairsSprite[] =
+{ 0b11000000,
+  0b11000000,
+  0b11110000,
+  0b11110000,
+  0b11111100,
+  0b11111100,
+  0b11111111,
+  0b11111111
+};
+
 // SH1107 128x128 SPI Constructor
 U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
 
@@ -164,6 +175,28 @@ void generateDungeon() {
     }
   }
 
+  // This is to get rid of any lone tiles
+  for (int y = 0; y < mapHeight; y++) {
+    for (int x = 0; x < mapWidth; x++) {
+      if (dungeonMap[y][x] == 2) {
+        int neighbors = 0;
+
+        for(int nx = -1; nx < 2; nx++) {
+          for(int ny = -1; ny < 2; ny++) {
+            if (nx == 0 && ny == 0) continue;
+            if (dungeonMap[y + ny][x + nx] == 2) {
+              neighbors += 1;
+            }
+          }
+        }
+
+        if (neighbors <= 1) {
+          dungeonMap[y][x] = 1;
+        }
+      }
+    }
+  }
+
   // Ensure player start
   int playerStartX = startRoomX + startRoomWidth / 2;
   int playerStartY = startRoomY + startRoomHeight / 2;
@@ -174,6 +207,8 @@ void generateDungeon() {
   // Place the exit in the last room
   dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
+
+  dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;
 }
 
 // Carve a horizontal corridor
@@ -233,6 +268,9 @@ void drawTile(int mapX, int mapY, int screenX, int screenY) {
   int tileType = dungeonMap[mapY][mapX];
 
   switch (tileType) {
+    case 0: // Start stairs
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+      break;
     case 1: // Floor
       //u8g2.drawFrame(screenX, screenY, tileSize, tileSize);
       break;
@@ -240,7 +278,7 @@ void drawTile(int mapX, int mapY, int screenX, int screenY) {
       u8g2.drawBox(screenX, screenY, tileSize, tileSize);
       break;
     case 4: // Exit
-      u8g2.drawCircle(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
       break;
   }
 }
