@@ -46,15 +46,42 @@ static const unsigned char PROGMEM stairsSprite[] =
 };
 
 static const unsigned char PROGMEM wallSprite[] =
-{ 0b11101110,
-  0b11101110,
-  0b00000000,
-  0b10111011,
-  0b10111011,
-  0b00000000,
-  0b11101111,
-  0b00000000,
+{ 
+  0b00000000, 
+  0b11101111, 
+  0b00000000, 
+  0b10111011, 
+  0b10111011, 
+  0b00000000, 
+  0b11101110, 
+  0b11101110
 };
+
+static const unsigned char PROGMEM playerSpriteRight[] =
+{ 
+  0b00001100, 
+  0b00111000, 
+  0b00011100, 
+  0b01011000, 
+  0b01111100, 
+  0b01011100, 
+  0b01011100, 
+  0b01011110
+};
+
+static const unsigned char PROGMEM playerSpriteLeft[] =
+{ 
+  0b00110000, 
+  0b00011100, 
+  0b00111000, 
+  0b00011010, 
+  0b00111110, 
+  0b00111010, 
+  0b00111010, 
+  0b01111010
+};
+
+const unsigned char* playerSprite = playerSpriteLeft;
 
 // SH1107 128x128 SPI Constructor
 U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
@@ -302,7 +329,8 @@ void renderPlayer() {
 
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < 128 && screenY >= 0 && screenY < 128) {
-    u8g2.drawDisc(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
+    //u8g2.drawDisc(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
+    u8g2.drawXBMP((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, tileSize, tileSize, playerSprite);
   }
 }
 
@@ -331,8 +359,15 @@ void handleInput() {
 
     if (input == 'w') newY--; // Move up
     if (input == 's') newY++; // Move down
-    if (input == 'a') newX--; // Move left
-    if (input == 'd') newX++; // Move right
+
+    if (input == 'a') {
+      playerSprite = playerSpriteLeft;
+      newX--;
+    }
+    if (input == 'd') {
+      playerSprite = playerSpriteRight;
+      newX++;
+    }
 
     //Serial.println(playerX);
     //Serial.println(playerY);
