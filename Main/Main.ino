@@ -30,6 +30,7 @@ int playerY = 1;
 // Player stats
 int playerHP = 100;
 int level = 1;
+const char* deathCause = "";
 
 // Dungeon map (2D array)
 int dungeonMap[mapHeight][mapWidth];
@@ -114,6 +115,7 @@ struct Enemy {
   int hp;
   bool chasingPlayer;
   float speed;
+  const char* name;
 };
 
 const int maxEnemies = 30; // Adjust the number of enemies as needed
@@ -140,22 +142,27 @@ void setup() {
 
 void loop() {
   unsigned long currentTime = millis();
-  if (currentTime - lastUpdateTime >= frameDelay) {
-    lastUpdateTime = currentTime;
+  if (playerHP > 0) {
+    if (currentTime - lastUpdateTime >= frameDelay) {
+      lastUpdateTime = currentTime;
 
-    // Update game state
-    handleInput();
-    updateScrolling();
-    updateEnemies();
+      // Update game state
+      handleInput();
+      updateScrolling();
+      updateEnemies();
 
-    // Render the game
-    u8g2.clearBuffer();
-    renderDungeon();
-    renderEnemies();
-    renderPlayer();
-    updateAnimations();
-    renderUI();
-    u8g2.sendBuffer();
+      // Render the game
+      u8g2.clearBuffer();
+      renderDungeon();
+      renderEnemies();
+      renderPlayer();
+      updateAnimations();
+      renderUI();
+      u8g2.sendBuffer();
+    }
+  }
+  else {
+    gameOver();
   }
 }
 
@@ -389,7 +396,7 @@ void spawnEnemies() {
       int ex = random(0, mapWidth);
       int ey = random(0, mapHeight);
       if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
-        enemies[i] = {(float)ex, (float)ey, 20, false, 0.1}; // Default health is 10
+        enemies[i] = {(float)ex, (float)ey, 20, false, 0.1, "blob"}; // Default health is 10
         break;
       }
     }
@@ -462,6 +469,9 @@ void updateEnemies() {
     // Check for collision with the player
     if ((int)enemies[i].x == playerX && (int)enemies[i].y == playerY) {
       playerHP -= 5; // Damage player
+      if (playerHP <= 0) {
+        deathCause = enemies[i].name;
+      }
     }
   }
 }
@@ -549,6 +559,34 @@ void handleInput() {
       generateDungeon(); // Generate a new dungeon
       spawnEnemies();
     }
+  }
+}
+
+void gameOver() {
+  char input = Serial.read();
+  char Lvl[7];
+  snprintf(Lvl, sizeof(Lvl), "%d", level);
+
+  u8g2.clearBuffer();
+  //Serial.println("You died!");
+  u8g2.setFont(u8g2_font_ncenB14_tr);
+  u8g2.drawStr(11, 30, "Game over!");
+
+  u8g2.drawFrame(11, 42, 108, 80);
+
+  u8g2.setFont(u8g2_font_profont12_tr);
+  u8g2.drawStr(15, 54, "Slain by:");
+  u8g2.drawStr(70, 54, deathCause);
+
+  u8g2.drawStr(15, 66, "Level:");
+  u8g2.drawStr(52, 66, Lvl);
+
+  u8g2.sendBuffer();
+  if (input == 'w' || input == 'a' || input == 's' || input == 'd') {
+    playerHP = 100;
+    level = 1;
+    generateDungeon();
+    spawnEnemies();
   }
 }
 
