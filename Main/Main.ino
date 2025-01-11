@@ -114,8 +114,9 @@ struct Enemy {
   float x, y;
   int hp;
   bool chasingPlayer;
-  float speed;
+  float moveAmount;
   const char* name;
+  int attackDelay;
 };
 
 const int maxEnemies = 30; // Adjust the number of enemies as needed
@@ -396,14 +397,16 @@ void spawnEnemies() {
       int ex = random(0, mapWidth);
       int ey = random(0, mapHeight);
       if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
-        enemies[i] = {(float)ex, (float)ey, 20, false, 0.1, "blob"}; // Default health is 10
+        enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20}; // Default health is 10
         break;
       }
     }
   }
 }
 
+int atkDelayCounter = 0;
 void updateEnemies() {
+  atkDelayCounter += 1;
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
 
@@ -429,8 +432,8 @@ void updateEnemies() {
       }
 
       // Calculate potential new position
-      float nx = enemies[i].x + moveX * enemies[i].speed;
-      float ny = enemies[i].y + moveY * enemies[i].speed;
+      float nx = enemies[i].x + moveX * enemies[i].moveAmount;
+      float ny = enemies[i].y + moveY * enemies[i].moveAmount;
 
       int tx = floatXPosToTileXPos(nx);
       int ty = floatYPosToTileYPos(ny);
@@ -448,8 +451,8 @@ void updateEnemies() {
     } else {
       // Random wandering
       int dir = random(0, 4);
-      float nx = enemies[i].x + (dir == 0 ? enemies[i].speed : dir == 1 ? -enemies[i].speed : 0);
-      float ny = enemies[i].y + (dir == 2 ? enemies[i].speed : dir == 3 ? -enemies[i].speed : 0);
+      float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount*2 : dir == 1 ? -(enemies[i].moveAmount)*2 : 0);
+      float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount*2 : dir == 3 ? -(enemies[i].moveAmount)*2 : 0);
 
       int tx = floatXPosToTileXPos(nx);
       int ty = floatYPosToTileYPos(ny);
@@ -468,7 +471,10 @@ void updateEnemies() {
 
     // Check for collision with the player
     if ((int)enemies[i].x == playerX && (int)enemies[i].y == playerY) {
-      playerHP -= 5; // Damage player
+      if (atkDelayCounter >= enemies[i].attackDelay) {
+        playerHP -= 5; // Damage player
+        atkDelayCounter = 0;
+      }
       if (playerHP <= 0) {
         deathCause = enemies[i].name;
       }
