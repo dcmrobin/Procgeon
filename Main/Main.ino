@@ -109,6 +109,16 @@ static const unsigned char PROGMEM blobSpriteFrame2[] =
 
 const unsigned char* blobSprite = blobSpriteFrame1;
 
+struct Enemy {
+  float x, y;
+  int hp;
+  bool chasingPlayer;
+  float speed;
+};
+
+const int maxEnemies = 30; // Adjust the number of enemies as needed
+Enemy enemies[maxEnemies];
+
 // SH1107 128x128 SPI Constructor
 U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
 
@@ -119,11 +129,13 @@ const unsigned long frameDelay = 20; // Update every 100ms
 void setup() {
   Serial.begin(9600);
   u8g2.begin();
+  u8g2.setBitmapMode(1);
 
   randomSeed(generateRandomSeed());
 
   // Generate a random dungeon
   generateDungeon();
+  spawnEnemies();
 }
 
 void loop() {
@@ -131,18 +143,19 @@ void loop() {
   if (currentTime - lastUpdateTime >= frameDelay) {
     lastUpdateTime = currentTime;
 
-    // Render the visible part of the dungeon
+    // Update game state
+    handleInput();
+    updateScrolling();
+    updateEnemies();
+
+    // Render the game
     u8g2.clearBuffer();
     renderDungeon();
+    renderEnemies();
     renderPlayer();
     updateAnimations();
     renderUI();
     u8g2.sendBuffer();
-
-    // Handle input
-    handleInput();
-
-    updateScrolling();
   }
 }
 
@@ -370,6 +383,115 @@ void renderPlayer() {
   }
 }
 
+void spawnEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    while (true) {
+      int ex = random(0, mapWidth);
+      int ey = random(0, mapHeight);
+      if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
+        enemies[i] = {(float)ex, (float)ey, 20, false, 0.1}; // Default health is 10
+        break;
+      }
+    }
+  }
+}
+
+void updateEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp <= 0) continue; // Skip dead enemies
+
+    // Calculate distance to player
+    int dx = playerX - (int)enemies[i].x;
+    int dy = playerY - (int)enemies[i].y;
+    int distanceSquared = dx * dx + dy * dy;
+
+    // Check if enemy should chase the player
+    if (distanceSquared <= 25) { // Chase if within 5 tiles (distance^2 = 25)
+      enemies[i].chasingPlayer = true;
+    } else {
+      enemies[i].chasingPlayer = false;
+    }
+
+    if (enemies[i].chasingPlayer) {
+      // Move toward the player
+      int moveX = 0, moveY = 0;
+      if (abs(dx) > abs(dy)) { // Prioritize horizontal movement
+        moveX = (dx > 0 ? 1 : -1);
+      } else { // Prioritize vertical movement
+        moveY = (dy > 0 ? 1 : -1);
+      }
+
+      // Calculate potential new position
+      float nx = enemies[i].x + moveX * enemies[i].speed;
+      float ny = enemies[i].y + moveY * enemies[i].speed;
+
+      int tx = floatXPosToTileXPos(nx);
+      int ty = floatYPosToTileYPos(ny);
+
+      if (dungeonMap[ty][tx] != 1) {
+        nx = tx > nx ? tx - 1 : tx < nx ? tx + 1 : nx;
+        ny = ty > ny ? ty - 1 : ty < ny ? ty + 1 : ny;
+      }
+
+      // Check if the new position is within bounds and not a wall
+      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[ty][tx] == 1) {
+        enemies[i].x = nx;
+        enemies[i].y = ny;
+      }
+    } else {
+      // Random wandering
+      int dir = random(0, 4);
+      float nx = enemies[i].x + (dir == 0 ? enemies[i].speed : dir == 1 ? -enemies[i].speed : 0);
+      float ny = enemies[i].y + (dir == 2 ? enemies[i].speed : dir == 3 ? -enemies[i].speed : 0);
+
+      int tx = floatXPosToTileXPos(nx);
+      int ty = floatYPosToTileYPos(ny);
+
+      if (dungeonMap[ty][tx] != 1) {
+        nx = tx > nx ? tx - 1 : tx < nx ? tx + 1 : nx;
+        ny = ty > ny ? ty - 1 : ty < ny ? ty + 1 : ny;
+      }
+
+      // Check bounds and avoid walls
+      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[ty][tx] == 1) {
+        enemies[i].x = nx;
+        enemies[i].y = ny;
+      }
+    }
+
+    // Check for collision with the player
+    if ((int)enemies[i].x == playerX && (int)enemies[i].y == playerY) {
+      playerHP -= 5; // Damage player
+    }
+  }
+}
+
+int floatXPosToTileXPos(float x) {
+  if (x <= round(x)) {
+    return (int)x;
+  }
+  return (int)(x + 0.9999f);
+}
+
+int floatYPosToTileYPos(float y) {
+  if (y <= round(y)) {
+    return (int)y;
+  }
+  return (int)(y + 0.9999f);
+}
+
+void renderEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp > 0) {
+      int screenX = (enemies[i].x - offsetX) * tileSize;
+      int screenY = (enemies[i].y - offsetY) * tileSize;
+      if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
+        u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
+      }
+    }
+  }
+}
+
 // Render the UI
 void renderUI() { 
   char HP[4];
@@ -425,6 +547,7 @@ void handleInput() {
       Serial.println("You reached the exit!");
       level += 1;
       generateDungeon(); // Generate a new dungeon
+      spawnEnemies();
     }
   }
 }
