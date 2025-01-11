@@ -83,6 +83,32 @@ static const unsigned char PROGMEM playerSpriteLeft[] =
 
 const unsigned char* playerSprite = playerSpriteLeft;
 
+static const unsigned char PROGMEM blobSpriteFrame1[] =
+{ 
+  0b00000000, 
+  0b00000000, 
+  0b00000000, 
+  0b00111100, 
+  0b01011110, 
+  0b01111110, 
+  0b01111110, 
+  0b01111110
+};
+
+static const unsigned char PROGMEM blobSpriteFrame2[] =
+{ 
+  0b00000000, 
+  0b00000000, 
+  0b00000000, 
+  0b00000000, 
+  0b00111100, 
+  0b01011110, 
+  0b01111110, 
+  0b11111111
+};
+
+const unsigned char* blobSprite = blobSpriteFrame1;
+
 // SH1107 128x128 SPI Constructor
 U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
 
@@ -109,6 +135,7 @@ void loop() {
     u8g2.clearBuffer();
     renderDungeon();
     renderPlayer();
+    updateAnimations();
     renderUI();
     u8g2.sendBuffer();
 
@@ -116,6 +143,15 @@ void loop() {
     handleInput();
 
     updateScrolling();
+  }
+}
+
+int counter = 0;
+void updateAnimations() {
+  counter += 1;
+  if (counter >= 20) {
+    blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
+    counter = 0;
   }
 }
 
