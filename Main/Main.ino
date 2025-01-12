@@ -598,8 +598,8 @@ void gameOver() {
   u8g2.drawStr(15, 54, "Slain by:");
   u8g2.drawStr(70, 54, deathCause);
 
-  u8g2.drawStr(15, 66, "Level:");
-  u8g2.drawStr(52, 66, Lvl);
+  u8g2.drawStr(15, 66, "On level:");
+  u8g2.drawStr(70, 66, Lvl);
 
   u8g2.sendBuffer();
   if (input == 'w' || input == 'a' || input == 's' || input == 'd') {
