@@ -1,4 +1,5 @@
 #include <U8g2lib.h>
+#include <EEPROM.h>
 
 // OLED display pins
 #define OLED_MOSI 11
@@ -30,6 +31,8 @@ int playerY = 1;
 // Player stats
 int playerHP = 100;
 int level = 1;
+unsigned int highscoreAddress = 0;
+byte levelHighscore;
 const char* deathCause = "";
 
 // Dungeon map (2D array)
@@ -586,6 +589,15 @@ void gameOver() {
   char input = Serial.read();
   char Lvl[7];
   snprintf(Lvl, sizeof(Lvl), "%d", level);
+  
+  int lvlHighscore;
+  lvlHighscore = EEPROM.read(highscoreAddress);
+  if (level > lvlHighscore) {
+    EEPROM.write(highscoreAddress, level);
+  }
+
+  char LHighscore[7];
+  snprintf(LHighscore, sizeof(LHighscore), "%d", lvlHighscore);
 
   u8g2.clearBuffer();
   //Serial.println("You died!");
@@ -600,6 +612,9 @@ void gameOver() {
 
   u8g2.drawStr(15, 66, "On level:");
   u8g2.drawStr(70, 66, Lvl);
+
+  u8g2.drawStr(15, 78, "Highscore:");
+  u8g2.drawStr(76, 78, LHighscore);
 
   u8g2.sendBuffer();
   if (input == 'w' || input == 'a' || input == 's' || input == 'd') {
