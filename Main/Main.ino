@@ -435,16 +435,21 @@ void updateEnemies() {
       float nx = enemies[i].x + moveX * enemies[i].moveAmount;
       float ny = enemies[i].y + moveY * enemies[i].moveAmount;
 
-      int tx = floatXPosToTileXPos(nx);
-      int ty = floatYPosToTileYPos(ny);
+      int ptx = predictXtile(nx);
+      int pty = predictYtile(ny);
 
-      if (dungeonMap[ty][tx] != 1) {
-        nx = tx > nx ? tx - 1 : tx < nx ? tx + 1 : nx;
-        ny = ty > ny ? ty - 1 : ty < ny ? ty + 1 : ny;
+      int ctx = round(nx);
+      int cty = round(ny);
+
+      if (dungeonMap[cty][ptx] != 1) {
+        nx = ptx > ctx ? -enemies[i].moveAmount*2 : ptx < ctx ? enemies[i].moveAmount*2 : nx;
+      }
+      if (dungeonMap[pty][ctx] != 1) {
+        ny = pty > cty ? -enemies[i].moveAmount*2 : pty < cty ? enemies[i].moveAmount*2 : ny;
       }
 
       // Check if the new position is within bounds and not a wall
-      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[ty][tx] == 1) {
+      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
         enemies[i].x = nx;
         enemies[i].y = ny;
       }
@@ -454,19 +459,26 @@ void updateEnemies() {
       float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount*2 : dir == 1 ? -(enemies[i].moveAmount)*2 : 0);
       float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount*2 : dir == 3 ? -(enemies[i].moveAmount)*2 : 0);
 
-      int tx = floatXPosToTileXPos(nx);
-      int ty = floatYPosToTileYPos(ny);
+      int ptx = predictXtile(nx);
+      int pty = predictYtile(ny);
 
-      if (dungeonMap[ty][tx] != 1) {
-        nx = tx > nx ? tx - 1 : tx < nx ? tx + 1 : nx;
-        ny = ty > ny ? ty - 1 : ty < ny ? ty + 1 : ny;
+      int ctx = round(nx);
+      int cty = round(ny);
+
+      if (dungeonMap[cty][ptx] != 1) {
+        nx = ptx > ctx ? -enemies[i].moveAmount*2 : ptx < ctx ? enemies[i].moveAmount*2 : nx;
+      }
+      if (dungeonMap[pty][ctx] != 1) {
+        ny = pty > cty ? -enemies[i].moveAmount*2 : pty < cty ? enemies[i].moveAmount*2 : ny;
       }
 
       // Check bounds and avoid walls
-      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[ty][tx] == 1) {
+      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
         enemies[i].x = nx;
         enemies[i].y = ny;
       }
+
+
     }
 
     // Check for collision with the player
@@ -482,18 +494,20 @@ void updateEnemies() {
   }
 }
 
-int floatXPosToTileXPos(float x) {
-  if (x <= round(x)) {
-    return (int)x;
-  }
-  return (int)(x + 0.9999f);
+int predictXtile(float x) {
+    if (x < (int)x + 0.5f) {  // Slightly lower or exactly the integer
+        return (int)x;
+    }
+    // Slightly higher
+    return (int)x + 1;
 }
 
-int floatYPosToTileYPos(float y) {
-  if (y <= round(y)) {
-    return (int)y;
-  }
-  return (int)(y + 0.9999f);
+int predictYtile(float y) {
+    if (y < (int)y + 0.5f) {  // Slightly lower or exactly the integer
+        return (int)y;
+    }
+    // Slightly higher
+    return (int)y + 1;
 }
 
 void renderEnemies() {
@@ -619,4 +633,4 @@ uint32_t generateRandomSeed()
   }
   return (seedWordValue);
  
-}
+}
