@@ -463,10 +463,10 @@ void updateEnemies() {
       int cty = round(ny);
 
       if (dungeonMap[cty][ptx] != 1) {
-        nx = ptx > ctx ? -enemies[i].moveAmount*2 : ptx < ctx ? enemies[i].moveAmount*2 : nx;
+        nx = enemies[i].x;
       }
       if (dungeonMap[pty][ctx] != 1) {
-        ny = pty > cty ? -enemies[i].moveAmount*2 : pty < cty ? enemies[i].moveAmount*2 : ny;
+        ny = enemies[i].y;
       }
 
       // Check if the new position is within bounds and not a wall
@@ -487,10 +487,10 @@ void updateEnemies() {
       int cty = round(ny);
 
       if (dungeonMap[cty][ptx] != 1) {
-        nx = ptx > ctx ? -enemies[i].moveAmount*2 : ptx < ctx ? enemies[i].moveAmount*2 : nx;
+        nx = enemies[i].x;
       }
       if (dungeonMap[pty][ctx] != 1) {
-        ny = pty > cty ? -enemies[i].moveAmount*2 : pty < cty ? enemies[i].moveAmount*2 : ny;
+        ny = enemies[i].y;
       }
 
       // Check bounds and avoid walls
