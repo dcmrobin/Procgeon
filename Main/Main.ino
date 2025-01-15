@@ -444,12 +444,15 @@ void updateEnemies() {
     }
 
     if (enemies[i].chasingPlayer) {
-      // Move toward the player
-      int moveX = 0, moveY = 0;
-      if (abs(dx) > abs(dy)) { // Prioritize horizontal movement
-        moveX = (dx > 0 ? 1 : -1);
-      } else { // Prioritize vertical movement
-        moveY = (dy > 0 ? 1 : -1);
+      // Move diagonally or straight toward the player
+      float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
+      float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
+
+      // Normalize movement vector to prevent faster diagonal movement
+      float magnitude = sqrt(moveX * moveX + moveY * moveY);
+      if (magnitude > 0) {
+        moveX /= magnitude;
+        moveY /= magnitude;
       }
 
       // Calculate potential new position
@@ -462,6 +465,7 @@ void updateEnemies() {
       int ctx = round(nx);
       int cty = round(ny);
 
+      // Check if the new position collides with walls
       if (dungeonMap[cty][ptx] != 1) {
         nx = enemies[i].x;
       }
@@ -469,7 +473,7 @@ void updateEnemies() {
         ny = enemies[i].y;
       }
 
-      // Check if the new position is within bounds and not a wall
+      // Check bounds and ensure the move is valid
       if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
         enemies[i].x = nx;
         enemies[i].y = ny;
@@ -498,8 +502,6 @@ void updateEnemies() {
         enemies[i].x = nx;
         enemies[i].y = ny;
       }
-
-
     }
 
     int enemyRoundX = round(enemies[i].x);
