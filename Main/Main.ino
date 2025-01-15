@@ -31,8 +31,9 @@ int playerY = 1;
 // Player stats
 int playerHP = 100;
 int level = 1;
-unsigned int highscoreAddress = 0;
-byte levelHighscore;
+int kills = 0;
+unsigned int lvlHighscoreAddress = 0;
+unsigned int killHighscoreAddress = 1;
 const char* deathCause = "";
 
 // Dungeon map (2D array)
@@ -121,9 +122,20 @@ struct Enemy {
   const char* name;
   int attackDelay;
 };
-
 const int maxEnemies = 30; // Adjust the number of enemies as needed
 Enemy enemies[maxEnemies];
+
+struct Projectile {
+  float x, y;
+  float dx, dy;
+  float speed;
+  float damage;
+  bool active;
+};
+const int maxProjectiles = 10;
+Projectile projectiles[maxProjectiles];
+int playerDX;
+int playerDY;
 
 // SH1107 128x128 SPI Constructor
 U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
@@ -136,6 +148,10 @@ void setup() {
   Serial.begin(9600);
   u8g2.begin();
   u8g2.setBitmapMode(1);
+
+  for (int i = 0; i < maxProjectiles; i++) {
+      projectiles[i].active = false;
+  }
 
   randomSeed(generateRandomSeed());
 
@@ -154,11 +170,13 @@ void loop() {
       handleInput();
       updateScrolling();
       updateEnemies();
+      updateProjectiles();
 
       // Render the game
       u8g2.clearBuffer();
       renderDungeon();
       renderEnemies();
+      renderProjectiles();
       renderPlayer();
       updateAnimations();
       renderUI();
@@ -400,7 +418,7 @@ void spawnEnemies() {
       int ex = random(0, mapWidth);
       int ey = random(0, mapHeight);
       if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
-        enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20}; // Default health is 10
+        enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
         break;
       }
     }
@@ -484,8 +502,13 @@ void updateEnemies() {
 
     }
 
+    int enemyRoundX = round(enemies[i].x);
+    int enemyRoundY = round(enemies[i].y);
+    int playerRoundX = round(playerX);
+    int playerRoundY = round(playerY);
+
     // Check for collision with the player
-    if ((int)enemies[i].x == playerX && (int)enemies[i].y == playerY) {
+    if (enemyRoundX == playerRoundX && enemyRoundY == playerRoundY) {
       if (atkDelayCounter >= enemies[i].attackDelay) {
         playerHP -= 5; // Damage player
         atkDelayCounter = 0;
@@ -525,6 +548,66 @@ void renderEnemies() {
   }
 }
 
+void shootProjectile(float xDir, float yDir) {
+
+  for (int i = 0; i < maxProjectiles; i++) {
+      if (!projectiles[i].active) {
+          projectiles[i].x = playerX;
+          projectiles[i].y = playerY;
+          projectiles[i].dx = xDir;  // Set direction based on player's facing direction
+          projectiles[i].dy = yDir;
+          projectiles[i].damage = 10;
+          projectiles[i].speed = 0.5;
+          projectiles[i].active = true;
+          break;
+      }
+  }
+}
+
+void updateProjectiles() {
+    for (int i = 0; i < maxProjectiles; i++) {
+        if (projectiles[i].active) {
+            projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
+            projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
+
+            int projectileTileX = predictXtile(projectiles[i].x);
+            int projectileTileY = predictYtile(projectiles[i].y);
+
+            // Check for collisions with walls or out-of-bounds
+            if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
+                projectiles[i].active = false; // Deactivate the bullet
+                //free(projectiles[i]);
+            }
+
+            // Check for collisions with enemies
+            for (int j = 0; j < maxEnemies; j++) {
+              int enemyRoundX = round(enemies[j].x);
+              int enemyRoundY = round(enemies[j].y);
+              int projectileRoundX = round(projectiles[i].x);
+              int projectileRoundY = round(projectiles[i].y);
+
+              if (projectileRoundX == enemyRoundX && projectileRoundY == enemyRoundY && enemies[j].hp > 0) {
+                enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
+                if (enemies[j].hp <= 0 && projectiles[i].active == true) {
+                  kills += 1;
+                }
+                projectiles[i].active = false; // Deactivate the bullet
+              }
+            }
+        }
+    }
+}
+
+void renderProjectiles() {
+    for (int i = 0; i < maxProjectiles; i++) {
+        if (projectiles[i].active) {
+          int screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
+          int screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
+          u8g2.drawDisc(screenX, screenY, 1);
+        }
+    }
+}
+
 // Render the UI
 void renderUI() { 
   char HP[4];
@@ -548,16 +631,33 @@ void handleInput() {
     int newX = playerX;
     int newY = playerY;
 
-    if (input == 'w') newY--; // Move up
-    if (input == 's') newY++; // Move down
+    if (input == 'w') {
+      playerDY = -1;
+      playerDX = 0;
+      newY--;//up
+    }
+
+    if (input == 's') {
+      playerDY = 1;
+      playerDX = 0;
+      newY++;//down
+    }
 
     if (input == 'a') {
+      playerDX = -1;
+      playerDY = 0;
       playerSprite = playerSpriteLeft;
       newX--;
     }
     if (input == 'd') {
+      playerDX = 1;
+      playerDY = 0;
       playerSprite = playerSpriteRight;
       newX++;
+    }
+
+    if (input == 'e') {
+      shootProjectile(playerDX, playerDY);
     }
 
     //Serial.println(playerX);
@@ -587,17 +687,28 @@ void handleInput() {
 
 void gameOver() {
   char input = Serial.read();
+
   char Lvl[7];
   snprintf(Lvl, sizeof(Lvl), "%d", level);
+  char KLLS[7];
+  snprintf(KLLS, sizeof(KLLS), "%d", kills);
   
   int lvlHighscore;
-  lvlHighscore = EEPROM.read(highscoreAddress);
+  lvlHighscore = EEPROM.read(lvlHighscoreAddress);
   if (level > lvlHighscore) {
-    EEPROM.write(highscoreAddress, level);
+    EEPROM.write(lvlHighscoreAddress, level);
+  }
+
+  int kllHighscore;
+  kllHighscore = EEPROM.read(killHighscoreAddress);
+  if (kills > kllHighscore) {
+    EEPROM.write(killHighscoreAddress, kills);
   }
 
   char LHighscore[7];
   snprintf(LHighscore, sizeof(LHighscore), "%d", lvlHighscore);
+  char KHighscore[7];
+  snprintf(KHighscore, sizeof(KHighscore), "%d", kllHighscore);
 
   u8g2.clearBuffer();
   //Serial.println("You died!");
@@ -613,8 +724,14 @@ void gameOver() {
   u8g2.drawStr(15, 66, "On level:");
   u8g2.drawStr(70, 66, Lvl);
 
-  u8g2.drawStr(15, 78, "Highscore:");
-  u8g2.drawStr(76, 78, LHighscore);
+  u8g2.drawStr(15, 78, "Lvl highscore:");
+  u8g2.drawStr(100, 78, LHighscore);
+
+  u8g2.drawStr(15, 90, "Kills:");
+  u8g2.drawStr(52, 90, KLLS);
+
+  u8g2.drawStr(15, 102, "Kll Highscore:");
+  u8g2.drawStr(100, 102, KHighscore);
 
   u8g2.sendBuffer();
   if (input == 'w' || input == 'a' || input == 's' || input == 'd') {
