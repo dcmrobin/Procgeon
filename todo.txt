@@ -1,0 +1,9 @@
+There could be a damsel somewhere inside each dungeon you have to rescue
+
+Enemies would drop coins you collect
+
+There would be a shop in each dungeon where you would spend the coins to get upgrades
+
+There could be traps
+
+(split your code into tabs bro)
