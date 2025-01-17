@@ -39,81 +39,6 @@ const char* deathCause = "";
 // Dungeon map (2D array)
 int dungeonMap[mapHeight][mapWidth];
 
-static const unsigned char PROGMEM stairsSprite[] =
-{ 0b11000000,
-  0b11000000,
-  0b11110000,
-  0b11110000,
-  0b11111100,//sprite is flipped on its x axis for some reason
-  0b11111100,
-  0b11111111,
-  0b11111111
-};
-
-static const unsigned char PROGMEM wallSprite[] =
-{ 
-  0b00000000, 
-  0b11101111, 
-  0b00000000, 
-  0b10111011, 
-  0b10111011, 
-  0b00000000, 
-  0b11101110, 
-  0b11101110
-};
-
-static const unsigned char PROGMEM playerSpriteRight[] =
-{ 
-  0b00001100, 
-  0b00111000, 
-  0b00011100, 
-  0b01011000, 
-  0b01111100, 
-  0b01011100, 
-  0b01011100, 
-  0b01011110
-};
-
-static const unsigned char PROGMEM playerSpriteLeft[] =
-{ 
-  0b00110000, 
-  0b00011100, 
-  0b00111000, 
-  0b00011010, 
-  0b00111110, 
-  0b00111010, 
-  0b00111010, 
-  0b01111010
-};
-
-const unsigned char* playerSprite = playerSpriteLeft;
-
-static const unsigned char PROGMEM blobSpriteFrame1[] =
-{ 
-  0b00000000, 
-  0b00000000, 
-  0b00000000, 
-  0b00111100, 
-  0b01011110, 
-  0b01111110, 
-  0b01111110, 
-  0b01111110
-};
-
-static const unsigned char PROGMEM blobSpriteFrame2[] =
-{ 
-  0b00000000, 
-  0b00000000, 
-  0b00000000, 
-  0b00000000, 
-  0b00111100, 
-  0b01011110, 
-  0b01111110, 
-  0b11111111
-};
-
-const unsigned char* blobSprite = blobSpriteFrame1;
-
 struct Enemy {
   float x, y;
   int hp;
@@ -132,6 +57,7 @@ struct Projectile {
   float damage;
   bool active;
 };
+
 const int maxProjectiles = 10;
 Projectile projectiles[maxProjectiles];
 int playerDX;
@@ -186,29 +112,6 @@ void loop() {
   else {
     gameOver();
   }
-}
-
-int counter = 0;
-void updateAnimations() {
-  counter += 1;
-  if (counter >= 20) {
-    blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
-    counter = 0;
-  }
-}
-
-void updateScrolling() {
-  // Target offsets based on player's position
-  float targetOffsetX = playerX - (viewportWidth / 2.0f) + 0.5f;
-  float targetOffsetY = playerY - (viewportHeight / 2.0f) + 0.5f;
-
-  // Clamp target offsets to map boundaries
-  targetOffsetX = constrain(targetOffsetX, 0, mapWidth - viewportWidth);
-  targetOffsetY = constrain(targetOffsetY, 0, mapHeight - viewportHeight);
-
-  // Smoothly move the offset towards the target
-  offsetX += (targetOffsetX - offsetX) * scrollSpeed;
-  offsetY += (targetOffsetY - offsetY) * scrollSpeed;
 }
 
 void generateDungeon() {
@@ -327,91 +230,6 @@ void generateDungeon() {
   dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;
 }
 
-// Carve a horizontal corridor
-void carveHorizontalCorridor(int x1, int x2, int y) {
-  if (x1 > x2) swap(x1, x2);
-  for (int x = x1; x <= x2; x++) {
-    dungeonMap[y][x] = 1; // Floor
-  }
-}
-
-// Carve a vertical corridor
-void carveVerticalCorridor(int y1, int y2, int x) {
-  if (y1 > y2) swap(y1, y2);
-  for (int y = y1; y <= y2; y++) {
-    dungeonMap[y][x] = 1; // Floor
-  }
-}
-
-// Utility function to swap values
-void swap(int &a, int &b) {
-  int temp = a;
-  a = b;
-  b = temp;
-}
-
-// Count surrounding walls for smoothing
-int countWalls(int x, int y) {
-  int wallCount = 0;
-  for (int dy = -1; dy <= 1; dy++) {
-    for (int dx = -1; dx <= 1; dx++) {
-      if (dx != 0 || dy != 0) {
-        if (dungeonMap[y + dy][x + dx] == 2) {
-          wallCount++;
-        }
-      }
-    }
-  }
-  return wallCount;
-}
-
-// Render the visible portion of the dungeon
-void renderDungeon() {
-  for (int y = 0; y < viewportHeight; y++) {
-    for (int x = 0; x < viewportWidth; x++) {
-      int mapX = x + offsetX;
-      int mapY = y + offsetY;
-
-      if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
-        drawTile(mapX, mapY, x * tileSize, y * tileSize);
-      }
-    }
-  }
-}
-
-// Draw a tile based on its type
-void drawTile(int mapX, int mapY, int screenX, int screenY) {
-  int tileType = dungeonMap[mapY][mapX];
-
-  switch (tileType) {
-    case 0: // Start stairs
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
-      break;
-    case 1: // Floor
-      //u8g2.drawFrame(screenX, screenY, tileSize, tileSize);
-      break;
-    case 2: // Wall
-      //u8g2.drawBox(screenX, screenY, tileSize, tileSize);
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
-      break;
-    case 4: // Exit
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
-      break;
-  }
-}
-
-// Render the player
-void renderPlayer() {
-  int screenX = (playerX - offsetX) * tileSize;
-  int screenY = (playerY - offsetY) * tileSize;
-
-  // Ensure the player is within the viewport
-  if (screenX >= 0 && screenX < 128 && screenY >= 0 && screenY < 128) {
-    //u8g2.drawDisc(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
-    u8g2.drawXBMP((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, tileSize, tileSize, playerSprite);
-  }
-}
-
 void spawnEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     while (true) {
@@ -420,131 +238,6 @@ void spawnEnemies() {
       if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
         enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
         break;
-      }
-    }
-  }
-}
-
-int atkDelayCounter = 0;
-void updateEnemies() {
-  atkDelayCounter += 1;
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp <= 0) continue; // Skip dead enemies
-
-    // Calculate distance to player
-    int dx = playerX - (int)enemies[i].x;
-    int dy = playerY - (int)enemies[i].y;
-    int distanceSquared = dx * dx + dy * dy;
-
-    // Check if enemy should chase the player
-    if (distanceSquared <= 25) { // Chase if within 5 tiles (distance^2 = 25)
-      enemies[i].chasingPlayer = true;
-    } else {
-      enemies[i].chasingPlayer = false;
-    }
-
-    if (enemies[i].chasingPlayer) {
-      // Move diagonally or straight toward the player
-      float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
-      float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
-
-      // Normalize movement vector to prevent faster diagonal movement
-      float magnitude = sqrt(moveX * moveX + moveY * moveY);
-      if (magnitude > 0) {
-        moveX /= magnitude;
-        moveY /= magnitude;
-      }
-
-      // Calculate potential new position
-      float nx = enemies[i].x + moveX * enemies[i].moveAmount;
-      float ny = enemies[i].y + moveY * enemies[i].moveAmount;
-
-      int ptx = predictXtile(nx);
-      int pty = predictYtile(ny);
-
-      int ctx = round(nx);
-      int cty = round(ny);
-
-      // Check if the new position collides with walls
-      if (dungeonMap[cty][ptx] != 1) {
-        nx = enemies[i].x;
-      }
-      if (dungeonMap[pty][ctx] != 1) {
-        ny = enemies[i].y;
-      }
-
-      // Check bounds and ensure the move is valid
-      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
-        enemies[i].x = nx;
-        enemies[i].y = ny;
-      }
-    } else {
-      // Random wandering
-      int dir = random(0, 4);
-      float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount*2 : dir == 1 ? -(enemies[i].moveAmount)*2 : 0);
-      float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount*2 : dir == 3 ? -(enemies[i].moveAmount)*2 : 0);
-
-      int ptx = predictXtile(nx);
-      int pty = predictYtile(ny);
-
-      int ctx = round(nx);
-      int cty = round(ny);
-
-      if (dungeonMap[cty][ptx] != 1) {
-        nx = enemies[i].x;
-      }
-      if (dungeonMap[pty][ctx] != 1) {
-        ny = enemies[i].y;
-      }
-
-      // Check bounds and avoid walls
-      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
-        enemies[i].x = nx;
-        enemies[i].y = ny;
-      }
-    }
-
-    int enemyRoundX = round(enemies[i].x);
-    int enemyRoundY = round(enemies[i].y);
-    int playerRoundX = round(playerX);
-    int playerRoundY = round(playerY);
-
-    // Check for collision with the player
-    if (enemyRoundX == playerRoundX && enemyRoundY == playerRoundY) {
-      if (atkDelayCounter >= enemies[i].attackDelay) {
-        playerHP -= 5; // Damage player
-        atkDelayCounter = 0;
-      }
-      if (playerHP <= 0) {
-        deathCause = enemies[i].name;
-      }
-    }
-  }
-}
-
-int predictXtile(float x) {
-    if (x < (int)x + 0.5f) {  // Slightly lower or exactly the integer
-        return (int)x;
-    }
-    // Slightly higher
-    return (int)x + 1;
-}
-
-int predictYtile(float y) {
-    if (y < (int)y + 0.5f) {  // Slightly lower or exactly the integer
-        return (int)y;
-    }
-    // Slightly higher
-    return (int)y + 1;
-}
-
-void renderEnemies() {
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0) {
-      int screenX = (enemies[i].x - offsetX) * tileSize;
-      int screenY = (enemies[i].y - offsetY) * tileSize;
-      if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
-        u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
       }
     }
   }
@@ -564,65 +257,6 @@ void shootProjectile(float xDir, float yDir) {
           break;
       }
   }
-}
-
-void updateProjectiles() {
-    for (int i = 0; i < maxProjectiles; i++) {
-        if (projectiles[i].active) {
-            projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
-            projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
-
-            int projectileTileX = predictXtile(projectiles[i].x);
-            int projectileTileY = predictYtile(projectiles[i].y);
-
-            // Check for collisions with walls or out-of-bounds
-            if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
-                projectiles[i].active = false; // Deactivate the bullet
-                //free(projectiles[i]);
-            }
-
-            // Check for collisions with enemies
-            for (int j = 0; j < maxEnemies; j++) {
-              int enemyRoundX = round(enemies[j].x);
-              int enemyRoundY = round(enemies[j].y);
-              int projectileRoundX = round(projectiles[i].x);
-              int projectileRoundY = round(projectiles[i].y);
-
-              if (projectileRoundX == enemyRoundX && projectileRoundY == enemyRoundY && enemies[j].hp > 0) {
-                enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
-                if (enemies[j].hp <= 0 && projectiles[i].active == true) {
-                  kills += 1;
-                }
-                projectiles[i].active = false; // Deactivate the bullet
-              }
-            }
-        }
-    }
-}
-
-void renderProjectiles() {
-    for (int i = 0; i < maxProjectiles; i++) {
-        if (projectiles[i].active) {
-          int screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
-          int screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
-          u8g2.drawDisc(screenX, screenY, 1);
-        }
-    }
-}
-
-// Render the UI
-void renderUI() { 
-  char HP[4];
-  char Lvl[7];
-  snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
-  snprintf(Lvl, sizeof(Lvl), "%d", level);
-  
-  u8g2.setFont(u8g2_font_5x7_tr);
-  u8g2.drawStr(5, 123, "HP:");
-  u8g2.drawStr(20, 123, HP);
-  u8g2.drawStr(40, 123, "LVL:");
-  u8g2.drawStr(60, 123, Lvl);
-  u8g2.drawFrame(0, 113, 128, 15);
 }
 
 // Handle player input and update position
@@ -742,29 +376,4 @@ void gameOver() {
     generateDungeon();
     spawnEnemies();
   }
-}
-
-uint32_t generateRandomSeed()
-{
-  uint8_t  seedBitValue  = 0;
-  uint8_t  seedByteValue = 0;
-  uint32_t seedWordValue = 0;
- 
-  for (uint8_t wordShift = 0; wordShift < 4; wordShift++)     // 4 bytes in a 32 bit word
-  {
-    for (uint8_t byteShift = 0; byteShift < 8; byteShift++)   // 8 bits in a byte
-    {
-      for (uint8_t bitSum = 0; bitSum <= 8; bitSum++)         // 8 samples of analog pin
-      {
-        seedBitValue = seedBitValue + (analogRead(seedPin) & 0x01);                // Flip the coin eight times, adding the results together
-      }
-      delay(1);                                                                    // Delay a single millisecond to allow the pin to fluctuate
-      seedByteValue = seedByteValue | ((seedBitValue & 0x01) << byteShift);        // Build a stack of eight flipped coins
-      seedBitValue = 0;                                                            // Clear out the previous coin value
-    }
-    seedWordValue = seedWordValue | (uint32_t)seedByteValue << (8 * wordShift);    // Build a stack of four sets of 8 coins (shifting right creates a larger number so cast to 32bit)
-    seedByteValue = 0;                                                             // Clear out the previous stack value
-  }
-  return (seedWordValue);
- 
 }
