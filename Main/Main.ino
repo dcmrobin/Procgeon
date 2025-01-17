@@ -62,6 +62,30 @@ static const unsigned char PROGMEM wallSprite[] =
   0b11101110
 };
 
+static const unsigned char PROGMEM barsSprite[] =
+{ 
+  0b00000000, 
+  0b00111100, 
+  0b01111110, 
+  0b01111110, 
+  0b01111010, 
+  0b01111110, 
+  0b01111110, 
+  0b01111110
+};
+
+static const unsigned char PROGMEM doorSprite[] =
+{ 
+  0b11111111, 
+  0b01110111, 
+  0b00100010, 
+  0b00100010, 
+  0b00100010, 
+  0b00100010, 
+  0b01110111, 
+  0b11111111
+};
+
 static const unsigned char PROGMEM playerSpriteRight[] =
 { 
   0b00001100, 
