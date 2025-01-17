@@ -88,6 +88,32 @@ static const unsigned char PROGMEM playerSpriteLeft[] =
 
 const unsigned char* playerSprite = playerSpriteLeft;
 
+static const unsigned char PROGMEM damselSpriteRight[] =
+{ 
+  0b00000000, 
+  0b00011000, 
+  0b00111100, 
+  0b00011110, 
+  0b00111100, 
+  0b01011010, 
+  0b00111100, 
+  0b01111110
+};
+
+static const unsigned char PROGMEM damselSpriteLeft[] =
+{ 
+  0b00000000, 
+  0b00011000, 
+  0b00111100, 
+  0b01111000, 
+  0b00111100, 
+  0b01011010, 
+  0b00111100, 
+  0b01111110
+};
+
+const unsigned char* damselSprite = damselSpriteLeft;
+
 static const unsigned char PROGMEM blobSpriteFrame1[] =
 { 
   0b00000000, 
@@ -188,12 +214,19 @@ void loop() {
   }
 }
 
-int counter = 0;
+int blobcounter = 0;
+int damselcounter = 0;
 void updateAnimations() {
-  counter += 1;
-  if (counter >= 20) {
+  blobcounter += 1;
+  if (blobcounter >= 20) {
     blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
-    counter = 0;
+    blobcounter = 0;
+  }
+  
+  damselcounter += 1;
+  if (damselcounter >= random(50, 90)) {
+    damselSprite = damselSprite == damselSpriteRight ? damselSpriteLeft : damselSpriteRight;
+    damselcounter = 0;
   }
 }
 
