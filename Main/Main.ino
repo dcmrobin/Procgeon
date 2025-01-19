@@ -136,6 +136,42 @@ static const unsigned char PROGMEM damselSpriteLeft[] =
   0b01111110
 };
 
+static const unsigned char PROGMEM damselHopefullSpriteRight[] =
+{ 
+  0b00000000, 
+  0b00011000, 
+  0b00111100, 
+  0b00011110, 
+  0b01111100, 
+  0b00011010, 
+  0b00111100, 
+  0b01111110
+};
+
+static const unsigned char PROGMEM damselHopefullSpriteLeft[] =
+{ 
+  0b00000000, 
+  0b00011000, 
+  0b00111100, 
+  0b01111000, 
+  0b00111110, 
+  0b01011000, 
+  0b00111100, 
+  0b01111110
+};
+
+static const unsigned char PROGMEM damselSpriteDead[] =
+{ 
+  0b00000000, 
+  0b00000000, 
+  0b00000000, 
+  0b00000000, 
+  0b00000000, 
+  0b00001100, 
+  0b11011110, 
+  0b11111111
+};
+
 const unsigned char* damselSprite = damselSpriteLeft;
 
 static const unsigned char PROGMEM blobSpriteFrame1[] =
@@ -187,11 +223,11 @@ Projectile projectiles[maxProjectiles];
 
 struct Damsel {
   float x, y;
-  float dx;
   float speed;
   bool dead;
   bool followingPlayer;
 };
+Damsel damsel[1];
 
 int playerDX;
 int playerDY;
@@ -228,12 +264,14 @@ void loop() {
       // Update game state
       handleInput();
       updateScrolling();
+      updateDamsel();
       updateEnemies();
       updateProjectiles();
 
       // Render the game
       u8g2.clearBuffer();
       renderDungeon();
+      renderDamsel();
       renderEnemies();
       renderProjectiles();
       renderPlayer();
@@ -258,7 +296,7 @@ void updateAnimations() {
   
   damselanimcounter += 1;
   if (damselanimcounter >= random(50, 90)) {
-    damselSprite = damselSprite == damselSpriteRight ? damselSpriteLeft : damselSpriteRight;
+    damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
     damselanimcounter = 0;
   }
 }
@@ -310,6 +348,12 @@ void generateDungeon() {
       dungeonMap[y][x] = 1; // Floor
     }
   }
+
+  damsel[0].x = startRoomX + 1;
+  damsel[0].y = startRoomY + 1;
+  damsel[0].speed = 0.1;
+  damsel[0].followingPlayer = false;
+  damsel[0].dead = false;
 
   // Generate additional rooms
   for (int i = 1; i < maxRooms; i++) {
@@ -618,6 +662,78 @@ void renderEnemies() {
   }
 }
 
+int damselMoveDelay = 0;
+void updateDamsel() {
+  if (!damsel[0].dead) {
+    damselMoveDelay++;
+  }
+
+  // Calculate distance to player
+  int dx = playerX - (int)damsel[0].x;
+  int dy = playerY - (int)damsel[0].y;
+  int distanceSquared = dx * dx + dy * dy;
+
+  // Check if enemy should chase the player
+  if (distanceSquared <= 25) { // Chase if within 5 tiles (distance^2 = 25)
+    damsel[0].followingPlayer = true;
+    damsel[0].speed = 0.3;
+  } else {
+    damsel[0].followingPlayer = false;
+    damsel[0].speed = 0.1;
+  }
+
+  if (!damsel[0].followingPlayer) {
+    if (damselMoveDelay >= 30) {
+      int dir = random(0, 4);
+      float nx = damsel[0].x + (dir == 0 ? damsel[0].speed : dir == 1 ? -damsel[0].speed : 0);
+      float ny = damsel[0].y + (dir == 2 ? damsel[0].speed : dir == 3 ? -damsel[0].speed : 0);
+
+      damselSprite = dir == 0 ? damselSpriteRight : dir == 1 ? damselSpriteLeft : damselSprite;
+
+      // Check bounds and avoid walls
+      if (!checkSpriteCollisionWithTile(nx, ny, damsel[0].x, damsel[0].y)) {
+        damsel[0].x = nx;
+        damsel[0].y = ny;
+      }
+      damselMoveDelay = 0;
+    }
+  } else {
+    if (damselMoveDelay >= 3) {
+      // Move diagonally or straight toward the player
+      float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
+      float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
+
+      damselSprite = moveX == 1 ? damselHopefullSpriteRight : moveX == -1 ? damselHopefullSpriteLeft : damselSprite;
+
+      // Normalize movement vector to prevent faster diagonal movement
+      float magnitude = sqrt(moveX * moveX + moveY * moveY);
+      if (magnitude > 0) {
+        moveX /= magnitude;
+        moveY /= magnitude;
+      }
+
+      // Calculate potential new position
+      float nx = damsel[0].x + moveX * (damsel[0].speed);
+      float ny = damsel[0].y + moveY * (damsel[0].speed);
+
+      // Check bounds and ensure the move is valid
+      if (!checkSpriteCollisionWithTile(nx, ny, damsel[0].x, damsel[0].y)) {
+        damsel[0].x = nx;
+        damsel[0].y = ny;
+      }
+      damselMoveDelay = 0;
+    }
+  }
+}
+
+void renderDamsel() {
+  int screenX = (damsel[0].x - offsetX) * tileSize;
+  int screenY = (damsel[0].y - offsetY) * tileSize;
+  if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
+    u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
+  }
+}
+
 void shootProjectile(float xDir, float yDir) {
 
   for (int i = 0; i < maxProjectiles; i++) {
@@ -657,6 +773,9 @@ void updateProjectiles() {
             kills += 1;
           }
           projectiles[i].active = false; // Deactivate the bullet
+        } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
+          damsel[0].dead = true;
+          projectiles[i].active = false;
         }
       }
     }
