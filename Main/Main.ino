@@ -516,22 +516,8 @@ void updateEnemies() {
       float nx = enemies[i].x + moveX * enemies[i].moveAmount;
       float ny = enemies[i].y + moveY * enemies[i].moveAmount;
 
-      int ptx = predictXtile(nx);
-      int pty = predictYtile(ny);
-
-      int ctx = round(nx);
-      int cty = round(ny);
-
-      // Check if the new position collides with walls
-      if (dungeonMap[cty][ptx] != 1) {
-        nx = enemies[i].x;
-      }
-      if (dungeonMap[pty][ctx] != 1) {
-        ny = enemies[i].y;
-      }
-
       // Check bounds and ensure the move is valid
-      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
+      if (!checkSpriteCollisionWithTile(nx, ny, enemies[i].x, enemies[i].y)) {
         enemies[i].x = nx;
         enemies[i].y = ny;
       }
@@ -541,33 +527,15 @@ void updateEnemies() {
       float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount*2 : dir == 1 ? -(enemies[i].moveAmount)*2 : 0);
       float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount*2 : dir == 3 ? -(enemies[i].moveAmount)*2 : 0);
 
-      int ptx = predictXtile(nx);
-      int pty = predictYtile(ny);
-
-      int ctx = round(nx);
-      int cty = round(ny);
-
-      if (dungeonMap[cty][ptx] != 1) {
-        nx = enemies[i].x;
-      }
-      if (dungeonMap[pty][ctx] != 1) {
-        ny = enemies[i].y;
-      }
-
       // Check bounds and avoid walls
-      if (nx >= 0 && ny >= 0 && nx < mapWidth && ny < mapHeight && dungeonMap[pty][ptx] == 1) {
+      if (!checkSpriteCollisionWithTile(nx, ny, enemies[i].x, enemies[i].y)) {
         enemies[i].x = nx;
         enemies[i].y = ny;
       }
     }
 
-    int enemyRoundX = round(enemies[i].x);
-    int enemyRoundY = round(enemies[i].y);
-    int playerRoundX = round(playerX);
-    int playerRoundY = round(playerY);
-
     // Check for collision with the player
-    if (enemyRoundX == playerRoundX && enemyRoundY == playerRoundY) {
+    if (checkSpriteCollisionWithSprite(enemies[i].x, enemies[i].y, playerX, playerY)) {
       if (atkDelayCounter >= enemies[i].attackDelay) {
         playerHP -= 5; // Damage player
         atkDelayCounter = 0;
@@ -580,19 +548,53 @@ void updateEnemies() {
 }
 
 int predictXtile(float x) {
-    if (x < (int)x + 0.5f) {  // Slightly lower or exactly the integer
-        return (int)x;
-    }
-    // Slightly higher
-    return (int)x + 1;
+  if (x < (int)x + 0.5f) {  // Slightly lower or exactly the integer
+      return (int)x;
+  }
+  // Slightly higher
+  return (int)x + 1;
 }
 
 int predictYtile(float y) {
-    if (y < (int)y + 0.5f) {  // Slightly lower or exactly the integer
-        return (int)y;
-    }
-    // Slightly higher
-    return (int)y + 1;
+  if (y < (int)y + 0.5f) {  // Slightly lower or exactly the integer
+      return (int)y;
+  }
+  // Slightly higher
+  return (int)y + 1;
+}
+
+bool checkSpriteCollisionWithTile(float newX, float newY, float currentX, float currentY) {
+  int ptx = predictXtile(newX);
+  int pty = predictYtile(newY);
+
+  int ctx = round(newX);
+  int cty = round(newY);
+
+  if (dungeonMap[cty][ptx] != 1) {
+    newX = currentX;
+  }
+  if (dungeonMap[pty][ctx] != 1) {
+    newY = currentY;
+  }
+
+  if (newX >= 0 && newY >= 0 && newX < mapWidth && newY < mapHeight && dungeonMap[pty][ptx] == 1) {
+    return false;
+  }
+
+  return true;
+}
+
+bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y) {
+  int roundSprite1X = round(sprite1X);
+  int roundSprite1Y = round(sprite1Y);
+  int roundSprite2X = round(sprite2X);
+  int roundSprite2Y = round(sprite2Y);
+
+  if (roundSprite1X == roundSprite2X && roundSprite1Y == roundSprite2Y) {
+    return true;
+  }
+
+  return false;
 }
 
 void renderEnemies() {
@@ -624,37 +626,32 @@ void shootProjectile(float xDir, float yDir) {
 }
 
 void updateProjectiles() {
-    for (int i = 0; i < maxProjectiles; i++) {
-        if (projectiles[i].active) {
-            projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
-            projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
+  for (int i = 0; i < maxProjectiles; i++) {
+    if (projectiles[i].active) {
+      projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
+      projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
 
-            int projectileTileX = predictXtile(projectiles[i].x);
-            int projectileTileY = predictYtile(projectiles[i].y);
+      int projectileTileX = predictXtile(projectiles[i].x);
+      int projectileTileY = predictYtile(projectiles[i].y);
 
-            // Check for collisions with walls or out-of-bounds
-            if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
-                projectiles[i].active = false; // Deactivate the bullet
-                //free(projectiles[i]);
-            }
+      // Check for collisions with walls or out-of-bounds
+      if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
+          projectiles[i].active = false; // Deactivate the bullet
+          //free(projectiles[i]);
+      }
 
-            // Check for collisions with enemies
-            for (int j = 0; j < maxEnemies; j++) {
-              int enemyRoundX = round(enemies[j].x);
-              int enemyRoundY = round(enemies[j].y);
-              int projectileRoundX = round(projectiles[i].x);
-              int projectileRoundY = round(projectiles[i].y);
-
-              if (projectileRoundX == enemyRoundX && projectileRoundY == enemyRoundY && enemies[j].hp > 0) {
-                enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
-                if (enemies[j].hp <= 0 && projectiles[i].active == true) {
-                  kills += 1;
-                }
-                projectiles[i].active = false; // Deactivate the bullet
-              }
-            }
+      // Check for collisions with enemies
+      for (int j = 0; j < maxEnemies; j++) {
+        if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && enemies[j].hp > 0) {
+          enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
+          if (enemies[j].hp <= 0 && projectiles[i].active == true) {
+            kills += 1;
+          }
+          projectiles[i].active = false; // Deactivate the bullet
         }
+      }
     }
+  }
 }
 
 void renderProjectiles() {
