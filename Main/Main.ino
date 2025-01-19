@@ -184,6 +184,15 @@ struct Projectile {
 };
 const int maxProjectiles = 10;
 Projectile projectiles[maxProjectiles];
+
+struct Damsel {
+  float x, y;
+  float dx;
+  float speed;
+  bool dead;
+  bool followingPlayer;
+};
+
 int playerDX;
 int playerDY;
 
@@ -238,19 +247,19 @@ void loop() {
   }
 }
 
-int blobcounter = 0;
-int damselcounter = 0;
+int blobanimcounter = 0;
+int damselanimcounter = 0;
 void updateAnimations() {
-  blobcounter += 1;
-  if (blobcounter >= 20) {
+  blobanimcounter += 1;
+  if (blobanimcounter >= 20) {
     blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
-    blobcounter = 0;
+    blobanimcounter = 0;
   }
   
-  damselcounter += 1;
-  if (damselcounter >= random(50, 90)) {
+  damselanimcounter += 1;
+  if (damselanimcounter >= random(50, 90)) {
     damselSprite = damselSprite == damselSpriteRight ? damselSpriteLeft : damselSpriteRight;
-    damselcounter = 0;
+    damselanimcounter = 0;
   }
 }
 
