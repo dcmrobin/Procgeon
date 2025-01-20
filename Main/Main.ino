@@ -624,19 +624,11 @@ void updateEnemies() {
 }
 
 int predictXtile(float x) {
-  if (x < (int)x + 0.5f) {  // Slightly lower or exactly the integer
-      return (int)x;
-  }
-  // Slightly higher
-  return (int)x + 1;
+  return (int)(x + 0.5f); // Always round to the nearest integer
 }
 
 int predictYtile(float y) {
-  if (y < (int)y + 0.5f) {  // Slightly lower or exactly the integer
-      return (int)y;
-  }
-  // Slightly higher
-  return (int)y + 1;
+  return (int)(y + 0.5f); // Always round to the nearest integer
 }
 
 bool checkSpriteCollisionWithTile(float newX, float newY, float currentX, float currentY) {
@@ -646,31 +638,25 @@ bool checkSpriteCollisionWithTile(float newX, float newY, float currentX, float 
   int ctx = round(newX);
   int cty = round(newY);
 
-  if (dungeonMap[cty][ptx] != 1) {
-    newX = currentX;
-  }
-  if (dungeonMap[pty][ctx] != 1) {
-    newY = currentY;
-  }
+  // Only update newX or newY if the move is valid
+  bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] == 1);
+  bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] == 1);
 
-  if (newX >= 0 && newY >= 0 && newX < mapWidth && newY < mapHeight && dungeonMap[pty][ptx] == 1) {
-    return false;
-  }
+  if (!xValid) newX = currentX;
+  if (!yValid) newY = currentY;
 
-  return true;
+  // If both are valid, the move is allowed
+  return !(xValid && yValid);
 }
 
 bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y) {
-  int roundSprite1X = round(sprite1X);
-  int roundSprite1Y = round(sprite1Y);
-  int roundSprite2X = round(sprite2X);
-  int roundSprite2Y = round(sprite2Y);
+  // Use predictXtile/predictYtile for consistent rounding
+  int tile1X = predictXtile(sprite1X);
+  int tile1Y = predictYtile(sprite1Y);
+  int tile2X = predictXtile(sprite2X);
+  int tile2Y = predictYtile(sprite2Y);
 
-  if (roundSprite1X == roundSprite2X && roundSprite1Y == roundSprite2Y) {
-    return true;
-  }
-
-  return false;
+  return tile1X == tile2X && tile1Y == tile2Y;
 }
 
 void renderEnemies() {
