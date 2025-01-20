@@ -593,8 +593,10 @@ void updateEnemies() {
       float ny = enemies[i].y + moveY * enemies[i].moveAmount;
 
       // Check bounds and ensure the move is valid
-      if (!checkSpriteCollisionWithTile(nx, ny, enemies[i].x, enemies[i].y)) {
+      if (!checkSpriteCollisionWithTileX(nx, enemies[i].x, ny)) {
         enemies[i].x = nx;
+      }
+      if (!checkSpriteCollisionWithTileY(ny, enemies[i].y, nx)) {
         enemies[i].y = ny;
       }
     } else {
@@ -603,9 +605,10 @@ void updateEnemies() {
       float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount*2 : dir == 1 ? -(enemies[i].moveAmount)*2 : 0);
       float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount*2 : dir == 3 ? -(enemies[i].moveAmount)*2 : 0);
 
-      // Check bounds and avoid walls
-      if (!checkSpriteCollisionWithTile(nx, ny, enemies[i].x, enemies[i].y)) {
+      if (!checkSpriteCollisionWithTileX(nx, enemies[i].x, ny)) {
         enemies[i].x = nx;
+      }
+      if (!checkSpriteCollisionWithTileY(ny, enemies[i].y, nx)) {
         enemies[i].y = ny;
       }
     }
@@ -631,22 +634,30 @@ int predictYtile(float y) {
   return (int)(y + 0.5f); // Always round to the nearest integer
 }
 
-bool checkSpriteCollisionWithTile(float newX, float newY, float currentX, float currentY) {
-  int ptx = predictXtile(newX);
-  int pty = predictYtile(newY);
+bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
+    int ptx = predictXtile(newX);
+    int cty = round(newY);
 
-  int ctx = round(newX);
-  int cty = round(newY);
+    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] == 1);
 
-  // Only update newX or newY if the move is valid
-  bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] == 1);
-  bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] == 1);
+    if (!xValid) {
+        newX = currentX;
+    }
 
-  if (!xValid) newX = currentX;
-  if (!yValid) newY = currentY;
+    return !xValid;
+}
 
-  // If both are valid, the move is allowed
-  return !(xValid && yValid);
+bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX) {
+    int pty = predictYtile(newY);
+    int ctx = round(newX);
+
+    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] == 1);
+
+    if (!yValid) {
+        newY = currentY;
+    }
+
+    return !yValid;
 }
 
 bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y) {
@@ -700,8 +711,10 @@ void updateDamsel() {
       damselSprite = dir == 0 ? damselSpriteRight : dir == 1 ? damselSpriteLeft : damselSprite;
 
       // Check bounds and avoid walls
-      if (!checkSpriteCollisionWithTile(nx, ny, damsel[0].x, damsel[0].y)) {
+      if (!checkSpriteCollisionWithTileX(nx, damsel[0].x, ny)) {
         damsel[0].x = nx;
+      }
+      if (!checkSpriteCollisionWithTileY(ny, damsel[0].y, nx)) {
         damsel[0].y = ny;
       }
       damselMoveDelay = 0;
@@ -726,8 +739,10 @@ void updateDamsel() {
       float ny = damsel[0].y + moveY * (damsel[0].speed);
 
       // Check bounds and ensure the move is valid
-      if (!checkSpriteCollisionWithTile(nx, ny, damsel[0].x, damsel[0].y)) {
+      if (!checkSpriteCollisionWithTileX(nx, damsel[0].x, ny)) {
         damsel[0].x = nx;
+      }
+      if (!checkSpriteCollisionWithTileY(ny, damsel[0].y, nx)) {
         damsel[0].y = ny;
       }
       damselMoveDelay = 0;
