@@ -64,18 +64,6 @@ static const unsigned char PROGMEM wallSprite[] =
 
 static const unsigned char PROGMEM barsSprite[] =
 { 
-  0b00000000, 
-  0b00111100, 
-  0b01111110, 
-  0b01111110, 
-  0b01111010, 
-  0b01111110, 
-  0b01111110, 
-  0b01111110
-};
-
-static const unsigned char PROGMEM doorSprite[] =
-{ 
   0b11111111, 
   0b01110111, 
   0b00100010, 
@@ -324,9 +312,9 @@ void generateDungeon() {
   }
 
   // Room generation parameters
-  const int maxRooms = random(15, 25);       // Maximum number of rooms
-  const int minRoomSize = 4;    // Minimum room size (tiles)
-  const int maxRoomSize = 8;    // Maximum room size (tiles)
+  const int maxRooms = random(15, 25); // Maximum number of rooms
+  const int minRoomSize = 4;           // Minimum room size (tiles)
+  const int maxRoomSize = 8;           // Maximum room size (tiles)
 
   struct Room {
     int x, y, width, height;
@@ -348,12 +336,6 @@ void generateDungeon() {
       dungeonMap[y][x] = 1; // Floor
     }
   }
-
-  damsel[0].x = startRoomX + 1;
-  damsel[0].y = startRoomY + 1;
-  damsel[0].speed = 0.1;
-  damsel[0].followingPlayer = false;
-  damsel[0].dead = false;
 
   // Generate additional rooms
   for (int i = 1; i < maxRooms; i++) {
@@ -423,6 +405,44 @@ void generateDungeon() {
     }
   }
 
+  // Generate the damsel's cell
+  int damselRoomWidth = 7;
+  int damselRoomHeight = 5;
+  int damselRoomX, damselRoomY;
+
+  // Find a location far from the start room
+  do {
+    damselRoomX = random(1, mapWidth - damselRoomWidth - 1);
+    damselRoomY = random(1, mapHeight - damselRoomHeight - 1);
+  } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
+
+  // Create the damsel's cell
+  for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
+    for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
+      if ((y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) && x >= damselRoomX && x < damselRoomX + damselRoomWidth) {
+        dungeonMap[y][x] = 3; // Walls using barsSprite
+      } else {
+        dungeonMap[y][x] = 1; // Floor
+      }
+    }
+  }
+
+  // Connect the damsel's cell to the dungeon
+  int centerX = damselRoomX + damselRoomWidth / 2;
+  int centerY = damselRoomY + damselRoomHeight / 2;
+  int startCenterX = startRoomX + startRoomWidth / 2;
+  int startCenterY = startRoomY + startRoomHeight / 2;
+
+  carveHorizontalCorridor(startCenterX, centerX, startCenterY);
+  carveVerticalCorridor(startCenterY, centerY, centerX);
+
+  // Place the damsel in the cell
+  damsel[0].x = centerX;
+  damsel[0].y = centerY;
+  damsel[0].speed = 0.1;
+  damsel[0].followingPlayer = false;
+  damsel[0].dead = false;
+
   // Ensure player start
   int playerStartX = startRoomX + startRoomWidth / 2;
   int playerStartY = startRoomY + startRoomHeight / 2;
@@ -433,8 +453,6 @@ void generateDungeon() {
   // Place the exit in the last room
   dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
-
-  dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;
 }
 
 // Carve a horizontal corridor
@@ -503,6 +521,9 @@ void drawTile(int mapX, int mapY, int screenX, int screenY) {
     case 2: // Wall
       //u8g2.drawBox(screenX, screenY, tileSize, tileSize);
       u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
+      break;
+    case 3: // Bars
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSprite);
       break;
     case 4: // Exit
       u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
@@ -848,7 +869,7 @@ void handleInput() {
     //Serial.println(playerY);
 
     // Check collision with walls
-    if (dungeonMap[newY][newX] != 2) {
+    if (dungeonMap[newY][newX] == 1 || dungeonMap[newY][newX] == 4) {
       playerX = newX;
       playerY = newY;
 
