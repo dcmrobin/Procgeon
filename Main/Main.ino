@@ -871,7 +871,7 @@ void handleInput() {
     //Serial.println(playerY);
 
     // Check collision with walls
-    if (dungeonMap[newY][newX] == 1 || dungeonMap[newY][newX] == 4) {
+    if (dungeonMap[newY][newX] == 1 || dungeonMap[newY][newX] == 4 || dungeonMap[newY][newX] == 0) {
       playerX = newX;
       playerY = newY;
 
@@ -892,13 +892,26 @@ void handleInput() {
   }
 }
 
+int switchDelay = 1500;
+int page = 1;
 void gameOver() {
+  switchDelay--;
+  if (switchDelay == 0) {
+    page++;
+    if (page == 3) {
+      page = 1;
+    }
+    switchDelay = 1500;
+  }
+
   char input = Serial.read();
 
   char Lvl[7];
   snprintf(Lvl, sizeof(Lvl), "%d", level);
   char KLLS[7];
   snprintf(KLLS, sizeof(KLLS), "%d", kills);
+  char Nxtpage[7];
+  snprintf(Nxtpage, sizeof(Nxtpage), "%d", switchDelay);
   
   int lvlHighscore;
   lvlHighscore = EEPROM.read(lvlHighscoreAddress);
@@ -925,20 +938,27 @@ void gameOver() {
   u8g2.drawFrame(11, 42, 108, 80);
 
   u8g2.setFont(u8g2_font_profont12_tr);
-  u8g2.drawStr(15, 54, "Slain by:");
-  u8g2.drawStr(70, 54, deathCause);
+  if (page == 1) {
+    u8g2.drawStr(15, 54, "Slain by:");
+    u8g2.drawStr(70, 54, deathCause);
 
-  u8g2.drawStr(15, 66, "On level:");
-  u8g2.drawStr(70, 66, Lvl);
+    u8g2.drawStr(15, 66, "On level:");
+    u8g2.drawStr(70, 66, Lvl);
 
-  u8g2.drawStr(15, 78, "Lvl highscore:");
-  u8g2.drawStr(100, 78, LHighscore);
+    u8g2.drawStr(15, 78, "Lvl highscore:");
+    u8g2.drawStr(100, 78, LHighscore);
 
-  u8g2.drawStr(15, 90, "Kills:");
-  u8g2.drawStr(52, 90, KLLS);
+    u8g2.drawStr(15, 90, "Kills:");
+    u8g2.drawStr(52, 90, KLLS);
 
-  u8g2.drawStr(15, 102, "Kll Highscore:");
-  u8g2.drawStr(100, 102, KHighscore);
+    u8g2.drawStr(15, 102, "Kll Highscore:");
+    u8g2.drawStr(100, 102, KHighscore);
+
+    u8g2.drawStr(15, 114, "Next page in:");
+    u8g2.drawStr(94, 114, Nxtpage);
+  } else if (page == 2) {
+    u8g2.drawStr(15, 54, "next page");
+  }
 
   u8g2.sendBuffer();
   if (input == 'w' || input == 'a' || input == 's' || input == 'd') {
