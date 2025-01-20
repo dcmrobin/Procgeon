@@ -443,6 +443,8 @@ void generateDungeon() {
   damsel[0].followingPlayer = false;
   damsel[0].dead = false;
 
+  dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;
+
   // Ensure player start
   int playerStartX = startRoomX + startRoomWidth / 2;
   int playerStartY = startRoomY + startRoomHeight / 2;
