@@ -565,8 +565,8 @@ void updateEnemies() {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
 
     // Calculate distance to player
-    int dx = playerX - (int)enemies[i].x;
-    int dy = playerY - (int)enemies[i].y;
+    int dx = playerX - round(enemies[i].x);
+    int dy = playerY - round(enemies[i].y);
     int distanceSquared = dx * dx + dy * dy;
 
     // Check if enemy should chase the player
@@ -707,8 +707,8 @@ void updateDamsel() {
   }
 
   // Calculate distance to player
-  int dx = playerX - (int)damsel[0].x;
-  int dy = playerY - (int)damsel[0].y;
+  int dx = playerX - round(damsel[0].x);
+  int dy = playerY - round(damsel[0].y);
   int distanceSquared = dx * dx + dy * dy;
 
   // Check if the damsel should follow the player
@@ -948,7 +948,7 @@ void gameOver() {
   snprintf(Lvl, sizeof(Lvl), "%d", level);
   char KLLS[7];
   snprintf(KLLS, sizeof(KLLS), "%d", kills);
-  char Nxtpage[7];
+  char Nxtpage[6];
   snprintf(Nxtpage, sizeof(Nxtpage), "%d", switchDelay);
   
   int lvlHighscore;
