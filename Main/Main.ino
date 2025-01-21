@@ -577,38 +577,56 @@ void updateEnemies() {
     }
 
     if (enemies[i].chasingPlayer) {
-      // Move diagonally or straight toward the player
+      // Determine the primary direction of movement
       float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
       float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
 
-      // Normalize movement vector to prevent faster diagonal movement
+      // Normalize movement vector
       float magnitude = sqrt(moveX * moveX + moveY * moveY);
       if (magnitude > 0) {
         moveX /= magnitude;
         moveY /= magnitude;
       }
 
-      // Calculate potential new position
+      // Attempt to move diagonally first
       float nx = enemies[i].x + moveX * enemies[i].moveAmount;
       float ny = enemies[i].y + moveY * enemies[i].moveAmount;
 
-      // Check bounds and ensure the move is valid
-      if (!checkSpriteCollisionWithTileX(nx, enemies[i].x, ny)) {
+      bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+      bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+
+      if (xValid && yValid) {
+        // Move diagonally if both directions are valid
         enemies[i].x = nx;
-      }
-      if (!checkSpriteCollisionWithTileY(ny, enemies[i].y, nx)) {
         enemies[i].y = ny;
+      } else if (xValid) {
+        // Slide along X if Y is blocked
+        enemies[i].x = nx;
+      } else if (yValid) {
+        // Slide along Y if X is blocked
+        enemies[i].y = ny;
+      } else {
+        // Both directions blocked, try "wall sliding"
+        // Check perpendicular sliding directions
+        float slideX = enemies[i].x + moveX * enemies[i].moveAmount;
+        float slideY = enemies[i].y;
+
+        if (!checkSpriteCollisionWithTileX(slideX, enemies[i].x, enemies[i].y)) {
+          enemies[i].x = slideX;
+        } else if (!checkSpriteCollisionWithTileY(slideY, enemies[i].y, enemies[i].x)) {
+          enemies[i].y = slideY;
+        }
       }
     } else {
-      // Random wandering
+      // Random wandering if not chasing
       int dir = random(0, 4);
-      float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount*2 : dir == 1 ? -(enemies[i].moveAmount)*2 : 0);
-      float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount*2 : dir == 3 ? -(enemies[i].moveAmount)*2 : 0);
+      float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount * 2 : dir == 1 ? -enemies[i].moveAmount * 2 : 0);
+      float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount * 2 : dir == 3 ? -enemies[i].moveAmount * 2 : 0);
 
-      if (!checkSpriteCollisionWithTileX(nx, enemies[i].x, ny)) {
+      if (!checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y)) {
         enemies[i].x = nx;
       }
-      if (!checkSpriteCollisionWithTileY(ny, enemies[i].y, nx)) {
+      if (!checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x)) {
         enemies[i].y = ny;
       }
     }
