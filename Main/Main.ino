@@ -8,6 +8,12 @@
 #define OLED_CS 10
 #define OLED_RST 9
 #define seedPin A0
+#define BUTTON_UP_PIN    2
+#define BUTTON_DOWN_PIN  3
+#define BUTTON_LEFT_PIN  4
+#define BUTTON_RIGHT_PIN 5
+#define BUTTON_B_PIN 1
+#define BUTTON_A_PIN 0
 
 const int mapWidth = 64;   // Total map width in tiles
 const int mapHeight = 64;  // Total map height in tiles
@@ -18,15 +24,15 @@ const int viewportWidth = 128 / tileSize;
 const int viewportHeight = 128 / tileSize - 2;
 
 // Map scrolling offset
-int offsetX = 0;
-int offsetY = 0;
+float offsetX = 0;
+float offsetY = 0;
 
 // Smooth scrolling speed
-const float scrollSpeed = 0.5f;
+const float scrollSpeed = 0.25f;
 
 // Player position
-int playerX = 1;
-int playerY = 1;
+float playerX = 1;
+float playerY = 1;
 
 // Player stats
 int playerHP = 100;
@@ -206,7 +212,7 @@ struct Projectile {
   float damage;
   bool active;
 };
-const int maxProjectiles = 10;
+const int maxProjectiles = 30;
 Projectile projectiles[maxProjectiles];
 
 struct Damsel {
@@ -231,6 +237,13 @@ void setup() {
   Serial.begin(9600);
   u8g2.begin();
   u8g2.setBitmapMode(1);
+
+  pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_DOWN_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_LEFT_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_RIGHT_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_B_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_A_PIN, INPUT_PULLUP);
 
   for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
@@ -437,8 +450,8 @@ void generateDungeon() {
   carveVerticalCorridor(startCenterY, centerY, centerX);
 
   // Place the damsel in the cell
-  damsel[0].x = centerX;
-  damsel[0].y = centerY;
+  damsel[0].x = centerX-1;
+  damsel[0].y = centerY-1;
   damsel[0].speed = 0.1;
   damsel[0].followingPlayer = false;
   damsel[0].dead = false;
@@ -497,20 +510,24 @@ int countWalls(int x, int y) {
 
 // Render the visible portion of the dungeon
 void renderDungeon() {
-  for (int y = 0; y < viewportHeight; y++) {
-    for (int x = 0; x < viewportWidth; x++) {
-      int mapX = x + offsetX;
-      int mapY = y + offsetY;
+  for (int y = 0; y < viewportHeight + 1; y++) { // +1 to handle partial tiles at edges
+    for (int x = 0; x < viewportWidth + 1; x++) {
+      float mapX = x + offsetX;
+      float mapY = y + offsetY;
 
       if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
-        drawTile(mapX, mapY, x * tileSize, y * tileSize);
+        // Calculate screen position based on fractional offsets
+        float screenX = (x - (offsetX - (int)offsetX)) * tileSize;
+        float screenY = (y - (offsetY - (int)offsetY)) * tileSize;
+
+        drawTile((int)mapX, (int)mapY, screenX, screenY);
       }
     }
   }
 }
 
 // Draw a tile based on its type
-void drawTile(int mapX, int mapY, int screenX, int screenY) {
+void drawTile(int mapX, int mapY, float screenX, float screenY) {
   int tileType = dungeonMap[mapY][mapX];
 
   switch (tileType) {
@@ -535,8 +552,8 @@ void drawTile(int mapX, int mapY, int screenX, int screenY) {
 
 // Render the player
 void renderPlayer() {
-  int screenX = (playerX - offsetX) * tileSize;
-  int screenY = (playerY - offsetY) * tileSize;
+  float screenX = (playerX - offsetX) * tileSize;
+  float screenY = (playerY - offsetY) * tileSize;
 
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < 128 && screenY >= 0 && screenY < 128) {
@@ -565,8 +582,8 @@ void updateEnemies() {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
 
     // Calculate distance to player
-    int dx = playerX - round(enemies[i].x);
-    int dy = playerY - round(enemies[i].y);
+    int dx = round(playerX) - round(enemies[i].x);
+    int dy = round(playerY) - round(enemies[i].y);
     int distanceSquared = dx * dx + dy * dy;
 
     // Check if enemy should chase the player
@@ -691,8 +708,8 @@ bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite
 void renderEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp > 0) {
-      int screenX = (enemies[i].x - offsetX) * tileSize;
-      int screenY = (enemies[i].y - offsetY) * tileSize;
+      float screenX = (enemies[i].x - offsetX) * tileSize;
+      float screenY = (enemies[i].y - offsetY) * tileSize;
       if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
         u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
       }
@@ -707,8 +724,8 @@ void updateDamsel() {
   }
 
   // Calculate distance to player
-  int dx = playerX - round(damsel[0].x);
-  int dy = playerY - round(damsel[0].y);
+  int dx = round(playerX) - round(damsel[0].x);
+  int dy = round(playerY) - round(damsel[0].y);
   int distanceSquared = dx * dx + dy * dy;
 
   // Check if the damsel should follow the player
@@ -788,8 +805,8 @@ void updateDamsel() {
 }
 
 void renderDamsel() {
-  int screenX = (damsel[0].x - offsetX) * tileSize;
-  int screenY = (damsel[0].y - offsetY) * tileSize;
+  float screenX = (damsel[0].x - offsetX) * tileSize;
+  float screenY = (damsel[0].y - offsetY) * tileSize;
   if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
     u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
   }
@@ -846,8 +863,8 @@ void updateProjectiles() {
 void renderProjectiles() {
     for (int i = 0; i < maxProjectiles; i++) {
         if (projectiles[i].active) {
-          int screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
-          int screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
+          float screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
+          float screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
           u8g2.drawDisc(screenX, screenY, 1);
         }
     }
@@ -868,88 +885,112 @@ void renderUI() {
   u8g2.drawFrame(0, 113, 128, 15);
 }
 
-// Handle player input and update position
+int shootDelay = 0;
+bool reloading;
 void handleInput() {
-  // Replace this with actual input handling for buttons or joystick
-  if (Serial.available() > 0) {
-    char input = Serial.read();
-    int newX = playerX;
-    int newY = playerY;
+  float newX = playerX;
+  float newY = playerY;
 
-    if (input == 'w') {
-      playerDY = -1;
-      playerDX = 0;
-      newY--;//up
+  // Read button states (inverted because of pull-up resistors)
+  bool upPressed = !digitalRead(BUTTON_UP_PIN);
+  bool downPressed = !digitalRead(BUTTON_DOWN_PIN);
+  bool leftPressed = !digitalRead(BUTTON_LEFT_PIN);
+  bool rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
+  bool bPressed = !digitalRead(BUTTON_B_PIN);
+  //bool aPressed = !digitalRead(BUTTON_A_PIN);
+
+  if (upPressed) {
+    playerDY = -1;
+    playerDX = 0;
+    newY -= 0.1; // Move up
+  } else if (downPressed) {
+    playerDY = 1;
+    playerDX = 0;
+    newY += 0.1; // Move down
+  } else if (leftPressed) {
+    playerDX = -1;
+    playerDY = 0;
+    playerSprite = playerSpriteLeft;
+    newX -= 0.1; // Move left
+  } else if (rightPressed) {
+    playerDX = 1;
+    playerDY = 0;
+    playerSprite = playerSpriteRight;
+    newX += 0.1; // Move right
+  }
+
+  if (bPressed && !reloading) {
+    shootProjectile(playerDX, playerDY); // Shoot in current direction
+    reloading = true;
+  }
+
+  if (reloading) {
+    shootDelay++;
+    if (shootDelay >= 10) {
+      reloading = false;
+      shootDelay = 0;
     }
+  }
 
-    if (input == 's') {
-      playerDY = 1;
-      playerDX = 0;
-      newY++;//down
-    }
+  int rNewX = round(newX);
+  int rNewY = round(newY);
 
-    if (input == 'a') {
-      playerDX = -1;
-      playerDY = 0;
-      playerSprite = playerSpriteLeft;
-      newX--;
-    }
-    if (input == 'd') {
-      playerDX = 1;
-      playerDY = 0;
-      playerSprite = playerSpriteRight;
-      newX++;
-    }
+  // Check collision with walls
+  if (dungeonMap[rNewY][rNewX] == 1 || dungeonMap[rNewY][rNewX] == 4 || dungeonMap[rNewY][rNewX] == 0) {
+    playerX = newX;
+    playerY = newY;
 
-    if (input == 'e') {
-      shootProjectile(playerDX, playerDY);
-    }
+    // Update viewport offset if needed
+    if (playerX - offsetX < 2 && offsetX > 0) offsetX -= scrollSpeed;
+    if (playerX - offsetX > viewportWidth - 3 && offsetX < mapWidth - viewportWidth) offsetX += scrollSpeed;
+    if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
+    if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
+  }
 
-    //Serial.println(playerX);
-    //Serial.println(playerY);
+  int rPx = round(playerX);
+  int rPy = round(playerY);
 
-    // Check collision with walls
-    if (dungeonMap[newY][newX] == 1 || dungeonMap[newY][newX] == 4 || dungeonMap[newY][newX] == 0) {
-      playerX = newX;
-      playerY = newY;
-
-      // Update viewport offset if needed
-      if (playerX - offsetX < 2 && offsetX > 0) offsetX--;
-      if (playerX - offsetX > viewportWidth - 3 && offsetX < mapWidth - viewportWidth) offsetX++;
-      if (playerY - offsetY < 2 && offsetY > 0) offsetY--;
-      if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY++;
-    }
-
-    // Check if the player reached the exit
-    if (dungeonMap[playerY][playerX] == 4) {
-      Serial.println("You reached the exit!");
-      level += 1;
-      generateDungeon(); // Generate a new dungeon
-      spawnEnemies();
-    }
+  // Check if the player reached the exit
+  if (dungeonMap[rPy][rPx] == 4) {
+    Serial.println("You reached the exit!");
+    level += 1;
+    generateDungeon(); // Generate a new dungeon
+    spawnEnemies();
   }
 }
 
-int switchDelay = 1500;
+bool pressed;
 int page = 1;
+int pageDelay = 0;
 void gameOver() {
-  switchDelay--;
-  if (switchDelay == 0) {
+  bool bPressed = !digitalRead(BUTTON_B_PIN);
+  bool aPressed = !digitalRead(BUTTON_A_PIN);
+
+  if (aPressed && !pressed) {
     page++;
     if (page == 3) {
       page = 1;
     }
-    switchDelay = 1500;
+    pressed = true;
   }
 
-  char input = Serial.read();
+  if (!aPressed) {
+    pageDelay = 0;
+    pressed = false;
+  }
+
+  if (pressed) {
+    pageDelay++;
+    if (pageDelay >= 50) {
+      pageDelay = 0;
+      pressed = false;
+    }
+  }
 
   char Lvl[7];
   snprintf(Lvl, sizeof(Lvl), "%d", level);
   char KLLS[7];
   snprintf(KLLS, sizeof(KLLS), "%d", kills);
-  char Nxtpage[6];
-  snprintf(Nxtpage, sizeof(Nxtpage), "%d", switchDelay);
   
   int lvlHighscore;
   lvlHighscore = EEPROM.read(lvlHighscoreAddress);
@@ -992,14 +1033,15 @@ void gameOver() {
     u8g2.drawStr(15, 102, "Kll Highscore:");
     u8g2.drawStr(100, 102, KHighscore);
 
-    u8g2.drawStr(15, 114, "Next page in:");
-    u8g2.drawStr(94, 114, Nxtpage);
+    u8g2.drawStr(15, 114, "[A] next page");
   } else if (page == 2) {
     u8g2.drawStr(15, 54, "next page");
+
+    u8g2.drawStr(15, 114, "[A] next page");
   }
 
   u8g2.sendBuffer();
-  if (input == 'w' || input == 'a' || input == 's' || input == 'd') {
+  if (bPressed) {
     playerHP = 100;
     level = 1;
     generateDungeon();
