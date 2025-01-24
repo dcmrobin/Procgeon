@@ -414,7 +414,7 @@ void loop() {
     }
   }
   else {
-    //gameOver();
+    gameOver();
   }
 }
 
