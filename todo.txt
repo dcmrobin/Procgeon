@@ -1,5 +1,3 @@
 Different potions like black potion, red potion, etc. would have different effects that are randomized in the setup(). so one boot up black potion could heal, a different bootup black could hurt.
 
 There could be traps
-
-The damsel is really hard to not shoot, so she needs to move to the tile behind the player when available. so if the player moves to the west, the damsel would be one tile to the east of the player. That kind of thing.
