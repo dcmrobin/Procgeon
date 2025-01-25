@@ -855,9 +855,15 @@ void updateDamsel() {
     damselMoveDelay++;
   }
 
+  float destinationX;
+  float destinationY;
+
+  destinationX = playerDX == 1 ? playerX - 1 : playerDX == -1 ? playerX + 1 : playerX;
+  destinationY = playerDY == 1 ? playerY - 1 : playerDY == -1 ? playerY + 1 : playerY;
+
   // Calculate distance to player
-  int dx = round(playerX) - round(damsel[0].x);
-  int dy = round(playerY) - round(damsel[0].y);
+  int dx = round(destinationX) - round(damsel[0].x);
+  int dy = round(destinationY) - round(damsel[0].y);
   int distanceSquared = dx * dx + dy * dy;
 
   // Check if the damsel should follow the player
