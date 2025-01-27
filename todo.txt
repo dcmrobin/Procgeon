@@ -1,3 +1,10 @@
 Different potions like black potion, red potion, etc. would have different effects that are randomized in the setup(). so one boot up black potion could heal, a different bootup black could hurt.
 
 There could be traps
+
+If you kill or don't get the damsel, it will be several levels until another one spawns.
+
+Each time you manage to guide the damsel to the exit so that she is with you on the next level, there will be a small chance for her to be kidnapped by a bad guy (there'll be an art screen that'll show at the beginning of the level of the bad guy holding the struggling damsel) and you'll have to find her in the current level you're on.
+
+There could be a level of "love" or "loyalty" or "bond" or "trust" between you and the current damsel, which grows with each level you manage to guide her through and each time you rescue her. It'll reset if you don't get her or kill her though of course. I'm not exactly sure what could happen when that level of love reaches a certain point. We'll see.
+
