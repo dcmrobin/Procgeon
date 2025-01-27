@@ -756,24 +756,46 @@ void handleInput() {
   bool bPressed = !digitalRead(BUTTON_B_PIN);
   //bool aPressed = !digitalRead(BUTTON_A_PIN);
 
-  if (upPressed) {
+  if (upPressed && !leftPressed && !rightPressed) {
     playerDY = -1;
     playerDX = 0;
     newY -= 0.1; // Move up
-  } else if (downPressed) {
+  } else if (downPressed && !leftPressed && !rightPressed) {
     playerDY = 1;
     playerDX = 0;
     newY += 0.1; // Move down
-  } else if (leftPressed) {
+  } else if (leftPressed && !upPressed && !downPressed) {
     playerDX = -1;
     playerDY = 0;
     playerSprite = playerSpriteLeft;
     newX -= 0.1; // Move left
-  } else if (rightPressed) {
+  } else if (rightPressed && !upPressed && !downPressed) {
     playerDX = 1;
     playerDY = 0;
     playerSprite = playerSpriteRight;
     newX += 0.1; // Move right
+  } else if (upPressed && leftPressed) {
+    playerDY = -1;
+    playerDX = -1;
+    newY -= 0.1; // Move up & left
+    newX -= 0.1; // Move up & left
+  } else if (upPressed && rightPressed) {
+    playerDY = -1;
+    playerDX = 1;
+    newY -= 0.1; // Move up & right
+    newX += 0.1; // Move up & left
+  } else if (downPressed && leftPressed) {
+    playerDX = -1;
+    playerDY = 1;
+    playerSprite = playerSpriteLeft;
+    newX -= 0.1; // Move left & down
+    newY += 0.1; // Move up & left
+  } else if (downPressed && rightPressed) {
+    playerDX = 1;
+    playerDY = 1;
+    playerSprite = playerSpriteRight;
+    newX += 0.1; // Move right & down
+    newY += 0.1; // Move up & left
   }
 
   if (bPressed && !reloading) {
