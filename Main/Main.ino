@@ -1,6 +1,7 @@
 #include <U8g2lib.h>
 #include <EEPROM.h>
 #include "Sprites.h"
+#include "Dungeon.h"
 
 // OLED display pins
 #define OLED_MOSI 11
@@ -15,10 +16,6 @@
 #define BUTTON_RIGHT_PIN 5
 #define BUTTON_B_PIN 1
 #define BUTTON_A_PIN 0
-
-const int mapWidth = 64;   // Total map width in tiles
-const int mapHeight = 64;  // Total map height in tiles
-const int tileSize = 8;    // Size of each tile (in pixels)
 
 // Viewport size (in tiles)
 const int viewportWidth = 128 / tileSize;
@@ -43,9 +40,6 @@ bool statusScreen = false;
 unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 const char* deathCause = "";
-
-// Dungeon map (2D array)
-int dungeonMap[mapHeight][mapWidth];
 
 struct Enemy {
   float x, y;
