@@ -321,44 +321,6 @@ void generateDungeon() {
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
 }
 
-// Carve a horizontal corridor
-void carveHorizontalCorridor(int x1, int x2, int y) {
-  if (x1 > x2) swap(x1, x2);
-  for (int x = x1; x <= x2; x++) {
-    dungeonMap[y][x] = 1; // Floor
-  }
-}
-
-// Carve a vertical corridor
-void carveVerticalCorridor(int y1, int y2, int x) {
-  if (y1 > y2) swap(y1, y2);
-  for (int y = y1; y <= y2; y++) {
-    dungeonMap[y][x] = 1; // Floor
-  }
-}
-
-// Utility function to swap values
-void swap(int &a, int &b) {
-  int temp = a;
-  a = b;
-  b = temp;
-}
-
-// Count surrounding walls for smoothing
-int countWalls(int x, int y) {
-  int wallCount = 0;
-  for (int dy = -1; dy <= 1; dy++) {
-    for (int dx = -1; dx <= 1; dx++) {
-      if (dx != 0 || dy != 0) {
-        if (dungeonMap[y + dy][x + dx] == 2) {
-          wallCount++;
-        }
-      }
-    }
-  }
-  return wallCount;
-}
-
 // Render the visible portion of the dungeon
 void renderDungeon() {
   for (int y = 0; y < viewportHeight + 1; y++) { // +1 to handle partial tiles at edges
