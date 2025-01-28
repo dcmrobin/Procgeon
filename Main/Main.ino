@@ -462,64 +462,70 @@ void gameOver() {
 }
 
 void showStatusScreen() {
-  bool bPressed = !digitalRead(BUTTON_B_PIN);
+  static bool bPressedLastFrame = false; // Tracks the button state in the previous frame
+  static bool damselKidnapScreen = false; // Tracks if we are showing the kidnap screen
+  int randomChance = random(1, 3);
+
+  bool bPressed = !digitalRead(BUTTON_B_PIN); // Check current button state
 
   u8g2.clearBuffer();
 
-  if (level > levelOfDamselDeath + 3) {
-    if (!damsel[0].dead && damsel[0].followingPlayer) {
-      u8g2.drawXBMP(0, -10, 128, 128, rescueDamselScreen);
-      u8g2.drawStr(0, 125, "You rescued the Damsel!");
+  if (!damselKidnapScreen) {
+    if (level > levelOfDamselDeath + 3) {
+      if (!damsel[0].dead && damsel[0].followingPlayer) {
+        u8g2.drawXBMP(0, -10, 128, 128, rescueDamselScreen);
+        u8g2.drawStr(0, 125, "You rescued the Damsel!");
+      } else {
+        u8g2.drawStr(0, 125, "Error.");
+      }
+    } else if (level == levelOfDamselDeath) {
+      if (damsel[0].dead) {
+        u8g2.drawXBMP(0, -10, 128, 128, deadDamselScreen);
+        u8g2.drawStr(0, 105, "You killed the Damsel!");
+        u8g2.drawStr(0, 115, "How could you!");//                                                   change to "she trusted you!" and add "she loved you!" when the level of love (implement later) is high enough
+      } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
+        //                                                                          bitmap of damsel being alone
+        u8g2.drawStr(0, 125, "You left the Damsel!");
+      }
     } else {
-      u8g2.drawStr(0, 125, "Error.");
-      //if(damsel[0].active){u8g2.drawStr(0, 115, "Damsel was active.");}else{u8g2.drawStr(0, 115, "Damsel wasn't active.");}
-      //if(damsel[0].dead){u8g2.drawStr(0, 105, "Damsel was dead.");}else{u8g2.drawStr(0, 105, "Damsel was alive.");}
-      //if(damsel[0].followingPlayer){u8g2.drawStr(0, 95, "Damsel was following.");}else{u8g2.drawStr(0, 95, "Damsel wasn't following.");}
-      //if(damsel[0].x > 2000 && damsel[0].y > 2000){u8g2.drawStr(0, 85, "Damsel was outside map.");}else{u8g2.drawStr(0, 85, "Damsel was inside map.");}
-    }
-  } else if (level == levelOfDamselDeath) {
-    if (damsel[0].dead) {
-      u8g2.drawXBMP(0, -10, 128, 128, deadDamselScreen);
-      u8g2.drawStr(0, 105, "You killed the Damsel!");
-
-      // implement damsellovelevel in future
-      //if (damselLoveLevel > 2) {
-        u8g2.drawStr(0, 115, "How could you!");
-      //} else {
-        //u8g2.drawStr(0, 115, "She trusted you!");
-      //}
-      //if (damselLoveLevel > 10) {
-        //u8g2.drawStr(0, 125, "She loved you!");
-      //}
-
-    } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
-      u8g2.drawStr(0, 125, "You left the Damsel!");
+      //                                                                              bitmap of wizard being alone
+      u8g2.drawStr(0, 125, "You progress. Alone.");
     }
   } else {
-    u8g2.drawStr(0, 125, "You progress.");
+    // Show the kidnap screen
+    u8g2.drawStr(0, 125, "The Damsel was kidnapped!");
   }
 
   u8g2.sendBuffer();
 
-  if (bPressed && statusScreen) {
-    bool rescued = false;
-    if (damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer) {
-      rescued = true;
-    }
+  // Handle button press logic
+  if (bPressed && !bPressedLastFrame) { // Detect new button press
+    if (damselKidnapScreen) {
+      // Exit the kidnap screen
+      damselKidnapScreen = false;
+      statusScreen = false;
+    } else if (statusScreen) {
+      bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
 
-    level += 1;
-    playerDX = 0;
-    playerDY = 1;
-    statusScreen = false;
-    generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level); // Generate a new dungeon
-    for (int i = 0; i < maxProjectiles; i++) {
-      projectiles[i].active = false;
-    }
-    spawnEnemies(playerX, playerY);
+      level += 1;
+      playerDX = 0;
+      playerDY = 1;
+      statusScreen = false;
+      generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level); // Generate a new dungeon
+      for (int i = 0; i < maxProjectiles; i++) {
+        projectiles[i].active = false;
+      }
+      spawnEnemies(playerX, playerY);
 
-    if (rescued) {
-      damsel[0].x = playerX;
-      damsel[0].y = playerY - 1;
+      if (rescued && randomChance == 3) {
+        damselKidnapScreen = true; // Switch to the kidnap screen
+        statusScreen = true;       // Keep status screen active
+      } else if (rescued) {
+        damsel[0].x = playerX;
+        damsel[0].y = playerY - 1;
+      }
     }
   }
+
+  bPressedLastFrame = bPressed; // Update last frame's button state
 }
