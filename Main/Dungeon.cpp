@@ -4,7 +4,7 @@
 
 int dungeonMap[mapHeight][mapWidth];
 
-void generateDungeon(float& playerX, float& playerY, Damsel& damsel) {
+void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOfDamselDeath, int level) {
   // Initialize map with walls
   for (int y = 0; y < mapHeight; y++) {
     for (int x = 0; x < mapWidth; x++) {
@@ -106,43 +106,50 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel) {
     }
   }
 
-  // Generate the damsel's cell
-  int damselRoomWidth = 7;
-  int damselRoomHeight = 5;
-  int damselRoomX, damselRoomY;
+  if (level > levelOfDamselDeath + 3) {
+    // Generate the damsel's cell
+    int damselRoomWidth = 7;
+    int damselRoomHeight = 5;
+    int damselRoomX, damselRoomY;
 
-  // Find a location far from the start room
-  do {
-    damselRoomX = random(1, mapWidth - damselRoomWidth - 1);
-    damselRoomY = random(1, mapHeight - damselRoomHeight - 1);
-  } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
+    // Find a location far from the start room
+    do {
+      damselRoomX = random(1, mapWidth - damselRoomWidth - 1);
+      damselRoomY = random(1, mapHeight - damselRoomHeight - 1);
+    } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
 
-  // Create the damsel's cell
-  for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
-    for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
-      if ((y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) && x >= damselRoomX && x < damselRoomX + damselRoomWidth) {
-        dungeonMap[y][x] = 3; // Walls using barsSprite
-      } else {
-        dungeonMap[y][x] = 1; // Floor
+    // Create the damsel's cell
+    for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
+      for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
+        if ((y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) && x >= damselRoomX && x < damselRoomX + damselRoomWidth) {
+          dungeonMap[y][x] = 3; // Walls using barsSprite
+        } else {
+          dungeonMap[y][x] = 1; // Floor
+        }
       }
     }
+
+    // Connect the damsel's cell to the dungeon
+    int centerX = damselRoomX + damselRoomWidth / 2;
+    int centerY = damselRoomY + damselRoomHeight / 2;
+    int startCenterX = startRoomX + startRoomWidth / 2;
+    int startCenterY = startRoomY + startRoomHeight / 2;
+
+    carveHorizontalCorridor(startCenterX, centerX, startCenterY);
+    carveVerticalCorridor(startCenterY, centerY, centerX);
+
+    // Place the damsel in the cell
+    damsel.x = centerX-1;
+    damsel.y = centerY-1;
+    damsel.speed = 0.1;
+    damsel.followingPlayer = false;
+    damsel.dead = false;
+    damsel.active = true;
+  } else {
+    damsel.x = 3000;
+    damsel.y = 3000;
+    damsel.active = false;
   }
-
-  // Connect the damsel's cell to the dungeon
-  int centerX = damselRoomX + damselRoomWidth / 2;
-  int centerY = damselRoomY + damselRoomHeight / 2;
-  int startCenterX = startRoomX + startRoomWidth / 2;
-  int startCenterY = startRoomY + startRoomHeight / 2;
-
-  carveHorizontalCorridor(startCenterX, centerX, startCenterY);
-  carveVerticalCorridor(startCenterY, centerY, centerX);
-
-  // Place the damsel in the cell
-  damsel.x = centerX-1;
-  damsel.y = centerY-1;
-  damsel.speed = 0.1;
-  damsel.followingPlayer = false;
-  damsel.dead = false;
 
   dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;
 
@@ -158,12 +165,15 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel) {
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
 }
 
-void spawnEnemies() {
+void spawnEnemies(float playerX, float playerY) {
   for (int i = 0; i < maxEnemies; i++) {
     while (true) {
       int ex = random(0, mapWidth);
       int ey = random(0, mapHeight);
-      if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
+
+      // Check if the tile is a floor and if it's outside the player's radius
+      if (dungeonMap[ey][ex] == 1 && 
+          sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) { // 10-unit radius check
         enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
         break;
       }

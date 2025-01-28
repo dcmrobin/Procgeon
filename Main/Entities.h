@@ -11,6 +11,7 @@ struct Damsel {
     float speed;
     bool dead;
     bool followingPlayer;
+    bool active;
 };
 extern Damsel damsel[1];
 
@@ -35,7 +36,7 @@ extern Projectile projectiles[maxProjectiles];
 
 void updateEnemies(int& playerHP, float playerX, float playerY, const char*& deathCause);
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY);
-void updateProjectiles(int& kills);
+void updateProjectiles(int& kills, int& levelOfDamselDeath, int level);
 void moveDamselToPos(float posX, float posY);
 
 #endif

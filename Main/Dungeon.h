@@ -10,8 +10,8 @@
 
 extern int dungeonMap[mapHeight][mapWidth];
 
-void generateDungeon(float& playerX, float& playerY, Damsel& damsel);
-void spawnEnemies();
+void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOfDamselDeath, int level);
+void spawnEnemies(float playerX, float playerY);
 void setTile(int tileX, int tileY, int tileType);
 
 #endif

@@ -2,8 +2,6 @@ Different potions like black potion, red potion, etc. would have different effec
 
 There could be traps
 
-If you kill or don't get the damsel, it will be several levels until another one spawns.
-
 Each time you manage to guide the damsel to the exit so that she is with you on the next level, there will be a small chance for her to be kidnapped by a bad guy (there'll be an art screen that'll show at the beginning of the level of the bad guy holding the struggling damsel) and you'll have to find her in the current level you're on.
 
 There could be a level of "love" or "loyalty" or "bond" or "trust" between you and the current damsel, which grows with each level you manage to guide her through and each time you rescue her. It'll reset if you don't get her or kill her though of course.
@@ -12,3 +10,4 @@ Right now on the damsel death screen it says "you killed the damsel... how could
 
 Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her. The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel.
 
+There needs to be some sort of minimap.

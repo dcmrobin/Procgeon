@@ -11,6 +11,9 @@ int damselMoveDelay = 0;
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY) {
   if (!damsel[0].dead) {
     damselMoveDelay++;
+  } else {
+    damsel[0].followingPlayer = false;
+    return;
   }
 
   float destinationX;
@@ -186,7 +189,7 @@ void updateEnemies(int& playerHP, float playerX, float playerY, const char*& dea
   }
 }
 
-void updateProjectiles(int& kills) {
+void updateProjectiles(int& kills, int& levelOfDamselDeath, int level) {
   for (int i = 0; i < maxProjectiles; i++) {
     if (projectiles[i].active) {
       projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
@@ -210,7 +213,9 @@ void updateProjectiles(int& kills) {
           }
           projectiles[i].active = false; // Deactivate the bullet
         } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
+          levelOfDamselDeath = level;
           damsel[0].dead = true;
+          damsel[0].active = false;
           projectiles[i].active = false;
         }
       }

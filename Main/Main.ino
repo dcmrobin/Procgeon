@@ -41,6 +41,7 @@ bool statusScreen = false;
 unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 const char* deathCause = "";
+int levelOfDamselDeath = -4;
 
 int playerDX;
 int playerDY;
@@ -71,8 +72,8 @@ void setup() {
   randomSeed(generateRandomSeed());
 
   // Generate a random dungeon
-  generateDungeon(playerX, playerY, damsel[0]);
-  spawnEnemies();
+  generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
+  spawnEnemies(playerX, playerY);
 }
 
 void loop() {
@@ -87,7 +88,7 @@ void loop() {
         updateScrolling();
         updateDamsel(playerDX, playerDY, playerX, playerY);
         updateEnemies(playerHP, playerX, playerY, deathCause);
-        updateProjectiles(kills);
+        updateProjectiles(kills, levelOfDamselDeath, level);
 
         // Render the game
         u8g2.clearBuffer();
@@ -331,6 +332,9 @@ void handleInput() {
       setTile((int)playerX, (int)playerY, 4);
     } else if (input == '8') {
       moveDamselToPos(playerX, playerY);
+      if (!damsel[0].active) {
+        Serial.println("The damsel is not active.");
+      }
     }
   }
 
@@ -355,7 +359,10 @@ void handleInput() {
   // Check if the player reached the exit
   if (dungeonMap[rPy][rPx] == 4) {
     Serial.println("You reached the exit!");
-    level += 1;
+    if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
+      levelOfDamselDeath = level;
+      damsel[0].active = false;
+    }
     statusScreen = true;
   }
 }
@@ -445,11 +452,12 @@ void gameOver() {
   if (bPressed) {
     playerHP = 100;
     level = 1;
-    generateDungeon(playerX, playerY, damsel[0]);
+    levelOfDamselDeath = -4;
+    generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }
-    spawnEnemies();
+    spawnEnemies(playerX, playerY);
   }
 }
 
@@ -458,26 +466,48 @@ void showStatusScreen() {
 
   u8g2.clearBuffer();
 
-  if (damsel[0].followingPlayer) {
-    u8g2.drawXBMP(0, -10, 128, 128, rescueDamselScreen);
-    u8g2.drawStr(0, 125, "You rescued the Damsel!");
-  } else if (damsel[0].dead) {
-    u8g2.drawXBMP(0, -10, 128, 128, deadDamselScreen);
-    u8g2.drawStr(0, 105, "You killed the Damsel...");
-    u8g2.drawStr(0, 115, "How could you!");
-    u8g2.drawStr(0, 125, "She trusted you!");
-  } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
-    u8g2.drawStr(0, 125, "You forgot the Damsel!");
+  if (level > levelOfDamselDeath + 3) {
+    if (!damsel[0].dead && damsel[0].followingPlayer) {
+      u8g2.drawXBMP(0, -10, 128, 128, rescueDamselScreen);
+      u8g2.drawStr(0, 125, "You rescued the Damsel!");
+    } else {
+      u8g2.drawStr(0, 125, "Error.");
+      //if(damsel[0].active){u8g2.drawStr(0, 115, "Damsel was active.");}else{u8g2.drawStr(0, 115, "Damsel wasn't active.");}
+      //if(damsel[0].dead){u8g2.drawStr(0, 105, "Damsel was dead.");}else{u8g2.drawStr(0, 105, "Damsel was alive.");}
+      //if(damsel[0].followingPlayer){u8g2.drawStr(0, 95, "Damsel was following.");}else{u8g2.drawStr(0, 95, "Damsel wasn't following.");}
+      //if(damsel[0].x > 2000 && damsel[0].y > 2000){u8g2.drawStr(0, 85, "Damsel was outside map.");}else{u8g2.drawStr(0, 85, "Damsel was inside map.");}
+    }
+  } else if (level == levelOfDamselDeath) {
+    if (damsel[0].dead) {
+      u8g2.drawXBMP(0, -10, 128, 128, deadDamselScreen);
+      u8g2.drawStr(0, 105, "You killed the Damsel!");
+
+      // implement damsellovelevel in future
+      //if (damselLoveLevel > 2) {
+        u8g2.drawStr(0, 115, "How could you!");
+      //} else {
+        //u8g2.drawStr(0, 115, "She trusted you!");
+      //}
+      //if (damselLoveLevel > 10) {
+        //u8g2.drawStr(0, 125, "She loved you!");
+      //}
+
+    } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
+      u8g2.drawStr(0, 125, "You left the Damsel!");
+    }
+  } else {
+    u8g2.drawStr(0, 125, "You progress.");
   }
 
   u8g2.sendBuffer();
 
   if (bPressed && statusScreen) {
+    level += 1;
     statusScreen = false;
-    generateDungeon(playerX, playerY, damsel[0]); // Generate a new dungeon
+    generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level); // Generate a new dungeon
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }
-    spawnEnemies();
+    spawnEnemies(playerX, playerY);
   }
 }
