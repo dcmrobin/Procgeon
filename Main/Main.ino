@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include "Sprites.h"
 #include "Dungeon.h"
+#include "HelperFunctions.h"
 
 // OLED display pins
 #define OLED_MOSI 11
@@ -9,7 +10,6 @@
 #define OLED_DC 7
 #define OLED_CS 10
 #define OLED_RST 9
-#define seedPin A0
 #define BUTTON_UP_PIN    2
 #define BUTTON_DOWN_PIN  3
 #define BUTTON_LEFT_PIN  4
@@ -951,29 +951,4 @@ void showStatusScreen() {
     generateDungeon(); // Generate a new dungeon
     spawnEnemies();
   }
-}
-
-uint32_t generateRandomSeed()
-{
-  uint8_t  seedBitValue  = 0;
-  uint8_t  seedByteValue = 0;
-  uint32_t seedWordValue = 0;
- 
-  for (uint8_t wordShift = 0; wordShift < 4; wordShift++)     // 4 bytes in a 32 bit word
-  {
-    for (uint8_t byteShift = 0; byteShift < 8; byteShift++)   // 8 bits in a byte
-    {
-      for (uint8_t bitSum = 0; bitSum <= 8; bitSum++)         // 8 samples of analog pin
-      {
-        seedBitValue = seedBitValue + (analogRead(seedPin) & 0x01);                // Flip the coin eight times, adding the results together
-      }
-      delay(1);                                                                    // Delay a single millisecond to allow the pin to fluctuate
-      seedByteValue = seedByteValue | ((seedBitValue & 0x01) << byteShift);        // Build a stack of eight flipped coins
-      seedBitValue = 0;                                                            // Clear out the previous coin value
-    }
-    seedWordValue = seedWordValue | (uint32_t)seedByteValue << (8 * wordShift);    // Build a stack of four sets of 8 coins (shifting right creates a larger number so cast to 32bit)
-    seedByteValue = 0;                                                             // Clear out the previous stack value
-  }
-  return (seedWordValue);
- 
 }
