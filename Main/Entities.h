@@ -23,4 +23,6 @@ struct Enemy {
 };
 extern Enemy enemies[maxEnemies];
 
+void updateEnemies(int& playerHP, float playerX, float playerY, const char*& deathCause);
+
 #endif
