@@ -36,5 +36,6 @@ extern Projectile projectiles[maxProjectiles];
 void updateEnemies(int& playerHP, float playerX, float playerY, const char*& deathCause);
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY);
 void updateProjectiles(int& kills);
+void moveDamselToPos(float posX, float posY);
 
 #endif

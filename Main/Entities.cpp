@@ -217,3 +217,8 @@ void updateProjectiles(int& kills) {
     }
   }
 }
+
+void moveDamselToPos(float posX, float posY) {
+  damsel[0].x = posX;
+  damsel[0].y = posY;
+}

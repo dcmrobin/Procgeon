@@ -329,6 +329,8 @@ void handleInput() {
     char input = Serial.read();
     if (input == '7') {
       setTile((int)playerX, (int)playerY, 4);
+    } else if (input == '8') {
+      moveDamselToPos(playerX, playerY);
     }
   }
 
