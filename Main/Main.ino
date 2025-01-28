@@ -42,17 +42,6 @@ unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 const char* deathCause = "";
 
-struct Enemy {
-  float x, y;
-  int hp;
-  bool chasingPlayer;
-  float moveAmount;
-  const char* name;
-  int attackDelay;
-};
-const int maxEnemies = 30; // Adjust the number of enemies as needed
-Enemy enemies[maxEnemies];
-
 struct Projectile {
   float x, y;
   float dx, dy;
