@@ -95,7 +95,7 @@ void loop() {
         // Update game state
         handleInput();
         updateScrolling();
-        updateDamsel();
+        updateDamsel(playerDX, playerDY, playerX, playerY);
         updateEnemies(playerHP, playerX, playerY, deathCause);
         updateProjectiles();
 
@@ -211,99 +211,6 @@ void renderEnemies() {
       if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
         u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
       }
-    }
-  }
-}
-
-int damselMoveDelay = 0;
-void updateDamsel() {
-  if (!damsel[0].dead) {
-    damselMoveDelay++;
-  }
-
-  float destinationX;
-  float destinationY;
-
-  destinationX = playerDX == 1 ? playerX - 1 : playerDX == -1 ? playerX + 1 : playerX;
-  destinationY = playerDY == 1 ? playerY - 1 : playerDY == -1 ? playerY + 1 : playerY;
-
-  // Calculate distance to player
-  int dx = round(destinationX) - round(damsel[0].x);
-  int dy = round(destinationY) - round(damsel[0].y);
-  int distanceSquared = dx * dx + dy * dy;
-
-  // Check if the damsel should follow the player
-  if (distanceSquared <= 25) { // Follow if within 5 tiles (distance^2 = 25)
-    damsel[0].followingPlayer = true;
-    damsel[0].speed = 0.3;
-  } else {
-    damsel[0].followingPlayer = false;
-    damsel[0].speed = 0.1;
-  }
-
-  if (!damsel[0].followingPlayer) {
-    // Random wandering
-    if (damselMoveDelay >= 30) {
-      int dir = random(0, 4);
-      float nx = damsel[0].x + (dir == 0 ? damsel[0].speed : dir == 1 ? -damsel[0].speed : 0);
-      float ny = damsel[0].y + (dir == 2 ? damsel[0].speed : dir == 3 ? -damsel[0].speed : 0);
-
-      damselSprite = dir == 0 ? damselSpriteRight : dir == 1 ? damselSpriteLeft : damselSprite;
-
-      // Check bounds and avoid walls
-      if (!checkSpriteCollisionWithTileX(nx, damsel[0].x, ny)) {
-        damsel[0].x = nx;
-      }
-      if (!checkSpriteCollisionWithTileY(ny, damsel[0].y, nx)) {
-        damsel[0].y = ny;
-      }
-      damselMoveDelay = 0;
-    }
-  } else {
-    // Following the player
-    if (damselMoveDelay >= 3) {
-      float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
-      float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
-
-      damselSprite = moveX == 1 ? damselHopefullSpriteRight : moveX == -1 ? damselHopefullSpriteLeft : damselSprite;
-
-      // Normalize movement vector
-      float magnitude = sqrt(moveX * moveX + moveY * moveY);
-      if (magnitude > 0) {
-        moveX /= magnitude;
-        moveY /= magnitude;
-      }
-
-      // Attempt to move diagonally first
-      float nx = damsel[0].x + moveX * damsel[0].speed;
-      float ny = damsel[0].y + moveY * damsel[0].speed;
-
-      bool xValid = !checkSpriteCollisionWithTileX(nx, damsel[0].x, damsel[0].y);
-      bool yValid = !checkSpriteCollisionWithTileY(ny, damsel[0].y, damsel[0].x);
-
-      if (xValid && yValid) {
-        // Move diagonally
-        damsel[0].x = nx;
-        damsel[0].y = ny;
-      } else if (xValid) {
-        // Slide along X
-        damsel[0].x = nx;
-      } else if (yValid) {
-        // Slide along Y
-        damsel[0].y = ny;
-      } else {
-        // Both directions blocked, try wall sliding
-        float slideX = damsel[0].x + moveX * damsel[0].speed;
-        float slideY = damsel[0].y;
-
-        if (!checkSpriteCollisionWithTileX(slideX, damsel[0].x, damsel[0].y)) {
-          damsel[0].x = slideX;
-        } else if (!checkSpriteCollisionWithTileY(slideY, damsel[0].y, damsel[0].x)) {
-          damsel[0].y = slideY;
-        }
-      }
-
-      damselMoveDelay = 0;
     }
   }
 }
