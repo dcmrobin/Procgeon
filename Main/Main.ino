@@ -203,19 +203,6 @@ void renderPlayer() {
   }
 }
 
-void spawnEnemies() {
-  for (int i = 0; i < maxEnemies; i++) {
-    while (true) {
-      int ex = random(0, mapWidth);
-      int ey = random(0, mapHeight);
-      if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
-        enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
-        break;
-      }
-    }
-  }
-}
-
 int atkDelayCounter = 0;
 void updateEnemies() {
   atkDelayCounter += 1;

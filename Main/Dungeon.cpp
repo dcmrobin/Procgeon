@@ -157,3 +157,16 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel) {
   dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
 }
+
+void spawnEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    while (true) {
+      int ex = random(0, mapWidth);
+      int ey = random(0, mapHeight);
+      if (dungeonMap[ey][ex] == 1) { // Only spawn on floor tiles
+        enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
+        break;
+      }
+    }
+  }
+}
