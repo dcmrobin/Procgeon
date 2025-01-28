@@ -502,12 +502,24 @@ void showStatusScreen() {
   u8g2.sendBuffer();
 
   if (bPressed && statusScreen) {
+    bool rescued = false;
+    if (damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer) {
+      rescued = true;
+    }
+
     level += 1;
+    playerDX = 0;
+    playerDY = 1;
     statusScreen = false;
     generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level); // Generate a new dungeon
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }
     spawnEnemies(playerX, playerY);
+
+    if (rescued) {
+      damsel[0].x = playerX;
+      damsel[0].y = playerY - 1;
+    }
   }
 }
