@@ -325,6 +325,13 @@ void handleInput() {
     }
   }
 
+  if (Serial.available() > 0) {// for debug purposes
+    char input = Serial.read();
+    if (input == '7') {
+      setTile((int)playerX, (int)playerY, 4);
+    }
+  }
+
   int rNewX = round(newX);
   int rNewY = round(newY);
 

@@ -12,5 +12,6 @@ extern int dungeonMap[mapHeight][mapWidth];
 
 void generateDungeon(float& playerX, float& playerY, Damsel& damsel);
 void spawnEnemies();
+void setTile(int tileX, int tileY, int tileType);
 
 #endif

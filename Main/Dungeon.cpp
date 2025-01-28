@@ -170,3 +170,7 @@ void spawnEnemies() {
     }
   }
 }
+
+void setTile(int tileX, int tileY, int tileType) {
+  dungeonMap[tileY][tileX] = tileType;
+}
