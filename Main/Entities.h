@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #define maxEnemies 30
+#define maxProjectiles 30
 
 struct Damsel {
     float x, y;
@@ -23,7 +24,17 @@ struct Enemy {
 };
 extern Enemy enemies[maxEnemies];
 
+struct Projectile {
+  float x, y;
+  float dx, dy;
+  float speed;
+  float damage;
+  bool active;
+};
+extern Projectile projectiles[maxProjectiles];
+
 void updateEnemies(int& playerHP, float playerX, float playerY, const char*& deathCause);
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY);
+void updateProjectiles(int& kills);
 
 #endif

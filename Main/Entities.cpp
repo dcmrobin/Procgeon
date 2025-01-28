@@ -1,9 +1,11 @@
 #include "Entities.h"
 #include "Sprites.h"
 #include "HelperFunctions.h"
+#include "Dungeon.h"
 
 Damsel damsel[1];
 Enemy enemies[maxEnemies];
+Projectile projectiles[maxProjectiles];
 
 int damselMoveDelay = 0;
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY) {
@@ -179,6 +181,38 @@ void updateEnemies(int& playerHP, float playerX, float playerY, const char*& dea
       }
       if (playerHP <= 0) {
         deathCause = enemies[i].name;
+      }
+    }
+  }
+}
+
+void updateProjectiles(int& kills) {
+  for (int i = 0; i < maxProjectiles; i++) {
+    if (projectiles[i].active) {
+      projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
+      projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
+
+      int projectileTileX = predictXtile(projectiles[i].x);
+      int projectileTileY = predictYtile(projectiles[i].y);
+
+      // Check for collisions with walls or out-of-bounds
+      if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
+          projectiles[i].active = false; // Deactivate the bullet
+          //free(projectiles[i]);
+      }
+
+      // Check for collisions with enemies
+      for (int j = 0; j < maxEnemies; j++) {
+        if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && enemies[j].hp > 0) {
+          enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
+          if (enemies[j].hp <= 0 && projectiles[i].active == true) {
+            kills += 1;
+          }
+          projectiles[i].active = false; // Deactivate the bullet
+        } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
+          damsel[0].dead = true;
+          projectiles[i].active = false;
+        }
       }
     }
   }

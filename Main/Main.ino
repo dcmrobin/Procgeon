@@ -42,16 +42,6 @@ unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 const char* deathCause = "";
 
-struct Projectile {
-  float x, y;
-  float dx, dy;
-  float speed;
-  float damage;
-  bool active;
-};
-const int maxProjectiles = 30;
-Projectile projectiles[maxProjectiles];
-
 int playerDX;
 int playerDY;
 
@@ -97,7 +87,7 @@ void loop() {
         updateScrolling();
         updateDamsel(playerDX, playerDY, playerX, playerY);
         updateEnemies(playerHP, playerX, playerY, deathCause);
-        updateProjectiles();
+        updateProjectiles(kills);
 
         // Render the game
         u8g2.clearBuffer();
@@ -236,38 +226,6 @@ void shootProjectile(float xDir, float yDir) {
           projectiles[i].active = true;
           break;
       }
-  }
-}
-
-void updateProjectiles() {
-  for (int i = 0; i < maxProjectiles; i++) {
-    if (projectiles[i].active) {
-      projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
-      projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
-
-      int projectileTileX = predictXtile(projectiles[i].x);
-      int projectileTileY = predictYtile(projectiles[i].y);
-
-      // Check for collisions with walls or out-of-bounds
-      if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
-          projectiles[i].active = false; // Deactivate the bullet
-          //free(projectiles[i]);
-      }
-
-      // Check for collisions with enemies
-      for (int j = 0; j < maxEnemies; j++) {
-        if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && enemies[j].hp > 0) {
-          enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
-          if (enemies[j].hp <= 0 && projectiles[i].active == true) {
-            kills += 1;
-          }
-          projectiles[i].active = false; // Deactivate the bullet
-        } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
-          damsel[0].dead = true;
-          projectiles[i].active = false;
-        }
-      }
-    }
   }
 }
 
