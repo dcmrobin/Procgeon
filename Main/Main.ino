@@ -474,50 +474,6 @@ void updateEnemies() {
   }
 }
 
-int predictXtile(float x) {
-  return (int)(x + 0.5f); // Always round to the nearest integer
-}
-
-int predictYtile(float y) {
-  return (int)(y + 0.5f); // Always round to the nearest integer
-}
-
-bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
-    int ptx = predictXtile(newX);
-    int cty = round(newY);
-
-    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] == 1);
-
-    if (!xValid) {
-        newX = currentX;
-    }
-
-    return !xValid;
-}
-
-bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX) {
-    int pty = predictYtile(newY);
-    int ctx = round(newX);
-
-    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] == 1);
-
-    if (!yValid) {
-        newY = currentY;
-    }
-
-    return !yValid;
-}
-
-bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y) {
-  // Use predictXtile/predictYtile for consistent rounding
-  int tile1X = predictXtile(sprite1X);
-  int tile1Y = predictYtile(sprite1Y);
-  int tile2X = predictXtile(sprite2X);
-  int tile2Y = predictYtile(sprite2Y);
-
-  return tile1X == tile2X && tile1Y == tile2Y;
-}
-
 void renderEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp > 0) {
