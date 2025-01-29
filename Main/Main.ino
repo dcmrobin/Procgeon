@@ -484,7 +484,7 @@ void showStatusScreen() {
         u8g2.drawStr(0, 105, "You killed the Damsel!");
         u8g2.drawStr(0, 115, "How could you!");//                                                   change to "she trusted you!" and add "she loved you!" when the level of love (implement later) is high enough
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
-        //                                                                          bitmap of damsel being alone
+        u8g2.drawXBMP(0, 0, 128, 128, leftDamselScreen);
         u8g2.drawStr(0, 125, "You left the Damsel!");
       }
     } else {

@@ -10,4 +10,4 @@ Maybe if the level of love is high enough, instead of the damsel following behin
 
 There needs to be some sort of minimap.
 
-Need art for left-damsel, captured-damsel, alone-wizard
+Need art for captured-damsel, alone-wizard
