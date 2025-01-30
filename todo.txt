@@ -1,13 +1,22 @@
-Different potions like black potion, red potion, etc. would have different effects that are randomized in the setup(). so one boot up black potion could heal, a different bootup black could hurt.
+Different potions like black potion, red potion, etc. would have different effects that are randomized in the setup(). So one boot up black potion could heal,
+a different bootup, black could hurt.
 
 There could be traps
 
-There could be a level of "love" or "loyalty" or "bond" or "trust" between you and the current damsel, which grows with each level you manage to guide her through and each time you rescue her. It'll reset if you don't get her or kill her though of course.
+There could be a level of "love" or "loyalty" or "bond" or "trust" between you and the current damsel, which grows with each level you manage to guide her through
+and each time you rescue her. It'll reset if you don't get her or kill her though of course.
 
-Right now on the damsel death screen it says "you killed the damsel... how could you! she trusted you!" but "how could you" could be added when the level of love is above a smallish amount, and it would only add "she trusted you!" when the level of love was above a bigger amount.
+Right now on the damsel death screen it says "you killed the damsel... how could you! she trusted you!" but "how could you" could be added when the level of love
+is above a smallish amount, and it would only add "she trusted you!" when the level of love was above a bigger amount.
 
-Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her. The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel.
+Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her.
+The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel.
 
 There needs to be some sort of minimap.
 
 Need art for captured-damsel, alone-wizard
+
+When I add sound, there could be different music that plays for when the damsel is following you or if you've just killed the damsel or if you're alone.
+For example, the default dungeon music is playing when you first go into the dungeon. Then when you pick up the damsel, the music changes.
+(that'll be the music that plays instead of the default music as long as the damsel is with you) Then if you kill the damsel,
+the music for that dungeon will be sad. Then it'll go back to normal default music.
