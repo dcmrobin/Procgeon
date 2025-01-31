@@ -14,7 +14,7 @@ The "rescuedamselscreen" would change to, instead of the normal one, one where t
 
 There needs to be some sort of minimap.
 
-Need art for captured-damsel, alone-wizard
+Need art for captured-damsel
 
 When I add sound, there could be different music that plays for when the damsel is following you or if you've just killed the damsel or if you're alone.
 For example, the default dungeon music is playing when you first go into the dungeon. Then when you pick up the damsel, the music changes.

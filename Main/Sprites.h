@@ -34,5 +34,6 @@ extern const unsigned char* blobSprite;
 extern const unsigned char rescueDamselScreen[];
 extern const unsigned char deadDamselScreen[];
 extern const unsigned char leftDamselScreen[];
+extern const unsigned char aloneWizardScreen[];
 
 #endif // SPRITES_H

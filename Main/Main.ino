@@ -488,11 +488,11 @@ void showStatusScreen() {
         u8g2.drawStr(0, 125, "You left the Damsel!");
       }
     } else {
-      //                                                                              bitmap of wizard being alone
+      u8g2.drawXBMP(0,0, 128, 128, aloneWizardScreen);
       u8g2.drawStr(0, 125, "You progress. Alone.");
     }
   } else {
-    // Show the kidnap screen
+    //                                                                          Show the kidnap screen
     u8g2.drawStr(0, 125, "The Damsel was kidnapped!");
   }
 
