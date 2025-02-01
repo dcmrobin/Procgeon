@@ -464,7 +464,6 @@ void gameOver() {
 void showStatusScreen() {
   static bool bPressedLastFrame = false; // Tracks the button state in the previous frame
   static bool damselKidnapScreen = false; // Tracks if we are showing the kidnap screen
-  int randomChance = random(1, 3);
 
   bool bPressed = !digitalRead(BUTTON_B_PIN); // Check current button state
 
@@ -492,8 +491,8 @@ void showStatusScreen() {
       u8g2.drawStr(0, 125, "You progress. Alone.");
     }
   } else {
-    //                                                                          Show the kidnap screen
-    u8g2.drawStr(0, 125, "The Damsel was kidnapped!");
+    u8g2.drawXBMP(0,0, 128, 128, capturedDamselScreen);
+    u8g2.drawStr(0, 125, "The Damsel was captured!");
   }
 
   u8g2.sendBuffer();
@@ -516,6 +515,8 @@ void showStatusScreen() {
         projectiles[i].active = false;
       }
       spawnEnemies(playerX, playerY);
+
+      int randomChance = random(1, 5);
 
       if (rescued && randomChance == 3) {
         damselKidnapScreen = true; // Switch to the kidnap screen
