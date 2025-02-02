@@ -18,3 +18,5 @@ When I add sound, there could be different music that plays for when the damsel 
 For example, the default dungeon music is playing when you first go into the dungeon. Then when you pick up the damsel, the music changes.
 (that'll be the music that plays instead of the default music as long as the damsel is with you) Then if you kill the damsel,
 the music for that dungeon will be sad. Then it'll go back to normal default music.
+
+When you walk up to save the damsel, you could just catch a glimps of the baddy disappear from right next to the damsel.

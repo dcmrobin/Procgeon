@@ -142,8 +142,8 @@ void updateScrolling() {
 
 // Render the visible portion of the dungeon
 void renderDungeon() {
-  for (int y = 0; y < viewportHeight + 1; y++) { // +1 to handle partial tiles at edges
-    for (int x = 0; x < viewportWidth + 1; x++) {
+  for (int y = 1; y < viewportHeight + 1; y++) { // +1 to handle partial tiles at edges
+    for (int x = 1; x < viewportWidth + 1; x++) {
       float mapX = x + offsetX;
       float mapY = y + offsetY;
 
@@ -492,7 +492,7 @@ void showStatusScreen() {
     }
   } else {
     u8g2.drawXBMP(0,0, 128, 128, capturedDamselScreen);
-    u8g2.drawStr(0, 125, "The Damsel was captured!");
+    u8g2.drawStr(0, 10, "The Damsel was captured!");
   }
 
   u8g2.sendBuffer();
