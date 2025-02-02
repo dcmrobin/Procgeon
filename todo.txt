@@ -20,3 +20,5 @@ For example, the default dungeon music is playing when you first go into the dun
 the music for that dungeon will be sad. Then it'll go back to normal default music.
 
 When you walk up to save the damsel, you could just catch a glimps of the baddy disappear from right next to the damsel.
+
+There could be chests around the dungeon that would have random loot in them. (a ui for this maybe)
