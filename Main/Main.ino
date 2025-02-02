@@ -29,6 +29,9 @@ float offsetY = 0;
 // Smooth scrolling speed
 const float scrollSpeed = 0.25f;
 
+// Minimap state
+bool showMinimap = false;
+
 // Player position
 float playerX;
 float playerY;
@@ -78,36 +81,71 @@ void setup() {
 
 void loop() {
   unsigned long currentTime = millis();
-  if (playerHP > 0) {
-    if (currentTime - lastUpdateTime >= frameDelay) {
-      lastUpdateTime = currentTime;
 
-      if (!statusScreen) {
-        // Update game state
-        handleInput();
-        updateScrolling();
-        updateDamsel(playerDX, playerDY, playerX, playerY);
-        updateEnemies(playerHP, playerX, playerY, deathCause);
-        updateProjectiles(kills, levelOfDamselDeath, level);
+  if (Serial.available()) {
+      char input = Serial.read();
+      if (input == 'm') {
+          showMinimap = !showMinimap;
+      }
+  }
+  
+  if (showMinimap) {
+      drawMinimap();
+  } else {
+      if (playerHP > 0) {
+      if (currentTime - lastUpdateTime >= frameDelay) {
+        lastUpdateTime = currentTime;
 
-        // Render the game
-        u8g2.clearBuffer();
-        renderDungeon();
-        renderDamsel();
-        renderEnemies();
-        renderProjectiles();
-        renderPlayer();
-        updateAnimations();
-        renderUI();
-        u8g2.sendBuffer();
-      } else {
-        showStatusScreen();
+        if (!statusScreen) {
+          // Update game state
+          handleInput();
+          updateScrolling();
+          updateDamsel(playerDX, playerDY, playerX, playerY);
+          updateEnemies(playerHP, playerX, playerY, deathCause);
+          updateProjectiles(kills, levelOfDamselDeath, level);
+
+          // Render the game
+          u8g2.clearBuffer();
+          renderDungeon();
+          renderDamsel();
+          renderEnemies();
+          renderProjectiles();
+          renderPlayer();
+          updateAnimations();
+          renderUI();
+          u8g2.sendBuffer();
+        } else {
+          showStatusScreen();
+        }
       }
     }
+    else {
+      gameOver();
+    }
   }
-  else {
-    gameOver();
-  }
+}
+
+void drawMinimap() {
+    u8g2.clearBuffer();
+    int mapScale = 2;
+    
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int tile = dungeonMap[y][x];
+            int drawX = x * mapScale;
+            int drawY = y * mapScale;
+            
+            if (tile == 1) continue;
+            if (tile == 2) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
+            if (tile == 3) u8g2.drawCircle(drawX, drawY, mapScale/2);
+        }
+    }
+    
+    int playerMinimapX = (playerX) * mapScale;
+    int playerMinimapY = (playerY) * mapScale;
+    u8g2.drawCircle(playerMinimapX, playerMinimapY, 1);
+    
+    u8g2.sendBuffer();
 }
 
 int blobanimcounter = 0;
