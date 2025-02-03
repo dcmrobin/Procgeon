@@ -19,8 +19,6 @@ For example, the default dungeon music is playing when you first go into the dun
 (that'll be the music that plays instead of the default music as long as the damsel is with you) Then if you kill the damsel,
 the music for that dungeon will be sad. Then it'll go back to normal default music.
 
-When you walk up to save the damsel, you could just catch a glimps of the baddy disappear from right next to the damsel.
-
 There could be chests around the dungeon that would have random loot in them. (a ui for this maybe)
 
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
