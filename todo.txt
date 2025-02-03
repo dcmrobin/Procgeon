@@ -25,4 +25,7 @@ When you walk up to save the damsel, you could just catch a glimps of the baddy 
 
 There could be chests around the dungeon that would have random loot in them. (a ui for this maybe)
 
-Need an inventory when A is pressed
+Need an inventory when A is pressed.
+
+For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
+could you hurt the boss.
