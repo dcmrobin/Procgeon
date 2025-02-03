@@ -29,9 +29,6 @@ float offsetY = 0;
 // Smooth scrolling speed
 const float scrollSpeed = 0.25f;
 
-// Minimap state
-bool showMinimap = false;
-
 // Player position
 float playerX;
 float playerY;
@@ -55,6 +52,20 @@ U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RS
 // Timing variables
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
+
+// UI State
+enum UIState {
+  UI_NORMAL,      // Normal gameplay
+  UI_INVENTORY,   // Inventory screen
+  UI_MINIMAP      // Minimap screen
+};
+
+UIState currentUIState = UI_NORMAL; // Current UI state
+
+// Inventory variables
+const int inventorySize = 5; // Number of inventory slots
+String inventory[inventorySize] = {"Health Potion", "Empty", "Empty", "Empty", "Empty"};
+int selectedInventoryIndex = 0; // Currently selected inventory item
 
 void setup() {
   Serial.begin(9600);
@@ -82,46 +93,144 @@ void setup() {
 void loop() {
   unsigned long currentTime = millis();
 
-  if (Serial.available()) {
-      char input = Serial.read();
-      if (input == 'm') {
-          showMinimap = !showMinimap;
+  if (playerHP > 0) {
+    if (!statusScreen) {
+      // Handle UI state transitions
+      handleUIStateTransitions();
+      // Update and render based on the current UI state
+      switch (currentUIState) {
+        case UI_NORMAL:
+          if (currentTime - lastUpdateTime >= frameDelay) {
+            lastUpdateTime = currentTime;
+            updateGame();
+            renderGame();
+          }
+          break;
+
+        case UI_INVENTORY:
+          renderInventory();
+          handleInventoryNavigation();
+          handleInventoryItemUsage();
+          break;
+
+        case UI_MINIMAP:
+          drawMinimap();
+          break;
       }
-  }
-  
-  if (showMinimap) {
-      drawMinimap();
+    } else {
+      showStatusScreen();
+    }
   } else {
-      if (playerHP > 0) {
-      if (currentTime - lastUpdateTime >= frameDelay) {
-        lastUpdateTime = currentTime;
+    gameOver();
+  }
+}
 
-        if (!statusScreen) {
-          // Update game state
-          handleInput();
-          updateScrolling();
-          updateDamsel(playerDX, playerDY, playerX, playerY);
-          updateEnemies(playerHP, playerX, playerY, deathCause);
-          updateProjectiles(kills, levelOfDamselDeath, level);
+void handleUIStateTransitions() {
+  static bool aPressedLastFrame = false; // Track the previous state of the A button
+  bool aPressed = !digitalRead(BUTTON_A_PIN);
+  bool bPressed = !digitalRead(BUTTON_B_PIN);
 
-          // Render the game
-          u8g2.clearBuffer();
-          renderDungeon();
-          renderDamsel();
-          renderEnemies();
-          renderProjectiles();
-          renderPlayer();
-          updateAnimations();
-          renderUI();
-          u8g2.sendBuffer();
-        } else {
-          showStatusScreen();
-        }
-      }
+  // Handle A button press
+  if (aPressed && !aPressedLastFrame) {
+    switch (currentUIState) {
+      case UI_NORMAL:
+        currentUIState = UI_INVENTORY; // Open inventory
+        break;
+
+      case UI_INVENTORY:
+        currentUIState = UI_MINIMAP; // Switch to minimap
+        break;
+
+      case UI_MINIMAP:
+        currentUIState = UI_NORMAL; // Return to normal gameplay
+        break;
     }
-    else {
-      gameOver();
+  }
+
+  // Handle B button press (only in minimap state)
+  if (bPressed && currentUIState == UI_MINIMAP) {
+    currentUIState = UI_INVENTORY; // Switch back to inventory
+  }
+
+  aPressedLastFrame = aPressed; // Update the previous state of the A button
+}
+
+void renderInventory() {
+  u8g2.clearBuffer();
+
+  // Draw inventory title
+  u8g2.setFont(u8g2_font_ncenB14_tr);
+  u8g2.drawStr(10, 15, "Inventory");
+
+  // Draw inventory items
+  u8g2.setFont(u8g2_font_profont12_tr);
+  for (int i = 0; i < inventorySize; i++) {
+    int yPos = 30 + (i * 12); // Vertical position for each item
+    if (i == selectedInventoryIndex) {
+      u8g2.drawStr(5, yPos, ">"); // Draw cursor
     }
+    u8g2.drawStr(15, yPos, inventory[i].c_str());
+  }
+
+  u8g2.sendBuffer();
+}
+
+void handleInventoryNavigation() {
+  static bool upPressedLastFrame = false;
+  static bool downPressedLastFrame = false;
+  bool upPressed = !digitalRead(BUTTON_UP_PIN);
+  bool downPressed = !digitalRead(BUTTON_DOWN_PIN);
+
+  if (upPressed && selectedInventoryIndex > 0 && !upPressedLastFrame) {
+    selectedInventoryIndex--; // Move cursor up
+  }
+
+  if (downPressed && selectedInventoryIndex < inventorySize - 1 && !downPressedLastFrame) {
+    selectedInventoryIndex++; // Move cursor down
+  }
+
+  upPressedLastFrame = upPressed;
+  downPressedLastFrame = downPressed;
+}
+
+void handleInventoryItemUsage() {
+  static bool bPressedLastFrame = false;
+  bool bPressed = !digitalRead(BUTTON_B_PIN);
+
+  if (bPressed && currentUIState == UI_INVENTORY && !bPressedLastFrame) {
+    String selectedItem = inventory[selectedInventoryIndex];
+
+    if (selectedItem == "Health Potion") {
+      playerHP += 20; // Restore health
+      if (playerHP > 100) playerHP = 100; // Cap health at 100
+      inventory[selectedInventoryIndex] = "Empty"; // Remove item from inventory
+    }
+
+    // Add more item usage logic here
+  }
+
+  bPressedLastFrame = bPressed;
+}
+
+void updateGame() {
+  handleInput();
+  updateScrolling();
+  updateDamsel(playerDX, playerDY, playerX, playerY);
+  updateEnemies(playerHP, playerX, playerY, deathCause);
+  updateProjectiles(kills, levelOfDamselDeath, level);
+}
+
+void renderGame() {
+  if (currentUIState == UI_NORMAL) {
+    u8g2.clearBuffer();
+    renderDungeon();
+    renderDamsel();
+    renderEnemies();
+    renderProjectiles();
+    renderPlayer();
+    updateAnimations();
+    renderUI();
+    u8g2.sendBuffer();
   }
 }
 

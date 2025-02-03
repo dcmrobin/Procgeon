@@ -12,8 +12,6 @@ is above a smallish amount, and it would only add "she trusted you!" when the le
 Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her.
 The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel.
 
-There needs to be an inventory that comes up when you press A and then when you press A again the map shows and then when you press A again, it goes back to normal.
-
 The minimap needs to not be gotten at first bootup. It needs to be found in like the third or fourth of the dungeons.
 
 When I add sound, there could be different music that plays for when the damsel is following you or if you've just killed the damsel or if you're alone.
@@ -24,8 +22,6 @@ the music for that dungeon will be sad. Then it'll go back to normal default mus
 When you walk up to save the damsel, you could just catch a glimps of the baddy disappear from right next to the damsel.
 
 There could be chests around the dungeon that would have random loot in them. (a ui for this maybe)
-
-Need an inventory when A is pressed.
 
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
 could you hurt the boss.
