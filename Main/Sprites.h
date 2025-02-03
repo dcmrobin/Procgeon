@@ -30,6 +30,8 @@ extern const unsigned char blobSpriteFrame1[];
 extern const unsigned char blobSpriteFrame2[];
 extern const unsigned char* blobSprite;
 
+extern const unsigned char PROGMEM potionSprite[];
+
 // Screens
 extern const unsigned char rescueDamselScreen[];
 extern const unsigned char deadDamselScreen[];

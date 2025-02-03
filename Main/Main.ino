@@ -4,6 +4,7 @@
 #include "Dungeon.h"
 #include "HelperFunctions.h"
 #include "Entities.h"
+#include "Item.h"
 
 // OLED display pins
 #define OLED_MOSI 11
@@ -63,8 +64,8 @@ enum UIState {
 UIState currentUIState = UI_NORMAL; // Current UI state
 
 // Inventory variables
-const int inventorySize = 5; // Number of inventory slots
-String inventory[inventorySize] = {"Health Potion", "Empty", "Empty", "Empty", "Empty"};
+const int inventorySize = 8; // Number of inventory slots
+GameItem inventory[inventorySize];
 int selectedInventoryIndex = 0; // Currently selected inventory item
 
 void setup() {
@@ -78,6 +79,11 @@ void setup() {
   pinMode(BUTTON_RIGHT_PIN, INPUT_PULLUP);
   pinMode(BUTTON_B_PIN, INPUT_PULLUP);
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
+
+  for (int i = 0; i < inventorySize; i++) {
+      inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
+  }
+  randomizePotionEffects();
 
   for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
@@ -169,10 +175,21 @@ void renderInventory() {
     if (i == selectedInventoryIndex) {
       u8g2.drawStr(5, yPos, ">"); // Draw cursor
     }
-    u8g2.drawStr(15, yPos, inventory[i].c_str());
+    u8g2.drawStr(15, yPos, inventory[i].name);
   }
 
   u8g2.sendBuffer();
+}
+
+// Add an item to the first empty slot
+bool addToInventory(GameItem item) {
+  for (int i = 0; i < inventorySize; i++) {
+    if (strcmp(inventory[i].name, "Empty") == 0) { // Check for empty slot
+        inventory[i] = item;
+        return true; // Successfully added
+    }
+  }
+  return false; // Inventory full
 }
 
 void handleInventoryNavigation() {
@@ -198,13 +215,13 @@ void handleInventoryItemUsage() {
   bool bPressed = !digitalRead(BUTTON_B_PIN);
 
   if (bPressed && currentUIState == UI_INVENTORY && !bPressedLastFrame) {
-    String selectedItem = inventory[selectedInventoryIndex];
+    const char* selectedItem = inventory[selectedInventoryIndex].name;
 
-    if (selectedItem == "Health Potion") {
-      playerHP += 20; // Restore health
-      if (playerHP > 100) playerHP = 100; // Cap health at 100
-      inventory[selectedInventoryIndex] = "Empty"; // Remove item from inventory
-    }
+    //if (selectedItem == "Health Potion") {
+    //  playerHP += 20; // Restore health
+    //  if (playerHP > 100) playerHP = 100; // Cap health at 100
+    //  inventory[selectedInventoryIndex].name = "Empty"; // Remove item from inventory
+    //}
 
     // Add more item usage logic here
   }
@@ -325,6 +342,9 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       break;
     case 4: // Exit
       u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+      break;
+    case 5: // Exit
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
       break;
   }
 }
@@ -498,6 +518,9 @@ void handleInput() {
     if (playerX - offsetX > viewportWidth - 3 && offsetX < mapWidth - viewportWidth) offsetX += scrollSpeed;
     if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
+  } else if (dungeonMap[rNewY][rNewX] == 5) {
+    dungeonMap[rNewY][rNewX] = 1;
+    addToInventory(getItem(getRandomPotion(random(6))));
   }
 
   int rPx = round(playerX);
@@ -601,6 +624,9 @@ void gameOver() {
     level = 1;
     levelOfDamselDeath = -4;
     generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
+    for (int i = 0; i < inventorySize; i++) {
+        inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
+    }
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }

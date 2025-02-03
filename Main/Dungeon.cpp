@@ -35,6 +35,9 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
   for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
     for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
       dungeonMap[y][x] = 1; // Floor
+      if (random(0, 30) > 27) {
+        dungeonMap[y][x] = 5;
+      }
     }
   }
 
@@ -61,6 +64,9 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
       for (int y = roomY; y < roomY + roomHeight; y++) {
         for (int x = roomX; x < roomX + roomWidth; x++) {
           dungeonMap[y][x] = 1; // Floor
+          if (random(0, 30) > 27) {
+            dungeonMap[y][x] = 5;
+          }
         }
       }
     }
