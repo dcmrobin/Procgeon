@@ -19,6 +19,19 @@
 #define BUTTON_B_PIN 1
 #define BUTTON_A_PIN 0
 
+struct ButtonStates {
+  bool upPressed;
+  bool upPressedPrev;
+  bool downPressed;
+  bool downPressedPrev;
+  bool aPressed;
+  bool aPressedPrev;
+  bool bPressed;
+  bool bPressedPrev;
+};
+
+ButtonStates buttons = {false};
+
 // Viewport size (in tiles)
 const int viewportWidth = 128 / tileSize;
 const int viewportHeight = 128 / tileSize - 2;
@@ -54,12 +67,15 @@ U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RS
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
 
-// UI State
 enum UIState {
   UI_NORMAL,      // Normal gameplay
   UI_INVENTORY,   // Inventory screen
-  UI_MINIMAP      // Minimap screen
+  UI_MINIMAP,     // Minimap screen
+  UI_ITEM_ACTION  // Item action selection screen
 };
+
+// Add action selection tracking
+int selectedActionIndex = 0; // 0 = Use, 1 = Drop
 
 UIState currentUIState = UI_NORMAL; // Current UI state
 
@@ -96,13 +112,13 @@ void setup() {
 }
 
 void loop() {
+  updateButtonStates(); // Add this first
+  
   unsigned long currentTime = millis();
 
   if (playerHP > 0) {
     if (!statusScreen) {
-      // Handle UI state transitions
       handleUIStateTransitions();
-      // Update and render based on the current UI state
       switch (currentUIState) {
         case UI_NORMAL:
           if (currentTime - lastUpdateTime >= frameDelay) {
@@ -121,6 +137,11 @@ void loop() {
         case UI_MINIMAP:
           drawMinimap();
           break;
+
+        case UI_ITEM_ACTION:
+          handleItemActionMenu();
+          renderInventory();
+          break;
       }
     } else {
       showStatusScreen();
@@ -130,34 +151,37 @@ void loop() {
   }
 }
 
+void updateButtonStates() {
+  // Save previous states
+  buttons.upPressedPrev = buttons.upPressed;
+  buttons.downPressedPrev = buttons.downPressed;
+  buttons.aPressedPrev = buttons.aPressed;
+  buttons.bPressedPrev = buttons.bPressed;
+
+  // Read current states
+  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
+  buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
+  buttons.aPressed = !digitalRead(BUTTON_A_PIN);
+  buttons.bPressed = !digitalRead(BUTTON_B_PIN);
+}
+
 void handleUIStateTransitions() {
-  static bool aPressedLastFrame = false; // Track the previous state of the A button
-  bool aPressed = !digitalRead(BUTTON_A_PIN);
-  bool bPressed = !digitalRead(BUTTON_B_PIN);
-
-  // Handle A button press
-  if (aPressed && !aPressedLastFrame) {
+  if (buttons.aPressed && !buttons.aPressedPrev) {
     switch (currentUIState) {
-      case UI_NORMAL:
-        currentUIState = UI_INVENTORY; // Open inventory
+      case UI_NORMAL: 
+        if (!statusScreen) currentUIState = UI_INVENTORY;
         break;
-
-      case UI_INVENTORY:
-        currentUIState = UI_MINIMAP; // Switch to minimap
+      case UI_INVENTORY: 
+        currentUIState = UI_MINIMAP; 
         break;
-
-      case UI_MINIMAP:
-        currentUIState = UI_NORMAL; // Return to normal gameplay
+      case UI_MINIMAP: 
+        currentUIState = UI_NORMAL; 
+        break;
+      case UI_ITEM_ACTION: 
+        currentUIState = UI_INVENTORY;
         break;
     }
   }
-
-  // Handle B button press (only in minimap state)
-  if (bPressed && currentUIState == UI_MINIMAP) {
-    currentUIState = UI_INVENTORY; // Switch back to inventory
-  }
-
-  aPressedLastFrame = aPressed; // Update the previous state of the A button
 }
 
 void renderInventory() {
@@ -170,11 +194,30 @@ void renderInventory() {
   // Draw inventory items
   u8g2.setFont(u8g2_font_profont12_tr);
   for (int i = 0; i < inventorySize; i++) {
-    int yPos = 30 + (i * 12); // Vertical position for each item
+    int yPos = 30 + (i * 12);
     if (i == selectedInventoryIndex) {
-      u8g2.drawStr(5, yPos, ">"); // Draw cursor
+      u8g2.drawStr(5, yPos, ">");
     }
     u8g2.drawStr(15, yPos, inventory[i].name.c_str());
+  }
+
+  // Draw action menu if active
+  if (currentUIState == UI_ITEM_ACTION) {
+    GameItem &selectedItem = inventory[selectedInventoryIndex];
+    
+    // Background
+    u8g2.drawFrame(50, 40, 60, 30);
+    u8g2.drawBox(50, 40, 60, 12);
+    
+    // Title
+    u8g2.setFont(u8g2_font_profont12_tr);
+    u8g2.setDrawColor(0);
+    u8g2.drawStr(55, 50, selectedItem.name.c_str());
+    u8g2.setDrawColor(1);
+    
+    // Actions
+    u8g2.drawStr(55, 63, selectedActionIndex == 0 ? "> Use" : "  Use");
+    u8g2.drawStr(55, 73, selectedActionIndex == 1 ? "> Drop" : "  Drop");
   }
 
   u8g2.sendBuffer();
@@ -192,61 +235,66 @@ bool addToInventory(GameItem item) {
 }
 
 void handleInventoryNavigation() {
-  static bool upPressedLastFrame = false;
-  static bool downPressedLastFrame = false;
-  bool upPressed = !digitalRead(BUTTON_UP_PIN);
-  bool downPressed = !digitalRead(BUTTON_DOWN_PIN);
-
-  if (upPressed && selectedInventoryIndex > 0 && !upPressedLastFrame) {
-    selectedInventoryIndex--; // Move cursor up
+  if (buttons.upPressed && !buttons.upPressedPrev && selectedInventoryIndex > 0) {
+    selectedInventoryIndex--;
   }
-
-  if (downPressed && selectedInventoryIndex < inventorySize - 1 && !downPressedLastFrame) {
-    selectedInventoryIndex++; // Move cursor down
+  if (buttons.downPressed && !buttons.downPressedPrev && selectedInventoryIndex < inventorySize - 1) {
+    selectedInventoryIndex++;
   }
-
-  upPressedLastFrame = upPressed;
-  downPressedLastFrame = downPressed;
 }
 
 void handleInventoryItemUsage() {
-  static bool bPressedLastFrame = false;
-  bool bPressed = !digitalRead(BUTTON_B_PIN);
-
-  if (bPressed && currentUIState == UI_INVENTORY && !bPressedLastFrame) {
-    GameItem &selectedItem = inventory[selectedInventoryIndex];  // Get the selected item
-
-    if (strcmp(selectedItem.name.c_str(), "Empty") == 0) {  
-      return;  // Do nothing if empty
-    } else if (selectedItem.item >= RedPotion && selectedItem.item <= YellowPotion) {
-      // Apply the potion's effect
-      playerHP += selectedItem.healthRecoverAmount;
-      if (playerHP <= 0) {
-        deathCause = "poison";
-        currentUIState = UI_NORMAL;
-      }
-
-      // Apply AOE effect if needed (damage or heal enemies)
-      if (selectedItem.AOEsize > 0) {
-        applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
-      }
-      //speeeeeeeeeeeeed potion rnnnn
-
-      // Update the potion's name for all potions of that type
-      for (int i = 0; i < inventorySize; i++) {
-        if (inventory[i].item == selectedItem.item) {
-          updatePotionName(inventory[i]);
-        }
-      }
-
-      // Remove used potion from inventory
-      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+  if (buttons.bPressed && !buttons.bPressedPrev && currentUIState == UI_INVENTORY) {
+    GameItem &selectedItem = inventory[selectedInventoryIndex];
+    
+    if (strcmp(selectedItem.name.c_str(), "Empty") != 0) {
+      currentUIState = UI_ITEM_ACTION;
+      selectedActionIndex = 0;
     }
+  }
+}
 
-    // Add more item usage logic here
+void handleItemActionMenu() {
+  // Navigation
+  if (buttons.upPressed && !buttons.upPressedPrev) {
+    selectedActionIndex = 0;
+  }
+  if (buttons.downPressed && !buttons.downPressedPrev) {
+    selectedActionIndex = 1;
   }
 
-  bPressedLastFrame = bPressed;
+  // Cancel with A
+  if (buttons.aPressed && !buttons.aPressedPrev) {
+    currentUIState = UI_INVENTORY;
+  }
+
+  // Confirm with B
+  if (buttons.bPressed && !buttons.bPressedPrev) {
+    GameItem &selectedItem = inventory[selectedInventoryIndex];
+    
+    if (selectedActionIndex == 0) { // Use
+      if (selectedItem.item >= RedPotion && selectedItem.item <= YellowPotion) {
+        playerHP += selectedItem.healthRecoverAmount;
+        if (playerHP <= 0) deathCause = "poison";
+        
+        if (selectedItem.AOEsize > 0) {
+          applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
+        }
+        
+        for (int i = 0; i < inventorySize; i++) {
+          if (inventory[i].item == selectedItem.item) {
+            updatePotionName(inventory[i]);
+          }
+        }
+      }
+      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+    }
+    else { // Drop
+      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+    }
+    
+    currentUIState = UI_INVENTORY;
+  }
 }
 
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage) {
@@ -676,6 +724,7 @@ void gameOver() {
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }
+    currentUIState = UI_NORMAL;
     resetPotionNames();
     randomizePotionEffects();
     spawnEnemies(playerX, playerY);
