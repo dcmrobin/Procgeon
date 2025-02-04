@@ -79,6 +79,7 @@ void setup() {
   pinMode(BUTTON_RIGHT_PIN, INPUT_PULLUP);
   pinMode(BUTTON_B_PIN, INPUT_PULLUP);
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
+  randomSeed(generateRandomSeed());
 
   for (int i = 0; i < inventorySize; i++) {
       inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
@@ -88,8 +89,6 @@ void setup() {
   for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
   }
-
-  randomSeed(generateRandomSeed());
 
   // Generate a random dungeon
   generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
