@@ -22,4 +22,4 @@ so that it releases its loot)
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
 could you hurt the boss.
 
-implement the AOE EFFECT  br o
+implement the AOE EFFECT  br o          and also make like a thing come up that says "you lost health!" or something that tells what the potion just did
