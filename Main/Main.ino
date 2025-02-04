@@ -617,12 +617,12 @@ void gameOver() {
 
   int lvlHighscore = EEPROM.read(lvlHighscoreAddress);
   if (level > lvlHighscore) {
-    EEPROM.write(lvlHighscoreAddress, level);
+    EEPROM.update(lvlHighscoreAddress, level);
   }
 
   int kllHighscore = EEPROM.read(killHighscoreAddress);
   if (kills > kllHighscore) {
-    EEPROM.write(killHighscoreAddress, kills);
+    EEPROM.update(killHighscoreAddress, kills);
   }
 
   char LHighscore[7];
