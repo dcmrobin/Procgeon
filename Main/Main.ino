@@ -232,7 +232,11 @@ void handleInventoryItemUsage() {
       }
 
       // Update the potion's name for all potions of that type
-      updatePotionName(selectedItem);
+      for (int i = 0; i < inventorySize; i++) {
+        if (inventory[i].item == selectedItem.item) {
+          updatePotionName(inventory[i]);
+        }
+      }
 
       // Remove used potion from inventory
       inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
