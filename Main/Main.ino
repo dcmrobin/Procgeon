@@ -211,7 +211,12 @@ void renderInventory() {
     }
   } else if (currentUIState == UI_ITEM_INFO) {
     u8g2.setFont(u8g2_font_profont12_tr);
-    u8g2.drawStr(3, 10, inventory[selectedInventoryIndex].description.c_str());
+    // Assume the display width is 128 pixels and you want a margin of 3 pixels on the left.
+    int x = 3;
+    int y = 10;
+    int maxWidth = 128 - x - 3; // adjust for margins as needed
+    int lineHeight = 12;       // or choose an appropriate line height
+    drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), x, y, maxWidth, lineHeight);
   }
 
   // Draw action menu if active
@@ -233,6 +238,69 @@ void renderInventory() {
   }
 
   u8g2.sendBuffer();
+}
+
+void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight) {
+  const char *wordStart = text;
+  char lineBuffer[256] = {0};  // Buffer for building a line
+  int lineBufferLen = 0;
+  
+  while (*wordStart) {
+    // Find the next space or end of string
+    const char *wordEnd = wordStart;
+    while (*wordEnd && *wordEnd != ' ') {
+      wordEnd++;
+    }
+    
+    // Extract the word
+    int wordLen = wordEnd - wordStart;
+    char word[64] = {0}; // Assumes words are less than 64 characters
+    strncpy(word, wordStart, wordLen);
+    word[wordLen] = '\0';
+    
+    // Determine the width of the current line plus a space (if needed) and the new word
+    //int testLen = lineBufferLen > 0 ? lineBufferLen + 1 + wordLen : wordLen;
+    
+    // Create a temporary string to measure
+    char testLine[256] = {0};
+    if (lineBufferLen > 0) {
+      snprintf(testLine, sizeof(testLine), "%s %s", lineBuffer, word);
+    } else {
+      snprintf(testLine, sizeof(testLine), "%s", word);
+    }
+    
+    int textWidth = u8g2.getStrWidth(testLine);
+    
+    // If the line is too long, draw the current line and start a new one.
+    if (textWidth > maxWidth && lineBufferLen > 0) {
+      u8g2.drawStr(x, y, lineBuffer);
+      y += lineHeight;
+      lineBuffer[0] = '\0';  // Reset the line buffer
+      lineBufferLen = 0;
+      
+      // If the word itself is longer than maxWidth, you might need to break the word further.
+      // For now, we'll just put the long word on its own line.
+    }
+    
+    // Append the word to the line buffer
+    if (lineBufferLen > 0) {
+      strncat(lineBuffer, " ", sizeof(lineBuffer) - strlen(lineBuffer) - 1);
+      lineBufferLen++;
+    }
+    strncat(lineBuffer, word, sizeof(lineBuffer) - strlen(lineBuffer) - 1);
+    lineBufferLen = strlen(lineBuffer);
+    
+    // Skip any spaces in the source text
+    while (*wordEnd == ' ') {
+      wordEnd++;
+    }
+    wordStart = wordEnd;
+  }
+  
+  // Draw any remaining text in the line buffer
+  if (lineBufferLen > 0) {
+    u8g2.drawStr(x, y, lineBuffer);
+  }
 }
 
 // Add an item to the first empty slot
