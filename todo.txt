@@ -23,3 +23,5 @@ For the boss fight, it could be that you have to find a bunch of shield generato
 could you hurt the boss.
 
 Need to scale enemy hp with levels
+
+Need to implement the speed potion
