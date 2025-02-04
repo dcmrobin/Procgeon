@@ -732,10 +732,7 @@ void gameOver() {
 }
 
 void showStatusScreen() {
-  static bool bPressedLastFrame = false; // Tracks the button state in the previous frame
   static bool damselKidnapScreen = false; // Tracks if we are showing the kidnap screen
-
-  bool bPressed = !digitalRead(BUTTON_B_PIN); // Check current button state
 
   u8g2.clearBuffer();
 
@@ -768,7 +765,7 @@ void showStatusScreen() {
   u8g2.sendBuffer();
 
   // Handle button press logic
-  if (bPressed && !bPressedLastFrame) { // Detect new button press
+  if (buttons.bPressed && !buttons.bPressedPrev) { // Detect new button press
     if (damselKidnapScreen) {
       // Exit the kidnap screen
       damselKidnapScreen = false;
@@ -797,6 +794,4 @@ void showStatusScreen() {
       }
     }
   }
-
-  bPressedLastFrame = bPressed; // Update last frame's button state
 }
