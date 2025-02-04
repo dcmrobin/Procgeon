@@ -71,11 +71,12 @@ enum UIState {
   UI_NORMAL,      // Normal gameplay
   UI_INVENTORY,   // Inventory screen
   UI_MINIMAP,     // Minimap screen
-  UI_ITEM_ACTION  // Item action selection screen
+  UI_ITEM_ACTION, // Item action selection screen
+  UI_ITEM_INFO    // Item info screen
 };
 
 // Add action selection tracking
-int selectedActionIndex = 0; // 0 = Use, 1 = Drop
+int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
 UIState currentUIState = UI_NORMAL; // Current UI state
 
@@ -142,6 +143,10 @@ void loop() {
           handleItemActionMenu();
           renderInventory();
           break;
+
+        case UI_ITEM_INFO:
+          renderInventory();
+          break;
       }
     } else {
       showStatusScreen();
@@ -180,6 +185,9 @@ void handleUIStateTransitions() {
       case UI_ITEM_ACTION: 
         currentUIState = UI_INVENTORY;
         break;
+      case UI_ITEM_INFO: 
+        currentUIState = UI_INVENTORY;
+        break;
     }
   }
 }
@@ -188,23 +196,26 @@ void renderInventory() {
   u8g2.clearBuffer();
 
   // Draw inventory title
-  u8g2.setFont(u8g2_font_ncenB14_tr);
-  u8g2.drawStr(10, 15, "Inventory");
+  if (currentUIState == UI_INVENTORY) {
+    u8g2.setFont(u8g2_font_ncenB14_tr);
+    u8g2.drawStr(10, 15, "Inventory");
 
-  // Draw inventory items
-  u8g2.setFont(u8g2_font_profont12_tr);
-  for (int i = 0; i < inventorySize; i++) {
-    int yPos = 30 + (i * 12);
-    if (i == selectedInventoryIndex) {
-      u8g2.drawStr(5, yPos, ">");
+    // Draw inventory items
+    u8g2.setFont(u8g2_font_profont12_tr);
+    for (int i = 0; i < inventorySize; i++) {
+      int yPos = 30 + (i * 12);
+      if (i == selectedInventoryIndex) {
+        u8g2.drawStr(5, yPos, ">");
+      }
+      u8g2.drawStr(15, yPos, inventory[i].name.c_str());
     }
-    u8g2.drawStr(15, yPos, inventory[i].name.c_str());
+  } else if (currentUIState == UI_ITEM_INFO) {
+    u8g2.setFont(u8g2_font_profont12_tr);
+    u8g2.drawStr(3, 10, inventory[selectedInventoryIndex].description.c_str());
   }
 
   // Draw action menu if active
-  if (currentUIState == UI_ITEM_ACTION) {
-    GameItem &selectedItem = inventory[selectedInventoryIndex];
-    
+  if (currentUIState == UI_ITEM_ACTION) {    
     // Background
     u8g2.drawFrame(50, 40, 60, 30);
     u8g2.drawBox(50, 40, 60, 12);
@@ -212,12 +223,13 @@ void renderInventory() {
     // Title
     u8g2.setFont(u8g2_font_profont12_tr);
     u8g2.setDrawColor(0);
-    u8g2.drawStr(55, 50, selectedItem.name.c_str());
+    u8g2.drawStr(55, 50, "Options:");
     u8g2.setDrawColor(1);
     
     // Actions
     u8g2.drawStr(55, 63, selectedActionIndex == 0 ? "> Use" : "  Use");
     u8g2.drawStr(55, 73, selectedActionIndex == 1 ? "> Drop" : "  Drop");
+    u8g2.drawStr(55, 83, selectedActionIndex == 2 ? "> Info" : "  Info");
   }
 
   u8g2.sendBuffer();
@@ -257,11 +269,13 @@ void handleInventoryItemUsage() {
 void handleItemActionMenu() {
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
-    selectedActionIndex = 0;
+    selectedActionIndex--;
   }
   if (buttons.downPressed && !buttons.downPressedPrev) {
-    selectedActionIndex = 1;
+    selectedActionIndex++;
   }
+
+  selectedActionIndex = selectedActionIndex == 3 ? 0 : selectedActionIndex == -1 ? 0 : selectedActionIndex;
 
   // Cancel with A
   if (buttons.aPressed && !buttons.aPressedPrev) {
@@ -289,11 +303,15 @@ void handleItemActionMenu() {
       }
       inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
     }
-    else { // Drop
+    else if (selectedActionIndex == 1) { // Drop
       inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+    } else { // Info
+      currentUIState = UI_ITEM_INFO;
     }
     
-    currentUIState = UI_INVENTORY;
+    if (currentUIState != UI_ITEM_INFO) {
+      currentUIState = UI_INVENTORY;
+    }
   }
 }
 
