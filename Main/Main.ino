@@ -121,6 +121,7 @@ void loop() {
       handleUIStateTransitions();
       switch (currentUIState) {
         case UI_NORMAL:
+          u8g2.setBitmapMode(1);
           if (currentTime - lastUpdateTime >= frameDelay) {
             lastUpdateTime = currentTime;
             updateGame();
@@ -129,6 +130,7 @@ void loop() {
           break;
 
         case UI_INVENTORY:
+          u8g2.setBitmapMode(0);
           renderInventory();
           handleInventoryNavigation();
           handleInventoryItemUsage();
@@ -139,6 +141,7 @@ void loop() {
           break;
 
         case UI_ITEM_ACTION:
+          u8g2.setBitmapMode(0);
           handleItemActionMenu();
           renderInventory();
           break;
