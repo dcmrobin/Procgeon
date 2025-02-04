@@ -1,0 +1,1 @@
+This game is a Rougelike dungeon crawler for the Teensy 4.1 with a 128x128 SH1107 display and six buttons. The dungeons are procedurally generated, and so are other things in the game. The game has real-time combat and smooth movement, so happy times.
