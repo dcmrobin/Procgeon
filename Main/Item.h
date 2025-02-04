@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion };
 
 struct GameItem {
     GameItems item;
@@ -11,6 +11,7 @@ struct GameItem {
     int healthRecoverAmount;
     int AOEsize;
     int AOEdamage;
+    int SpeedMultiplier;
 };
 
 void randomizePotionEffects();  // Call this once at game start

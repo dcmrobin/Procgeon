@@ -21,3 +21,5 @@ so that it releases its loot)
 
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
 could you hurt the boss.
+
+Need to scale enemy hp with levels

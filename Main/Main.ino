@@ -230,6 +230,7 @@ void handleInventoryItemUsage() {
       if (selectedItem.AOEsize > 0) {
         applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
       }
+      //speeeeeeeeeeeeed potion rnnnn
 
       // Update the potion's name for all potions of that type
       for (int i = 0; i < inventorySize; i++) {
