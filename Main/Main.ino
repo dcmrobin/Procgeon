@@ -56,6 +56,8 @@ unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 String deathCause = "";
 int levelOfDamselDeath = -4;
+bool speeding;
+int speedTimer;
 
 int playerDX;
 int playerDY;
@@ -357,6 +359,8 @@ void handleItemActionMenu() {
     if (selectedActionIndex == 0) { // Use
       if (selectedItem.item >= RedPotion && selectedItem.item <= YellowPotion) {
         playerHP += selectedItem.healthRecoverAmount;
+        speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
+
         if (playerHP <= 0) deathCause = "poison";
         
         if (selectedItem.AOEsize > 0) {
@@ -608,49 +612,58 @@ void handleInput() {
   bool rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
   bool bPressed = !digitalRead(BUTTON_B_PIN);
   //bool aPressed = !digitalRead(BUTTON_A_PIN);
+  float speed = speeding ? 0.2 : 0.1;
+
+  if (speeding) {
+    speedTimer++;
+    if (speedTimer >= 1000) {
+      speedTimer = 0;
+      speeding = false;
+    }
+  }
 
   if (upPressed && !leftPressed && !rightPressed) {
     playerDY = -1;
     playerDX = 0;
-    newY -= 0.1; // Move up
+    newY -= speed; // Move up
   } else if (downPressed && !leftPressed && !rightPressed) {
     playerDY = 1;
     playerDX = 0;
-    newY += 0.1; // Move down
+    newY += speed; // Move down
   } else if (leftPressed && !upPressed && !downPressed) {
     playerDX = -1;
     playerDY = 0;
     playerSprite = playerSpriteLeft;
-    newX -= 0.1; // Move left
+    newX -= speed; // Move left
   } else if (rightPressed && !upPressed && !downPressed) {
     playerDX = 1;
     playerDY = 0;
     playerSprite = playerSpriteRight;
-    newX += 0.1; // Move right
+    newX += speed; // Move right
   } else if (upPressed && leftPressed) {
     playerDY = -1;
     playerDX = -1;
     playerSprite = playerSpriteLeft;
-    newY -= 0.1; // Move up & left
-    newX -= 0.1; // Move up & left
+    newY -= speed; // Move up & left
+    newX -= speed; // Move up & left
   } else if (upPressed && rightPressed) {
     playerDY = -1;
     playerDX = 1;
     playerSprite = playerSpriteRight;
-    newY -= 0.1; // Move up & right
-    newX += 0.1; // Move up & left
+    newY -= speed; // Move up & right
+    newX += speed; // Move up & left
   } else if (downPressed && leftPressed) {
     playerDX = -1;
     playerDY = 1;
     playerSprite = playerSpriteLeft;
-    newX -= 0.1; // Move left & down
-    newY += 0.1; // Move up & left
+    newX -= speed; // Move left & down
+    newY += speed; // Move up & left
   } else if (downPressed && rightPressed) {
     playerDX = 1;
     playerDY = 1;
     playerSprite = playerSpriteRight;
-    newX += 0.1; // Move right & down
-    newY += 0.1; // Move up & left
+    newX += speed; // Move right & down
+    newY += speed; // Move up & left
   }
 
   if (bPressed && !reloading) {
@@ -811,6 +824,8 @@ void gameOver() {
       projectiles[i].active = false;
     }
     currentUIState = UI_NORMAL;
+    speeding = false;
+    speedTimer = 0;
     resetPotionNames();
     randomizePotionEffects();
     spawnEnemies(playerX, playerY);
