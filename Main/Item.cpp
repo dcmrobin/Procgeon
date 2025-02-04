@@ -1,13 +1,13 @@
 #include "Item.h"
 
 GameItem itemList[] = {
-  { RedPotion,  String("Red Potion"),  0,  0,  0, 0 },
-  { GreenPotion, String("Green Potion"), 0,  0,  0, 0 },
-  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0 },
-  { BlackPotion, String("Black Potion"), 0,  0,  0, 0 },
-  { WhitePotion, String("White Potion"), 0,  0,  0, 0 },
-  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0 },
-  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0 }
+  { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out.") },
+  { GreenPotion, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
+  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out.") },
+  { BlackPotion, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
+  { WhitePotion, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
+  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
+  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out.") }
 };
 
 // Possible potion effects
@@ -17,17 +17,18 @@ struct PotionEffect {
   int AOEdamage;
   int SpeedMultiplier;
   String effectName;
+  String effectDescription;
 };
 
 // Possible effect pool
 PotionEffect potionEffects[] = {
-  { 20,  0,  0, 0, String("Healing Potion") },     // Heals player
-  { -20, 0,  0, 0, String("Diluted Poison") },        // Damages player
-  { 0,   2, 40, 0, String("Explosion Potion") },   // Damages enemies in AOE
-  { 40,   2, -30, 0, String("Buffing Potion") }, // Heals enemies in AOE
-  { 70,  0,  0, 0, String("Mega Heal Potion") },    // Large player heal
-  { -50,  4,  -20, 0, String("Bad Potion") },    // bad
-  { 0,  0,  0, 2, String("Speed Potion") }  // speed for the player
+  { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP.") },
+  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something...") },
+  { 0,   2, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you.") },
+  { 40,   2, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you.") },
+  { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP.") },
+  { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this.") },
+  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast.") }
 };
 
 // Randomize potion effects at game start
@@ -56,6 +57,7 @@ void updatePotionName(GameItem &potion) {
       for (int i = 0; i < 7; i++) {
         if (itemList[i].item == potion.item) {  
           itemList[i].name = effect.effectName;
+          itemList[i].description = effect.effectDescription;
         }
       }
       
