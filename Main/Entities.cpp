@@ -104,7 +104,7 @@ void updateDamsel(int playerDX, int playerDY, float playerX, float playerY) {
 }
 
 int atkDelayCounter = 0;
-void updateEnemies(int& playerHP, float playerX, float playerY, const char*& deathCause) {
+void updateEnemies(int& playerHP, float playerX, float playerY, String& deathCause) {
   atkDelayCounter += 1;
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies

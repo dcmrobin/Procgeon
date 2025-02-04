@@ -41,7 +41,7 @@ int kills = 0;
 bool statusScreen = false;
 unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
-const char* deathCause = "";
+String deathCause = "";
 int levelOfDamselDeath = -4;
 
 int playerDX;
@@ -175,7 +175,7 @@ void renderInventory() {
     if (i == selectedInventoryIndex) {
       u8g2.drawStr(5, yPos, ">"); // Draw cursor
     }
-    u8g2.drawStr(15, yPos, inventory[i].name);
+    u8g2.drawStr(15, yPos, inventory[i].name.c_str());
   }
 
   u8g2.sendBuffer();
@@ -184,7 +184,7 @@ void renderInventory() {
 // Add an item to the first empty slot
 bool addToInventory(GameItem item) {
   for (int i = 0; i < inventorySize; i++) {
-    if (strcmp(inventory[i].name, "Empty") == 0) { // Check for empty slot
+    if (strcmp(inventory[i].name.c_str(), "Empty") == 0) { // Check for empty slot
         inventory[i] = item;
         return true; // Successfully added
     }
@@ -215,13 +215,29 @@ void handleInventoryItemUsage() {
   bool bPressed = !digitalRead(BUTTON_B_PIN);
 
   if (bPressed && currentUIState == UI_INVENTORY && !bPressedLastFrame) {
-    const char* selectedItem = inventory[selectedInventoryIndex].name;
+    GameItem &selectedItem = inventory[selectedInventoryIndex];  // Get the selected item
 
-    //if (selectedItem == "Health Potion") {
-    //  playerHP += 20; // Restore health
-    //  if (playerHP > 100) playerHP = 100; // Cap health at 100
-    //  inventory[selectedInventoryIndex].name = "Empty"; // Remove item from inventory
-    //}
+    if (strcmp(selectedItem.name.c_str(), "Empty") == 0) {  
+      return;  // Do nothing if empty
+    } else if (selectedItem.item >= RedPotion && selectedItem.item <= YellowPotion) {
+      // Apply the potion's effect
+      playerHP += selectedItem.healthRecoverAmount;
+      if (playerHP <= 0) {
+        deathCause = "poison";
+        currentUIState = UI_NORMAL;
+      }
+
+      // Apply AOE effect if needed (damage or heal enemies)
+      if (selectedItem.AOEsize > 0) {
+        //applyAOEEffect(selectedItem.AOEsize, selectedItem.AOEdamage); // Implement this function
+      }
+
+      // Update the potion's name for all potions of that type
+      updatePotionName(selectedItem);
+
+      // Remove used potion from inventory
+      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+    }
 
     // Add more item usage logic here
   }
@@ -540,6 +556,8 @@ void handleInput() {
 bool pressed;
 int page = 1;
 int pageDelay = 0;
+bool bWasPressedOnDeath = false;  // NEW: Tracks if B was pressed when player died
+
 void gameOver() {
   bool bPressed = !digitalRead(BUTTON_B_PIN);
   bool aPressed = !digitalRead(BUTTON_A_PIN);
@@ -565,19 +583,22 @@ void gameOver() {
     }
   }
 
+  // Check if B was held on death, and only allow restart if it has been released
+  if (!bPressed) {
+    bWasPressedOnDeath = false;  // Player has released B, so allow restart
+  }
+
   char Lvl[7];
   snprintf(Lvl, sizeof(Lvl), "%d", level);
   char KLLS[7];
   snprintf(KLLS, sizeof(KLLS), "%d", kills);
-  
-  int lvlHighscore;
-  lvlHighscore = EEPROM.read(lvlHighscoreAddress);
+
+  int lvlHighscore = EEPROM.read(lvlHighscoreAddress);
   if (level > lvlHighscore) {
     EEPROM.write(lvlHighscoreAddress, level);
   }
 
-  int kllHighscore;
-  kllHighscore = EEPROM.read(killHighscoreAddress);
+  int kllHighscore = EEPROM.read(killHighscoreAddress);
   if (kills > kllHighscore) {
     EEPROM.write(killHighscoreAddress, kills);
   }
@@ -588,7 +609,6 @@ void gameOver() {
   snprintf(KHighscore, sizeof(KHighscore), "%d", kllHighscore);
 
   u8g2.clearBuffer();
-  //Serial.println("You died!");
   u8g2.setFont(u8g2_font_ncenB14_tr);
   u8g2.drawStr(11, 30, "Game over!");
 
@@ -597,7 +617,7 @@ void gameOver() {
   u8g2.setFont(u8g2_font_profont12_tr);
   if (page == 1) {
     u8g2.drawStr(15, 54, "Slain by:");
-    u8g2.drawStr(70, 54, deathCause);
+    u8g2.drawStr(70, 54, deathCause.c_str());
 
     u8g2.drawStr(15, 66, "On level:");
     u8g2.drawStr(70, 66, Lvl);
@@ -614,22 +634,27 @@ void gameOver() {
     u8g2.drawStr(15, 114, "[A] next page");
   } else if (page == 2) {
     u8g2.drawStr(15, 54, "next page");
-
     u8g2.drawStr(15, 114, "[A] next page");
   }
 
   u8g2.sendBuffer();
-  if (bPressed) {
+
+  // Only allow restart if B was **not** pressed when the player died and is now being pressed
+  if (bPressed && !bWasPressedOnDeath) {
+    bWasPressedOnDeath = true;  // Mark that B was pressed to prevent instant restart
+
     playerHP = 100;
     level = 1;
     levelOfDamselDeath = -4;
     generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
     for (int i = 0; i < inventorySize; i++) {
-        inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
+      inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
     }
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }
+    resetPotionNames();
+    randomizePotionEffects();
     spawnEnemies(playerX, playerY);
   }
 }

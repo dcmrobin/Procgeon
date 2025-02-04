@@ -20,7 +20,7 @@ struct Enemy {
   int hp;
   bool chasingPlayer;
   float moveAmount;
-  const char* name;
+  String name;
   int attackDelay;
 };
 extern Enemy enemies[maxEnemies];
@@ -34,7 +34,7 @@ struct Projectile {
 };
 extern Projectile projectiles[maxProjectiles];
 
-void updateEnemies(int& playerHP, float playerX, float playerY, const char*& deathCause);
+void updateEnemies(int& playerHP, float playerX, float playerY, String& deathCause);
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY);
 void updateProjectiles(int& kills, int& levelOfDamselDeath, int level);
 void moveDamselToPos(float posX, float posY);

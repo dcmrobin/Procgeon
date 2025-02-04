@@ -7,7 +7,7 @@ enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, Y
 
 struct GameItem {
     GameItems item;
-    const char* name;
+    String name;
     int healthRecoverAmount;
     int AOEsize;
     int AOEdamage;
@@ -17,5 +17,6 @@ void randomizePotionEffects();  // Call this once at game start
 GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
 GameItems getRandomPotion(int randInt);
+void resetPotionNames();
 
 #endif // ITEM_H
