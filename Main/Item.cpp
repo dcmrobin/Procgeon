@@ -20,11 +20,11 @@ struct PotionEffect {
 // Possible effect pool
 PotionEffect potionEffects[] = {
   { 20,  0,  0, String("Healing Potion") },     // Heals player
-  { -20, 0,  0, String("Hurt Potion") },        // Damages player
-  { 0,   4, 10, String("Explosion Potion") },   // Damages enemies in AOE
-  { 0,   4, -10, String("Annoying Potion") }, // Heals enemies in AOE
+  { -20, 0,  0, String("Diluted Poison") },        // Damages player
+  { 0,   2, 40, String("Explosion Potion") },   // Damages enemies in AOE
+  { 40,   2, -30, String("Buffing Potion") }, // Heals enemies in AOE
   { 70,  0,  0, String("Mega Heal Potion") },    // Large player heal
-  { -50,  10,  -20, String("Bad Potion") }    // bad
+  { -50,  4,  -20, String("Bad Potion") }    // bad
 };
 
 // Randomize potion effects at game start

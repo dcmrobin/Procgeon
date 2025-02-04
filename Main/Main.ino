@@ -229,7 +229,7 @@ void handleInventoryItemUsage() {
 
       // Apply AOE effect if needed (damage or heal enemies)
       if (selectedItem.AOEsize > 0) {
-        //applyAOEEffect(selectedItem.AOEsize, selectedItem.AOEdamage); // Implement this function
+        applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
       }
 
       // Update the potion's name for all potions of that type
@@ -243,6 +243,25 @@ void handleInventoryItemUsage() {
   }
 
   bPressedLastFrame = bPressed;
+}
+
+void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage) {
+  // Loop through all enemies
+  for (int i = 0; i < maxEnemies; i++) {
+    // Only consider enemies that are still alive
+    if (enemies[i].hp > 0) {
+      // Use the same rounding as your collision functions:
+      int dx = round(centerX) - round(enemies[i].x);
+      int dy = round(centerY) - round(enemies[i].y);
+      // Compare squared distance to avoid computing square roots
+      if (dx * dx + dy * dy <= aoeRadius * aoeRadius) {
+        enemies[i].hp -= aoeDamage;
+        if (enemies[i].hp <= 0) {
+          kills += 1;
+        }
+      }
+    }
+  }
 }
 
 void updateGame() {
