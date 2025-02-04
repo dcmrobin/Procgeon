@@ -217,7 +217,7 @@ void renderInventory() {
   // Draw action menu if active
   if (currentUIState == UI_ITEM_ACTION) {    
     // Background
-    u8g2.drawFrame(50, 40, 60, 30);
+    u8g2.drawFrame(50, 40, 60, 50);
     u8g2.drawBox(50, 40, 60, 12);
     
     // Title
