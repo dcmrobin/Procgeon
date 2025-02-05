@@ -199,7 +199,7 @@ void updateProjectiles(int& kills, int& levelOfDamselDeath, int level) {
       int projectileTileY = predictYtile(projectiles[i].y);
 
       // Check for collisions with walls or out-of-bounds
-      if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > 128 || projectiles[i].y > 128) {
+      if (dungeonMap[projectileTileY][projectileTileX] != 1 || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT) {
           projectiles[i].active = false; // Deactivate the bullet
           //free(projectiles[i]);
       }

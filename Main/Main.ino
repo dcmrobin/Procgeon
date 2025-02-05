@@ -6,35 +6,9 @@
 #include "Entities.h"
 #include "Item.h"
 
-// OLED display pins
-#define OLED_MOSI 11
-#define OLED_CLK 13
-#define OLED_DC 7
-#define OLED_CS 10
-#define OLED_RST 9
-#define BUTTON_UP_PIN    2
-#define BUTTON_DOWN_PIN  3
-#define BUTTON_LEFT_PIN  4
-#define BUTTON_RIGHT_PIN 5
-#define BUTTON_B_PIN 1
-#define BUTTON_A_PIN 0
-
-struct ButtonStates {
-  bool upPressed;
-  bool upPressedPrev;
-  bool downPressed;
-  bool downPressedPrev;
-  bool aPressed;
-  bool aPressedPrev;
-  bool bPressed;
-  bool bPressedPrev;
-};
-
-ButtonStates buttons = {false};
-
 // Viewport size (in tiles)
-const int viewportWidth = 128 / tileSize;
-const int viewportHeight = 128 / tileSize - 2;
+const int viewportWidth = SCREEN_WIDTH / tileSize;
+const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
 
 // Map scrolling offset
 float offsetX = 0;
@@ -216,7 +190,7 @@ void renderInventory() {
     // Assume the display width is 128 pixels and you want a margin of 3 pixels on the left.
     int x = 3;
     int y = 10;
-    int maxWidth = 128 - x - 3; // adjust for margins as needed
+    int maxWidth = SCREEN_WIDTH - x - 3; // adjust for margins as needed
     int lineHeight = 12;       // or choose an appropriate line height
     drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), x, y, maxWidth, lineHeight);
   }
@@ -532,7 +506,7 @@ void renderPlayer() {
   float screenY = (playerY - offsetY) * tileSize;
 
   // Ensure the player is within the viewport
-  if (screenX >= 0 && screenX < 128 && screenY >= 0 && screenY < 128) {
+  if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
     //u8g2.drawDisc(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
     u8g2.drawXBMP((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, tileSize, tileSize, playerSprite);
   }
@@ -543,7 +517,7 @@ void renderEnemies() {
     if (enemies[i].hp > 0) {
       float screenX = (enemies[i].x - offsetX) * tileSize;
       float screenY = (enemies[i].y - offsetY) * tileSize;
-      if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
+      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
         u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
       }
     }
@@ -553,7 +527,7 @@ void renderEnemies() {
 void renderDamsel() {
   float screenX = (damsel[0].x - offsetX) * tileSize;
   float screenY = (damsel[0].y - offsetY) * tileSize;
-  if (screenX >= 0 && screenY >= 0 && screenX < 128 && screenY < 128) {
+  if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
     u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
   }
 }
@@ -596,7 +570,7 @@ void renderUI() {
   u8g2.drawStr(20, 123, HP);
   u8g2.drawStr(40, 123, "LVL:");
   u8g2.drawStr(60, 123, Lvl);
-  u8g2.drawFrame(0, 113, 128, 15);
+  u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
 }
 
 int shootDelay = 0;
@@ -840,26 +814,26 @@ void showStatusScreen() {
   if (!damselKidnapScreen) {
     if (level > levelOfDamselDeath + 3) {
       if (!damsel[0].dead && damsel[0].followingPlayer) {
-        u8g2.drawXBMP(0, -10, 128, 128, rescueDamselScreen);
+        u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, rescueDamselScreen);
         u8g2.drawStr(0, 125, "You rescued the Damsel!");
       } else {
         u8g2.drawStr(0, 125, "Error.");
       }
     } else if (level == levelOfDamselDeath) {
       if (damsel[0].dead) {
-        u8g2.drawXBMP(0, -10, 128, 128, deadDamselScreen);
+        u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, deadDamselScreen);
         u8g2.drawStr(0, 105, "You killed the Damsel!");
         u8g2.drawStr(0, 115, "How could you!");//                                                   change to "she trusted you!" and add "she loved you!" when the level of love (implement later) is high enough
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
-        u8g2.drawXBMP(0, 0, 128, 128, leftDamselScreen);
+        u8g2.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, leftDamselScreen);
         u8g2.drawStr(0, 125, "You left the Damsel!");
       }
     } else {
-      u8g2.drawXBMP(0,0, 128, 128, aloneWizardScreen);
+      u8g2.drawXBMP(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, aloneWizardScreen);
       u8g2.drawStr(0, 125, "You progress. Alone.");
     }
   } else {
-    u8g2.drawXBMP(0,0, 128, 128, capturedDamselScreen);
+    u8g2.drawXBMP(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, capturedDamselScreen);
     u8g2.drawStr(0, 10, "The Damsel was captured!");
   }
 

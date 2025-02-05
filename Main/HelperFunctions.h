@@ -3,7 +3,33 @@
 
 #include <Arduino.h>
 
+#define OLED_MOSI 11
+#define OLED_CLK 13
+#define OLED_DC 7
+#define OLED_CS 10
+#define OLED_RST 9
+#define BUTTON_UP_PIN    2
+#define BUTTON_DOWN_PIN  3
+#define BUTTON_LEFT_PIN  4
+#define BUTTON_RIGHT_PIN 5
+#define BUTTON_B_PIN 1
+#define BUTTON_A_PIN 0
 #define seedPin A0
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 128
+
+struct ButtonStates {
+  bool upPressed;
+  bool upPressedPrev;
+  bool downPressed;
+  bool downPressedPrev;
+  bool aPressed;
+  bool aPressedPrev;
+  bool bPressed;
+  bool bPressedPrev;
+};
+
+extern ButtonStates buttons;
 
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
