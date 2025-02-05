@@ -5,6 +5,7 @@
 #include "HelperFunctions.h"
 #include "Entities.h"
 #include "Item.h"
+#include "Inventory.h"
 
 // Viewport size (in tiles)
 const int viewportWidth = SCREEN_WIDTH / tileSize;
@@ -55,11 +56,6 @@ enum UIState {
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
 UIState currentUIState = UI_NORMAL; // Current UI state
-
-// Inventory variables
-const int inventorySize = 8; // Number of inventory slots
-GameItem inventory[inventorySize];
-int selectedInventoryIndex = 0; // Currently selected inventory item
 
 void setup() {
   Serial.begin(9600);
@@ -679,8 +675,9 @@ void handleInput() {
     if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
   } else if (dungeonMap[rNewY][rNewX] == 5) {
-    dungeonMap[rNewY][rNewX] = 1;
-    addToInventory(getItem(getRandomPotion(random(6))));
+    if (addToInventory(getItem(getRandomPotion(random(6))))) {
+      dungeonMap[rNewY][rNewX] = 1;
+    }
   }
 
   int rPx = round(playerX);

@@ -1,4 +1,5 @@
 #include "Item.h"
+#include "Inventory.h"
 
 GameItem itemList[] = {
   { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out.") },
@@ -46,21 +47,29 @@ GameItem getItem(GameItems item) {
   return itemList[item];
 }
 
-// When a potion is used, update its name
 void updatePotionName(GameItem &potion) {
   for (PotionEffect effect : potionEffects) {
     if (potion.healthRecoverAmount == effect.healthChange &&
         potion.AOEsize == effect.AOEsize &&
-        potion.AOEdamage == effect.AOEdamage && potion.SpeedMultiplier == effect.SpeedMultiplier) {
+        potion.AOEdamage == effect.AOEdamage && 
+        potion.SpeedMultiplier == effect.SpeedMultiplier) {
 
-      // Update the potion's name in the master item list
+      // Update potion name in the master item list
       for (int i = 0; i < 7; i++) {
         if (itemList[i].item == potion.item) {  
           itemList[i].name = effect.effectName;
           itemList[i].description = effect.effectDescription;
         }
       }
-      
+
+      // Update all instances of the potion in the inventory
+      for (int i = 0; i < inventorySize; i++) {
+        if (inventory[i].item == potion.item) {
+          inventory[i].name = effect.effectName;
+          inventory[i].description = effect.effectDescription;
+        }
+      }
+
       break;
     }
   }
