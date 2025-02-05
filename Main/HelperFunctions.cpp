@@ -3,6 +3,11 @@
 
 ButtonStates buttons = {false};
 
+// Add action selection tracking
+int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
+
+UIState currentUIState = UI_NORMAL; // Current UI state
+
 uint32_t generateRandomSeed()
 {
   uint8_t  seedBitValue  = 0;
@@ -92,4 +97,18 @@ bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite
   int tile2X = predictXtile(sprite2X);
   int tile2Y = predictYtile(sprite2Y);
   return tile1X == tile2X && tile1Y == tile2Y;
+}
+
+void updateButtonStates() {
+  // Save previous states
+  buttons.upPressedPrev = buttons.upPressed;
+  buttons.downPressedPrev = buttons.downPressed;
+  buttons.aPressedPrev = buttons.aPressed;
+  buttons.bPressedPrev = buttons.bPressed;
+
+  // Read current states
+  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
+  buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
+  buttons.aPressed = !digitalRead(BUTTON_A_PIN);
+  buttons.bPressed = !digitalRead(BUTTON_B_PIN);
 }

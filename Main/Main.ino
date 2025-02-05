@@ -44,19 +44,6 @@ U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RS
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
 
-enum UIState {
-  UI_NORMAL,      // Normal gameplay
-  UI_INVENTORY,   // Inventory screen
-  UI_MINIMAP,     // Minimap screen
-  UI_ITEM_ACTION, // Item action selection screen
-  UI_ITEM_INFO    // Item info screen
-};
-
-// Add action selection tracking
-int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
-
-UIState currentUIState = UI_NORMAL; // Current UI state
-
 void setup() {
   Serial.begin(9600);
   u8g2.begin();
@@ -112,7 +99,7 @@ void loop() {
           break;
 
         case UI_ITEM_ACTION:
-          handleItemActionMenu();
+          handleItemActionMenu(playerHP, playerX, playerY, deathCause, speeding, kills);
           renderInventory();
           break;
 
@@ -126,20 +113,6 @@ void loop() {
   } else {
     gameOver();
   }
-}
-
-void updateButtonStates() {
-  // Save previous states
-  buttons.upPressedPrev = buttons.upPressed;
-  buttons.downPressedPrev = buttons.downPressed;
-  buttons.aPressedPrev = buttons.aPressed;
-  buttons.bPressedPrev = buttons.bPressed;
-
-  // Read current states
-  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
-  buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
-  buttons.aPressed = !digitalRead(BUTTON_A_PIN);
-  buttons.bPressed = !digitalRead(BUTTON_B_PIN);
 }
 
 void handleUIStateTransitions() {
@@ -275,110 +248,9 @@ void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeigh
   }
 }
 
-// Add an item to the first empty slot
-bool addToInventory(GameItem item) {
-  for (int i = 0; i < inventorySize; i++) {
-    if (strcmp(inventory[i].name.c_str(), "Empty") == 0) { // Check for empty slot
-        inventory[i] = item;
-        return true; // Successfully added
-    }
-  }
-  return false; // Inventory full
-}
-
-void handleInventoryNavigation() {
-  if (buttons.upPressed && !buttons.upPressedPrev && selectedInventoryIndex > 0) {
-    selectedInventoryIndex--;
-  }
-  if (buttons.downPressed && !buttons.downPressedPrev && selectedInventoryIndex < inventorySize - 1) {
-    selectedInventoryIndex++;
-  }
-}
-
-void handleInventoryItemUsage() {
-  if (buttons.bPressed && !buttons.bPressedPrev && currentUIState == UI_INVENTORY) {
-    GameItem &selectedItem = inventory[selectedInventoryIndex];
-    
-    if (strcmp(selectedItem.name.c_str(), "Empty") != 0) {
-      currentUIState = UI_ITEM_ACTION;
-      selectedActionIndex = 0;
-    }
-  }
-}
-
-void handleItemActionMenu() {
-  // Navigation
-  if (buttons.upPressed && !buttons.upPressedPrev) {
-    selectedActionIndex--;
-  }
-  if (buttons.downPressed && !buttons.downPressedPrev) {
-    selectedActionIndex++;
-  }
-
-  selectedActionIndex = selectedActionIndex == 3 ? 0 : selectedActionIndex == -1 ? 0 : selectedActionIndex;
-
-  // Cancel with A
-  if (buttons.aPressed && !buttons.aPressedPrev) {
-    currentUIState = UI_INVENTORY;
-  }
-
-  // Confirm with B
-  if (buttons.bPressed && !buttons.bPressedPrev) {
-    GameItem &selectedItem = inventory[selectedInventoryIndex];
-    
-    if (selectedActionIndex == 0) { // Use
-      if (selectedItem.item >= RedPotion && selectedItem.item <= YellowPotion) {
-        playerHP += selectedItem.healthRecoverAmount;
-        speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
-
-        if (playerHP <= 0) deathCause = "poison";
-        
-        if (selectedItem.AOEsize > 0) {
-          applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
-        }
-        
-        for (int i = 0; i < inventorySize; i++) {
-          if (inventory[i].item == selectedItem.item) {
-            updatePotionName(inventory[i]);
-          }
-        }
-      }
-      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
-    }
-    else if (selectedActionIndex == 1) { // Drop
-      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
-    } else { // Info
-      currentUIState = UI_ITEM_INFO;
-    }
-    
-    if (currentUIState != UI_ITEM_INFO) {
-      currentUIState = UI_INVENTORY;
-    }
-  }
-}
-
-void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage) {
-  // Loop through all enemies
-  for (int i = 0; i < maxEnemies; i++) {
-    // Only consider enemies that are still alive
-    if (enemies[i].hp > 0) {
-      // Use the same rounding as your collision functions:
-      int dx = round(centerX) - round(enemies[i].x);
-      int dy = round(centerY) - round(enemies[i].y);
-      // Compare squared distance to avoid computing square roots
-      if (dx * dx + dy * dy <= aoeRadius * aoeRadius) {
-        enemies[i].hp -= aoeDamage;
-        if (enemies[i].hp <= 0) {
-          kills += 1;
-        }
-      }
-    }
-  }
-}
-
 void updateGame() {
   handleInput();
-  updateScrolling();
+  updateScrolling(playerX, playerY, viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
   updateDamsel(playerDX, playerDY, playerX, playerY);
   updateEnemies(playerHP, playerX, playerY, deathCause);
   updateProjectiles(kills, levelOfDamselDeath, level);
@@ -435,20 +307,6 @@ void updateAnimations() {
     damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
     damselanimcounter = 0;
   }
-}
-
-void updateScrolling() {
-  // Target offsets based on player's position
-  float targetOffsetX = playerX - (viewportWidth / 2.0f) + 0.5f;
-  float targetOffsetY = playerY - (viewportHeight / 2.0f) + 0.5f;
-
-  // Clamp target offsets to map boundaries
-  targetOffsetX = constrain(targetOffsetX, 0, mapWidth - viewportWidth);
-  targetOffsetY = constrain(targetOffsetY, 0, mapHeight - viewportHeight);
-
-  // Smoothly move the offset towards the target
-  offsetX += (targetOffsetX - offsetX) * scrollSpeed;
-  offsetY += (targetOffsetY - offsetY) * scrollSpeed;
 }
 
 // Render the visible portion of the dungeon
@@ -525,22 +383,6 @@ void renderDamsel() {
   float screenY = (damsel[0].y - offsetY) * tileSize;
   if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
     u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
-  }
-}
-
-void shootProjectile(float xDir, float yDir) {
-
-  for (int i = 0; i < maxProjectiles; i++) {
-      if (!projectiles[i].active) {
-          projectiles[i].x = playerX;
-          projectiles[i].y = playerY;
-          projectiles[i].dx = xDir;  // Set direction based on player's facing direction
-          projectiles[i].dy = yDir;
-          projectiles[i].damage = 10;
-          projectiles[i].speed = 0.5;
-          projectiles[i].active = true;
-          break;
-      }
   }
 }
 
@@ -637,7 +479,7 @@ void handleInput() {
   }
 
   if (bPressed && !reloading) {
-    shootProjectile(playerDX, playerDY); // Shoot in current direction
+    shootProjectile(playerDX, playerDY, playerX, playerY); // Shoot in current direction
     reloading = true;
   }
 

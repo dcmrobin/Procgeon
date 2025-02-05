@@ -90,3 +90,22 @@ GameItems getRandomPotion(int randInt) {
   GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion };
   return potions[randInt % 7];  // Ensure it's within bounds
 }
+
+void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage, int& kills) {
+  // Loop through all enemies
+  for (int i = 0; i < maxEnemies; i++) {
+    // Only consider enemies that are still alive
+    if (enemies[i].hp > 0) {
+      // Use the same rounding as your collision functions:
+      int dx = round(centerX) - round(enemies[i].x);
+      int dy = round(centerY) - round(enemies[i].y);
+      // Compare squared distance to avoid computing square roots
+      if (dx * dx + dy * dy <= aoeRadius * aoeRadius) {
+        enemies[i].hp -= aoeDamage;
+        if (enemies[i].hp <= 0) {
+          kills += 1;
+        }
+      }
+    }
+  }
+}

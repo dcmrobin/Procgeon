@@ -38,5 +38,6 @@ void updateEnemies(int& playerHP, float playerX, float playerY, String& deathCau
 void updateDamsel(int playerDX, int playerDY, float playerX, float playerY);
 void updateProjectiles(int& kills, int& levelOfDamselDeath, int level);
 void moveDamselToPos(float posX, float posY);
+void shootProjectile(float xDir, float yDir, float playerX, float playerY);
 
 #endif

@@ -227,3 +227,19 @@ void moveDamselToPos(float posX, float posY) {
   damsel[0].x = posX;
   damsel[0].y = posY;
 }
+
+void shootProjectile(float xDir, float yDir, float playerX, float playerY) {
+
+  for (int i = 0; i < maxProjectiles; i++) {
+      if (!projectiles[i].active) {
+          projectiles[i].x = playerX;
+          projectiles[i].y = playerY;
+          projectiles[i].dx = xDir;  // Set direction based on player's facing direction
+          projectiles[i].dy = yDir;
+          projectiles[i].damage = 10;
+          projectiles[i].speed = 0.5;
+          projectiles[i].active = true;
+          break;
+      }
+  }
+}

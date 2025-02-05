@@ -190,3 +190,17 @@ void spawnEnemies(float playerX, float playerY) {
 void setTile(int tileX, int tileY, int tileType) {
   dungeonMap[tileY][tileX] = tileType;
 }
+
+void updateScrolling(float playerX, float playerY, int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY) {
+  // Target offsets based on player's position
+  float targetOffsetX = playerX - (viewportWidth / 2.0f) + 0.5f;
+  float targetOffsetY = playerY - (viewportHeight / 2.0f) + 0.5f;
+
+  // Clamp target offsets to map boundaries
+  targetOffsetX = constrain(targetOffsetX, 0, mapWidth - viewportWidth);
+  targetOffsetY = constrain(targetOffsetY, 0, mapHeight - viewportHeight);
+
+  // Smoothly move the offset towards the target
+  offsetX += (targetOffsetX - offsetX) * scrollSpeed;
+  offsetY += (targetOffsetY - offsetY) * scrollSpeed;
+}
