@@ -16,13 +16,12 @@ For example, the default dungeon music is playing when you first go into the dun
 (that'll be the music that plays instead of the default music as long as the damsel is with you) Then if you kill the damsel,
 the music for that dungeon will be sad. Then it'll go back to normal default music.
 
-There could be chests/boxes around the dungeon that would have random loot in them. (a ui for this maybe or if it's just a box, you shoot it to destroy it
-so that it releases its loot)
+Boxes that spawns around the map that you could shoot to destroy to release loot.
 
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current dungeon, destroy them, and only then
 could you hurt the boss.
 
-Need to scale enemy hp with levels.
+Need to scale enemy hp with levels- but also make the player have some way of getting an increase in damage.
 
 Need to not be able to see enemies behind walls.
 
