@@ -517,7 +517,7 @@ void handleInput() {
     if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
   } else if (dungeonMap[rNewY][rNewX] == 5) {
-    if (addToInventory(getItem(getRandomPotion(random(6))))) {
+    if (addToInventory(getItem(getRandomPotion(random(7))))) {
       dungeonMap[rNewY][rNewX] = 1;
     }
   }
