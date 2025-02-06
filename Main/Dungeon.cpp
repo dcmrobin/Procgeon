@@ -4,7 +4,10 @@
 
 int dungeonMap[mapHeight][mapWidth];
 
+bool generatedMapItem;
 void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOfDamselDeath, int level) {
+  generatedMapItem = false;
+
   // Initialize map with walls
   for (int y = 0; y < mapHeight; y++) {
     for (int x = 0; x < mapWidth; x++) {
@@ -35,9 +38,6 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
   for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
     for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
       dungeonMap[y][x] = 1; // Floor
-      if (random(0, 50) > 47) {
-        dungeonMap[y][x] = 5;
-      }
     }
   }
 
@@ -66,6 +66,10 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
           dungeonMap[y][x] = 1; // Floor
           if (random(0, 50) > 47) {
             dungeonMap[y][x] = 5;
+          }
+          if (!generatedMapItem && x > roomX + 1 && y > roomY + 1) {
+            dungeonMap[y][x] = 6;
+            generatedMapItem = true;
           }
         }
       }

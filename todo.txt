@@ -9,8 +9,6 @@ is above a smallish amount, and it would only add "she trusted you!" when the le
 Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her.
 The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel.
 
-The minimap needs to not be gotten at first bootup. It needs to be found in like the third or fourth of the dungeons.
-
 When I add sound, there could be different music that plays for when the damsel is following you or if you've just killed the damsel or if you're alone.
 For example, the default dungeon music is playing when you first go into the dungeon. Then when you pick up the damsel, the music changes.
 (that'll be the music that plays instead of the default music as long as the damsel is with you) Then if you kill the damsel,

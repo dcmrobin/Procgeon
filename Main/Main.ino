@@ -33,6 +33,7 @@ String deathCause = "";
 int levelOfDamselDeath = -4;
 bool speeding;
 int speedTimer = 1000;
+bool hasMap;
 
 int playerDX;
 int playerDY;
@@ -122,7 +123,7 @@ void handleUIStateTransitions() {
         if (!statusScreen) currentUIState = UI_INVENTORY;
         break;
       case UI_INVENTORY: 
-        currentUIState = UI_MINIMAP; 
+        currentUIState = hasMap ? UI_MINIMAP : UI_NORMAL; 
         break;
       case UI_MINIMAP: 
         currentUIState = UI_NORMAL; 
@@ -284,6 +285,7 @@ void drawMinimap() {
             if (tile == 1) continue;
             if (tile == 2) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
             if (tile == 3) u8g2.drawCircle(drawX, drawY, mapScale/2);
+            if (tile == 4) u8g2.drawCircle(drawX, drawY, mapScale/2);
         }
     }
     
@@ -349,8 +351,11 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
     case 4: // Exit
       u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
       break;
-    case 5: // Exit
+    case 5:
       u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
+      break;
+    case 6:
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, mapSprite);
       break;
   }
 }
@@ -410,6 +415,9 @@ void renderUI() {
   u8g2.drawStr(40, 123, "LVL:");
   u8g2.drawStr(60, 123, Lvl);
   u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
+  if (hasMap) {
+    u8g2.drawXBM(70, 115, 8, 8, mapSprite);
+  }
 }
 
 int shootDelay = 0;
@@ -521,6 +529,9 @@ void handleInput() {
     if (addToInventory(getItem(getRandomPotion(random(7))))) {
       dungeonMap[rNewY][rNewX] = 1;
     }
+  } else if (dungeonMap[rNewY][rNewX] == 6) {
+    hasMap = true;
+    dungeonMap[rNewY][rNewX] = 1;
   }
 
   int rPx = round(playerX);
@@ -640,6 +651,7 @@ void gameOver() {
     currentUIState = UI_NORMAL;
     speeding = false;
     speedTimer = 1000;
+    hasMap = false;
     resetPotionNames();
     randomizePotionEffects();
     spawnEnemies(playerX, playerY);
@@ -697,6 +709,8 @@ void showStatusScreen() {
         projectiles[i].active = false;
       }
       spawnEnemies(playerX, playerY);
+
+      hasMap = false;
 
       int randomChance = random(1, 5);
 
