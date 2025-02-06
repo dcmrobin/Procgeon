@@ -22,9 +22,14 @@ so that it releases its loot)
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
 could you hurt the boss.
 
-Need to scale enemy hp with levels
+Need to scale enemy hp with levels.
 
-Need to not be able to see enemies behind walls
+Need to not be able to see enemies behind walls.
+
+In the info screen of a potion, it should say what color the potion is at the bottom of the screen.
+
+The speed potion does not reset the speed timer when drunk, so when the player drinks one and then just when that one is about to run out, drinks another, it'll run out
+right away. Need to reset the timer with each speed potion drunk, or add on more time with each potion drunk.
 
 There is sometimes a bug where if you use a potion, a bunch of empty slots will be converted to that one potion. This possibly has something to do with
 the placeholder item for the empty slot is a potion with no effects and the name "Red". Need to fix this. (when you use the mass-converted potions, nothing happens.)

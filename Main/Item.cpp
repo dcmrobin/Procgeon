@@ -32,14 +32,22 @@ PotionEffect potionEffects[] = {
   { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast.") }
 };
 
-// Randomize potion effects at game start
 void randomizePotionEffects() {
+  // Shuffle the potion effects array
+  for (int i = 6; i > 0; i--) {
+    int j = random(i + 1);  // Random index from 0 to i inclusive
+    // Swap effects
+    PotionEffect temp = potionEffects[i];
+    potionEffects[i] = potionEffects[j];
+    potionEffects[j] = temp;
+  }
+
+  // Assign shuffled effects to potions
   for (int i = 0; i < 7; i++) {
-    int effectIndex = random(0, 7);  // Pick a random effect
-    itemList[i].healthRecoverAmount = potionEffects[effectIndex].healthChange;
-    itemList[i].AOEsize = potionEffects[effectIndex].AOEsize;
-    itemList[i].AOEdamage = potionEffects[effectIndex].AOEdamage;
-    itemList[i].SpeedMultiplier = potionEffects[effectIndex].SpeedMultiplier;
+    itemList[i].healthRecoverAmount = potionEffects[i].healthChange;
+    itemList[i].AOEsize = potionEffects[i].AOEsize;
+    itemList[i].AOEdamage = potionEffects[i].AOEdamage;
+    itemList[i].SpeedMultiplier = potionEffects[i].SpeedMultiplier;
   }
 }
 
