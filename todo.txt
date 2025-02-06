@@ -31,5 +31,5 @@ In the info screen of a potion, it should say what color the potion is at the bo
 The speed potion does not reset the speed timer when drunk, so when the player drinks one and then just when that one is about to run out, drinks another, it'll run out
 right away. Need to reset the timer with each speed potion drunk, or add on more time with each potion drunk.
 
-There is sometimes a bug where if you use a potion, a bunch of empty slots will be converted to that one potion. This possibly has something to do with
-the placeholder item for the empty slot is a potion with no effects and the name "Red". Need to fix this. (when you use the mass-converted potions, nothing happens.)
+Sometimes there are rooms that spawn right at the edge of the map, and if you walk to the edge of them, it glitches kind of. Might need to make a margin from the world
+edge for the rooms to spawn in.

@@ -58,7 +58,7 @@ void setup() {
   randomSeed(generateRandomSeed());
 
   for (int i = 0; i < inventorySize; i++) {
-      inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
+      inventory[i] = { Null, "Empty", 0, 0, 0 };
   }
   randomizePotionEffects();
 
@@ -631,7 +631,7 @@ void gameOver() {
     levelOfDamselDeath = -4;
     generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
     for (int i = 0; i < inventorySize; i++) {
-      inventory[i] = { RedPotion, "Empty", 0, 0, 0 };
+      inventory[i] = { Null, "Empty", 0, 0, 0 };
     }
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
