@@ -83,7 +83,7 @@ void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& d
     }
     
     if (currentUIState != UI_ITEM_INFO) {
-      currentUIState = UI_INVENTORY;
+      currentUIState = UI_NORMAL;
     }
   }
 }
