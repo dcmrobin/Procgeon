@@ -14,6 +14,6 @@ extern int selectedInventoryIndex; // Currently selected inventory item
 bool addToInventory(GameItem item);
 void handleInventoryNavigation();
 void handleInventoryItemUsage();
-void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills);
+void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills, int& speedTimer);
 
 #endif

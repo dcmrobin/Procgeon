@@ -34,7 +34,7 @@ void handleInventoryItemUsage() {
   }
 }
 
-void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills) {
+void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills, int& speedTimer) {
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     selectedActionIndex--;
@@ -57,6 +57,9 @@ void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& d
     if (selectedActionIndex == 0) { // Use
       if (selectedItem.item >= RedPotion && selectedItem.item <= OrangePotion) {
         playerHP += selectedItem.healthRecoverAmount;
+        if (speeding) {
+          speedTimer += 1000;
+        }
         speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
 
         if (playerHP <= 0) deathCause = "poison";

@@ -32,7 +32,7 @@ unsigned int killHighscoreAddress = 1;
 String deathCause = "";
 int levelOfDamselDeath = -4;
 bool speeding;
-int speedTimer;
+int speedTimer = 1000;
 
 int playerDX;
 int playerDY;
@@ -99,7 +99,7 @@ void loop() {
           break;
 
         case UI_ITEM_ACTION:
-          handleItemActionMenu(playerHP, playerX, playerY, deathCause, speeding, kills);
+          handleItemActionMenu(playerHP, playerX, playerY, deathCause, speeding, kills, speedTimer);
           renderInventory();
           break;
 
@@ -428,9 +428,9 @@ void handleInput() {
   float speed = speeding ? 0.2 : 0.1;
 
   if (speeding) {
-    speedTimer++;
-    if (speedTimer >= 1000) {
-      speedTimer = 0;
+    speedTimer--;
+    if (speedTimer <= 0) {
+      speedTimer = 1000;
       speeding = false;
     }
   }
@@ -639,7 +639,7 @@ void gameOver() {
     }
     currentUIState = UI_NORMAL;
     speeding = false;
-    speedTimer = 0;
+    speedTimer = 1000;
     resetPotionNames();
     randomizePotionEffects();
     spawnEnemies(playerX, playerY);
