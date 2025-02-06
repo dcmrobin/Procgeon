@@ -24,5 +24,7 @@ could you hurt the boss.
 
 Need to scale enemy hp with levels
 
+Need to not be able to see enemies behind walls
+
 There is sometimes a bug where if you use a potion, a bunch of empty slots will be converted to that one potion. This possibly has something to do with
 the placeholder item for the empty slot is a potion with no effects and the name "Red". Need to fix this. (when you use the mass-converted potions, nothing happens.)
