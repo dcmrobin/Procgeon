@@ -19,7 +19,7 @@ the music for that dungeon will be sad. Then it'll go back to normal default mus
 There could be chests/boxes around the dungeon that would have random loot in them. (a ui for this maybe or if it's just a box, you shoot it to destroy it
 so that it releases its loot)
 
-For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current boss fight, destroy them, and only then
+For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current dungeon, destroy them, and only then
 could you hurt the boss.
 
 Need to scale enemy hp with levels.
