@@ -13,6 +13,7 @@ struct GameItem {
     int AOEdamage;
     int SpeedMultiplier;
     String description;
+    String originalName;
 };
 
 void randomizePotionEffects();  // Call this once at game start

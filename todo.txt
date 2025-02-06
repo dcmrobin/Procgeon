@@ -26,8 +26,6 @@ Need to scale enemy hp with levels.
 
 Need to not be able to see enemies behind walls.
 
-In the info screen of a potion, it should say what color the potion is at the bottom of the screen.
-
 The speed potion does not reset the speed timer when drunk, so when the player drinks one and then just when that one is about to run out, drinks another, it'll run out
 right away. Need to reset the timer with each speed potion drunk, or add on more time with each potion drunk.
 

@@ -55,7 +55,7 @@ void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& d
     GameItem &selectedItem = inventory[selectedInventoryIndex];
     
     if (selectedActionIndex == 0) { // Use
-      if (selectedItem.item >= RedPotion && selectedItem.item <= YellowPotion) {
+      if (selectedItem.item >= RedPotion && selectedItem.item <= OrangePotion) {
         playerHP += selectedItem.healthRecoverAmount;
         speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
 
@@ -71,10 +71,10 @@ void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& d
           }
         }
       }
-      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+      inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
     }
     else if (selectedActionIndex == 1) { // Drop
-      inventory[selectedInventoryIndex] = { RedPotion, "Empty", 0, 0, 0 };
+      inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
     } else { // Info
       currentUIState = UI_ITEM_INFO;
     }

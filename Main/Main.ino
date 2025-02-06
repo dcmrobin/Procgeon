@@ -161,6 +161,7 @@ void renderInventory() {
     int y = 10;
     int maxWidth = SCREEN_WIDTH - x - 3; // adjust for margins as needed
     int lineHeight = 12;       // or choose an appropriate line height
+    u8g2.drawStr(3, 125, inventory[selectedInventoryIndex].originalName.c_str());
     drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), x, y, maxWidth, lineHeight);
   }
 

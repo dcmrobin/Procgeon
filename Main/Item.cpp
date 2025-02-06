@@ -2,13 +2,13 @@
 #include "Inventory.h"
 
 GameItem itemList[] = {
-  { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out.") },
-  { GreenPotion, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
-  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out.") },
-  { BlackPotion, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
-  { WhitePotion, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
-  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out.") },
-  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out.") }
+  { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion") },
+  { GreenPotion, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Green Potion") },
+  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Blue Potion") },
+  { BlackPotion, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion") },
+  { WhitePotion, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion") },
+  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion") },
+  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion") }
 };
 
 // Possible potion effects
