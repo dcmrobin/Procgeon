@@ -675,10 +675,12 @@ void showStatusScreen() {
       if (damsel[0].dead) {
         u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, deadDamselScreen);
         u8g2.drawStr(0, 105, "You killed the Damsel!");
-        u8g2.drawStr(0, 115, "How could you!");//                                                   change to "she trusted you!" and add "she loved you!" when the level of love (implement later) is high enough
+        u8g2.drawStr(0, 115, damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!");
+        if (damsel[0].levelOfLove >= 5) {u8g2.drawStr(0, 125, "She loved you!");}
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
         u8g2.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, leftDamselScreen);
         u8g2.drawStr(0, 125, "You left the Damsel!");
+        damsel[0].levelOfLove = 0;
       }
     } else {
       u8g2.drawXBMP(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, aloneWizardScreen);
@@ -713,6 +715,18 @@ void showStatusScreen() {
       hasMap = false;
 
       int randomChance = random(1, 5);
+
+      damsel[0].levelOfLove += rescued ? 1 : 0;
+      if (damsel[0].dead) {
+        damsel[0].levelOfLove = 0;
+      }
+
+      char Love[7];
+      snprintf(Love, sizeof(Love), "%d", damsel[0].levelOfLove);
+
+      if (Serial.available() > 0) {
+        Serial.println(Love);
+      }
 
       if (rescued && randomChance == 3) {
         damselKidnapScreen = true; // Switch to the kidnap screen

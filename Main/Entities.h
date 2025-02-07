@@ -12,6 +12,7 @@ struct Damsel {
     bool dead;
     bool followingPlayer;
     bool active;
+    int levelOfLove;
 };
 extern Damsel damsel[1];
 
