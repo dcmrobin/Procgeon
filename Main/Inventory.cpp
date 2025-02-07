@@ -80,6 +80,7 @@ void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float 
     }
     else if (selectedActionIndex == 1) { // Drop
       inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
+      currentUIState = UI_INVENTORY;
     } else { // Info
       currentUIState = UI_ITEM_INFO;
     }
