@@ -24,6 +24,7 @@ float playerY;
 
 // Player stats
 int playerHP = 100;
+int playerMaxHP = 100;
 int level = 1;
 int kills = 0;
 bool statusScreen = false;
@@ -100,7 +101,7 @@ void loop() {
           break;
 
         case UI_ITEM_ACTION:
-          handleItemActionMenu(playerHP, playerX, playerY, deathCause, speeding, kills, speedTimer);
+          handleItemActionMenu(playerHP, playerMaxHP, playerX, playerY, deathCause, speeding, kills, speedTimer);
           renderInventory();
           break;
 
@@ -285,7 +286,7 @@ void drawMinimap() {
             if (tile == 1) continue;
             if (tile == 2) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
             if (tile == 3) u8g2.drawCircle(drawX, drawY, mapScale/2);
-            if (tile == 4) u8g2.drawCircle(drawX, drawY, mapScale/2);
+            if (tile == 4) u8g2.drawFrame(drawX, drawY, mapScale, mapScale);
         }
     }
     

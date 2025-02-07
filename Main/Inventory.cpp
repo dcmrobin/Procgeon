@@ -34,7 +34,7 @@ void handleInventoryItemUsage() {
   }
 }
 
-void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills, int& speedTimer) {
+void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills, int& speedTimer) {
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     selectedActionIndex--;
@@ -57,12 +57,14 @@ void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& d
     if (selectedActionIndex == 0) { // Use
       if (selectedItem.item >= RedPotion && selectedItem.item <= OrangePotion) {
         playerHP += selectedItem.healthRecoverAmount;
+        playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
+
         if (speeding) {
           speedTimer += 1000;
         }
         speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
 
-        if (playerHP <= 0) deathCause = "poison";
+        if (playerHP <= 0) {deathCause = "poison";}
         
         if (selectedItem.AOEsize > 0) {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage, kills);
@@ -82,7 +84,7 @@ void handleItemActionMenu(int& playerHP, float playerX, float playerY, String& d
       currentUIState = UI_ITEM_INFO;
     }
     
-    if (currentUIState != UI_ITEM_INFO) {
+    if (currentUIState != UI_ITEM_INFO && selectedActionIndex != 1) {
       currentUIState = UI_NORMAL;
     }
   }
