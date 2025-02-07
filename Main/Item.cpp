@@ -25,8 +25,8 @@ struct PotionEffect {
 PotionEffect potionEffects[] = {
   { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP.") },
   { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something...") },
-  { 0,   2, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you.") },
-  { 40,   2, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you.") },
+  { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you.") },
+  { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you.") },
   { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP.") },
   { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this.") },
   { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast.") }

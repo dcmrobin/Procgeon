@@ -45,8 +45,8 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
   for (int i = 1; i < maxRooms; i++) {
     int roomWidth = random(minRoomSize, maxRoomSize + 1);
     int roomHeight = random(minRoomSize, maxRoomSize + 1);
-    int roomX = random(1, mapWidth - roomWidth - 1);
-    int roomY = random(1, mapHeight - roomHeight - 1);
+    int roomX = random(3, mapWidth - roomWidth - 3);
+    int roomY = random(3, mapHeight - roomHeight - 3);
 
     // Check for overlaps
     bool overlap = false;
@@ -124,8 +124,8 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
 
     // Find a location far from the start room
     do {
-      damselRoomX = random(1, mapWidth - damselRoomWidth - 1);
-      damselRoomY = random(1, mapHeight - damselRoomHeight - 1);
+      damselRoomX = random(3, mapWidth - damselRoomWidth - 3);
+      damselRoomY = random(3, mapHeight - damselRoomHeight - 3);
     } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
 
     // Create the damsel's cell
