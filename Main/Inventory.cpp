@@ -2,6 +2,7 @@
 
 GameItem inventory[inventorySize];
 int selectedInventoryIndex = 0; // Currently selected inventory item
+String itemResultMessage = "";
 
 // Add an item to the first empty slot
 bool addToInventory(GameItem item) {
@@ -64,7 +65,10 @@ void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float 
         }
         speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
 
-        if (playerHP <= 0) {deathCause = "poison";}
+        if (playerHP <= 0) {
+          deathCause = "poison";
+          buttons.bPressedPrev = true;
+        }
         
         if (selectedItem.AOEsize > 0) {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage, kills);
@@ -76,17 +80,17 @@ void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float 
           }
         }
       }
+
+      itemResultMessage = selectedItem.itemResult;
+      
       inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
-    }
-    else if (selectedActionIndex == 1) { // Drop
+      currentUIState = UI_ITEM_RESULT; // Change to result screen
+      buttons.bPressedPrev = true;
+    } else if (selectedActionIndex == 1) { // Drop
       inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
       currentUIState = UI_INVENTORY;
     } else { // Info
       currentUIState = UI_ITEM_INFO;
-    }
-    
-    if (currentUIState != UI_ITEM_INFO && selectedActionIndex != 1) {
-      currentUIState = UI_NORMAL;
     }
   }
 }

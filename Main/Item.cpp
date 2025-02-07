@@ -2,13 +2,13 @@
 #include "Inventory.h"
 
 GameItem itemList[] = {
-  { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion") },
-  { GreenPotion, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Green Potion") },
-  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Blue Potion") },
-  { BlackPotion, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion") },
-  { WhitePotion, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion") },
-  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion") },
-  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion") }
+  { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.") },
+  { GreenPotion, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.") },
+  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Blue Potion"), String("Nothing happens.") },
+  { BlackPotion, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.") },
+  { WhitePotion, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.") },
+  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.") },
+  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.") }
 };
 
 // Possible potion effects
@@ -19,17 +19,18 @@ struct PotionEffect {
   int SpeedMultiplier;
   String effectName;
   String effectDescription;
+  String effectResult;
 };
 
 // Possible effect pool
 PotionEffect potionEffects[] = {
-  { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP.") },
-  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something...") },
-  { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you.") },
-  { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you.") },
-  { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP.") },
-  { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this.") },
-  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast.") }
+  { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP."), String("You feel better.") },
+  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something..."), String("You lose 20 HP.") },
+  { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you."), String("The enemies around you lose 40 HP.") },
+  { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you."), String("You feel better, but so do the enemies close to you.") },
+  { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better.") },
+  { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this."), String("You lose 50 HP, and the enemies around you gain 20 HP.") },
+  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your speed is doubled.") }
 };
 
 void randomizePotionEffects() {
@@ -48,6 +49,7 @@ void randomizePotionEffects() {
     itemList[i].AOEsize = potionEffects[i].AOEsize;
     itemList[i].AOEdamage = potionEffects[i].AOEdamage;
     itemList[i].SpeedMultiplier = potionEffects[i].SpeedMultiplier;
+    itemList[i].itemResult = potionEffects[i].effectResult;
   }
 }
 

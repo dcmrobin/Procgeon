@@ -22,6 +22,8 @@ const float scrollSpeed = 0.25f;
 float playerX;
 float playerY;
 
+bool itemResultScreenActive = false;
+
 // Player stats
 int playerHP = 100;
 int playerMaxHP = 100;
@@ -74,7 +76,7 @@ void setup() {
 }
 
 void loop() {
-  updateButtonStates(); // Add this first
+  updateButtonStates();
   
   unsigned long currentTime = millis();
 
@@ -108,6 +110,10 @@ void loop() {
         case UI_ITEM_INFO:
           renderInventory();
           break;
+
+        case UI_ITEM_RESULT:
+          renderInventory();
+          break;
       }
     } else {
       showStatusScreen();
@@ -135,6 +141,9 @@ void handleUIStateTransitions() {
       case UI_ITEM_INFO: 
         currentUIState = UI_INVENTORY;
         break;
+      case UI_ITEM_RESULT: 
+        currentUIState = UI_NORMAL;
+        break;
     }
   }
 }
@@ -158,17 +167,15 @@ void renderInventory() {
     }
   } else if (currentUIState == UI_ITEM_INFO) {
     u8g2.setFont(u8g2_font_profont12_tr);
-    // Assume the display width is 128 pixels and you want a margin of 3 pixels on the left.
-    int x = 3;
-    int y = 10;
-    int maxWidth = SCREEN_WIDTH - x - 3; // adjust for margins as needed
-    int lineHeight = 12;       // or choose an appropriate line height
     u8g2.drawStr(3, 125, inventory[selectedInventoryIndex].originalName.c_str());
-    drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), x, y, maxWidth, lineHeight);
-  }
-
-  // Draw action menu if active
-  if (currentUIState == UI_ITEM_ACTION) {    
+    drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
+  } else if (currentUIState == UI_ITEM_RESULT) {
+    u8g2.setFont(u8g2_font_profont12_tr);
+    drawWrappedText(itemResultMessage.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
+    if (buttons.bPressed && !buttons.bPressedPrev) {
+      currentUIState = UI_NORMAL;
+    }
+  } else if (currentUIState == UI_ITEM_ACTION) {    
     // Background
     u8g2.drawFrame(50, 40, 60, 50);
     u8g2.drawBox(50, 40, 60, 12);
@@ -185,6 +192,16 @@ void renderInventory() {
     u8g2.drawStr(55, 83, selectedActionIndex == 2 ? "> Info" : "  Info");
   }
 
+  u8g2.sendBuffer();
+}
+
+void renderItemResult() {
+  u8g2.clearBuffer();
+  
+  // Message text
+  u8g2.setFont(u8g2_font_profont12_tr);
+  drawWrappedText(itemResultMessage.c_str(), 15, 65, 100, 12);
+  
   u8g2.sendBuffer();
 }
 

@@ -36,7 +36,8 @@ enum UIState {
   UI_INVENTORY,   // Inventory screen
   UI_MINIMAP,     // Minimap screen
   UI_ITEM_ACTION, // Item action selection screen
-  UI_ITEM_INFO    // Item info screen
+  UI_ITEM_INFO,   // Item info screen
+  UI_ITEM_RESULT  // Item result screen
 };
 
 // Add action selection tracking

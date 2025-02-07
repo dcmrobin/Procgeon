@@ -14,6 +14,7 @@ struct GameItem {
     int SpeedMultiplier;
     String description;
     String originalName;
+    String itemResult;
 };
 
 void randomizePotionEffects();  // Call this once at game start
