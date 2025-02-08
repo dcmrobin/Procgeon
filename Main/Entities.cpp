@@ -244,23 +244,55 @@ void shootProjectile(float xDir, float yDir, float playerX, float playerY) {
   }
 }
 
-void renderEnemies() {
+void renderEnemies(float playerX, float playerY) {
+  int playerTileX = predictXtile(playerX);
+  int playerTileY = predictYtile(playerY);
+
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp > 0) {
-      float screenX = (enemies[i].x - offsetX) * tileSize;
-      float screenY = (enemies[i].y - offsetY) * tileSize;
-      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-        u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
+      int enemyTileX = predictXtile(enemies[i].x);
+      int enemyTileY = predictYtile(enemies[i].y);
+
+      // Distance check (10 tiles max)
+      int dx = enemyTileX - playerTileX;
+      int dy = enemyTileY - playerTileY;
+      int distSq = dx*dx + dy*dy;
+      if (distSq > 200) continue;
+
+      // Line-of-sight check
+      if (isVisible(playerTileX, playerTileY, enemyTileX, enemyTileY)) {
+        float screenX = (enemies[i].x - offsetX) * tileSize;
+        float screenY = (enemies[i].y - offsetY) * tileSize;
+        if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
+          u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
+        }
       }
     }
   }
 }
 
-void renderDamsel() {
-  float screenX = (damsel[0].x - offsetX) * tileSize;
-  float screenY = (damsel[0].y - offsetY) * tileSize;
-  if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-    u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
+void renderDamsel(float playerX, float playerY) {
+  // Only render the damsel if she's active and not dead
+  if (damsel[0].active && !damsel[0].dead) {
+    int playerTileX = predictXtile(playerX);
+    int playerTileY = predictYtile(playerY);
+    int damselTileX = predictXtile(damsel[0].x);
+    int damselTileY = predictYtile(damsel[0].y);
+
+    // Distance check (10 tiles max)
+    int dx = damselTileX - playerTileX;
+    int dy = damselTileY - playerTileY;
+    int distSq = dx * dx + dy * dy;
+    if (distSq > 100) return; // Skip rendering if too far away
+
+    // Line-of-sight check
+    if (isVisible(playerTileX, playerTileY, damselTileX, damselTileY)) {
+      float screenX = (damsel[0].x - offsetX) * tileSize;
+      float screenY = (damsel[0].y - offsetY) * tileSize;
+      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
+        u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
+      }
+    }
   }
 }
 

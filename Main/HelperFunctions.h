@@ -74,5 +74,6 @@ void handleUIStateTransitions(bool hasMap);
 void updateAnimations();
 void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight);
 void renderUI(int playerHP, int level, bool hasMap);
+bool isVisible(int x0, int y0, int x1, int y1);
 
 #endif

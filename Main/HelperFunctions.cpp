@@ -242,3 +242,35 @@ void renderUI(int playerHP, int level, bool hasMap) {
     u8g2.drawXBM(70, 115, 8, 8, mapSprite);
   }
 }
+
+bool isVisible(int x0, int y0, int x1, int y1) {
+  int dx = abs(x1 - x0);
+  int dy = abs(y1 - y0);
+  int sx = (x0 < x1) ? 1 : -1;
+  int sy = (y0 < y1) ? 1 : -1;
+  int err = dx - dy;
+
+  while (true) {
+    // Check bounds
+    if (x0 < 0 || x0 >= mapWidth || y0 < 0 || y0 >= mapHeight) return false;
+    
+    // Check if tile blocks visibility
+    int tile = dungeonMap[y0][x0];
+    if (tile == 2 || tile == 3) return false; // Walls or bars
+    
+    // Reached target tile
+    if (x0 == x1 && y0 == y1) break;
+    
+    // Move to next tile
+    int e2 = 2 * err;
+    if (e2 > -dy) {
+      err -= dy;
+      x0 += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y0 += sy;
+    }
+  }
+  return true;
+}

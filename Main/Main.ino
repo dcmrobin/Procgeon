@@ -121,8 +121,8 @@ void updateGame() {
 void renderGame() {
   u8g2.clearBuffer();
   renderDungeon();
-  renderDamsel();
-  renderEnemies();
+  renderDamsel(playerX, playerY);
+  renderEnemies(playerX, playerY);
   renderProjectiles();
   renderPlayer();
   updateAnimations();
