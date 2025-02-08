@@ -11,6 +11,12 @@ UIState currentUIState = UI_NORMAL; // Current UI state
 
 bool statusScreen = false;
 
+const int viewportWidth = SCREEN_WIDTH / tileSize;
+const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
+
+float offsetX = 0;
+float offsetY = 0;
+
 uint32_t generateRandomSeed()
 {
   uint8_t  seedBitValue  = 0;

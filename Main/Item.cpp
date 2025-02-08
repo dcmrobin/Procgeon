@@ -1,5 +1,6 @@
 #include "Item.h"
 #include "Inventory.h"
+#include "HelperFunctions.h"
 
 GameItem itemList[] = {
   { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.") },
@@ -30,7 +31,7 @@ PotionEffect potionEffects[] = {
   { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you."), String("You feel better, but so do the enemies close to you.") },
   { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better.") },
   { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this."), String("You lose 50 HP, and the enemies around you gain 20 HP.") },
-  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your speed is doubled.") }
+  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your are faster now, but only for a limited amount of time.") }
 };
 
 void randomizePotionEffects() {
@@ -118,4 +119,14 @@ void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage, 
       }
     }
   }
+}
+
+void renderItemResult() {
+  u8g2.clearBuffer();
+  
+  // Message text
+  u8g2.setFont(u8g2_font_profont12_tr);
+  drawWrappedText(itemResultMessage.c_str(), 15, 65, 100, 12);
+  
+  u8g2.sendBuffer();
 }

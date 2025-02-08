@@ -53,6 +53,12 @@ extern UIState currentUIState; // Current UI state
 
 extern bool statusScreen;
 
+extern const int viewportWidth;
+extern const int viewportHeight;
+
+extern float offsetX;
+extern float offsetY;
+
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);

@@ -208,3 +208,74 @@ void updateScrolling(float playerX, float playerY, int viewportWidth, int viewpo
   offsetX += (targetOffsetX - offsetX) * scrollSpeed;
   offsetY += (targetOffsetY - offsetY) * scrollSpeed;
 }
+
+void drawMinimap(float playerX, float playerY) {
+    u8g2.clearBuffer();
+    int mapScale = 2;
+    
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int tile = dungeonMap[y][x];
+            int drawX = x * mapScale;
+            int drawY = y * mapScale;
+            
+            if (tile == 1) continue;
+            if (tile == 2) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
+            if (tile == 3) u8g2.drawCircle(drawX, drawY, mapScale/2);
+            if (tile == 4) u8g2.drawFrame(drawX, drawY, mapScale, mapScale);
+        }
+    }
+    
+    int playerMinimapX = (playerX) * mapScale;
+    int playerMinimapY = (playerY) * mapScale;
+    u8g2.drawCircle(playerMinimapX, playerMinimapY, 1);
+    
+    u8g2.sendBuffer();
+}
+
+// Render the visible portion of the dungeon
+void renderDungeon() {
+  for (int y = 1; y < viewportHeight + 1; y++) { // +1 to handle partial tiles at edges
+    for (int x = 1; x < viewportWidth + 1; x++) {
+      float mapX = x + offsetX;
+      float mapY = y + offsetY;
+
+      if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
+        // Calculate screen position based on fractional offsets
+        float screenX = (x - (offsetX - (int)offsetX)) * tileSize;
+        float screenY = (y - (offsetY - (int)offsetY)) * tileSize;
+
+        drawTile((int)mapX, (int)mapY, screenX, screenY);
+      }
+    }
+  }
+}
+
+void drawTile(int mapX, int mapY, float screenX, float screenY) {
+  int tileType = dungeonMap[mapY][mapX];
+
+  switch (tileType) {
+    case 0: // Start stairs
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+      break;
+    case 1: // Floor
+      //u8g2.drawFrame(screenX, screenY, tileSize, tileSize);
+      break;
+    case 2: // Wall
+      //u8g2.drawBox(screenX, screenY, tileSize, tileSize);
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
+      break;
+    case 3: // Bars
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSprite);
+      break;
+    case 4: // Exit
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+      break;
+    case 5:
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
+      break;
+    case 6:
+      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, mapSprite);
+      break;
+  }
+}
