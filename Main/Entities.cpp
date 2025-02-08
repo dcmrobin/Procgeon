@@ -8,7 +8,7 @@ Enemy enemies[maxEnemies];
 Projectile projectiles[maxProjectiles];
 
 int damselMoveDelay = 0;
-void updateDamsel(int playerDX, int playerDY, float playerX, float playerY) {
+void updateDamsel(int playerDX, int playerDY) {
   if (!damsel[0].dead) {
     damselMoveDelay++;
   } else {
@@ -104,7 +104,7 @@ void updateDamsel(int playerDX, int playerDY, float playerX, float playerY) {
 }
 
 int atkDelayCounter = 0;
-void updateEnemies(int& playerHP, float playerX, float playerY, String& deathCause) {
+void updateEnemies(int& playerHP, String& deathCause) {
   atkDelayCounter += 1;
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
@@ -177,7 +177,7 @@ void updateEnemies(int& playerHP, float playerX, float playerY, String& deathCau
     }
 
     // Check for collision with the player
-    if (checkSpriteCollisionWithSprite(enemies[i].x, enemies[i].y, playerX, playerY)) {
+    if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
       if (atkDelayCounter >= enemies[i].attackDelay) {
         playerHP -= 5; // Damage player
         atkDelayCounter = 0;
@@ -228,7 +228,7 @@ void moveDamselToPos(float posX, float posY) {
   damsel[0].y = posY;
 }
 
-void shootProjectile(float xDir, float yDir, float playerX, float playerY) {
+void shootProjectile(float xDir, float yDir) {
 
   for (int i = 0; i < maxProjectiles; i++) {
       if (!projectiles[i].active) {
@@ -244,7 +244,7 @@ void shootProjectile(float xDir, float yDir, float playerX, float playerY) {
   }
 }
 
-void renderEnemies(float playerX, float playerY) {
+void renderEnemies() {
   int playerTileX = predictXtile(playerX);
   int playerTileY = predictYtile(playerY);
 
@@ -271,7 +271,7 @@ void renderEnemies(float playerX, float playerY) {
   }
 }
 
-void renderDamsel(float playerX, float playerY) {
+void renderDamsel() {
   // Only render the damsel if she's active and not dead
   if (damsel[0].active && !damsel[0].dead) {
     int playerTileX = predictXtile(playerX);

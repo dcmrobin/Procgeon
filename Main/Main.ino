@@ -9,10 +9,6 @@
 // Smooth scrolling speed
 const float scrollSpeed = 0.25f;
 
-// Player position
-float playerX;
-float playerY;
-
 bool itemResultScreenActive = false;
 
 // Player stats
@@ -58,8 +54,8 @@ void setup() {
   }
 
   // Generate a random dungeon
-  generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
-  spawnEnemies(playerX, playerY);
+  generateDungeon(damsel[0], levelOfDamselDeath, level);
+  spawnEnemies();
 }
 
 void loop() {
@@ -86,11 +82,11 @@ void loop() {
           break;
 
         case UI_MINIMAP:
-          drawMinimap(playerX, playerY);
+          drawMinimap();
           break;
 
         case UI_ITEM_ACTION:
-          handleItemActionMenu(playerHP, playerMaxHP, playerX, playerY, deathCause, speeding, kills, speedTimer);
+          handleItemActionMenu(playerHP, playerMaxHP, deathCause, speeding, kills, speedTimer);
           renderInventory();
           break;
 
@@ -112,17 +108,17 @@ void loop() {
 
 void updateGame() {
   handleInput();
-  updateScrolling(playerX, playerY, viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
-  updateDamsel(playerDX, playerDY, playerX, playerY);
-  updateEnemies(playerHP, playerX, playerY, deathCause);
+  updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
+  updateDamsel(playerDX, playerDY);
+  updateEnemies(playerHP, deathCause);
   updateProjectiles(kills, levelOfDamselDeath, level);
 }
 
 void renderGame() {
   u8g2.clearBuffer();
   renderDungeon();
-  renderDamsel(playerX, playerY);
-  renderEnemies(playerX, playerY);
+  renderDamsel();
+  renderEnemies();
   renderProjectiles();
   renderPlayer();
   updateAnimations();
@@ -209,7 +205,7 @@ void handleInput() {
   }
 
   if (bPressed && !reloading) {
-    shootProjectile(playerDX, playerDY, playerX, playerY); // Shoot in current direction
+    shootProjectile(playerDX, playerDY); // Shoot in current direction
     reloading = true;
   }
 
@@ -334,7 +330,7 @@ void gameOver() {
     playerHP = 100;
     level = 1;
     levelOfDamselDeath = -4;
-    generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level);
+    generateDungeon(damsel[0], levelOfDamselDeath, level);
     for (int i = 0; i < inventorySize; i++) {
       inventory[i] = { Null, "Empty", 0, 0, 0 };
     }
@@ -347,7 +343,7 @@ void gameOver() {
     hasMap = false;
     resetPotionNames();
     randomizePotionEffects();
-    spawnEnemies(playerX, playerY);
+    spawnEnemies();
   }
 }
 
@@ -399,11 +395,11 @@ void showStatusScreen() {
       playerDX = 0;
       playerDY = 1;
       statusScreen = false;
-      generateDungeon(playerX, playerY, damsel[0], levelOfDamselDeath, level); // Generate a new dungeon
+      generateDungeon(damsel[0], levelOfDamselDeath, level); // Generate a new dungeon
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;
       }
-      spawnEnemies(playerX, playerY);
+      spawnEnemies();
 
       hasMap = false;
 

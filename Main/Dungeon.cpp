@@ -5,7 +5,7 @@
 int dungeonMap[mapHeight][mapWidth];
 
 bool generatedMapItem;
-void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOfDamselDeath, int level) {
+void generateDungeon(Damsel& damsel, int levelOfDamselDeath, int level) {
   generatedMapItem = false;
 
   // Initialize map with walls
@@ -175,7 +175,7 @@ void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOf
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
 }
 
-void spawnEnemies(float playerX, float playerY) {
+void spawnEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     while (true) {
       int ex = random(0, mapWidth);
@@ -195,7 +195,7 @@ void setTile(int tileX, int tileY, int tileType) {
   dungeonMap[tileY][tileX] = tileType;
 }
 
-void updateScrolling(float playerX, float playerY, int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY) {
+void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY) {
   // Target offsets based on player's position
   float targetOffsetX = playerX - (viewportWidth / 2.0f) + 0.5f;
   float targetOffsetY = playerY - (viewportHeight / 2.0f) + 0.5f;
@@ -209,7 +209,7 @@ void updateScrolling(float playerX, float playerY, int viewportWidth, int viewpo
   offsetY += (targetOffsetY - offsetY) * scrollSpeed;
 }
 
-void drawMinimap(float playerX, float playerY) {
+void drawMinimap() {
     u8g2.clearBuffer();
     int mapScale = 2;
     
@@ -245,6 +245,7 @@ void renderDungeon() {
         float screenX = (x - (offsetX - (int)offsetX)) * tileSize;
         float screenY = (y - (offsetY - (int)offsetY)) * tileSize;
 
+        // Draw the tile if it's visible
         drawTile((int)mapX, (int)mapY, screenX, screenY);
       }
     }
@@ -254,28 +255,34 @@ void renderDungeon() {
 void drawTile(int mapX, int mapY, float screenX, float screenY) {
   int tileType = dungeonMap[mapY][mapX];
 
-  switch (tileType) {
-    case 0: // Start stairs
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
-      break;
-    case 1: // Floor
-      //u8g2.drawFrame(screenX, screenY, tileSize, tileSize);
-      break;
-    case 2: // Wall
-      //u8g2.drawBox(screenX, screenY, tileSize, tileSize);
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
-      break;
-    case 3: // Bars
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSprite);
-      break;
-    case 4: // Exit
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
-      break;
-    case 5:
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
-      break;
-    case 6:
-      u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, mapSprite);
-      break;
+  // Check visibility for other tiles (stairs, potions, map, etc.)
+  int playerTileX = predictXtile(playerX);
+  int playerTileY = predictYtile(playerY);
+  if (isVisible(playerTileX, playerTileY, mapX, mapY)) {
+    switch (tileType) {
+      case 0: // Start stairs
+        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+        break;
+      case 1: // Floor
+        // No need to draw floors explicitly
+        break;
+      case 2: // Wall
+        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
+        break;
+      case 3: // Bars
+        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSprite);
+        break;
+      case 4: // Exit
+        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+        break;
+      case 5: // Potion
+        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
+        break;
+      case 6: // Map
+        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, mapSprite);
+        break;
+    }
+  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) and tileType == 2) {
+    u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSpriteDim);
   }
 }

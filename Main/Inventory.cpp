@@ -35,7 +35,7 @@ void handleInventoryItemUsage() {
   }
 }
 
-void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills, int& speedTimer) {
+void handleItemActionMenu(int& playerHP, int& playerMaxHP, String& deathCause, bool& speeding, int& kills, int& speedTimer) {
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     selectedActionIndex--;

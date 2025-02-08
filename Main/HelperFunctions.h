@@ -56,6 +56,9 @@ extern bool statusScreen;
 extern const int viewportWidth;
 extern const int viewportHeight;
 
+extern float playerX;
+extern float playerY;
+
 extern float offsetX;
 extern float offsetY;
 

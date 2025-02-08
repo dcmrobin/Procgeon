@@ -24,6 +24,17 @@ const unsigned char PROGMEM wallSprite[] = {
   0b11101110
 };
 
+const unsigned char PROGMEM wallSpriteDim[] = {
+  0b00000000,
+  0b10101010,
+  0b00000000,
+  0b10010010,
+  0b00101001,
+  0b00000000,
+  0b10100100,
+  0b01001010
+};
+
 // Bars sprite
 const unsigned char PROGMEM barsSprite[] = {
   0b11111111,
@@ -156,14 +167,14 @@ const unsigned char PROGMEM potionSprite[] = {
 };
 
 const unsigned char PROGMEM mapSprite[] = {
-    0b00000000,
-    0b01111110,
-    0b11010101,
-    0b10100011,
-    0b11010101,
-    0b10001011,
-    0b11111111,
-    0b10000001
+  0b00000000,
+  0b11111111,
+  0b10111001,
+  0b10100001,
+  0b10001101,
+  0b10100101,
+  0b11111111,
+  0b00000000
 };
 
 const unsigned char rescueDamselScreen [] PROGMEM = {

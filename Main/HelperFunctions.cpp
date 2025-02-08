@@ -14,6 +14,9 @@ bool statusScreen = false;
 const int viewportWidth = SCREEN_WIDTH / tileSize;
 const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
 
+float playerX = 0;
+float playerY = 0;
+
 float offsetX = 0;
 float offsetY = 0;
 
@@ -251,17 +254,19 @@ bool isVisible(int x0, int y0, int x1, int y1) {
   int err = dx - dy;
 
   while (true) {
-    // Check bounds
+    // Check bounds first
     if (x0 < 0 || x0 >= mapWidth || y0 < 0 || y0 >= mapHeight) return false;
-    
-    // Check if tile blocks visibility
+
+    // **If we've reached the target tile, exit the loop**
+    if (x0 == x1 && y0 == y1)
+      break;
+
+    // Now check for obstruction
     int tile = dungeonMap[y0][x0];
-    if (tile == 2 || tile == 3) return false; // Walls or bars
-    
-    // Reached target tile
-    if (x0 == x1 && y0 == y1) break;
-    
-    // Move to next tile
+    if (tile == 2)
+      return false;
+
+    // Move to the next tile along the line
     int e2 = 2 * err;
     if (e2 > -dy) {
       err -= dy;

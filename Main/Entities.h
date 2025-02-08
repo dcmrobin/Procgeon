@@ -35,13 +35,13 @@ struct Projectile {
 };
 extern Projectile projectiles[maxProjectiles];
 
-void updateEnemies(int& playerHP, float playerX, float playerY, String& deathCause);
-void updateDamsel(int playerDX, int playerDY, float playerX, float playerY);
+void updateEnemies(int& playerHP, String& deathCause);
+void updateDamsel(int playerDX, int playerDY);
 void updateProjectiles(int& kills, int& levelOfDamselDeath, int level);
 void moveDamselToPos(float posX, float posY);
-void shootProjectile(float xDir, float yDir, float playerX, float playerY);
-void renderEnemies(float playerX, float playerY);
-void renderDamsel(float playerX, float playerY);
+void shootProjectile(float xDir, float yDir);
+void renderEnemies();
+void renderDamsel();
 void renderProjectiles();
 
 #endif

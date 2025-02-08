@@ -15,7 +15,7 @@ extern String itemResultMessage;
 bool addToInventory(GameItem item);
 void handleInventoryNavigation();
 void handleInventoryItemUsage();
-void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float playerY, String& deathCause, bool& speeding, int& kills, int& speedTimer);
+void handleItemActionMenu(int& playerHP, int& playerMaxHP, String& deathCause, bool& speeding, int& kills, int& speedTimer);
 void renderInventory();
 
 #endif

@@ -10,11 +10,11 @@
 
 extern int dungeonMap[mapHeight][mapWidth];
 
-void generateDungeon(float& playerX, float& playerY, Damsel& damsel, int levelOfDamselDeath, int level);
-void spawnEnemies(float playerX, float playerY);
+void generateDungeon(Damsel& damsel, int levelOfDamselDeath, int level);
+void spawnEnemies();
 void setTile(int tileX, int tileY, int tileType);
-void updateScrolling(float playerX, float playerY, int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);
-void drawMinimap(float playerX, float playerY);
+void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);
+void drawMinimap();
 void renderDungeon();
 void drawTile(int mapX, int mapY, float screenX, float screenY);
 
