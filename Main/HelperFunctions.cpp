@@ -1,5 +1,4 @@
 #include "HelperFunctions.h"
-#include "Dungeon.h"
 
 ButtonStates buttons = {false};
 
@@ -7,6 +6,8 @@ ButtonStates buttons = {false};
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
 UIState currentUIState = UI_NORMAL; // Current UI state
+
+bool statusScreen = false;
 
 uint32_t generateRandomSeed()
 {
@@ -111,4 +112,45 @@ void updateButtonStates() {
   buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
   buttons.aPressed = !digitalRead(BUTTON_A_PIN);
   buttons.bPressed = !digitalRead(BUTTON_B_PIN);
+}
+
+void handleUIStateTransitions(bool hasMap) {
+  if (buttons.aPressed && !buttons.aPressedPrev) {
+    switch (currentUIState) {
+      case UI_NORMAL: 
+        if (!statusScreen) currentUIState = UI_INVENTORY;
+        break;
+      case UI_INVENTORY: 
+        currentUIState = hasMap ? UI_MINIMAP : UI_NORMAL; 
+        break;
+      case UI_MINIMAP: 
+        currentUIState = UI_NORMAL; 
+        break;
+      case UI_ITEM_ACTION: 
+        currentUIState = UI_INVENTORY;
+        break;
+      case UI_ITEM_INFO: 
+        currentUIState = UI_INVENTORY;
+        break;
+      case UI_ITEM_RESULT: 
+        currentUIState = UI_NORMAL;
+        break;
+    }
+  }
+}
+
+int blobanimcounter = 0;
+int damselanimcounter = 0;
+void updateAnimations() {
+  blobanimcounter += 1;
+  if (blobanimcounter >= 20) {
+    blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
+    blobanimcounter = 0;
+  }
+  
+  damselanimcounter += 1;
+  if (damselanimcounter >= random(50, 90)) {
+    damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
+    damselanimcounter = 0;
+  }
 }

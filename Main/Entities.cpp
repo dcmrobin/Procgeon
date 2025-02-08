@@ -28,7 +28,7 @@ void updateDamsel(int playerDX, int playerDY, float playerX, float playerY) {
   int distanceSquared = dx * dx + dy * dy;
 
   // Check if the damsel should follow the player
-  if (distanceSquared <= 25) { // Follow if within 5 tiles (distance^2 = 25)
+  if (distanceSquared <= 25 + (damsel[0].levelOfLove*2)) { // Follow if within 5 tiles (distance^2 = 25)
     damsel[0].followingPlayer = true;
     damsel[0].speed = 0.3;
   } else {

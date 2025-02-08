@@ -2,6 +2,9 @@
 #define HELPERFUNCTIONS_H
 
 #include <Arduino.h>
+#include "Dungeon.h"
+#include "Entities.h"
+#include "Sprites.h"
 
 #define OLED_MOSI 11
 #define OLED_CLK 13
@@ -45,6 +48,8 @@ extern int selectedActionIndex; // 0 = Use, 1 = Drop, 2 = Info
 
 extern UIState currentUIState; // Current UI state
 
+extern bool statusScreen;
+
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
@@ -56,5 +61,7 @@ bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY);
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX);
 bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y);
 void updateButtonStates();
+void handleUIStateTransitions(bool hasMap);
+void updateAnimations();
 
 #endif

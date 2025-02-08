@@ -29,7 +29,6 @@ int playerHP = 100;
 int playerMaxHP = 100;
 int level = 1;
 int kills = 0;
-bool statusScreen = false;
 unsigned int lvlHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 String deathCause = "";
@@ -82,7 +81,7 @@ void loop() {
 
   if (playerHP > 0) {
     if (!statusScreen) {
-      handleUIStateTransitions();
+      handleUIStateTransitions(hasMap);
       switch (currentUIState) {
         case UI_NORMAL:
           if (currentTime - lastUpdateTime >= frameDelay) {
@@ -120,31 +119,6 @@ void loop() {
     }
   } else {
     gameOver();
-  }
-}
-
-void handleUIStateTransitions() {
-  if (buttons.aPressed && !buttons.aPressedPrev) {
-    switch (currentUIState) {
-      case UI_NORMAL: 
-        if (!statusScreen) currentUIState = UI_INVENTORY;
-        break;
-      case UI_INVENTORY: 
-        currentUIState = hasMap ? UI_MINIMAP : UI_NORMAL; 
-        break;
-      case UI_MINIMAP: 
-        currentUIState = UI_NORMAL; 
-        break;
-      case UI_ITEM_ACTION: 
-        currentUIState = UI_INVENTORY;
-        break;
-      case UI_ITEM_INFO: 
-        currentUIState = UI_INVENTORY;
-        break;
-      case UI_ITEM_RESULT: 
-        currentUIState = UI_NORMAL;
-        break;
-    }
   }
 }
 
@@ -277,17 +251,15 @@ void updateGame() {
 }
 
 void renderGame() {
-  if (currentUIState == UI_NORMAL) {
-    u8g2.clearBuffer();
-    renderDungeon();
-    renderDamsel();
-    renderEnemies();
-    renderProjectiles();
-    renderPlayer();
-    updateAnimations();
-    renderUI();
-    u8g2.sendBuffer();
-  }
+  u8g2.clearBuffer();
+  renderDungeon();
+  renderDamsel();
+  renderEnemies();
+  renderProjectiles();
+  renderPlayer();
+  updateAnimations();
+  renderUI();
+  u8g2.sendBuffer();
 }
 
 void drawMinimap() {
@@ -312,22 +284,6 @@ void drawMinimap() {
     u8g2.drawCircle(playerMinimapX, playerMinimapY, 1);
     
     u8g2.sendBuffer();
-}
-
-int blobanimcounter = 0;
-int damselanimcounter = 0;
-void updateAnimations() {
-  blobanimcounter += 1;
-  if (blobanimcounter >= 20) {
-    blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
-    blobanimcounter = 0;
-  }
-  
-  damselanimcounter += 1;
-  if (damselanimcounter >= random(50, 90)) {
-    damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
-    damselanimcounter = 0;
-  }
 }
 
 // Render the visible portion of the dungeon
@@ -385,7 +341,6 @@ void renderPlayer() {
 
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
-    //u8g2.drawDisc(screenX + tileSize / 2, screenY + tileSize / 2, tileSize / 3, U8G2_DRAW_ALL);
     u8g2.drawXBMP((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, tileSize, tileSize, playerSprite);
   }
 }
@@ -566,39 +521,14 @@ void handleInput() {
   }
 }
 
-bool pressed;
 int page = 1;
-int pageDelay = 0;
-bool bWasPressedOnDeath = false;  // NEW: Tracks if B was pressed when player died
 
 void gameOver() {
-  bool bPressed = !digitalRead(BUTTON_B_PIN);
-  bool aPressed = !digitalRead(BUTTON_A_PIN);
-
-  if (aPressed && !pressed) {
+  if (buttons.aPressed && !buttons.aPressedPrev) {
     page++;
     if (page == 3) {
       page = 1;
     }
-    pressed = true;
-  }
-
-  if (!aPressed) {
-    pageDelay = 0;
-    pressed = false;
-  }
-
-  if (pressed) {
-    pageDelay++;
-    if (pageDelay >= 50) {
-      pageDelay = 0;
-      pressed = false;
-    }
-  }
-
-  // Check if B was held on death, and only allow restart if it has been released
-  if (!bPressed) {
-    bWasPressedOnDeath = false;  // Player has released B, so allow restart
   }
 
   char Lvl[7];
@@ -652,10 +582,7 @@ void gameOver() {
 
   u8g2.sendBuffer();
 
-  // Only allow restart if B was **not** pressed when the player died and is now being pressed
-  if (bPressed && !bWasPressedOnDeath) {
-    bWasPressedOnDeath = true;  // Mark that B was pressed to prevent instant restart
-
+  if (buttons.bPressed && !buttons.bPressedPrev) {
     playerHP = 100;
     level = 1;
     levelOfDamselDeath = -4;
