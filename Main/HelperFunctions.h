@@ -2,6 +2,7 @@
 #define HELPERFUNCTIONS_H
 
 #include <Arduino.h>
+#include <U8g2lib.h>
 #include "Dungeon.h"
 #include "Entities.h"
 #include "Sprites.h"
@@ -20,6 +21,8 @@
 #define seedPin A0
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 128
+
+extern U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2;
 
 struct ButtonStates {
   bool upPressed;
@@ -63,5 +66,6 @@ bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite
 void updateButtonStates();
 void handleUIStateTransitions(bool hasMap);
 void updateAnimations();
+void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight);
 
 #endif

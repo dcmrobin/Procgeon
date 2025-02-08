@@ -94,3 +94,50 @@ void handleItemActionMenu(int& playerHP, int& playerMaxHP, float playerX, float 
     }
   }
 }
+
+void renderInventory() {
+  u8g2.clearBuffer();
+
+  // Draw inventory title
+  if (currentUIState == UI_INVENTORY) {
+    u8g2.setFont(u8g2_font_ncenB14_tr);
+    u8g2.drawStr(10, 15, "Inventory");
+
+    // Draw inventory items
+    u8g2.setFont(u8g2_font_profont12_tr);
+    for (int i = 0; i < inventorySize; i++) {
+      int yPos = 30 + (i * 12);
+      if (i == selectedInventoryIndex) {
+        u8g2.drawStr(5, yPos, ">");
+      }
+      u8g2.drawStr(15, yPos, inventory[i].name.c_str());
+    }
+  } else if (currentUIState == UI_ITEM_INFO) {
+    u8g2.setFont(u8g2_font_profont12_tr);
+    u8g2.drawStr(3, 125, inventory[selectedInventoryIndex].originalName.c_str());
+    drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
+  } else if (currentUIState == UI_ITEM_RESULT) {
+    u8g2.setFont(u8g2_font_profont12_tr);
+    drawWrappedText(itemResultMessage.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
+    if (buttons.bPressed && !buttons.bPressedPrev) {
+      currentUIState = UI_NORMAL;
+    }
+  } else if (currentUIState == UI_ITEM_ACTION) {    
+    // Background
+    u8g2.drawFrame(50, 40, 60, 50);
+    u8g2.drawBox(50, 40, 60, 12);
+    
+    // Title
+    u8g2.setFont(u8g2_font_profont12_tr);
+    u8g2.setDrawColor(0);
+    u8g2.drawStr(55, 50, "Options:");
+    u8g2.setDrawColor(1);
+    
+    // Actions
+    u8g2.drawStr(55, 63, selectedActionIndex == 0 ? "> Use" : "  Use");
+    u8g2.drawStr(55, 73, selectedActionIndex == 1 ? "> Drop" : "  Drop");
+    u8g2.drawStr(55, 83, selectedActionIndex == 2 ? "> Info" : "  Info");
+  }
+
+  u8g2.sendBuffer();
+}

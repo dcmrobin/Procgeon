@@ -1,4 +1,3 @@
-#include <U8g2lib.h>
 #include <EEPROM.h>
 #include "Sprites.h"
 #include "Dungeon.h"
@@ -39,9 +38,6 @@ bool hasMap;
 
 int playerDX;
 int playerDY;
-
-// SH1107 128x128 SPI Constructor
-U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
@@ -122,53 +118,6 @@ void loop() {
   }
 }
 
-void renderInventory() {
-  u8g2.clearBuffer();
-
-  // Draw inventory title
-  if (currentUIState == UI_INVENTORY) {
-    u8g2.setFont(u8g2_font_ncenB14_tr);
-    u8g2.drawStr(10, 15, "Inventory");
-
-    // Draw inventory items
-    u8g2.setFont(u8g2_font_profont12_tr);
-    for (int i = 0; i < inventorySize; i++) {
-      int yPos = 30 + (i * 12);
-      if (i == selectedInventoryIndex) {
-        u8g2.drawStr(5, yPos, ">");
-      }
-      u8g2.drawStr(15, yPos, inventory[i].name.c_str());
-    }
-  } else if (currentUIState == UI_ITEM_INFO) {
-    u8g2.setFont(u8g2_font_profont12_tr);
-    u8g2.drawStr(3, 125, inventory[selectedInventoryIndex].originalName.c_str());
-    drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
-  } else if (currentUIState == UI_ITEM_RESULT) {
-    u8g2.setFont(u8g2_font_profont12_tr);
-    drawWrappedText(itemResultMessage.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
-    if (buttons.bPressed && !buttons.bPressedPrev) {
-      currentUIState = UI_NORMAL;
-    }
-  } else if (currentUIState == UI_ITEM_ACTION) {    
-    // Background
-    u8g2.drawFrame(50, 40, 60, 50);
-    u8g2.drawBox(50, 40, 60, 12);
-    
-    // Title
-    u8g2.setFont(u8g2_font_profont12_tr);
-    u8g2.setDrawColor(0);
-    u8g2.drawStr(55, 50, "Options:");
-    u8g2.setDrawColor(1);
-    
-    // Actions
-    u8g2.drawStr(55, 63, selectedActionIndex == 0 ? "> Use" : "  Use");
-    u8g2.drawStr(55, 73, selectedActionIndex == 1 ? "> Drop" : "  Drop");
-    u8g2.drawStr(55, 83, selectedActionIndex == 2 ? "> Info" : "  Info");
-  }
-
-  u8g2.sendBuffer();
-}
-
 void renderItemResult() {
   u8g2.clearBuffer();
   
@@ -177,69 +126,6 @@ void renderItemResult() {
   drawWrappedText(itemResultMessage.c_str(), 15, 65, 100, 12);
   
   u8g2.sendBuffer();
-}
-
-void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight) {
-  const char *wordStart = text;
-  char lineBuffer[256] = {0};  // Buffer for building a line
-  int lineBufferLen = 0;
-  
-  while (*wordStart) {
-    // Find the next space or end of string
-    const char *wordEnd = wordStart;
-    while (*wordEnd && *wordEnd != ' ') {
-      wordEnd++;
-    }
-    
-    // Extract the word
-    int wordLen = wordEnd - wordStart;
-    char word[64] = {0}; // Assumes words are less than 64 characters
-    strncpy(word, wordStart, wordLen);
-    word[wordLen] = '\0';
-    
-    // Determine the width of the current line plus a space (if needed) and the new word
-    //int testLen = lineBufferLen > 0 ? lineBufferLen + 1 + wordLen : wordLen;
-    
-    // Create a temporary string to measure
-    char testLine[256] = {0};
-    if (lineBufferLen > 0) {
-      snprintf(testLine, sizeof(testLine), "%s %s", lineBuffer, word);
-    } else {
-      snprintf(testLine, sizeof(testLine), "%s", word);
-    }
-    
-    int textWidth = u8g2.getStrWidth(testLine);
-    
-    // If the line is too long, draw the current line and start a new one.
-    if (textWidth > maxWidth && lineBufferLen > 0) {
-      u8g2.drawStr(x, y, lineBuffer);
-      y += lineHeight;
-      lineBuffer[0] = '\0';  // Reset the line buffer
-      lineBufferLen = 0;
-      
-      // If the word itself is longer than maxWidth, you might need to break the word further.
-      // For now, we'll just put the long word on its own line.
-    }
-    
-    // Append the word to the line buffer
-    if (lineBufferLen > 0) {
-      strncat(lineBuffer, " ", sizeof(lineBuffer) - strlen(lineBuffer) - 1);
-      lineBufferLen++;
-    }
-    strncat(lineBuffer, word, sizeof(lineBuffer) - strlen(lineBuffer) - 1);
-    lineBufferLen = strlen(lineBuffer);
-    
-    // Skip any spaces in the source text
-    while (*wordEnd == ' ') {
-      wordEnd++;
-    }
-    wordStart = wordEnd;
-  }
-  
-  // Draw any remaining text in the line buffer
-  if (lineBufferLen > 0) {
-    u8g2.drawStr(x, y, lineBuffer);
-  }
 }
 
 void updateGame() {
