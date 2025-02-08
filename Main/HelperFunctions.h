@@ -73,5 +73,6 @@ void updateButtonStates();
 void handleUIStateTransitions(bool hasMap);
 void updateAnimations();
 void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight);
+void renderUI(int playerHP, int level, bool hasMap);
 
 #endif

@@ -225,3 +225,20 @@ void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeigh
     u8g2.drawStr(x, y, lineBuffer);
   }
 }
+
+void renderUI(int playerHP, int level, bool hasMap) { 
+  char HP[4];
+  char Lvl[7];
+  snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
+  snprintf(Lvl, sizeof(Lvl), "%d", level);
+  
+  u8g2.setFont(u8g2_font_5x7_tr);
+  u8g2.drawStr(5, 123, "HP:");
+  u8g2.drawStr(20, 123, HP);
+  u8g2.drawStr(40, 123, "LVL:");
+  u8g2.drawStr(60, 123, Lvl);
+  u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
+  if (hasMap) {
+    u8g2.drawXBM(70, 115, 8, 8, mapSprite);
+  }
+}

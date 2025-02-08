@@ -243,3 +243,33 @@ void shootProjectile(float xDir, float yDir, float playerX, float playerY) {
       }
   }
 }
+
+void renderEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp > 0) {
+      float screenX = (enemies[i].x - offsetX) * tileSize;
+      float screenY = (enemies[i].y - offsetY) * tileSize;
+      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
+        u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
+      }
+    }
+  }
+}
+
+void renderDamsel() {
+  float screenX = (damsel[0].x - offsetX) * tileSize;
+  float screenY = (damsel[0].y - offsetY) * tileSize;
+  if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
+    u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
+  }
+}
+
+void renderProjectiles() {
+    for (int i = 0; i < maxProjectiles; i++) {
+        if (projectiles[i].active) {
+          float screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
+          float screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
+          u8g2.drawDisc(screenX, screenY, 1);
+        }
+    }
+}

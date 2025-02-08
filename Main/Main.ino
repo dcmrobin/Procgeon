@@ -126,7 +126,7 @@ void renderGame() {
   renderProjectiles();
   renderPlayer();
   updateAnimations();
-  renderUI();
+  renderUI(playerHP, level, hasMap);
   u8g2.sendBuffer();
 }
 
@@ -138,54 +138,6 @@ void renderPlayer() {
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
     u8g2.drawXBMP((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, tileSize, tileSize, playerSprite);
-  }
-}
-
-void renderEnemies() {
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0) {
-      float screenX = (enemies[i].x - offsetX) * tileSize;
-      float screenY = (enemies[i].y - offsetY) * tileSize;
-      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-        u8g2.drawXBMP(screenX, screenY, 8, 8, blobSprite);
-      }
-    }
-  }
-}
-
-void renderDamsel() {
-  float screenX = (damsel[0].x - offsetX) * tileSize;
-  float screenY = (damsel[0].y - offsetY) * tileSize;
-  if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-    u8g2.drawXBMP(screenX, screenY, 8, 8, damselSprite);
-  }
-}
-
-void renderProjectiles() {
-    for (int i = 0; i < maxProjectiles; i++) {
-        if (projectiles[i].active) {
-          float screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
-          float screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
-          u8g2.drawDisc(screenX, screenY, 1);
-        }
-    }
-}
-
-// Render the UI
-void renderUI() { 
-  char HP[4];
-  char Lvl[7];
-  snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
-  snprintf(Lvl, sizeof(Lvl), "%d", level);
-  
-  u8g2.setFont(u8g2_font_5x7_tr);
-  u8g2.drawStr(5, 123, "HP:");
-  u8g2.drawStr(20, 123, HP);
-  u8g2.drawStr(40, 123, "LVL:");
-  u8g2.drawStr(60, 123, Lvl);
-  u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
-  if (hasMap) {
-    u8g2.drawXBM(70, 115, 8, 8, mapSprite);
   }
 }
 
