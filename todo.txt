@@ -27,6 +27,5 @@ Need to scale enemy hp with levels- but also make the player have some way of ge
 
 The player could level up the more kills they get, and therefore increase in health.
 
-Add an x-ray potion that lets you see enemies and damsel through walls.
-
-Add nightvision potion that lets every tile not be dim, no matter how far away the player is from them
+Add a see-all potion that makes the walls all not be dim and the player being able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
+normally see without it?
