@@ -41,6 +41,8 @@ void handleInput() {
     }
   }
 
+  float diagSpeed = speed * 0.7071;
+
   if (buttons.upPressed && !buttons.leftPressed && !buttons.rightPressed) {
     playerDY = -1;
     playerDX = 0;
@@ -63,26 +65,26 @@ void handleInput() {
     playerDY = -1;
     playerDX = -1;
     playerSprite = playerSpriteLeft;
-    newY -= speed; // Move up & left
-    newX -= speed; // Move up & left
+    newY -= diagSpeed; // Move up & left
+    newX -= diagSpeed; // Move up & left
   } else if (buttons.upPressed && buttons.rightPressed) {
     playerDY = -1;
     playerDX = 1;
     playerSprite = playerSpriteRight;
-    newY -= speed; // Move up & right
-    newX += speed; // Move up & left
+    newY -= diagSpeed; // Move up & right
+    newX += diagSpeed; // Move up & left
   } else if (buttons.downPressed && buttons.leftPressed) {
     playerDX = -1;
     playerDY = 1;
     playerSprite = playerSpriteLeft;
-    newX -= speed; // Move left & down
-    newY += speed; // Move up & left
+    newX -= diagSpeed; // Move left & down
+    newY += diagSpeed; // Move up & left
   } else if (buttons.downPressed && buttons.rightPressed) {
     playerDX = 1;
     playerDY = 1;
     playerSprite = playerSpriteRight;
-    newX += speed; // Move right & down
-    newY += speed; // Move up & left
+    newX += diagSpeed; // Move right & down
+    newY += diagSpeed; // Move up & left
   }
 
   if (buttons.bPressed && !reloading) {
