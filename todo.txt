@@ -1,13 +1,16 @@
-There could be traps
+There could be traps- Arrow traps that shoot in a straight line out of the wall, teleporters that teleport the player to a random place in the map, and spike traps that
+deal damage when stepped on.
 
-Some items could be cursed or blessed... though I'm not sure what they would do.
+Some items could be cursed or blessed... one thing that these curses could do is increase the enemy awareness radius, and blessed items, when equipped, in addition
+to their normal function, could like add a max health bonus or speed bonus- but only when wearing that item.
 
 Right now, the inventory is just a set seven slots. Maybe I'll implement different pages that you switch between using the left and right buttons. There would be a page
 for each item type probably.
 
 Maybe you'll be able to equip items?
 
-Add rings that when you equip them, grant you a buff or debuff in things like speed, damage, etc.
+Add rings that when you equip them, grant you a buff or debuff in things like speed, damage, or even one that is called The Ring of Power or The One Ring that makes you
+invisible to enemies- unfortunately, invisible to the damsel as well. That ring would only be used in solo runs when you don't care about the damsel maybe.
 
 Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her.
 The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel. When this happens, she will passively heal you
@@ -26,13 +29,13 @@ two of each of those screens. One with dithering which I already have, and one w
 
 Could have for when I get greyscale screen, the walls don't go directly from bright to dim, they might be able to sort of fade
 
-Need to scale enemy hp with levels- but also make the player have some way of getting an increase in damage.
+Need to scale enemy hp and damage with levels- but also make the player have some way of getting an increase in damage.
 
 The player could level up the more kills they get, and therefore increase in health. The player would be able to see their status (level, health, etc in greater
 detail) by pressing "select" button. The player would be able to pause the game using "start" button.
 
 Add a see-all potion that makes the walls all not be dim and the player being able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
-normally see without it?
+normally see without it? Also highlights secret passages?
 
 For when the player has a speed boost or any other effect, there would be a icon on the normal UI like a boot for speed or eye for see-all.
 
@@ -40,4 +43,7 @@ There would be scrolls containing lore that you find around the map.
 
 There could be secret doors- walls you could walk through to another room that might be full of loot.
 
-Crafting system? Where you could combine potions/items to create new better things?
+Crafting system? Where you could combine potions/items to create new better things? Maybe you could select one potion, press "combine" and then select another potion,
+and it would add the two effects together? Need to figure out the naming system for that kind of thing though.
+
+There could be enemies that when they touch you, teleport you to a random part in the map- there could be an item for this as well.
