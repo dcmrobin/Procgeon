@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "HelperFunctions.h"
 #include "Inventory.h"
+#include "Dungeon.h"
 
 float playerX = 0;
 float playerY = 0;
@@ -103,7 +104,7 @@ void handleInput() {
   if (Serial.available() > 0) {// for debug purposes
     char input = Serial.read();
     if (input == '7') {
-      setTile((int)playerX, (int)playerY, 4);
+      setTile((int)playerX, (int)playerY, Exit);
     } else if (input == '8') {
       moveDamselToPos(playerX, playerY);
       if (!damsel[0].active) {
@@ -116,7 +117,7 @@ void handleInput() {
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == 1 || dungeonMap[rNewY][rNewX] == 4 || dungeonMap[rNewY][rNewX] == 0) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs) {
     playerX = newX;
     playerY = newY;
 
@@ -125,21 +126,20 @@ void handleInput() {
     if (playerX - offsetX > viewportWidth - 3 && offsetX < mapWidth - viewportWidth) offsetX += scrollSpeed;
     if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
-  } else if (dungeonMap[rNewY][rNewX] == 5) {
+  } else if (dungeonMap[rNewY][rNewX] == Potion) {
     if (addToInventory(getItem(getRandomPotion(random(7))))) {
-      dungeonMap[rNewY][rNewX] = 1;
+      dungeonMap[rNewY][rNewX] = Floor;
     }
-  } else if (dungeonMap[rNewY][rNewX] == 6) {
+  } else if (dungeonMap[rNewY][rNewX] == Map) {
     hasMap = true;
-    dungeonMap[rNewY][rNewX] = 1;
+    dungeonMap[rNewY][rNewX] = Floor;
   }
 
   int rPx = round(playerX);
   int rPy = round(playerY);
 
   // Check if the player reached the exit
-  if (dungeonMap[rPy][rPx] == 4) {
-    Serial.println("You reached the exit!");
+  if (dungeonMap[rPy][rPx] == Exit) {
     if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
       levelOfDamselDeath = dungeon;
       damsel[0].active = false;

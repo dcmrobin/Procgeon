@@ -8,11 +8,21 @@
 #define mapHeight 64  // Total map height in tiles
 #define tileSize 8    // Size of each tile (in pixels)
 
-extern int dungeonMap[mapHeight][mapWidth];
+enum TileTypes {
+  StartStairs,
+  Floor,
+  Wall,
+  Bars,
+  Exit,
+  Potion,
+  Map
+};
+
+extern TileTypes dungeonMap[mapHeight][mapWidth];
 
 void generateDungeon();
 void spawnEnemies();
-void setTile(int tileX, int tileY, int tileType);
+void setTile(int tileX, int tileY, TileTypes tileType);
 void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);
 void drawMinimap();
 void renderDungeon();

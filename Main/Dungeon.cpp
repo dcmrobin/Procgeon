@@ -3,7 +3,7 @@
 #include "Entities.h"
 #include "Player.h"
 
-int dungeonMap[mapHeight][mapWidth];
+TileTypes dungeonMap[mapHeight][mapWidth];
 
 bool generatedMapItem;
 void generateDungeon() {
@@ -12,7 +12,7 @@ void generateDungeon() {
   // Initialize map with walls
   for (int y = 0; y < mapHeight; y++) {
     for (int x = 0; x < mapWidth; x++) {
-      dungeonMap[y][x] = 2; // Wall
+      dungeonMap[y][x] = Wall;
     }
   }
 
@@ -38,7 +38,7 @@ void generateDungeon() {
   rooms[roomCount++] = {startRoomX, startRoomY, startRoomWidth, startRoomHeight};
   for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
     for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
-      dungeonMap[y][x] = 1; // Floor
+      dungeonMap[y][x] = Floor;
     }
   }
 
@@ -64,12 +64,12 @@ void generateDungeon() {
       rooms[roomCount++] = {roomX, roomY, roomWidth, roomHeight};
       for (int y = roomY; y < roomY + roomHeight; y++) {
         for (int x = roomX; x < roomX + roomWidth; x++) {
-          dungeonMap[y][x] = 1; // Floor
+          dungeonMap[y][x] = Floor;
           if (random(0, 50) > 47) {
-            dungeonMap[y][x] = 5;
+            dungeonMap[y][x] = Potion;
           }
           if (!generatedMapItem && x > roomX + 1 && y > roomY + 1) {
-            dungeonMap[y][x] = 6;
+            dungeonMap[y][x] = Map;
             generatedMapItem = true;
           }
         }
@@ -98,20 +98,20 @@ void generateDungeon() {
   // This is to get rid of any lone tiles
   for (int y = 0; y < mapHeight; y++) {
     for (int x = 0; x < mapWidth; x++) {
-      if (dungeonMap[y][x] == 2) {
+      if (dungeonMap[y][x] == Wall) {
         int neighbors = 0;
 
         for(int nx = -1; nx < 2; nx++) {
           for(int ny = -1; ny < 2; ny++) {
             if (nx == 0 && ny == 0) continue;
-            if (dungeonMap[y + ny][x + nx] == 2) {
+            if (dungeonMap[y + ny][x + nx] == Wall) {
               neighbors += 1;
             }
           }
         }
 
         if (neighbors <= 1) {
-          dungeonMap[y][x] = 1;
+          dungeonMap[y][x] = Floor;
         }
       }
     }
@@ -133,9 +133,9 @@ void generateDungeon() {
     for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
       for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
         if ((y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) && x >= damselRoomX && x < damselRoomX + damselRoomWidth) {
-          dungeonMap[y][x] = 3; // Walls using barsSprite
+          dungeonMap[y][x] = Bars;
         } else {
-          dungeonMap[y][x] = 1; // Floor
+          dungeonMap[y][x] = Floor;
         }
       }
     }
@@ -162,18 +162,18 @@ void generateDungeon() {
     damsel[0].active = false;
   }
 
-  dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;
+  dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = StartStairs;
 
   // Ensure player start
   int playerStartX = startRoomX + startRoomWidth / 2;
   int playerStartY = startRoomY + startRoomHeight / 2;
-  dungeonMap[playerStartY][playerStartX] = 1; // Make sure the player's position is a floor
+  dungeonMap[playerStartY][playerStartX] = Floor; // Make sure the player's position is a floor
   playerX = playerStartX;
   playerY = playerStartY;
 
   // Place the exit in the last room
   dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]
-            [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = 4; // Exit
+            [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = Exit;
 }
 
 void spawnEnemies() {
@@ -183,7 +183,7 @@ void spawnEnemies() {
       int ey = random(0, mapHeight);
 
       // Check if the tile is a floor and if it's outside the player's radius
-      if (dungeonMap[ey][ex] == 1 && 
+      if (dungeonMap[ey][ex] == Floor && 
           sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) { // 10-unit radius check
         enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
         break;
@@ -192,7 +192,7 @@ void spawnEnemies() {
   }
 }
 
-void setTile(int tileX, int tileY, int tileType) {
+void setTile(int tileX, int tileY, TileTypes tileType) {
   dungeonMap[tileY][tileX] = tileType;
 }
 
@@ -216,14 +216,14 @@ void drawMinimap() {
     
     for (int y = 0; y < mapHeight; y++) {
         for (int x = 0; x < mapWidth; x++) {
-            int tile = dungeonMap[y][x];
+            TileTypes tile = dungeonMap[y][x];
             int drawX = x * mapScale;
             int drawY = y * mapScale;
             
-            if (tile == 1) continue;
-            if (tile == 2) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
-            if (tile == 3) u8g2.drawCircle(drawX, drawY, mapScale/2);
-            if (tile == 4) u8g2.drawFrame(drawX, drawY, mapScale, mapScale);
+            if (tile == Floor) continue;
+            if (tile == Wall) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
+            if (tile == Bars) u8g2.drawCircle(drawX, drawY, mapScale/2);
+            if (tile == Exit) u8g2.drawFrame(drawX, drawY, mapScale, mapScale);
         }
     }
     
@@ -254,32 +254,32 @@ void renderDungeon() {
 }
 
 void drawTile(int mapX, int mapY, float screenX, float screenY) {
-  int tileType = dungeonMap[mapY][mapX];
+  TileTypes tileType = dungeonMap[mapY][mapX];
 
   // Check visibility for other tiles (stairs, potions, map, etc.)
   int playerTileX = predictXtile(playerX);
   int playerTileY = predictYtile(playerY);
   if (isVisible(playerTileX, playerTileY, mapX, mapY)) {
     switch (tileType) {
-      case 0: // Start stairs
+      case StartStairs:
         u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
         break;
-      case 1: // Floor
+      case Floor:
         // No need to draw floors explicitly
         break;
-      case 2: // Wall
+      case Wall:
         u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
         break;
-      case 3: // Bars
+      case Bars:
         u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSprite);
         break;
-      case 4: // Exit
+      case Exit:
         u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
         break;
-      case 5: // Potion
+      case Potion:
         u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
         break;
-      case 6: // Map
+      case Map:
         u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, mapSprite);
         break;
     }

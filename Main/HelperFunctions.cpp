@@ -48,14 +48,14 @@ uint32_t generateRandomSeed()
 void carveHorizontalCorridor(int x1, int x2, int y) {
   if (x1 > x2) swap(x1, x2);
   for (int x = x1; x <= x2; x++) {
-    dungeonMap[y][x] = 1; // Floor
+    dungeonMap[y][x] = Floor;
   }
 }
 // Carve a vertical corridor
 void carveVerticalCorridor(int y1, int y2, int x) {
   if (y1 > y2) swap(y1, y2);
   for (int y = y1; y <= y2; y++) {
-    dungeonMap[y][x] = 1; // Floor
+    dungeonMap[y][x] = Floor;
   }
 }
 // Utility function to swap values
@@ -70,7 +70,7 @@ int countWalls(int x, int y) {
   for (int dy = -1; dy <= 1; dy++) {
     for (int dx = -1; dx <= 1; dx++) {
       if (dx != 0 || dy != 0) {
-        if (dungeonMap[y + dy][x + dx] == 2) {
+        if (dungeonMap[y + dy][x + dx] == Wall) {
           wallCount++;
         }
       }
@@ -87,7 +87,7 @@ int predictYtile(float y) {
 bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
     int ptx = predictXtile(newX);
     int cty = round(newY);
-    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] == 1);
+    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] == Floor);
     if (!xValid) {
         newX = currentX;
     }
@@ -96,7 +96,7 @@ bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX) {
     int pty = predictYtile(newY);
     int ctx = round(newX);
-    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] == 1);
+    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] == Floor);
     if (!yValid) {
         newY = currentY;
     }
@@ -266,8 +266,8 @@ bool isVisible(int x0, int y0, int x1, int y1) {
       break;
 
     // Now check for obstruction
-    int tile = dungeonMap[y0][x0];
-    if (tile == 2)
+    TileTypes tile = dungeonMap[y0][x0];
+    if (tile == Wall)
       return false;
 
     // Move to the next tile along the line
