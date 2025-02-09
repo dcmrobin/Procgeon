@@ -1,6 +1,7 @@
 #include "Item.h"
 #include "Inventory.h"
 #include "HelperFunctions.h"
+#include "Player.h"
 
 GameItem itemList[] = {
   { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.") },
@@ -102,7 +103,7 @@ GameItems getRandomPotion(int randInt) {
   return potions[randInt % 7];  // Ensure it's within bounds
 }
 
-void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage, int& kills) {
+void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage) {
   // Loop through all enemies
   for (int i = 0; i < maxEnemies; i++) {
     // Only consider enemies that are still alive

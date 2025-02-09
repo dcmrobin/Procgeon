@@ -18,6 +18,11 @@ changes to a different tune as you're almost done.
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current dungeon, destroy them, and only then
 could you hurt the boss.
 
+For when I get a greyscale display, there could be a setting which toggles between dithering and grescale for shading in the status screens, so I would need to make
+two of each of those screens. One with dithering which I already have, and one with greyscale instead.
+
+Could have for when I get greyscale screen, the walls don't go directly from bright to dim, they might be able to sort of fade
+
 Need to scale enemy hp with levels- but also make the player have some way of getting an increase in damage.
 
 The player could level up the more kills they get, and therefore increase in health.

@@ -33,6 +33,10 @@ struct ButtonStates {
   bool aPressedPrev;
   bool bPressed;
   bool bPressedPrev;
+  bool leftPressed;
+  bool leftPressedPrev;
+  bool rightPressed;
+  bool rightPressedPrev;
 };
 
 extern ButtonStates buttons;
@@ -56,11 +60,10 @@ extern bool statusScreen;
 extern const int viewportWidth;
 extern const int viewportHeight;
 
-extern float playerX;
-extern float playerY;
-
 extern float offsetX;
 extern float offsetY;
+
+extern const float scrollSpeed;
 
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
@@ -73,10 +76,10 @@ bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY);
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX);
 bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y);
 void updateButtonStates();
-void handleUIStateTransitions(bool hasMap);
+void handleUIStateTransitions();
 void updateAnimations();
 void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight);
-void renderUI(int playerHP, int level, bool hasMap);
+void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 
 #endif

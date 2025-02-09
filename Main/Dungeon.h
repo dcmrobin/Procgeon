@@ -10,7 +10,7 @@
 
 extern int dungeonMap[mapHeight][mapWidth];
 
-void generateDungeon(Damsel& damsel, int levelOfDamselDeath, int level);
+void generateDungeon();
 void spawnEnemies();
 void setTile(int tileX, int tileY, int tileType);
 void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);

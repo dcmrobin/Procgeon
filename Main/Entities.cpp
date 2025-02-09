@@ -2,13 +2,15 @@
 #include "Sprites.h"
 #include "HelperFunctions.h"
 #include "Dungeon.h"
+#include "Player.h"
 
 Damsel damsel[1];
 Enemy enemies[maxEnemies];
 Projectile projectiles[maxProjectiles];
+int levelOfDamselDeath = -4;
 
 int damselMoveDelay = 0;
-void updateDamsel(int playerDX, int playerDY) {
+void updateDamsel() {
   if (!damsel[0].dead) {
     damselMoveDelay++;
   } else {
@@ -104,7 +106,7 @@ void updateDamsel(int playerDX, int playerDY) {
 }
 
 int atkDelayCounter = 0;
-void updateEnemies(int& playerHP, String& deathCause) {
+void updateEnemies() {
   atkDelayCounter += 1;
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
@@ -189,7 +191,7 @@ void updateEnemies(int& playerHP, String& deathCause) {
   }
 }
 
-void updateProjectiles(int& kills, int& levelOfDamselDeath, int level) {
+void updateProjectiles() {
   for (int i = 0; i < maxProjectiles; i++) {
     if (projectiles[i].active) {
       projectiles[i].x += projectiles[i].dx * projectiles[i].speed;

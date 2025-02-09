@@ -1,4 +1,5 @@
 #include "HelperFunctions.h"
+#include "Player.h"
 
 U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
 
@@ -14,11 +15,10 @@ bool statusScreen = false;
 const int viewportWidth = SCREEN_WIDTH / tileSize;
 const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
 
-float playerX = 0;
-float playerY = 0;
-
 float offsetX = 0;
 float offsetY = 0;
+
+const float scrollSpeed = 0.25f;
 
 uint32_t generateRandomSeed()
 {
@@ -117,15 +117,19 @@ void updateButtonStates() {
   buttons.downPressedPrev = buttons.downPressed;
   buttons.aPressedPrev = buttons.aPressed;
   buttons.bPressedPrev = buttons.bPressed;
+  buttons.leftPressedPrev = buttons.leftPressed;
+  buttons.rightPressedPrev = buttons.rightPressed;
 
   // Read current states
   buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
   buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
   buttons.aPressed = !digitalRead(BUTTON_A_PIN);
   buttons.bPressed = !digitalRead(BUTTON_B_PIN);
+  buttons.leftPressed = !digitalRead(BUTTON_LEFT_PIN);
+  buttons.rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
 }
 
-void handleUIStateTransitions(bool hasMap) {
+void handleUIStateTransitions() {
   if (buttons.aPressed && !buttons.aPressedPrev) {
     switch (currentUIState) {
       case UI_NORMAL: 
@@ -229,7 +233,7 @@ void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeigh
   }
 }
 
-void renderUI(int playerHP, int level, bool hasMap) { 
+void renderUI() { 
   char HP[4];
   char Lvl[7];
   snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
@@ -242,7 +246,7 @@ void renderUI(int playerHP, int level, bool hasMap) {
   u8g2.drawStr(60, 123, Lvl);
   u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
   if (hasMap) {
-    u8g2.drawXBM(70, 115, 8, 8, mapSprite);
+    u8g2.drawXBM(70, 118, 8, 8, mapSprite);
   }
 }
 

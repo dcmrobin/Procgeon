@@ -22,7 +22,7 @@ GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
 GameItems getRandomPotion(int randInt);
 void resetPotionNames();
-void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage, int& kills);
+void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
 void renderItemResult();
 
 #endif // ITEM_H

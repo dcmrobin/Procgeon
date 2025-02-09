@@ -1,11 +1,12 @@
 #include "Dungeon.h"
 #include "HelperFunctions.h"
 #include "Entities.h"
+#include "Player.h"
 
 int dungeonMap[mapHeight][mapWidth];
 
 bool generatedMapItem;
-void generateDungeon(Damsel& damsel, int levelOfDamselDeath, int level) {
+void generateDungeon() {
   generatedMapItem = false;
 
   // Initialize map with walls
@@ -149,16 +150,16 @@ void generateDungeon(Damsel& damsel, int levelOfDamselDeath, int level) {
     carveVerticalCorridor(startCenterY, centerY, centerX);
 
     // Place the damsel in the cell
-    damsel.x = centerX-1;
-    damsel.y = centerY-1;
-    damsel.speed = 0.1;
-    damsel.followingPlayer = false;
-    damsel.dead = false;
-    damsel.active = true;
+    damsel[0].x = centerX-1;
+    damsel[0].y = centerY-1;
+    damsel[0].speed = 0.1;
+    damsel[0].followingPlayer = false;
+    damsel[0].dead = false;
+    damsel[0].active = true;
   } else {
-    damsel.x = 3000;
-    damsel.y = 3000;
-    damsel.active = false;
+    damsel[0].x = 3000;
+    damsel[0].y = 3000;
+    damsel[0].active = false;
   }
 
   dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = 0;

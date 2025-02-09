@@ -1,4 +1,5 @@
 #include "Inventory.h"
+#include "Player.h"
 
 GameItem inventory[inventorySize];
 int selectedInventoryIndex = 0; // Currently selected inventory item
@@ -35,7 +36,7 @@ void handleInventoryItemUsage() {
   }
 }
 
-void handleItemActionMenu(int& playerHP, int& playerMaxHP, String& deathCause, bool& speeding, int& kills, int& speedTimer) {
+void handleItemActionMenu() {
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     selectedActionIndex--;
@@ -71,7 +72,7 @@ void handleItemActionMenu(int& playerHP, int& playerMaxHP, String& deathCause, b
         }
         
         if (selectedItem.AOEsize > 0) {
-          applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage, kills);
+          applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
         }
         
         for (int i = 0; i < inventorySize; i++) {
