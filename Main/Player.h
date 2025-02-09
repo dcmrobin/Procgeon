@@ -11,7 +11,7 @@ extern bool speeding;
 extern int speedTimer;
 extern bool hasMap;
 extern String deathCause;
-extern int level;
+extern int dungeon;
 extern int kills;
 extern int playerDX;
 extern int playerDY;

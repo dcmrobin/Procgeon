@@ -235,18 +235,18 @@ void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeigh
 
 void renderUI() { 
   char HP[4];
-  char Lvl[7];
+  char Dngn[7];
   snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
-  snprintf(Lvl, sizeof(Lvl), "%d", level);
+  snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
   
   u8g2.setFont(u8g2_font_5x7_tr);
   u8g2.drawStr(5, 123, "HP:");
   u8g2.drawStr(20, 123, HP);
-  u8g2.drawStr(40, 123, "LVL:");
-  u8g2.drawStr(60, 123, Lvl);
+  u8g2.drawStr(40, 123, "DUNGEON:");
+  u8g2.drawStr(80, 123, Dngn);
   u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
   if (hasMap) {
-    u8g2.drawXBM(70, 118, 8, 8, mapSprite);
+    u8g2.drawXBM(90, 116, 8, 8, mapSprite);
   }
 }
 

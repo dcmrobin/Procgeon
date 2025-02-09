@@ -10,7 +10,7 @@ bool speeding = false;
 int speedTimer = 1000;
 bool hasMap = false;
 String deathCause = "";
-int level = 1;
+int dungeon = 1;
 int kills = 0;
 int playerDX;
 int playerDY;
@@ -139,7 +139,7 @@ void handleInput() {
   if (dungeonMap[rPy][rPx] == 4) {
     Serial.println("You reached the exit!");
     if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
-      levelOfDamselDeath = level;
+      levelOfDamselDeath = dungeon;
       damsel[0].active = false;
     }
     statusScreen = true;

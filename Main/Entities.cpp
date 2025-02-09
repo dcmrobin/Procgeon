@@ -215,7 +215,7 @@ void updateProjectiles() {
           }
           projectiles[i].active = false; // Deactivate the bullet
         } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
-          levelOfDamselDeath = level;
+          levelOfDamselDeath = dungeon;
           damsel[0].dead = true;
           damsel[0].active = false;
           projectiles[i].active = false;

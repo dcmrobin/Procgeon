@@ -117,7 +117,7 @@ void generateDungeon() {
     }
   }
 
-  if (level > levelOfDamselDeath + 3) {
+  if (dungeon > levelOfDamselDeath + 3) {
     // Generate the damsel's cell
     int damselRoomWidth = 7;
     int damselRoomHeight = 5;

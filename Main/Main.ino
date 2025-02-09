@@ -9,7 +9,7 @@
 
 bool itemResultScreenActive = false;
 
-unsigned int lvlHighscoreAddress = 0;
+unsigned int dngnHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 
 // Timing variables
@@ -120,14 +120,14 @@ void gameOver() {
     }
   }
 
-  char Lvl[7];
-  snprintf(Lvl, sizeof(Lvl), "%d", level);
+  char Dngn[7];
+  snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
   char KLLS[7];
   snprintf(KLLS, sizeof(KLLS), "%d", kills);
 
-  int lvlHighscore = EEPROM.read(lvlHighscoreAddress);
-  if (level > lvlHighscore) {
-    EEPROM.update(lvlHighscoreAddress, level);
+  int dngnHighscore = EEPROM.read(dngnHighscoreAddress);
+  if (dungeon > dngnHighscore) {
+    EEPROM.update(dngnHighscoreAddress, dungeon);
   }
 
   int kllHighscore = EEPROM.read(killHighscoreAddress);
@@ -135,8 +135,8 @@ void gameOver() {
     EEPROM.update(killHighscoreAddress, kills);
   }
 
-  char LHighscore[7];
-  snprintf(LHighscore, sizeof(LHighscore), "%d", lvlHighscore);
+  char DHighscore[7];
+  snprintf(DHighscore, sizeof(DHighscore), "%d", dngnHighscore);
   char KHighscore[7];
   snprintf(KHighscore, sizeof(KHighscore), "%d", kllHighscore);
 
@@ -144,18 +144,18 @@ void gameOver() {
   u8g2.setFont(u8g2_font_ncenB14_tr);
   u8g2.drawStr(11, 30, "Game over!");
 
-  u8g2.drawFrame(11, 42, 108, 80);
+  u8g2.drawFrame(10, 42, 110, 80);
 
   u8g2.setFont(u8g2_font_profont12_tr);
   if (page == 1) {
     u8g2.drawStr(15, 54, "Slain by:");
     u8g2.drawStr(70, 54, deathCause.c_str());
 
-    u8g2.drawStr(15, 66, "On level:");
-    u8g2.drawStr(70, 66, Lvl);
+    u8g2.drawStr(15, 66, "On dungeon:");
+    u8g2.drawStr(82, 66, Dngn);
 
-    u8g2.drawStr(15, 78, "Lvl highscore:");
-    u8g2.drawStr(100, 78, LHighscore);
+    u8g2.drawStr(15, 78, "Dngn highscore:");
+    u8g2.drawStr(106, 78, DHighscore);
 
     u8g2.drawStr(15, 90, "Kills:");
     u8g2.drawStr(52, 90, KLLS);
@@ -173,7 +173,7 @@ void gameOver() {
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
     playerHP = 100;
-    level = 1;
+    dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
     for (int i = 0; i < inventorySize; i++) {
@@ -198,14 +198,14 @@ void showStatusScreen() {
   u8g2.clearBuffer();
 
   if (!damselKidnapScreen) {
-    if (level > levelOfDamselDeath + 3) {
+    if (dungeon > levelOfDamselDeath + 3) {
       if (!damsel[0].dead && damsel[0].followingPlayer) {
         u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, rescueDamselScreen);
         u8g2.drawStr(0, 125, "You rescued the Damsel!");
       } else {
         u8g2.drawStr(0, 125, "Error.");
       }
-    } else if (level == levelOfDamselDeath) {
+    } else if (dungeon == levelOfDamselDeath) {
       if (damsel[0].dead) {
         u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, deadDamselScreen);
         u8g2.drawStr(0, 105, "You killed the Damsel!");
@@ -236,7 +236,7 @@ void showStatusScreen() {
     } else if (statusScreen) {
       bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
 
-      level += 1;
+      dungeon += 1;
       playerDX = 0;
       playerDY = 1;
       statusScreen = false;
