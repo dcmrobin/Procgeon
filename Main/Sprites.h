@@ -16,6 +16,8 @@ extern const unsigned char barsSprite[];
 // Player sprites
 extern const unsigned char playerSpriteRight[];
 extern const unsigned char playerSpriteLeft[];
+extern const unsigned char playerCarryingDamselSpriteRight[];
+extern const unsigned char playerCarryingDamselSpriteLeft[];
 extern const unsigned char* playerSprite;
 
 // Damsel sprites

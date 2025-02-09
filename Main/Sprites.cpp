@@ -70,6 +70,28 @@ const unsigned char PROGMEM playerSpriteLeft[] = {
   0b01111010
 };
 
+const unsigned char PROGMEM playerCarryingDamselSpriteLeft[] = {
+  0b11000000,
+  0b01101110,
+  0b01111111,
+  0b11110111,
+  0b00111111,
+  0b01111110,
+  0b01111100,
+  0b11110100
+};
+
+const unsigned char PROGMEM playerCarryingDamselSpriteRight[] = {
+  0b00000011,
+  0b01110110,
+  0b11111110,
+  0b11101111,
+  0b11111100,
+  0b01111110,
+  0b00111110,
+  0b00101111
+};
+
 const unsigned char* playerSprite = playerSpriteLeft;
 
 // Damsel sprites
