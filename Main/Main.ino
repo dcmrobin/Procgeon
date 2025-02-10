@@ -27,6 +27,8 @@ void setup() {
   pinMode(BUTTON_RIGHT_PIN, INPUT_PULLUP);
   pinMode(BUTTON_B_PIN, INPUT_PULLUP);
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_START_PIN, INPUT_PULLUP);
   randomSeed(generateRandomSeed());
 
   for (int i = 0; i < inventorySize; i++) {
@@ -45,50 +47,55 @@ void setup() {
 
 void loop() {
   updateButtonStates();
-  
+
   unsigned long currentTime = millis();
+  if(!paused) {
+    if (playerHP > 0) {
+      if (!statusScreen) {
+        handleUIStateTransitions();
+        switch (currentUIState) {
+          case UI_NORMAL:
+            if (currentTime - lastUpdateTime >= frameDelay) {
+              lastUpdateTime = currentTime;
+              updateGame();
+              renderGame();
+            }
+            break;
 
-  if (playerHP > 0) {
-    if (!statusScreen) {
-      handleUIStateTransitions();
-      switch (currentUIState) {
-        case UI_NORMAL:
-          if (currentTime - lastUpdateTime >= frameDelay) {
-            lastUpdateTime = currentTime;
-            updateGame();
-            renderGame();
-          }
-          break;
+          case UI_INVENTORY:
+            renderInventory();
+            handleInventoryNavigation();
+            handleInventoryItemUsage();
+            break;
 
-        case UI_INVENTORY:
-          renderInventory();
-          handleInventoryNavigation();
-          handleInventoryItemUsage();
-          break;
+          case UI_MINIMAP:
+            drawMinimap();
+            break;
 
-        case UI_MINIMAP:
-          drawMinimap();
-          break;
+          case UI_ITEM_ACTION:
+            handleItemActionMenu();
+            renderInventory();
+            break;
 
-        case UI_ITEM_ACTION:
-          handleItemActionMenu();
-          renderInventory();
-          break;
+          case UI_ITEM_INFO:
+            renderInventory();
+            break;
 
-        case UI_ITEM_INFO:
-          renderInventory();
-          break;
-
-        case UI_ITEM_RESULT:
-          renderInventory();
-          break;
+          case UI_ITEM_RESULT:
+            renderInventory();
+            break;
+        }
+      } else {
+        showStatusScreen();
       }
     } else {
-      showStatusScreen();
+      gameOver();
     }
-  } else {
-    gameOver();
   }
+
+  //if (buttons.startPressed && !buttons.startPressedPrev) {
+  //  paused = !paused;
+  //}
 }
 
 void updateGame() {

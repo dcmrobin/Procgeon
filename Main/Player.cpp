@@ -3,18 +3,19 @@
 #include "Inventory.h"
 #include "Dungeon.h"
 
+String deathCause = "";
 float playerX = 0;
 float playerY = 0;
 int playerHP = 100;
 int playerMaxHP = 100;
-bool speeding = false;
 int speedTimer = 1000;
-bool hasMap = false;
-String deathCause = "";
 int dungeon = 1;
 int kills = 0;
 int playerDX;
 int playerDY;
+bool speeding = false;
+bool hasMap = false;
+bool paused = false;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
