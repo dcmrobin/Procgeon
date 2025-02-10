@@ -93,9 +93,9 @@ void loop() {
     }
   }
 
-  //if (buttons.startPressed && !buttons.startPressedPrev) {
-  //  paused = !paused;
-  //}
+  if (buttons.startPressed && !buttons.startPressedPrev) {
+    paused = !paused;
+  }
 }
 
 void updateGame() {
