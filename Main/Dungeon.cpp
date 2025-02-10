@@ -257,8 +257,8 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
   TileTypes tileType = dungeonMap[mapY][mapX];
 
   // Check visibility for other tiles (stairs, potions, map, etc.)
-  int playerTileX = predictXtile(playerX);
-  int playerTileY = predictYtile(playerY);
+  int playerTileX = round(playerX);
+  int playerTileY = round(playerY);
   if (isVisible(playerTileX, playerTileY, mapX, mapY)) {
     switch (tileType) {
       case StartStairs:
