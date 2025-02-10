@@ -285,5 +285,7 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
     }
   } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) and tileType == 2) {
     u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSpriteDim);
+  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) and tileType == 3) {
+    u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSpriteDim);
   }
 }

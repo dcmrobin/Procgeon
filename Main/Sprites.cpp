@@ -47,6 +47,17 @@ const unsigned char PROGMEM barsSprite[] = {
   0b11111111
 };
 
+const unsigned char PROGMEM barsSpriteDim[] = {
+  0b01010101,
+  0b00100010,
+  0b00000000,
+  0b00100010,
+  0b00000000,
+  0b00100010,
+  0b01010101,
+  0b10101010
+};
+
 // Player sprites
 const unsigned char PROGMEM playerSpriteRight[] = {
   0b00001100,
