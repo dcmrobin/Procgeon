@@ -150,31 +150,31 @@ void gameOver() {
 
   u8g2.clearBuffer();
   u8g2.setFont(u8g2_font_ncenB14_tr);
-  u8g2.drawStr(11, 30, "Game over!");
+  u8g2.drawStr(8, 30, "Game over!");
 
-  u8g2.drawFrame(10, 42, 110, 80);
+  u8g2.drawFrame(8, 42, 110, 80);
 
   u8g2.setFont(u8g2_font_profont12_tr);
   if (page == 1) {
-    u8g2.drawStr(15, 54, "Slain by:");
-    u8g2.drawStr(70, 54, deathCause.c_str());
+    u8g2.drawStr(12, 54, "Slain by:");
+    u8g2.drawStr(66, 54, deathCause.c_str());
 
-    u8g2.drawStr(15, 66, "On dungeon:");
-    u8g2.drawStr(82, 66, Dngn);
+    u8g2.drawStr(12, 66, "On dungeon:");
+    u8g2.drawStr(78, 66, Dngn);
 
-    u8g2.drawStr(15, 78, "Dngn highscore:");
-    u8g2.drawStr(106, 78, DHighscore);
+    u8g2.drawStr(12, 78, "Dngn highscore:");
+    u8g2.drawStr(102, 78, DHighscore);
 
-    u8g2.drawStr(15, 90, "Kills:");
-    u8g2.drawStr(52, 90, KLLS);
+    u8g2.drawStr(12, 90, "Kills:");
+    u8g2.drawStr(48, 90, KLLS);
 
-    u8g2.drawStr(15, 102, "Kll Highscore:");
-    u8g2.drawStr(100, 102, KHighscore);
+    u8g2.drawStr(12, 102, "Kll Highscore:");
+    u8g2.drawStr(96, 102, KHighscore);
 
-    u8g2.drawStr(15, 114, "[A] next page");
+    u8g2.drawStr(12, 112, "[A] next page");
   } else if (page == 2) {
-    u8g2.drawStr(15, 54, "next page");
-    u8g2.drawStr(15, 114, "[A] next page");
+    u8g2.drawStr(12, 52, "next page");
+    u8g2.drawStr(12, 112, "[A] next page");
   }
 
   u8g2.sendBuffer();
