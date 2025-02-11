@@ -20,6 +20,7 @@ void setup() {
   Serial.begin(9600);
   u8g2.begin();
   u8g2.setBitmapMode(1);
+  u8g2.setContrast(0);
 
   pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
   pinMode(BUTTON_DOWN_PIN, INPUT_PULLUP);

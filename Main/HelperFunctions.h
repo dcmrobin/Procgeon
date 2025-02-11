@@ -24,7 +24,8 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 128
 
-extern U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2;
+//extern U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2;
+extern U8G2_SSD1327_WS_128X128_F_4W_HW_SPI u8g2;
 
 struct ButtonStates {
   bool upPressed;
