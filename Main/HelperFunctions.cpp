@@ -235,18 +235,18 @@ void renderUI() {
     snprintf(HP, sizeof(HP), "%d", playerHP);
     snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
 
-    u8g2_for_adafruit_gfx.setFont(u8g2_font_5x7_tr);
-    display.setCursor(5, 123);
+    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
+    display.setCursor(5, 116);
     display.print("HP:");
-    display.setCursor(20, 123);
+    display.setCursor(21, 116);
     display.print(HP);
-    display.setCursor(40, 123);
+    display.setCursor(46, 116);
     display.print("DUNGEON:");
-    display.setCursor(80, 123);
+    display.setCursor(92, 116);
     display.print(Dngn);
     display.drawRect(0, 113, SCREEN_WIDTH, 15, SSD1327_WHITE);
     if (hasMap) {
-        display.drawBitmap(90, 116, mapSprite, 8, 8, SSD1327_WHITE);
+        display.drawBitmap(100, 116, mapSprite, 8, 8, SSD1327_WHITE);
     }
 }
 

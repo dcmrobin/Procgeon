@@ -185,9 +185,9 @@ void gameOver() {
     display.setCursor(12, 102);
     display.print("[A] next page");
   } else if (page == 2) {
-    display.setCursor(12, 52);
+    display.setCursor(12, 42);
     display.print("next page");
-    display.setCursor(12, 112);
+    display.setCursor(12, 102);
     display.print("[A] next page");
   }
 
