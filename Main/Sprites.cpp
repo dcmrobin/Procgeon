@@ -194,7 +194,7 @@ const unsigned char PROGMEM potionSprite[] = {
   0b00000000,
   0b00011000,
   0b00011000,
-  0b00101100,
+  0b00110100,
   0b00111100,
   0b00011000
 };
