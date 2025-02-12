@@ -97,48 +97,56 @@ void handleItemActionMenu() {
 }
 
 void renderInventory() {
-  u8g2.clearBuffer();
+  display.clearDisplay();
+  display.setTextSize(1);
+  //display.setTextColor(SSD1327_WHITE);
 
-  // Draw inventory title
   if (currentUIState == UI_INVENTORY) {
-    u8g2.setFont(u8g2_font_ncenB14_tr);
-    u8g2.drawStr(10, 15, "Inventory");
+    display.setCursor(10, 10);
+    display.setTextSize(2);
+    display.println("Inventory");
+    display.setTextSize(1);
 
     // Draw inventory items
-    u8g2.setFont(u8g2_font_profont12_tr);
     for (int i = 0; i < inventorySize; i++) {
       int yPos = 30 + (i * 12);
+      display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) {
-        u8g2.drawStr(5, yPos, ">");
+        display.print("> ");
       }
-      u8g2.drawStr(15, yPos, inventory[i].name.c_str());
+      display.println(inventory[i].name);
     }
-  } else if (currentUIState == UI_ITEM_INFO) {
-    u8g2.setFont(u8g2_font_profont12_tr);
-    u8g2.drawStr(3, 125, inventory[selectedInventoryIndex].originalName.c_str());
+  } 
+  else if (currentUIState == UI_ITEM_INFO) {
+    display.setCursor(3, 120);
+    display.println(inventory[selectedInventoryIndex].originalName);
     drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
-  } else if (currentUIState == UI_ITEM_RESULT) {
-    u8g2.setFont(u8g2_font_profont12_tr);
+  } 
+  else if (currentUIState == UI_ITEM_RESULT) {
     drawWrappedText(itemResultMessage.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
     if (buttons.bPressed && !buttons.bPressedPrev) {
       currentUIState = UI_NORMAL;
     }
-  } else if (currentUIState == UI_ITEM_ACTION) {    
-    // Background
-    u8g2.drawFrame(50, 40, 60, 50);
-    u8g2.drawBox(50, 40, 60, 12);
-    
+  } 
+  else if (currentUIState == UI_ITEM_ACTION) {    
+    // Draw options menu box
+    display.drawRect(50, 40, 60, 50, 15);
+    display.fillRect(50, 40, 60, 12, 15);
+
     // Title
-    u8g2.setFont(u8g2_font_profont12_tr);
-    u8g2.setDrawColor(0);
-    u8g2.drawStr(55, 50, "Options:");
-    u8g2.setDrawColor(1);
-    
-    // Actions
-    u8g2.drawStr(55, 63, selectedActionIndex == 0 ? "> Use" : "  Use");
-    u8g2.drawStr(55, 73, selectedActionIndex == 1 ? "> Drop" : "  Drop");
-    u8g2.drawStr(55, 83, selectedActionIndex == 2 ? "> Info" : "  Info");
+    display.setTextColor(0);
+    display.setCursor(55, 45);
+    display.println("Options:");
+    display.setTextColor(15);
+
+    // Options
+    display.setCursor(55, 60);
+    display.println(selectedActionIndex == 0 ? "> Use" : "  Use");
+    display.setCursor(55, 70);
+    display.println(selectedActionIndex == 1 ? "> Drop" : "  Drop");
+    display.setCursor(55, 80);
+    display.println(selectedActionIndex == 2 ? "> Info" : "  Info");
   }
 
-  u8g2.sendBuffer();
+  display.display();
 }

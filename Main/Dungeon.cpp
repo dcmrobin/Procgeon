@@ -17,9 +17,9 @@ void generateDungeon() {
   }
 
   // Room generation parameters
-  const int maxRooms = random(15, 25); // Maximum number of rooms
-  const int minRoomSize = 4;           // Minimum room size (tiles)
-  const int maxRoomSize = 8;           // Maximum room size (tiles)
+  const int maxRooms = random(15, 25);  // Maximum number of rooms
+  const int minRoomSize = 4;            // Minimum room size (tiles)
+  const int maxRoomSize = 8;            // Maximum room size (tiles)
 
   struct Room {
     int x, y, width, height;
@@ -35,7 +35,7 @@ void generateDungeon() {
   int startRoomY = mapHeight / 2 - startRoomHeight / 2;
 
   // Create the starting room
-  rooms[roomCount++] = {startRoomX, startRoomY, startRoomWidth, startRoomHeight};
+  rooms[roomCount++] = { startRoomX, startRoomY, startRoomWidth, startRoomHeight };
   for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
     for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
       dungeonMap[y][x] = Floor;
@@ -52,8 +52,7 @@ void generateDungeon() {
     // Check for overlaps
     bool overlap = false;
     for (int j = 0; j < roomCount; j++) {
-      if (roomX < rooms[j].x + rooms[j].width && roomX + roomWidth > rooms[j].x &&
-          roomY < rooms[j].y + rooms[j].height && roomY + roomHeight > rooms[j].y) {
+      if (roomX < rooms[j].x + rooms[j].width && roomX + roomWidth > rooms[j].x && roomY < rooms[j].y + rooms[j].height && roomY + roomHeight > rooms[j].y) {
         overlap = true;
         break;
       }
@@ -61,7 +60,7 @@ void generateDungeon() {
 
     // Add the room if no overlap
     if (!overlap) {
-      rooms[roomCount++] = {roomX, roomY, roomWidth, roomHeight};
+      rooms[roomCount++] = { roomX, roomY, roomWidth, roomHeight };
       for (int y = roomY; y < roomY + roomHeight; y++) {
         for (int x = roomX; x < roomX + roomWidth; x++) {
           dungeonMap[y][x] = Floor;
@@ -101,8 +100,8 @@ void generateDungeon() {
       if (dungeonMap[y][x] == Wall) {
         int neighbors = 0;
 
-        for(int nx = -1; nx < 2; nx++) {
-          for(int ny = -1; ny < 2; ny++) {
+        for (int nx = -1; nx < 2; nx++) {
+          for (int ny = -1; ny < 2; ny++) {
             if (nx == 0 && ny == 0) continue;
             if (dungeonMap[y + ny][x + nx] == Wall) {
               neighbors += 1;
@@ -150,8 +149,8 @@ void generateDungeon() {
     carveVerticalCorridor(startCenterY, centerY, centerX);
 
     // Place the damsel in the cell
-    damsel[0].x = centerX-1;
-    damsel[0].y = centerY-1;
+    damsel[0].x = centerX - 1;
+    damsel[0].y = centerY - 1;
     damsel[0].speed = 0.1;
     damsel[0].followingPlayer = false;
     damsel[0].dead = false;
@@ -162,12 +161,12 @@ void generateDungeon() {
     damsel[0].active = false;
   }
 
-  dungeonMap[startRoomX + (startRoomWidth/2)][startRoomY + (startRoomHeight/2) + 1] = StartStairs;
+  dungeonMap[startRoomX + (startRoomWidth / 2)][startRoomY + (startRoomHeight / 2) + 1] = StartStairs;
 
   // Ensure player start
   int playerStartX = startRoomX + startRoomWidth / 2;
   int playerStartY = startRoomY + startRoomHeight / 2;
-  dungeonMap[playerStartY][playerStartX] = Floor; // Make sure the player's position is a floor
+  dungeonMap[playerStartY][playerStartX] = Floor;  // Make sure the player's position is a floor
   playerX = playerStartX;
   playerY = playerStartY;
 
@@ -183,9 +182,8 @@ void spawnEnemies() {
       int ey = random(0, mapHeight);
 
       // Check if the tile is a floor and if it's outside the player's radius
-      if (dungeonMap[ey][ex] == Floor && 
-          sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) { // 10-unit radius check
-        enemies[i] = {(float)ex, (float)ey, 20, false, 0.05, "blob", 20};
+      if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {  // 10-unit radius check
+        enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20 };
         break;
       }
     }
@@ -211,32 +209,32 @@ void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, f
 }
 
 void drawMinimap() {
-    u8g2.clearBuffer();
-    int mapScale = 2;
-    
-    for (int y = 0; y < mapHeight; y++) {
-        for (int x = 0; x < mapWidth; x++) {
-            TileTypes tile = dungeonMap[y][x];
-            int drawX = x * mapScale;
-            int drawY = y * mapScale;
-            
-            if (tile == Floor) continue;
-            if (tile == Wall) u8g2.drawBox(drawX, drawY, mapScale, mapScale);
-            if (tile == Bars) u8g2.drawCircle(drawX, drawY, mapScale/2);
-            if (tile == Exit) u8g2.drawFrame(drawX, drawY, mapScale, mapScale);
-        }
+  display.clearDisplay();
+  int mapScale = 2;
+
+  for (int y = 0; y < mapHeight; y++) {
+    for (int x = 0; x < mapWidth; x++) {
+      TileTypes tile = dungeonMap[y][x];
+      int drawX = x * mapScale;
+      int drawY = y * mapScale;
+
+      if (tile == Floor) continue;
+      if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
+      if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
+      if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
     }
-    
-    int playerMinimapX = (playerX) * mapScale;
-    int playerMinimapY = (playerY) * mapScale;
-    u8g2.drawCircle(playerMinimapX, playerMinimapY, 1);
-    
-    u8g2.sendBuffer();
+  }
+
+  int playerMinimapX = (playerX)*mapScale;
+  int playerMinimapY = (playerY)*mapScale;
+  display.drawCircle(playerMinimapX, playerMinimapY, 1, 15);
+
+  display.display();
 }
 
 // Render the visible portion of the dungeon
 void renderDungeon() {
-  for (int y = 1; y < viewportHeight + 1; y++) { // +1 to handle partial tiles at edges
+  for (int y = 1; y < viewportHeight + 1; y++) {  // +1 to handle partial tiles at edges
     for (int x = 1; x < viewportWidth + 1; x++) {
       float mapX = x + offsetX;
       float mapY = y + offsetY;
@@ -262,30 +260,30 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
   if (isVisible(playerTileX, playerTileY, mapX, mapY)) {
     switch (tileType) {
       case StartStairs:
-        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
         break;
       case Floor:
         // No need to draw floors explicitly
         break;
       case Wall:
-        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSprite);
+        display.drawBitmap(screenX, screenY, wallSprite, tileSize, tileSize, 15);
         break;
       case Bars:
-        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSprite);
+        display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, 15);
         break;
       case Exit:
-        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, stairsSprite);
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
         break;
       case Potion:
-        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, potionSprite);
+        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, 15);
         break;
       case Map:
-        u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, mapSprite);
+        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, 15);
         break;
     }
-  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) and tileType == 2) {
-    u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, wallSpriteDim);
-  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) and tileType == 3) {
-    u8g2.drawXBMP(screenX, screenY, tileSize, tileSize, barsSpriteDim);
+  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) && tileType == 2) {
+    display.drawBitmap(screenX, screenY, wallSpriteDim, tileSize, tileSize, 15);
+  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) && tileType == 3) {
+    display.drawBitmap(screenX, screenY, barsSpriteDim, tileSize, tileSize, 15);
   }
 }

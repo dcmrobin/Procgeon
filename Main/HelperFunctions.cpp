@@ -1,7 +1,8 @@
 #include "HelperFunctions.h"
 #include "Player.h"
 
-U8G2_SSD1327_WS_128X128_F_4W_HW_SPI u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RST);
+Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
+U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
 
@@ -175,83 +176,78 @@ void updateAnimations() {
 }
 
 void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight) {
-  const char *wordStart = text;
-  char lineBuffer[256] = {0};  // Buffer for building a line
-  int lineBufferLen = 0;
-  
-  while (*wordStart) {
-    // Find the next space or end of string
-    const char *wordEnd = wordStart;
-    while (*wordEnd && *wordEnd != ' ') {
-      wordEnd++;
+    const char *wordStart = text;
+    char lineBuffer[256] = {0};  // Buffer for building a line
+    int lineBufferLen = 0;
+
+    while (*wordStart) {
+        const char *wordEnd = wordStart;
+        while (*wordEnd && *wordEnd != ' ') {
+            wordEnd++;
+        }
+
+        int wordLen = wordEnd - wordStart;
+        char word[64] = {0};
+        strncpy(word, wordStart, wordLen);
+        word[wordLen] = '\0';
+
+        char testLine[256] = {0};
+        if (lineBufferLen > 0) {
+            snprintf(testLine, sizeof(testLine), "%s %s", lineBuffer, word);
+        } else {
+            snprintf(testLine, sizeof(testLine), "%s", word);
+        }
+
+        int16_t textWidth;
+        int16_t textHeight;
+        display.getTextBounds(testLine, x, y, nullptr, nullptr, &textWidth, &textHeight);
+
+        if (textWidth > maxWidth && lineBufferLen > 0) {
+            display.setCursor(x, y);
+            display.print(lineBuffer);
+            y += lineHeight;
+            lineBuffer[0] = '\0';
+            lineBufferLen = 0;
+        }
+
+        if (lineBufferLen > 0) {
+            strncat(lineBuffer, " ", sizeof(lineBuffer) - strlen(lineBuffer) - 1);
+            lineBufferLen++;
+        }
+        strncat(lineBuffer, word, sizeof(lineBuffer) - strlen(lineBuffer) - 1);
+        lineBufferLen = strlen(lineBuffer);
+
+        while (*wordEnd == ' ') {
+            wordEnd++;
+        }
+        wordStart = wordEnd;
     }
-    
-    // Extract the word
-    int wordLen = wordEnd - wordStart;
-    char word[64] = {0}; // Assumes words are less than 64 characters
-    strncpy(word, wordStart, wordLen);
-    word[wordLen] = '\0';
-    
-    // Determine the width of the current line plus a space (if needed) and the new word
-    //int testLen = lineBufferLen > 0 ? lineBufferLen + 1 + wordLen : wordLen;
-    
-    // Create a temporary string to measure
-    char testLine[256] = {0};
+
     if (lineBufferLen > 0) {
-      snprintf(testLine, sizeof(testLine), "%s %s", lineBuffer, word);
-    } else {
-      snprintf(testLine, sizeof(testLine), "%s", word);
+        display.setCursor(x, y);
+        display.print(lineBuffer);
     }
-    
-    int textWidth = u8g2.getStrWidth(testLine);
-    
-    // If the line is too long, draw the current line and start a new one.
-    if (textWidth > maxWidth && lineBufferLen > 0) {
-      u8g2.drawStr(x, y, lineBuffer);
-      y += lineHeight;
-      lineBuffer[0] = '\0';  // Reset the line buffer
-      lineBufferLen = 0;
-      
-      // If the word itself is longer than maxWidth, you might need to break the word further.
-      // For now, we'll just put the long word on its own line.
-    }
-    
-    // Append the word to the line buffer
-    if (lineBufferLen > 0) {
-      strncat(lineBuffer, " ", sizeof(lineBuffer) - strlen(lineBuffer) - 1);
-      lineBufferLen++;
-    }
-    strncat(lineBuffer, word, sizeof(lineBuffer) - strlen(lineBuffer) - 1);
-    lineBufferLen = strlen(lineBuffer);
-    
-    // Skip any spaces in the source text
-    while (*wordEnd == ' ') {
-      wordEnd++;
-    }
-    wordStart = wordEnd;
-  }
-  
-  // Draw any remaining text in the line buffer
-  if (lineBufferLen > 0) {
-    u8g2.drawStr(x, y, lineBuffer);
-  }
 }
 
-void renderUI() { 
-  char HP[4];
-  char Dngn[7];
-  snprintf(HP, sizeof(HP), "%d", playerHP); // Convert playerHP to a string
-  snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
-  
-  u8g2.setFont(u8g2_font_5x7_tr);
-  u8g2.drawStr(5, 123, "HP:");
-  u8g2.drawStr(20, 123, HP);
-  u8g2.drawStr(40, 123, "DUNGEON:");
-  u8g2.drawStr(80, 123, Dngn);
-  u8g2.drawFrame(0, 113, SCREEN_WIDTH, 15);
-  if (hasMap) {
-    u8g2.drawXBM(90, 116, 8, 8, mapSprite);
-  }
+void renderUI() {
+    char HP[4];
+    char Dngn[7];
+    snprintf(HP, sizeof(HP), "%d", playerHP);
+    snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
+
+    u8g2_for_adafruit_gfx.setFont(u8g2_font_5x7_tr);
+    display.setCursor(5, 123);
+    display.print("HP:");
+    display.setCursor(20, 123);
+    display.print(HP);
+    display.setCursor(40, 123);
+    display.print("DUNGEON:");
+    display.setCursor(80, 123);
+    display.print(Dngn);
+    display.drawRect(0, 113, SCREEN_WIDTH, 15, SSD1327_WHITE);
+    if (hasMap) {
+        display.drawBitmap(90, 116, mapSprite, 8, 8, SSD1327_WHITE);
+    }
 }
 
 bool isVisible(int x0, int y0, int x1, int y1) {

@@ -18,9 +18,9 @@ const unsigned long frameDelay = 20; // Update every 100ms
 
 void setup() {
   Serial.begin(9600);
-  u8g2.begin();
-  u8g2.setBitmapMode(1);
-  u8g2.setContrast(0);
+  display.begin();
+  u8g2_for_adafruit_gfx.begin(display);
+  display.setContrast(100);
 
   pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
   pinMode(BUTTON_DOWN_PIN, INPUT_PULLUP);
@@ -108,7 +108,7 @@ void updateGame() {
 }
 
 void renderGame() {
-  u8g2.clearBuffer();
+  display.clearDisplay();
   renderDungeon();
   renderDamsel();
   renderEnemies();
@@ -116,7 +116,7 @@ void renderGame() {
   renderPlayer();
   updateAnimations();
   renderUI();
-  u8g2.sendBuffer();
+  display.display();
 }
 
 int page = 1;
@@ -148,36 +148,50 @@ void gameOver() {
   char KHighscore[7];
   snprintf(KHighscore, sizeof(KHighscore), "%d", kllHighscore);
 
-  u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_ncenB14_tr);
-  u8g2.drawStr(8, 30, "Game over!");
+  display.clearDisplay();
+  u8g2_for_adafruit_gfx.setFont(u8g2_font_ncenB14_tr);
+  display.setCursor(8, 30);
+  display.print("Game over!");
 
-  u8g2.drawFrame(8, 42, 110, 80);
+  display.drawRect(6, 41, 110, 72, 15);
 
-  u8g2.setFont(u8g2_font_profont12_tr);
+  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
   if (page == 1) {
-    u8g2.drawStr(12, 54, "Slain by:");
-    u8g2.drawStr(66, 54, deathCause.c_str());
+    display.setCursor(12, 44);
+    display.print("Slain by:");
+    display.setCursor(66, 44);
+    display.print(deathCause.c_str());
 
-    u8g2.drawStr(12, 66, "On dungeon:");
-    u8g2.drawStr(78, 66, Dngn);
+    display.setCursor(12, 56);
+    display.print("On dungeon:");
+    display.setCursor(78, 56);
+    display.print(Dngn);
 
-    u8g2.drawStr(12, 78, "Dngn highscore:");
-    u8g2.drawStr(102, 78, DHighscore);
+    display.setCursor(12, 68);
+    display.print("Dngn highscore:");
+    display.setCursor(102, 68);
+    display.print(DHighscore);
 
-    u8g2.drawStr(12, 90, "Kills:");
-    u8g2.drawStr(48, 90, KLLS);
+    display.setCursor(12, 80);
+    display.print("Kills:");
+    display.setCursor(48, 80);
+    display.print(KLLS);
 
-    u8g2.drawStr(12, 102, "Kll Highscore:");
-    u8g2.drawStr(96, 102, KHighscore);
+    display.setCursor(12, 92);
+    display.print("Kll Highscore:");
+    display.setCursor(96, 92);
+    display.print(KHighscore);
 
-    u8g2.drawStr(12, 112, "[A] next page");
+    display.setCursor(12, 102);
+    display.print("[A] next page");
   } else if (page == 2) {
-    u8g2.drawStr(12, 52, "next page");
-    u8g2.drawStr(12, 112, "[A] next page");
+    display.setCursor(12, 52);
+    display.print("next page");
+    display.setCursor(12, 112);
+    display.print("[A] next page");
   }
 
-  u8g2.sendBuffer();
+  display.display();
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
     playerHP = 100;
@@ -203,37 +217,47 @@ void gameOver() {
 void showStatusScreen() {
   static bool damselKidnapScreen = false; // Tracks if we are showing the kidnap screen
 
-  u8g2.clearBuffer();
+  display.clearDisplay();
 
   if (!damselKidnapScreen) {
     if (dungeon > levelOfDamselDeath + 3) {
       if (!damsel[0].dead && damsel[0].followingPlayer) {
-        u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, rescueDamselScreen);
-        u8g2.drawStr(0, 125, "You rescued the Damsel!");
+        display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+        display.setCursor(0, 125);
+        display.print("You rescued the Damsel!");
       } else {
-        u8g2.drawStr(0, 125, "Error.");
+        display.setCursor(0, 125);
+        display.print("Error.");
       }
     } else if (dungeon == levelOfDamselDeath) {
       if (damsel[0].dead) {
-        u8g2.drawXBMP(0, -10, SCREEN_WIDTH, SCREEN_HEIGHT, deadDamselScreen);
-        u8g2.drawStr(0, 105, "You killed the Damsel!");
-        u8g2.drawStr(0, 115, damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!");
-        if (damsel[0].levelOfLove >= 5) {u8g2.drawStr(0, 125, "She loved you!");}
+        display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+        display.setCursor(0, 105);
+        display.print("You killed the Damsel!");
+        display.setCursor(0, 115);
+        display.print(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!");
+        if (damsel[0].levelOfLove >= 5) {
+          display.setCursor(0, 125);
+          display.print("She loved you!");
+        }
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
-        u8g2.drawXBMP(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, leftDamselScreen);
-        u8g2.drawStr(0, 125, "You left the Damsel!");
+        display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+        display.setCursor(0, 125);
+        display.print("You left the Damsel!");
         damsel[0].levelOfLove = 0;
       }
     } else {
-      u8g2.drawXBMP(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, aloneWizardScreen);
-      u8g2.drawStr(0, 125, "You progress. Alone.");
+      display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      display.setCursor(0, 125);
+      display.print("You progress. Alone.");
     }
   } else {
-    u8g2.drawXBMP(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, capturedDamselScreen);
-    u8g2.drawStr(0, 10, "The Damsel was captured!");
+    display.drawBitmap(0, 0, capturedDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+    display.setCursor(0, 10);
+    display.print("The Damsel was captured!");
   }
 
-  u8g2.sendBuffer();
+  display.display();
 
   // Handle button press logic
   if (buttons.bPressed && !buttons.bPressedPrev) { // Detect new button press

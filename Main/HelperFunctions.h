@@ -2,7 +2,9 @@
 #define HELPERFUNCTIONS_H
 
 #include <Arduino.h>
-#include <U8g2lib.h>
+#include <Adafruit_SSD1327.h>
+#include <Adafruit_GFX.h>
+#include <U8g2_for_Adafruit_GFX.h>
 #include "Dungeon.h"
 #include "Entities.h"
 #include "Sprites.h"
@@ -24,8 +26,8 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 128
 
-//extern U8G2_SH1107_PIMORONI_128X128_F_4W_HW_SPI u8g2;
-extern U8G2_SSD1327_WS_128X128_F_4W_HW_SPI u8g2;
+extern Adafruit_SSD1327 display;
+extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 struct ButtonStates {
   bool upPressed;
