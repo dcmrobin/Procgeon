@@ -175,60 +175,6 @@ void updateAnimations() {
   }
 }
 
-void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight) {
-    const char *wordStart = text;
-    char lineBuffer[256] = {0};  // Buffer for building a line
-    int lineBufferLen = 0;
-
-    while (*wordStart) {
-        const char *wordEnd = wordStart;
-        while (*wordEnd && *wordEnd != ' ') {
-            wordEnd++;
-        }
-
-        int wordLen = wordEnd - wordStart;
-        char word[64] = {0};
-        strncpy(word, wordStart, wordLen);
-        word[wordLen] = '\0';
-
-        char testLine[256] = {0};
-        if (lineBufferLen > 0) {
-            snprintf(testLine, sizeof(testLine), "%s %s", lineBuffer, word);
-        } else {
-            snprintf(testLine, sizeof(testLine), "%s", word);
-        }
-
-        int16_t textWidth;
-        int16_t textHeight;
-        display.getTextBounds(testLine, x, y, nullptr, nullptr, &textWidth, &textHeight);
-
-        if (textWidth > maxWidth && lineBufferLen > 0) {
-            display.setCursor(x, y);
-            display.print(lineBuffer);
-            y += lineHeight;
-            lineBuffer[0] = '\0';
-            lineBufferLen = 0;
-        }
-
-        if (lineBufferLen > 0) {
-            strncat(lineBuffer, " ", sizeof(lineBuffer) - strlen(lineBuffer) - 1);
-            lineBufferLen++;
-        }
-        strncat(lineBuffer, word, sizeof(lineBuffer) - strlen(lineBuffer) - 1);
-        lineBufferLen = strlen(lineBuffer);
-
-        while (*wordEnd == ' ') {
-            wordEnd++;
-        }
-        wordStart = wordEnd;
-    }
-
-    if (lineBufferLen > 0) {
-        display.setCursor(x, y);
-        display.print(lineBuffer);
-    }
-}
-
 void renderUI() {
     char HP[4];
     char Dngn[7];
@@ -236,13 +182,13 @@ void renderUI() {
     snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
 
     u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
-    display.setCursor(5, 116);
+    display.setCursor(5, 117);
     display.print("HP:");
-    display.setCursor(21, 116);
+    display.setCursor(21, 117);
     display.print(HP);
-    display.setCursor(46, 116);
+    display.setCursor(46, 117);
     display.print("DUNGEON:");
-    display.setCursor(92, 116);
+    display.setCursor(92, 117);
     display.print(Dngn);
     display.drawRect(0, 113, SCREEN_WIDTH, 15, SSD1327_WHITE);
     if (hasMap) {

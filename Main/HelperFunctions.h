@@ -87,7 +87,6 @@ bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite
 void updateButtonStates();
 void handleUIStateTransitions();
 void updateAnimations();
-void drawWrappedText(const char *text, int x, int y, int maxWidth, int lineHeight);
 void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 

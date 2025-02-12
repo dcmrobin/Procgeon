@@ -120,10 +120,12 @@ void renderInventory() {
   else if (currentUIState == UI_ITEM_INFO) {
     display.setCursor(3, 120);
     display.println(inventory[selectedInventoryIndex].originalName);
-    drawWrappedText(inventory[selectedInventoryIndex].description.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
+    display.setCursor(3, 10);
+    display.print(inventory[selectedInventoryIndex].description);
   } 
   else if (currentUIState == UI_ITEM_RESULT) {
-    drawWrappedText(itemResultMessage.c_str(), 3, 10, SCREEN_WIDTH - 6, 12);
+    display.setCursor(3, 10);
+    display.println(itemResultMessage);
     if (buttons.bPressed && !buttons.bPressedPrev) {
       currentUIState = UI_NORMAL;
     }

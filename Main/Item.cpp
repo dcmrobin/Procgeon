@@ -127,7 +127,8 @@ void renderItemResult() {
   
   // Message text
   u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
-  drawWrappedText(itemResultMessage.c_str(), 15, 65, 100, 12);
+  display.setCursor(15, 65);
+  display.print(itemResultMessage);
   
   display.display();
 }
