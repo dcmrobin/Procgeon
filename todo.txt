@@ -44,6 +44,7 @@ There would be scrolls containing lore that you find around the map.
 There could be secret doors- walls you could walk through to another room that might be full of loot.
 
 Crafting system? Where you could combine potions/items to create new better things? Maybe you could select one potion, press "combine" and then select another potion,
-and it would add the two effects together? Need to figure out the naming system for that kind of thing though.
+and it would add the two effects together? Need to figure out the naming system for that kind of thing though. Also you would only be able to mix potions at a specific
+tile like a brewing stand or something.
 
 There could be enemies that when they touch you, teleport you to a random part in the map- there could be an item for this as well.
