@@ -150,13 +150,14 @@ void gameOver() {
   snprintf(KHighscore, sizeof(KHighscore), "%d", kllHighscore);
 
   display.clearDisplay();
-  u8g2_for_adafruit_gfx.setFont(u8g2_font_ncenB14_tr);
-  display.setCursor(8, 30);
+
+  display.setCursor(8, 10);
+  display.setTextSize(2);
   display.print("Game over!");
+  display.setTextSize(1);
 
   display.drawRect(6, 41, 110, 72, 15);
 
-  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
   if (page == 1) {
     display.setCursor(12, 44);
     display.print("Slain by:");
