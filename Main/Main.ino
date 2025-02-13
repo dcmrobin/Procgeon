@@ -20,6 +20,7 @@ void setup() {
   Serial.begin(9600);
   display.begin();
   u8g2_for_adafruit_gfx.begin(display);
+  u8g2_for_adafruit_gfx.setForegroundColor(15);
   display.setContrast(100);
 
   pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
@@ -219,42 +220,44 @@ void showStatusScreen() {
 
   display.clearDisplay();
 
+  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+
   if (!damselKidnapScreen) {
     if (dungeon > levelOfDamselDeath + 3) {
       if (!damsel[0].dead && damsel[0].followingPlayer) {
         display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-        display.setCursor(0, 125);
-        display.print("You rescued the Damsel!");
+        u8g2_for_adafruit_gfx.setCursor(0, 125);
+        u8g2_for_adafruit_gfx.print(F("You rescued the Damsel!"));
       } else {
-        display.setCursor(0, 125);
-        display.print("Error.");
+        u8g2_for_adafruit_gfx.setCursor(0, 125);
+        u8g2_for_adafruit_gfx.print(F("Error."));
       }
     } else if (dungeon == levelOfDamselDeath) {
       if (damsel[0].dead) {
         display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-        display.setCursor(0, 105);
-        display.print("You killed the Damsel!");
-        display.setCursor(0, 115);
-        display.print(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!");
+        u8g2_for_adafruit_gfx.setCursor(0, 105);
+        u8g2_for_adafruit_gfx.print(F("You killed the Damsel!"));
+        u8g2_for_adafruit_gfx.setCursor(0, 115);
+        u8g2_for_adafruit_gfx.print(F(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!"));
         if (damsel[0].levelOfLove >= 5) {
-          display.setCursor(0, 125);
-          display.print("She loved you!");
+          u8g2_for_adafruit_gfx.setCursor(0, 125);
+          u8g2_for_adafruit_gfx.print(F("She loved you!"));
         }
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
         display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-        display.setCursor(0, 125);
-        display.print("You left the Damsel!");
+        u8g2_for_adafruit_gfx.setCursor(0, 125);
+        u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
         damsel[0].levelOfLove = 0;
       }
     } else {
       display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      display.setCursor(0, 125);
-      display.print("You progress. Alone.");
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("You progress. Alone."));
     }
   } else {
     display.drawBitmap(0, 0, capturedDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-    display.setCursor(0, 10);
-    display.print("The Damsel was captured!");
+    u8g2_for_adafruit_gfx.setCursor(0, 10);
+    u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
   }
 
   display.display();
