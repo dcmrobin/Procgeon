@@ -50,3 +50,5 @@ and it would add the two effects together? Need to figure out the naming system 
 tile like a brewing stand or something.
 
 There could be enemies that when they touch you, teleport you to a random part in the map- there could be an item for this as well.
+
+There could be an enemy type that has a randomly generated sprite.
