@@ -254,36 +254,61 @@ void renderDungeon() {
 void drawTile(int mapX, int mapY, float screenX, float screenY) {
   TileTypes tileType = dungeonMap[mapY][mapX];
 
-  // Check visibility for other tiles (stairs, potions, map, etc.)
-  int playerTileX = round(playerX);
-  int playerTileY = round(playerY);
-  if (isVisible(playerTileX, playerTileY, mapX, mapY)) {
-    switch (tileType) {
-      case StartStairs:
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
-        break;
-      case Floor:
-        // No need to draw floors explicitly
-        break;
-      case Wall:
-        display.drawBitmap(screenX, screenY, wallSprite, tileSize, tileSize, 15);
-        break;
-      case Bars:
-        display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, 15);
-        break;
-      case Exit:
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
-        break;
-      case Potion:
-        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, 15);
-        break;
-      case Map:
-        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, 15);
-        break;
+  switch (tileType) {
+    case Wall: {
+      int brightness = computeTileBrightness(mapX, mapY);
+      display.drawBitmap(screenX, screenY, wallSprite, tileSize, tileSize, brightness);
+      break;
     }
-  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) && tileType == 2) {
-    display.drawBitmap(screenX, screenY, wallSpriteDim, tileSize, tileSize, 15);
-  } else if (!isVisible(playerTileX, playerTileY, mapX, mapY) && tileType == 3) {
-    display.drawBitmap(screenX, screenY, barsSpriteDim, tileSize, tileSize, 15);
+    case Bars: {
+      int brightness = computeTileBrightness(mapX, mapY);
+      display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, brightness);
+      break;
+    }
+    case StartStairs:
+      display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
+      break;
+    case Exit:
+      display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
+      break;
+    case Potion:
+      display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, 15);
+      break;
+    case Map:
+      display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, 15);
+      break;
+    case Floor:
+      // Optionally draw floor tiles if needed.
+      break;
   }
+}
+
+int computeTileBrightness(int mapX, int mapY) {
+  int totalNeighbors = 0;
+  int litNeighbors = 0;
+  for (int dx = -1; dx <= 1; dx++) {
+    for (int dy = -1; dy <= 1; dy++) {
+      if (dx == 0 && dy == 0) continue;  // Skip the tile itself
+      int nx = mapX + dx;
+      int ny = mapY + dy;
+      if (nx >= 0 && nx < mapWidth && ny >= 0 && ny < mapHeight) {
+        totalNeighbors++;
+        if (isVisible(round(playerX), round(playerY), nx, ny)) {
+          litNeighbors++;
+        }
+      }
+    }
+  }
+
+  // If the tile itself is visible, use full brightness.
+  if (isVisible(round(playerX), round(playerY), mapX, mapY)) {
+    return 15;
+  }
+
+  // Calculate brightness from neighbors.
+  float fraction = totalNeighbors > 0 ? (float)litNeighbors / totalNeighbors : 0.0f;
+  int brightness = 5 + (int)(fraction * 10.0f);
+  if (brightness > 15) brightness = 15;
+  if (brightness < 5) brightness = 5;
+  return brightness;
 }

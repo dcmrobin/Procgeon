@@ -27,5 +27,6 @@ void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, f
 void drawMinimap();
 void renderDungeon();
 void drawTile(int mapX, int mapY, float screenX, float screenY);
+int computeTileBrightness(int mapX, int mapY);
 
 #endif

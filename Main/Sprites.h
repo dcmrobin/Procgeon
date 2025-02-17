@@ -8,11 +8,9 @@ extern const unsigned char stairsSprite[];
 
 // Wall sprite
 extern const unsigned char wallSprite[];
-extern const unsigned char wallSpriteDim[];
 
 // Bars sprite
 extern const unsigned char barsSprite[];
-extern const unsigned char barsSpriteDim[];
 
 // Player sprites
 extern const unsigned char playerSpriteRight[];

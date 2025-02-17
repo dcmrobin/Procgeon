@@ -24,17 +24,6 @@ const unsigned char PROGMEM wallSprite[] = {
   0b01110111
 };
 
-const unsigned char PROGMEM wallSpriteDim[] = {
-  0b00000000,
-  0b01010101,
-  0b00000000,
-  0b01001001,
-  0b10010100,
-  0b00000000,
-  0b00100101,
-  0b01001010
-};
-
 // Bars sprite
 const unsigned char PROGMEM barsSprite[] = {
   0b11111111,
@@ -45,17 +34,6 @@ const unsigned char PROGMEM barsSprite[] = {
   0b01000100,
   0b11101110,
   0b11111111
-};
-
-const unsigned char PROGMEM barsSpriteDim[] = {
-  0b10101010,
-  0b01000100,
-  0b00000000,
-  0b01000100,
-  0b00000000,
-  0b01000100,
-  0b10101010,
-  0b01010101
 };
 
 // Player sprites
