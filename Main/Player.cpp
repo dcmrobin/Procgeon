@@ -148,3 +148,14 @@ void handleInput() {
     statusScreen = true;
   }
 }
+
+void handlePauseScreen() {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setCursor(27, 40);
+  display.print("PAUSED");
+  display.setTextSize(1);
+  display.setCursor(24, 65);
+  display.print("Press [START]");
+  display.display();
+}

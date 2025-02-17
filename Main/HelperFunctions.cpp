@@ -155,7 +155,12 @@ void handleUIStateTransitions() {
       case UI_ITEM_RESULT: 
         currentUIState = UI_NORMAL;
         break;
+      case UI_PAUSE: 
+        currentUIState = UI_PAUSE;
+        break;
     }
+  } else if (buttons.startPressed && !buttons.startPressedPrev) {
+    currentUIState = currentUIState == UI_PAUSE ? UI_NORMAL : UI_PAUSE;
   }
 }
 
@@ -181,7 +186,7 @@ void renderUI() {
     snprintf(HP, sizeof(HP), "%d", playerHP);
     snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
 
-    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
+    display.setTextSize(1);
     display.setCursor(5, 117);
     display.print("HP:");
     display.setCursor(21, 117);

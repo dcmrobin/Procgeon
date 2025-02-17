@@ -19,5 +19,6 @@ extern bool paused;
 
 void renderPlayer();
 void handleInput();
+void handlePauseScreen();
 
 #endif

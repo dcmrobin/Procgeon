@@ -51,52 +51,50 @@ void loop() {
   updateButtonStates();
 
   unsigned long currentTime = millis();
-  if(!paused) {
-    if (playerHP > 0) {
-      if (!statusScreen) {
-        handleUIStateTransitions();
-        switch (currentUIState) {
-          case UI_NORMAL:
-            if (currentTime - lastUpdateTime >= frameDelay) {
-              lastUpdateTime = currentTime;
-              updateGame();
-              renderGame();
-            }
-            break;
+  if (playerHP > 0) {
+    if (!statusScreen) {
+      handleUIStateTransitions();
+      switch (currentUIState) {
+        case UI_NORMAL:
+          if (currentTime - lastUpdateTime >= frameDelay) {
+            lastUpdateTime = currentTime;
+            updateGame();
+            renderGame();
+          }
+          break;
 
-          case UI_INVENTORY:
-            renderInventory();
-            handleInventoryNavigation();
-            handleInventoryItemUsage();
-            break;
+        case UI_INVENTORY:
+          renderInventory();
+          handleInventoryNavigation();
+          handleInventoryItemUsage();
+          break;
 
-          case UI_MINIMAP:
-            drawMinimap();
-            break;
+        case UI_MINIMAP:
+          drawMinimap();
+          break;
 
-          case UI_ITEM_ACTION:
-            handleItemActionMenu();
-            renderInventory();
-            break;
+        case UI_ITEM_ACTION:
+          handleItemActionMenu();
+          renderInventory();
+          break;
 
-          case UI_ITEM_INFO:
-            renderInventory();
-            break;
+        case UI_ITEM_INFO:
+          renderInventory();
+          break;
 
-          case UI_ITEM_RESULT:
-            renderInventory();
-            break;
-        }
-      } else {
-        showStatusScreen();
+        case UI_ITEM_RESULT:
+          renderInventory();
+          break;
+
+        case UI_PAUSE:
+          handlePauseScreen();
+          break;
       }
     } else {
-      gameOver();
+      showStatusScreen();
     }
-  }
-
-  if (buttons.startPressed && !buttons.startPressedPrev) {
-    paused = !paused;
+  } else {
+    gameOver();
   }
 }
 

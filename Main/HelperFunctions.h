@@ -56,7 +56,8 @@ enum UIState {
   UI_MINIMAP,     // Minimap screen
   UI_ITEM_ACTION, // Item action selection screen
   UI_ITEM_INFO,   // Item info screen
-  UI_ITEM_RESULT  // Item result screen
+  UI_ITEM_RESULT, // Item result screen
+  UI_PAUSE        // Pause screen
 };
 
 // Add action selection tracking
