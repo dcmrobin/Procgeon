@@ -244,7 +244,7 @@ void renderDungeon() {
         float screenX = (x - (offsetX - (int)offsetX)) * tileSize;
         float screenY = (y - (offsetY - (int)offsetY)) * tileSize;
 
-        // Draw the tile if it's visible
+        // Draw the tile
         drawTile((int)mapX, (int)mapY, screenX, screenY);
       }
     }
@@ -266,16 +266,20 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       break;
     }
     case StartStairs:
-      display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
       break;
     case Exit:
-      display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
       break;
     case Potion:
-      display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, 15);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, 15);
       break;
     case Map:
-      display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, 15);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, 15);
       break;
     case Floor:
       // Optionally draw floor tiles if needed.
