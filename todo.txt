@@ -12,9 +12,8 @@ Maybe you'll be able to equip items?
 Add rings that when you equip them, grant you a buff or debuff in things like speed, damage, or even one that is called The Ring of Power or The One Ring that makes you
 invisible to enemies- unfortunately, invisible to the damsel as well. That ring would only be used in solo runs when you don't care about the damsel maybe.
 
-Maybe if the level of love is high enough, instead of the damsel following behind you, you are literally carrying her- this would mean that you couldn't shoot her.
-The "rescuedamselscreen" would change to, instead of the normal one, one where the wizard is carrying the damsel. When this happens, she will passively heal you
-over time.
+Maybe if the level of love is high enough, when you press b next to the damsel, you carry her in your arms -the first time this happens, an art screen will show- and she
+would passively heal you as long as she's in your arms. The downside is that you can't shoot anything while carrying her, so you'd need to put her down to do that.
 
 The enemies need to have better wandering mechanics. Maybe more complex wandering for different enemies?
 
