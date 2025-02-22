@@ -41,5 +41,6 @@ extern const unsigned char deadDamselScreen[];
 extern const unsigned char leftDamselScreen[];
 extern const unsigned char aloneWizardScreen[];
 extern const unsigned char capturedDamselScreen[];
+extern const unsigned char carryDamselScreen [];
 
 #endif // SPRITES_H
