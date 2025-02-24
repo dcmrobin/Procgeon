@@ -29,6 +29,12 @@ void updateDamsel() {
   int dy = round(destinationY) - round(damsel[0].y);
   int distanceSquared = dx * dx + dy * dy;
 
+  if (carryingDamsel) {
+    damsel[0].x = playerX;
+    damsel[0].y = playerY;
+    return;
+  }
+
   // Check if the damsel should follow the player
   if (distanceSquared <= 25 + (damsel[0].levelOfLove*2)) { // Follow if within 5 tiles (distance^2 = 25) + the love level
     damsel[0].followingPlayer = true;
@@ -274,6 +280,8 @@ void renderEnemies() {
 }
 
 void renderDamsel() {
+  if (carryingDamsel) return;
+
   int playerTileX = predictXtile(playerX);
   int playerTileY = predictYtile(playerY);
   int damselTileX = predictXtile(damsel[0].x);

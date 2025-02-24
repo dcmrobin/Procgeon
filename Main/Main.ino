@@ -34,12 +34,12 @@ void setup() {
   randomSeed(generateRandomSeed());
 
   for (int i = 0; i < inventorySize; i++) {
-      inventory[i] = { Null, "Empty", 0, 0, 0 };
+    inventory[i] = { Null, "Empty", 0, 0, 0 };
   }
   randomizePotionEffects();
 
   for (int i = 0; i < maxProjectiles; i++) {
-      projectiles[i].active = false;
+    projectiles[i].active = false;
   }
 
   // Generate a random dungeon
@@ -58,8 +58,8 @@ void loop() {
         case UI_NORMAL:
           if (currentTime - lastUpdateTime >= frameDelay) {
             lastUpdateTime = currentTime;
-            updateGame();
             renderGame();
+            updateGame();
           }
           break;
 
@@ -224,7 +224,11 @@ void showStatusScreen() {
   if (!damselKidnapScreen) {
     if (dungeon > levelOfDamselDeath + 3) {
       if (!damsel[0].dead && damsel[0].followingPlayer) {
-        display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+        if (!carryingDamsel) {
+          display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+        } else {
+          display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+        }
         u8g2_for_adafruit_gfx.setCursor(0, 125);
         u8g2_for_adafruit_gfx.print(F("You rescued the Damsel!"));
       } else {
@@ -289,14 +293,7 @@ void showStatusScreen() {
         damsel[0].levelOfLove = 0;
       }
 
-      char Love[7];
-      snprintf(Love, sizeof(Love), "%d", damsel[0].levelOfLove);
-
-      if (Serial.available() > 0) {
-        Serial.println(Love);
-      }
-
-      if (rescued && randomChance == 3) {
+      if (rescued && randomChance == 3 && !carryingDamsel) {
         damselKidnapScreen = true; // Switch to the kidnap screen
         statusScreen = true;       // Keep status screen active
       } else if (rescued) {

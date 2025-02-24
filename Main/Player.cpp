@@ -16,6 +16,7 @@ int playerDY;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
+bool carryingDamsel = false;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -29,6 +30,8 @@ void renderPlayer() {
 
 int shootDelay = 0;
 bool reloading;
+int damselHealDelay = 0;
+int carryingDelay = 0;
 void handleInput() {
   float newX = playerX;
   float newY = playerY;
@@ -40,6 +43,15 @@ void handleInput() {
     if (speedTimer <= 0) {
       speedTimer = 1000;
       speeding = false;
+    }
+  }
+
+  if (carryingDamsel) {
+    damselHealDelay++;
+    if (damselHealDelay >= 200) {
+      damselHealDelay = 0;
+      playerHP += damsel[0].levelOfLove;
+      if (playerHP > playerMaxHP) playerHP = playerMaxHP;
     }
   }
 
@@ -56,42 +68,56 @@ void handleInput() {
   } else if (buttons.leftPressed && !buttons.upPressed && !buttons.downPressed) {
     playerDX = -1;
     playerDY = 0;
-    playerSprite = playerSpriteLeft;
+    playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newX -= speed; // Move left
   } else if (buttons.rightPressed && !buttons.upPressed && !buttons.downPressed) {
     playerDX = 1;
     playerDY = 0;
-    playerSprite = playerSpriteRight;
+    playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newX += speed; // Move right
   } else if (buttons.upPressed && buttons.leftPressed) {
     playerDY = -1;
     playerDX = -1;
-    playerSprite = playerSpriteLeft;
+    playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newY -= diagSpeed; // Move up & left
     newX -= diagSpeed; // Move up & left
   } else if (buttons.upPressed && buttons.rightPressed) {
     playerDY = -1;
     playerDX = 1;
-    playerSprite = playerSpriteRight;
+    playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newY -= diagSpeed; // Move up & right
     newX += diagSpeed; // Move up & left
   } else if (buttons.downPressed && buttons.leftPressed) {
     playerDX = -1;
     playerDY = 1;
-    playerSprite = playerSpriteLeft;
+    playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newX -= diagSpeed; // Move left & down
     newY += diagSpeed; // Move up & left
   } else if (buttons.downPressed && buttons.rightPressed) {
     playerDX = 1;
     playerDY = 1;
-    playerSprite = playerSpriteRight;
+    playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newX += diagSpeed; // Move right & down
     newY += diagSpeed; // Move up & left
   }
 
-  if (buttons.bPressed && !reloading) {
-    shootProjectile(playerDX, playerDY); // Shoot in current direction
-    reloading = true;
+  float dx = playerX - damsel[0].x;
+  float dy = playerY - damsel[0].y;
+  float distanceSquared = dx * dx + dy * dy;
+
+  if (buttons.bPressed) {
+    if (distanceSquared <= 0.3 && !damsel[0].dead && damsel[0].levelOfLove >= 6) {
+      startCarryingDamsel();
+    }
+  } else {
+    carryingDelay = 0;
+  }
+
+  if (buttons.bPressed) {
+    if (!reloading && !carryingDamsel && distanceSquared > 0.3) {
+      shootProjectile(playerDX, playerDY); // Shoot in current direction
+      reloading = true;
+    }
   }
 
   if (reloading) {
@@ -146,6 +172,23 @@ void handleInput() {
       damsel[0].active = false;
     }
     statusScreen = true;
+  }
+}
+
+void startCarryingDamsel() {
+  carryingDelay += 1;
+  display.fillRect(0, 0, carryingDelay, 15, (int)(carryingDelay/8));
+  display.display();
+  if (carryingDelay >= SCREEN_WIDTH) {
+    carryingDamsel = !carryingDamsel;
+
+    if (carryingDamsel) {
+      playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
+    } else {
+      playerSprite = playerSprite == playerCarryingDamselSpriteRight ? playerSpriteRight : playerSpriteLeft;
+    }
+
+    carryingDelay = 0;
   }
 }
 

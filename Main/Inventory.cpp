@@ -99,7 +99,6 @@ void handleItemActionMenu() {
 void renderInventory() {
   display.clearDisplay();
   display.setTextSize(1);
-  //display.setTextColor(SSD1327_WHITE);
 
   if (currentUIState == UI_INVENTORY) {
     display.setCursor(10, 10);

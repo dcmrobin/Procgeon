@@ -16,9 +16,11 @@ extern int playerDY;
 extern bool speeding;
 extern bool hasMap;
 extern bool paused;
+extern bool carryingDamsel;
 
 void renderPlayer();
 void handleInput();
+void startCarryingDamsel();
 void handlePauseScreen();
 
 #endif

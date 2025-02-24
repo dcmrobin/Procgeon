@@ -12,9 +12,6 @@ Maybe you'll be able to equip items?
 Add rings that when you equip them, grant you a buff or debuff in things like speed, damage, or even one that is called The Ring of Power or The One Ring that makes you
 invisible to enemies- unfortunately, invisible to the damsel as well. That ring would only be used in solo runs when you don't care about the damsel maybe.
 
-Maybe if the level of love is high enough, when you press b next to the damsel, you carry her in your arms -the first time this happens, an art screen will show- and she
-would passively heal you as long as she's in your arms. The downside is that you can't shoot anything while carrying her, so you'd need to put her down to do that.
-
 The enemies need to have better wandering mechanics. Maybe more complex wandering for different enemies?
 
 Maybe for the boss fight, right at the end of the boss fight, the music
@@ -46,3 +43,7 @@ tile like a brewing stand or something.
 There could be enemies that when they touch you, teleport you to a random part in the map- there could be an item for this as well.
 
 There could be an enemy type that has a randomly generated sprite.
+
+Since people will probably think it's sexist to have a wizard carrying a damsel, on the title screen or boot up, you'll be given two options: male or female. This will make
+it so that instead of you controlling a male wizard and saving a female damsel, you'll control a female witch and you would find a male damsel/prince. The prince would
+complain a lot while following you at first, making you want to shoot him. The main bad guy would be a female instead of a male when you're a witch.
