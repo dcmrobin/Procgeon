@@ -37,10 +37,10 @@ extern const unsigned char potionSprite[];
 extern const unsigned char mapSprite[];
 
 // Teleporter sprites
-extern const unsigned char teleporterSpriteF1[]
-extern const unsigned char teleporterSpriteF2[]
-extern const unsigned char teleporterSpriteF3[]
-extern const unsigned char teleporterSpriteF4[]
+extern const unsigned char teleporterSpriteF1[];
+extern const unsigned char teleporterSpriteF2[];
+extern const unsigned char teleporterSpriteF3[];
+extern const unsigned char teleporterSpriteF4[];
 extern const unsigned char* teleporterSprite;
 
 // Screens

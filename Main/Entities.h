@@ -23,6 +23,7 @@ struct Enemy {
   float moveAmount;
   String name;
   int attackDelay;
+  int damage;
 };
 extern Enemy enemies[maxEnemies];
 

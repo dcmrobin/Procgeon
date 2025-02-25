@@ -181,8 +181,8 @@ void updateAnimations() {
   }
 
   teleporteranimcounter += 1;
-  if (teleporteranimcounter >= 10) {
-    teleporterSprite = teleporterSprite == teleporterSpriteF1 ? teleporterSpriteF2 : teleporterSprite == teleporterSpriteF2 ? teleporterF3 : teleporterSprite == teleporterSpriteF3 ? teleporterSpriteF4 : teleporterSprite == teleporterSpriteF4 ? teleporterSpriteF1 : teleporterSprite;
+  if (teleporteranimcounter >= 5) {
+    teleporterSprite = teleporterSprite == teleporterSpriteF1 ? teleporterSpriteF2 : teleporterSprite == teleporterSpriteF2 ? teleporterSpriteF3 : teleporterSprite == teleporterSpriteF3 ? teleporterSpriteF4 : teleporterSprite == teleporterSpriteF4 ? teleporterSpriteF1 : teleporterSprite;
     teleporteranimcounter = 0;
   }
 }

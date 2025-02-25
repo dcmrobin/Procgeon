@@ -1,3 +1,4 @@
+#include "WProgram.h"
 #include "Dungeon.h"
 #include "HelperFunctions.h"
 #include "Entities.h"
@@ -183,7 +184,11 @@ void spawnEnemies() {
 
       // Check if the tile is a floor and if it's outside the player's radius
       if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {  // 10-unit radius check
-        enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20 };
+        if (random(0, 30) <= 24) {
+          enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 5 };
+        } else {
+          enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0 };
+        }
         break;
       }
     }

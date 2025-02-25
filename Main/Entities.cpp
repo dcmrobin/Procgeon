@@ -130,7 +130,7 @@ void updateEnemies() {
     }
 
     if (enemies[i].chasingPlayer) {
-      // Determine the primary direction of movement
+      // Determine movement direction
       float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
       float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
 
@@ -158,17 +158,6 @@ void updateEnemies() {
       } else if (yValid) {
         // Slide along Y if X is blocked
         enemies[i].y = ny;
-      } else {
-        // Both directions blocked, try "wall sliding"
-        // Check perpendicular sliding directions
-        float slideX = enemies[i].x + moveX * enemies[i].moveAmount;
-        float slideY = enemies[i].y;
-
-        if (!checkSpriteCollisionWithTileX(slideX, enemies[i].x, enemies[i].y)) {
-          enemies[i].x = slideX;
-        } else if (!checkSpriteCollisionWithTileY(slideY, enemies[i].y, enemies[i].x)) {
-          enemies[i].y = slideY;
-        }
       }
     } else {
       // Random wandering if not chasing
@@ -186,12 +175,24 @@ void updateEnemies() {
 
     // Check for collision with the player
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
-      if (atkDelayCounter >= enemies[i].attackDelay) {
-        playerHP -= 5; // Damage player
-        atkDelayCounter = 0;
-      }
-      if (playerHP <= 0) {
-        deathCause = enemies[i].name;
+      if (enemies[i].name == "teleporter") {
+        // Teleport player to a random valid position
+        int newX, newY;
+        do {
+          newX = random(0, mapWidth);
+          newY = random(0, mapHeight);
+        } while (dungeonMap[newY][newX] != Floor); // Ensure it's a walkable tile
+
+        playerX = newX;
+        playerY = newY;
+      } else {
+        if (atkDelayCounter >= enemies[i].attackDelay) {
+          playerHP -= enemies[i].damage; // Damage player
+          atkDelayCounter = 0;
+        }
+        if (playerHP <= 0) {
+          deathCause = enemies[i].name;
+        }
       }
     }
   }
@@ -272,7 +273,7 @@ void renderEnemies() {
         float screenX = (enemies[i].x - offsetX) * tileSize;
         float screenY = (enemies[i].y - offsetY) * tileSize;
         if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-          display.drawBitmap(screenX, screenY, blobSprite, 8, 8, 15);
+          display.drawBitmap(screenX, screenY, enemies[i].name == "blob" ? blobSprite : enemies[i].name == "teleporter" ? teleporterSprite : wallSprite, 8, 8, 15);
         }
       }
     }
