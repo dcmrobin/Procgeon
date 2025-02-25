@@ -204,7 +204,10 @@ void renderUI() {
     display.print(Dngn);
     display.drawRect(0, 113, SCREEN_WIDTH, 15, SSD1327_WHITE);
     if (hasMap) {
-        display.drawBitmap(100, 116, mapSprite, 8, 8, SSD1327_WHITE);
+      display.drawBitmap(100, 116, mapSprite, 8, 8, SSD1327_WHITE);
+    }
+    if (speeding) {
+      display.drawBitmap(109, 116, fastbootSprite, 8, 8, SSD1327_WHITE);
     }
 }
 

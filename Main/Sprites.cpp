@@ -189,6 +189,17 @@ const unsigned char PROGMEM mapSprite[] = {
   0b00000000
 };
 
+const unsigned char PROGMEM fastbootSprite[] = {
+  0b00000000,
+  0b00000000,
+  0b01100100,
+  0b00001110,
+  0b11011100,
+  0b00001110,
+  0b00110110,
+  0b00000000
+};
+
 // Teleporter sprites
 const unsigned char PROGMEM teleporterSpriteF1[] = {
   0b01111110,
