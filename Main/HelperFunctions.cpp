@@ -166,6 +166,7 @@ void handleUIStateTransitions() {
 
 int blobanimcounter = 0;
 int damselanimcounter = 0;
+int teleporteranimcounter = 0;
 void updateAnimations() {
   blobanimcounter += 1;
   if (blobanimcounter >= 20) {
@@ -177,6 +178,12 @@ void updateAnimations() {
   if (damselanimcounter >= random(50, 90)) {
     damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
     damselanimcounter = 0;
+  }
+
+  teleporteranimcounter += 1;
+  if (teleporteranimcounter >= 10) {
+    teleporterSprite = teleporterSprite == teleporterSpriteF1 ? teleporterSpriteF2 : teleporterSprite == teleporterSpriteF2 ? teleporterF3 : teleporterSprite == teleporterSpriteF3 ? teleporterSpriteF4 : teleporterSprite == teleporterSpriteF4 ? teleporterSpriteF1 : teleporterSprite;
+    teleporteranimcounter = 0;
   }
 }
 

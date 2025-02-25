@@ -166,6 +166,7 @@ const unsigned char PROGMEM blobSpriteFrame2[] = {
 
 const unsigned char* blobSprite = blobSpriteFrame1;
 
+// Item sprites
 const unsigned char PROGMEM potionSprite[] = {
   0b00000000,
   0b00000000,
@@ -187,6 +188,53 @@ const unsigned char PROGMEM mapSprite[] = {
   0b11111111,
   0b00000000
 };
+
+// Teleporter sprites
+const unsigned char PROGMEM teleporterSpriteF1[] = {
+  0b01111110,
+  0b11000001,
+  0b10111110,
+  0b10110011,
+  0b10101101,
+  0b10111101,
+  0b11000011,
+  0b01111110
+};
+
+const unsigned char PROGMEM teleporterSpriteF2[] = {
+  0b01011110,
+  0b10110011,
+  0b10101101,
+  0b10101101,
+  0b10110101,
+  0b10111101,
+  0b11000011,
+  0b01111110
+};
+
+const unsigned char PROGMEM teleporterSpriteF3[] = {
+  0b01111110,
+  0b11000011,
+  0b10111101,
+  0b10110101,
+  0b11001101,
+  0b01111101,
+  0b10000011,
+  0b01111110
+};
+
+const unsigned char PROGMEM teleporterSpriteF4[] = {
+  0b01111110,
+  0b11000011,
+  0b10111101,
+  0b10101101,
+  0b10110101,
+  0b10110101,
+  0b11001101,
+  0b01111010
+};
+
+const unsigned char* teleporterSprite = teleporterSpriteF1;
 
 const unsigned char rescueDamselScreen [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x05, 0x51, 0x55, 0x54, 0x55, 0x55, 0x15, 0x55, 0x45, 0x55, 0x51, 0x55, 
