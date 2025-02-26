@@ -17,6 +17,7 @@ extern bool speeding;
 extern bool hasMap;
 extern bool paused;
 extern bool carryingDamsel;
+extern bool damselGotTaken;
 
 void renderPlayer();
 void handleInput();

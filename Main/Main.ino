@@ -289,6 +289,9 @@ void showStatusScreen() {
       int randomChance = random(1, 5);
 
       damsel[0].levelOfLove += rescued ? 1 : 0;
+      damsel[0].levelOfLove += rescued && damselGotTaken ? 1 : 0;
+      damsel[0].levelOfLove += rescued && carryingDamsel ? 1 : 0;
+      damselGotTaken = rescued ? false : damselGotTaken;
       if (damsel[0].dead) {
         damsel[0].levelOfLove = 0;
       }
@@ -296,6 +299,7 @@ void showStatusScreen() {
       if (rescued && randomChance == 3 && !carryingDamsel) {
         damselKidnapScreen = true; // Switch to the kidnap screen
         statusScreen = true;       // Keep status screen active
+        damselGotTaken = true;
       } else if (rescued) {
         damsel[0].x = playerX;
         damsel[0].y = playerY - 1;

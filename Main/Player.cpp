@@ -17,6 +17,7 @@ bool speeding = false;
 bool hasMap = false;
 bool paused = false;
 bool carryingDamsel = false;
+bool damselGotTaken = false;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
