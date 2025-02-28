@@ -101,10 +101,12 @@ void renderInventory() {
   display.setTextSize(1);
 
   if (currentUIState == UI_INVENTORY) {
-    display.setCursor(10, 10);
+    display.setCursor(10, 3);
     display.setTextSize(2);
     display.println("Inventory");
     display.setTextSize(1);
+    display.setCursor(10, 20);
+    display.println("<Potions>");
 
     // Draw inventory items
     for (int i = 0; i < inventorySize; i++) {
