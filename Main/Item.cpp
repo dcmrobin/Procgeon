@@ -4,13 +4,13 @@
 #include "Player.h"
 
 GameItem itemList[] = {
-  { RedPotion,  String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.") },
-  { GreenPotion, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.") },
-  { BluePotion,  String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Blue Potion"), String("Nothing happens.") },
-  { BlackPotion, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.") },
-  { WhitePotion, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.") },
-  { YellowPotion, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.") },
-  { WhitePotion, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.") }
+  { RedPotion, PotionCategory, String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.") },
+  { GreenPotion, PotionCategory, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.") },
+  { BluePotion,  PotionCategory, String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Blue Potion"), String("Nothing happens.") },
+  { BlackPotion, PotionCategory, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.") },
+  { WhitePotion, PotionCategory, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.") },
+  { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.") },
+  { WhitePotion, PotionCategory, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.") }
 };
 
 // Possible potion effects
@@ -56,7 +56,9 @@ void randomizePotionEffects() {
 }
 
 GameItem getItem(GameItems item) {
-  return itemList[item];
+  GameItem newItem = itemList[item];
+  newItem.category = PotionCategory; // Or appropriate category
+  return newItem;
 }
 
 void updatePotionName(GameItem &potion) {

@@ -11,10 +11,21 @@
 extern GameItem inventory[inventorySize];
 extern int selectedInventoryIndex; // Currently selected inventory item
 extern String itemResultMessage;
-extern String invPage;
+
+struct InventoryPage {
+  String name;
+  ItemCategory category;
+};
+
+extern InventoryPage inventoryPages[];
+extern int currentInventoryPageIndex;
+extern int numInventoryPages;
 
 bool addToInventory(GameItem item);
 void handleInventoryNavigation();
+int findFirstItemInCurrentCategory();
+int findPreviousItemInCategory(int current);
+int findNextItemInCategory(int current);
 void handleInventoryItemUsage();
 void handleItemActionMenu();
 void renderInventory();

@@ -4,26 +4,77 @@
 GameItem inventory[inventorySize];
 int selectedInventoryIndex = 0; // Currently selected inventory item
 String itemResultMessage = "";
-String invPage = "Potions";
+
+InventoryPage inventoryPages[] = {
+  {"Potions", PotionCategory},
+  {"Materials", OtherCategory}
+};
+int currentInventoryPageIndex = 0;
+int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
 
 // Add an item to the first empty slot
 bool addToInventory(GameItem item) {
   for (int i = 0; i < inventorySize; i++) {
     if (strcmp(inventory[i].name.c_str(), "Empty") == 0) { // Check for empty slot
-        inventory[i] = item;
-        return true; // Successfully added
+      inventory[i] = item;
+      return true; // Successfully added
     }
   }
   return false; // Inventory full
 }
 
 void handleInventoryNavigation() {
-  if (buttons.upPressed && !buttons.upPressedPrev && selectedInventoryIndex > 0) {
-    selectedInventoryIndex--;
+  if (currentUIState != UI_INVENTORY) return;
+
+  // Handle page switching
+  if (buttons.leftPressed && !buttons.leftPressedPrev) {
+    currentInventoryPageIndex = (currentInventoryPageIndex - 1 + numInventoryPages) % numInventoryPages;
+    selectedInventoryIndex = findFirstItemInCurrentCategory();
   }
-  if (buttons.downPressed && !buttons.downPressedPrev && selectedInventoryIndex < inventorySize - 1) {
-    selectedInventoryIndex++;
+  if (buttons.rightPressed && !buttons.rightPressedPrev) {
+    currentInventoryPageIndex = (currentInventoryPageIndex + 1) % numInventoryPages;
+    selectedInventoryIndex = findFirstItemInCurrentCategory();
   }
+
+  // Handle item navigation within category
+  if (buttons.upPressed && !buttons.upPressedPrev) {
+    int newIndex = findPreviousItemInCategory(selectedInventoryIndex);
+    if (newIndex != -1) selectedInventoryIndex = newIndex;
+  }
+  if (buttons.downPressed && !buttons.downPressedPrev) {
+    int newIndex = findNextItemInCategory(selectedInventoryIndex);
+    if (newIndex != -1) selectedInventoryIndex = newIndex;
+  }
+}
+
+int findFirstItemInCurrentCategory() {
+  for (int i = 0; i < inventorySize; i++) {
+    if (inventory[i].item != Null && 
+      inventory[i].category == inventoryPages[currentInventoryPageIndex].category) {
+      return i;
+    }
+  }
+  return 0;
+}
+
+int findPreviousItemInCategory(int current) {
+  for (int i = current - 1; i >= 0; i--) {
+    if (inventory[i].item != Null && 
+      inventory[i].category == inventoryPages[currentInventoryPageIndex].category) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int findNextItemInCategory(int current) {
+  for (int i = current + 1; i < inventorySize; i++) {
+    if (inventory[i].item != Null && 
+      inventory[i].category == inventoryPages[currentInventoryPageIndex].category) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 void handleInventoryItemUsage() {
@@ -85,11 +136,11 @@ void handleItemActionMenu() {
 
       itemResultMessage = selectedItem.itemResult;
       
-      inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
+      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
       currentUIState = UI_ITEM_RESULT; // Change to result screen
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
-      inventory[selectedInventoryIndex] = { Null, "Empty", 0, 0, 0 };
+      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
       currentUIState = UI_INVENTORY;
     } else { // Info
       currentUIState = UI_ITEM_INFO;
@@ -107,17 +158,25 @@ void renderInventory() {
     display.println("Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
-    String pageName = "<" + invPage + ">";
+    String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
     display.println(pageName.c_str());
 
     // Draw inventory items
+    int yPos = 30;
     for (int i = 0; i < inventorySize; i++) {
-      int yPos = 30 + (i * 12);
+      GameItem &item = inventory[i];
+      if (item.item == Null || item.category != inventoryPages[currentInventoryPageIndex].category) 
+        continue;
+
       display.setCursor(15, yPos);
-      if (i == selectedInventoryIndex) {
-        display.print("> ");
-      }
-      display.println(inventory[i].name);
+      if (i == selectedInventoryIndex) display.print("> ");
+      display.println(item.name);
+      yPos += 12;
+    }
+
+    if (yPos == 30) { // No items
+      display.setCursor(15, 30);
+      display.println("Empty");
     }
   } 
   else if (currentUIState == UI_ITEM_INFO) {

@@ -4,9 +4,6 @@ deal damage when stepped on.
 Some items could be cursed or blessed... one thing that these curses could do is increase the enemy awareness radius, and blessed items, when equipped, in addition
 to their normal function, could like add a max health bonus or speed bonus- but only when wearing that item.
 
-Right now, the inventory is just a set seven slots. Maybe I'll implement different pages that you switch between using the left and right buttons. There would be a page
-for each item type probably.
-
 Maybe you'll be able to equip items?
 
 Add rings that when you equip them, grant you a buff or debuff in things like speed, damage, or even one that is called The Ring of Power or The One Ring that makes you
