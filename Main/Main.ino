@@ -153,12 +153,14 @@ void gameOver() {
 
   display.clearDisplay();
 
-  display.setCursor(8, 10);
+  display.setCursor(7, 10);
   display.setTextSize(2);
   display.print("Game over!");
   display.setTextSize(1);
+  display.setCursor(5, 30);
+  display.print("Press [B] to restart");
 
-  display.drawRect(6, 41, 110, 72, 15);
+  display.drawRect(8, 41, 110, 72, 15);
 
   if (page == 1) {
     display.setCursor(12, 44);
@@ -186,12 +188,12 @@ void gameOver() {
     display.setCursor(96, 92);
     display.print(KHighscore);
 
-    display.setCursor(12, 102);
+    display.setCursor(22, 102);
     display.print("[A] next page");
   } else if (page == 2) {
     display.setCursor(12, 42);
     display.print("next page");
-    display.setCursor(12, 102);
+    display.setCursor(22, 102);
     display.print("[A] next page");
   }
 

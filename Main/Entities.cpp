@@ -208,9 +208,8 @@ void updateProjectiles() {
       int projectileTileY = predictYtile(projectiles[i].y);
 
       // Check for collisions with walls or out-of-bounds
-      if (dungeonMap[projectileTileY][projectileTileX] != Floor || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT) {
-          projectiles[i].active = false; // Deactivate the bullet
-          //free(projectiles[i]);
+      if (dungeonMap[projectileTileY][projectileTileX] != Floor || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
+        projectiles[i].active = false; // Deactivate the bullet
       }
 
       // Check for collisions with enemies
@@ -240,16 +239,16 @@ void moveDamselToPos(float posX, float posY) {
 void shootProjectile(float xDir, float yDir) {
 
   for (int i = 0; i < maxProjectiles; i++) {
-      if (!projectiles[i].active) {
-          projectiles[i].x = playerX;
-          projectiles[i].y = playerY;
-          projectiles[i].dx = xDir;  // Set direction based on player's facing direction
-          projectiles[i].dy = yDir;
-          projectiles[i].damage = 10;
-          projectiles[i].speed = 0.5;
-          projectiles[i].active = true;
-          break;
-      }
+    if (!projectiles[i].active) {
+      projectiles[i].x = playerX;
+      projectiles[i].y = playerY;
+      projectiles[i].dx = xDir;  // Set direction based on player's facing direction
+      projectiles[i].dy = yDir;
+      projectiles[i].damage = 10;
+      projectiles[i].speed = 0.5;
+      projectiles[i].active = true;
+      break;
+    }
   }
 }
 
