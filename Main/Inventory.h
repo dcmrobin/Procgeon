@@ -11,6 +11,7 @@
 extern GameItem inventory[inventorySize];
 extern int selectedInventoryIndex; // Currently selected inventory item
 extern String itemResultMessage;
+extern String invPage;
 
 bool addToInventory(GameItem item);
 void handleInventoryNavigation();

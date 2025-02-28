@@ -4,6 +4,7 @@
 GameItem inventory[inventorySize];
 int selectedInventoryIndex = 0; // Currently selected inventory item
 String itemResultMessage = "";
+String invPage = "Potions";
 
 // Add an item to the first empty slot
 bool addToInventory(GameItem item) {
@@ -106,7 +107,8 @@ void renderInventory() {
     display.println("Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
-    display.println("<Potions>");
+    String pageName = "<" + invPage + ">";
+    display.println(pageName.c_str());
 
     // Draw inventory items
     for (int i = 0; i < inventorySize; i++) {
