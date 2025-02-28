@@ -26,5 +26,6 @@ GameItems getRandomPotion(int randInt);
 void resetPotionNames();
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
 void renderItemResult();
+GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2);
 
 #endif // ITEM_H
