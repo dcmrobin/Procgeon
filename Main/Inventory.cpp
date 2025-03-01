@@ -97,7 +97,7 @@ void handleItemActionMenu() {
     selectedActionIndex++;
   }
 
-  selectedActionIndex = selectedActionIndex == 3 ? 0 : selectedActionIndex == -1 ? 0 : selectedActionIndex;
+  selectedActionIndex = selectedActionIndex == 4 ? 0 : selectedActionIndex == -1 ? 3 : selectedActionIndex;
 
   // Cancel with A
   if (buttons.aPressed && !buttons.aPressedPrev) {
@@ -142,8 +142,10 @@ void handleItemActionMenu() {
     } else if (selectedActionIndex == 1) { // Drop
       inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
       currentUIState = UI_INVENTORY;
-    } else { // Info
+    } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
+    } else if (selectedActionIndex == 3) {
+      // selecting an item to combine with currently selected item
     }
   }
 }
@@ -194,22 +196,24 @@ void renderInventory() {
   } 
   else if (currentUIState == UI_ITEM_ACTION) {    
     // Draw options menu box
-    display.drawRect(50, 40, 60, 50, 15);
-    display.fillRect(50, 40, 60, 12, 15);
+    display.drawRect(50, 40, 65, 65, 15);
+    display.fillRect(50, 40, 65, 12, 15);
 
     // Title
     display.setTextColor(0);
-    display.setCursor(55, 45);
+    display.setCursor(55, 42);
     display.println("Options:");
     display.setTextColor(15);
 
     // Options
     display.setCursor(55, 60);
-    display.println(selectedActionIndex == 0 ? "> Use" : "  Use");
+    display.println(selectedActionIndex == 0 ? "> Use" : " Use");
     display.setCursor(55, 70);
-    display.println(selectedActionIndex == 1 ? "> Drop" : "  Drop");
+    display.println(selectedActionIndex == 1 ? "> Drop" : " Drop");
     display.setCursor(55, 80);
-    display.println(selectedActionIndex == 2 ? "> Info" : "  Info");
+    display.println(selectedActionIndex == 2 ? "> Info" : " Info");
+    display.setCursor(55, 90);
+    display.println(selectedActionIndex == 3 ? "> Combine" : " Combine");
   }
 
   display.display();
