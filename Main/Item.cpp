@@ -135,9 +135,22 @@ void renderItemResult() {
   display.display();
 }
 
-GameItem CombineTwoItemsToGetItem(GameItems item1, GameItems item2) {
-  if ((item1 == BluePotion && item2 == YellowPotion) || (item2 == BluePotion && item1 == YellowPotion)) {return getItem(GreenPotion);}
-  if ((item1 == RedPotion && item2 == GreenPotion) || (item2 == RedPotion && item1 == GreenPotion)) {return getItem(YellowPotion);}
-  if ((item1 == RedPotion && item2 == YellowPotion) || (item2 == RedPotion && item1 == YellowPotion)) {return getItem(OrangePotion);}
+bool areItemsEqual(GameItem item1, GameItem item2) {
+ return (item1.item == item2.item) &&
+        (item1.category == item2.category) &&
+        (item1.healthRecoverAmount == item2.healthRecoverAmount) &&
+        (item1.AOEsize == item2.AOEsize) &&
+        (item1.AOEdamage == item2.AOEdamage) &&
+        (item1.SpeedMultiplier == item2.SpeedMultiplier) &&
+        (item1.name.equals(item2.name)) &&
+        (item1.description.equals(item2.description)) &&
+        (item1.originalName.equals(item2.originalName)) &&
+        (item1.itemResult.equals(item2.itemResult));
+}
+
+GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
+  if ((areItemsEqual(item1, getItem(BluePotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(BluePotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(GreenPotion);}
+  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(GreenPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(GreenPotion)))) {return getItem(YellowPotion);}
+  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(OrangePotion);}
   return { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
 }

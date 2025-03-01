@@ -18,6 +18,10 @@ bool hasMap = false;
 bool paused = false;
 bool carryingDamsel = false;
 bool damselGotTaken = false;
+bool combiningTwoItems = false;
+GameItem combiningItem1 = { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
+GameItem combiningItem2 = { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
+int ingredient1index = 0;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;

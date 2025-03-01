@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <Arduino.h>
+#include "Item.h"
 
 extern String deathCause;
 extern float playerX;
@@ -18,6 +19,10 @@ extern bool hasMap;
 extern bool paused;
 extern bool carryingDamsel;
 extern bool damselGotTaken;
+extern bool combiningTwoItems;
+extern GameItem combiningItem1;
+extern GameItem combiningItem2;
+extern int ingredient1index;
 
 void renderPlayer();
 void handleInput();

@@ -82,8 +82,17 @@ void handleInventoryItemUsage() {
     GameItem &selectedItem = inventory[selectedInventoryIndex];
     
     if (strcmp(selectedItem.name.c_str(), "Empty") != 0) {
-      currentUIState = UI_ITEM_ACTION;
-      selectedActionIndex = 0;
+      if (!combiningTwoItems) {
+        currentUIState = UI_ITEM_ACTION;
+        selectedActionIndex = 0;
+      } else {
+        combiningItem2 = selectedItem;
+        GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
+        inventory[selectedInventoryIndex] = resultItem.name == "Null" ? inventory[selectedInventoryIndex] : resultItem;
+        inventory[ingredient1index] = resultItem.name == "Null" ? inventory[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
+        currentUIState = UI_INVENTORY;
+        combiningTwoItems = false;
+      }
     }
   }
 }
@@ -145,7 +154,10 @@ void handleItemActionMenu() {
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
     } else if (selectedActionIndex == 3) {
-      // selecting an item to combine with currently selected item
+      combiningTwoItems = true;
+      combiningItem1 = selectedItem;
+      ingredient1index = selectedInventoryIndex;
+      currentUIState = UI_INVENTORY;
     }
   }
 }
@@ -155,13 +167,16 @@ void renderInventory() {
   display.setTextSize(1);
 
   if (currentUIState == UI_INVENTORY) {
-    display.setCursor(10, 3);
-    display.setTextSize(2);
-    display.println("Inventory");
+    display.setCursor(combiningTwoItems ? 0 : 10, combiningTwoItems ? 0 : 3);
+    display.setTextSize(combiningTwoItems ? 1 : 2);
+    display.println(combiningTwoItems ? "Select second item tocombine..." : "Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
+    display.setTextColor(0);
+    display.fillRect(0, 19, 128, 9, 15);
     String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
     display.println(pageName.c_str());
+    display.setTextColor(15);
 
     // Draw inventory items
     int yPos = 30;
