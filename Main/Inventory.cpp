@@ -90,7 +90,8 @@ void handleInventoryItemUsage() {
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
         inventory[selectedInventoryIndex] = resultItem.name == "Null" ? inventory[selectedInventoryIndex] : resultItem;
         inventory[ingredient1index] = resultItem.name == "Null" ? inventory[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
-        currentUIState = UI_INVENTORY;
+        currentUIState = UI_ITEM_RESULT;
+        itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combining two items!";
         combiningTwoItems = false;
       }
     }
@@ -197,13 +198,13 @@ void renderInventory() {
     }
   } 
   else if (currentUIState == UI_ITEM_INFO) {
-    display.setCursor(3, 120);
+    display.setCursor(0, 120);
     display.println(inventory[selectedInventoryIndex].originalName);
-    display.setCursor(3, 10);
+    display.setCursor(0, 10);
     display.print(inventory[selectedInventoryIndex].description);
   } 
   else if (currentUIState == UI_ITEM_RESULT) {
-    display.setCursor(3, 10);
+    display.setCursor(0, 10);
     display.println(itemResultMessage);
     if (buttons.bPressed && !buttons.bPressedPrev) {
       currentUIState = UI_NORMAL;
