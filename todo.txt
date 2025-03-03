@@ -33,10 +33,6 @@ There would be scrolls containing lore that you find around the map.
 
 There could be secret doors- walls you could walk through to another room that might be full of loot.
 
-For the crafting system, when you choose two items to combine, and they are able to be combined, it starts a timer and when that timer is up, then the two items combine.
-this makes it so that you have to wait a little bit for your items to combine into the new item. You might be able to check on the progress of the combining items in the
-status window when you press the SELECT button.
-
 There could be an enemy type that has a randomly generated sprite.
 
 Since people will probably think it's sexist to have a wizard carrying a damsel, on the title screen or boot up, you'll be given two options: male or female. This will make

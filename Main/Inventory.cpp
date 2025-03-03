@@ -91,7 +91,7 @@ void handleInventoryItemUsage() {
         inventory[selectedInventoryIndex] = resultItem.name == "Null" ? inventory[selectedInventoryIndex] : resultItem;
         inventory[ingredient1index] = resultItem.name == "Null" ? inventory[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
         currentUIState = UI_ITEM_RESULT;
-        itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combining two items!";
+        itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
         combiningTwoItems = false;
       }
     }
