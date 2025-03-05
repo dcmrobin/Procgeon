@@ -57,24 +57,44 @@ int findFirstItemInCurrentCategory() {
   return 0;
 }
 
-int findPreviousItemInCategory(int current) {
-  for (int i = current - 1; i >= 0; i--) {
-    if (inventory[i].item != Null && 
-      inventory[i].category == inventoryPages[currentInventoryPageIndex].category) {
+int findNextItemInCategory(int current) {
+  int category = inventoryPages[currentInventoryPageIndex].category;
+
+  // Check from current + 1 to the end
+  for (int i = current + 1; i < inventorySize; i++) {
+    if (inventory[i].item != Null && inventory[i].category == category) {
       return i;
     }
   }
-  return -1;
+
+  // Wrap around: check from start to current
+  for (int i = 0; i <= current; i++) {
+    if (inventory[i].item != Null && inventory[i].category == category) {
+      return i;
+    }
+  }
+
+  return -1; // No items found
 }
 
-int findNextItemInCategory(int current) {
-  for (int i = current + 1; i < inventorySize; i++) {
-    if (inventory[i].item != Null && 
-      inventory[i].category == inventoryPages[currentInventoryPageIndex].category) {
+int findPreviousItemInCategory(int current) {
+  int category = inventoryPages[currentInventoryPageIndex].category;
+
+  // Check from current - 1 down to 0
+  for (int i = current - 1; i >= 0; i--) {
+    if (inventory[i].item != Null && inventory[i].category == category) {
       return i;
     }
   }
-  return -1;
+
+  // Wrap around: check from end down to current
+  for (int i = inventorySize - 1; i >= current; i--) {
+    if (inventory[i].item != Null && inventory[i].category == category) {
+      return i;
+    }
+  }
+
+  return -1; // No items found
 }
 
 void handleInventoryItemUsage() {
