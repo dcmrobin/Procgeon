@@ -10,7 +10,7 @@ GameItem itemList[] = {
   { BlackPotion, PotionCategory, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.")},
   { WhitePotion, PotionCategory, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.")},
   { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.")},
-  { WhitePotion, PotionCategory, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")}
+  { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")}
 };
 
 // Possible potion effects
