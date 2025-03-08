@@ -41,3 +41,5 @@ complain a lot while following you at first, making you want to shoot him. The m
 
 As an easter egg, maybe in a very secret room, there would be a pool that has some cellular automata living in it that you can watch and randomize by going and pressing a
 button on the wall next to it. The cellular automaton would be the Game of Life I think.
+
+Add a slowing potion
