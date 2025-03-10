@@ -202,6 +202,7 @@ void gameOver() {
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
     playerHP = 100;
+    food = 100;
     dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
