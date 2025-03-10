@@ -48,3 +48,6 @@ Maybe implement a hunger mechanic with food items you can find.
 
 You might be able to mix any potion with any food item (if I implement those) and it would make the food item have a healing/damaging
 or slowing/speeding effect based on the potion in addition to recovering hunger.
+
+Maybe when you mix potions, you don't only just get the result potion, but you get an empty bottle as well. The empty bottle was the one that used to contain the second
+potion you mixed with the first potion to create the resulting potion.
