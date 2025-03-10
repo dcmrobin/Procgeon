@@ -193,7 +193,7 @@ void renderUI() {
   char HP[4];
   char FOOD[7];
   snprintf(HP, sizeof(HP), "%d", playerHP);
-  snprintf(FOOD, sizeof(FOOD), "%d", food);
+  snprintf(FOOD, sizeof(FOOD), "%d", playerFood);
 
   display.setTextColor(15);
   display.setTextSize(1);

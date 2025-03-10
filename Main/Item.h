@@ -3,14 +3,15 @@
 
 #include <Arduino.h>
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, Null };
-enum ItemCategory { PotionCategory, OtherCategory };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, Mushroom, Null };
+enum ItemCategory { PotionCategory, FoodCategory };
 
 struct GameItem {
   GameItems item;
   ItemCategory category;
   String name;
   int healthRecoverAmount;
+  int hungerRecoverAmount;
   int AOEsize;
   int AOEdamage;
   int SpeedMultiplier;

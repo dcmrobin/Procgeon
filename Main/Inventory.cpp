@@ -7,7 +7,7 @@ String itemResultMessage = "";
 
 InventoryPage inventoryPages[] = {
   {"Potions", PotionCategory},
-  {"Materials", OtherCategory}
+  {"Food", FoodCategory}
 };
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
@@ -109,7 +109,7 @@ void handleInventoryItemUsage() {
         combiningItem2 = selectedItem;
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
         inventory[selectedInventoryIndex] = resultItem.name == "Null" ? inventory[selectedInventoryIndex] : resultItem;
-        inventory[ingredient1index] = resultItem.name == "Null" ? inventory[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
+        inventory[ingredient1index] = resultItem.name == "Null" ? inventory[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
         currentUIState = UI_ITEM_RESULT;
         itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
         combiningTwoItems = false;
@@ -162,15 +162,18 @@ void handleItemActionMenu() {
             updatePotionName(inventory[i]);
           }
         }
+      } else if (selectedItem.category == FoodCategory) {
+        playerFood += selectedItem.hungerRecoverAmount;
+        playerFood = playerFood > 100 ? 100 : playerFood;
       }
 
       itemResultMessage = selectedItem.itemResult;
       
-      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
+      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
       currentUIState = UI_ITEM_RESULT; // Change to result screen
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
-      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
+      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
       currentUIState = UI_INVENTORY;
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;

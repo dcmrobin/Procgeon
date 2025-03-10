@@ -4,13 +4,14 @@
 #include "Player.h"
 
 GameItem itemList[] = {
-  { RedPotion, PotionCategory, String("Red Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.")},
-  { GreenPotion, PotionCategory, String("Green Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.")},
-  { BluePotion,  PotionCategory, String("Blue Potion"),  0,  0,  0, 0, String("Drink it to find out."), String("Blue Potion"), String("Nothing happens.")},
-  { BlackPotion, PotionCategory, String("Black Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.")},
-  { WhitePotion, PotionCategory, String("White Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.")},
-  { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.")},
-  { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")}
+  { RedPotion, PotionCategory, String("Red Potion"),  0,  0,  0, 0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.")},
+  { GreenPotion, PotionCategory, String("Green Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.")},
+  { BluePotion,  PotionCategory, String("Blue Potion"),  0,  0,  0, 0, 0, String("Drink it to find out."), String("Blue Potion"), String("Nothing happens.")},
+  { BlackPotion, PotionCategory, String("Black Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.")},
+  { WhitePotion, PotionCategory, String("White Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.")},
+  { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.")},
+  { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")},
+  { Mushroom, FoodCategory, String("Mushroom"), 0,  0,  0, 0, 20, String("It is edible."), String("Mushroom"), String("You become less hungry.")}
 };
 
 // Possible potion effects
@@ -57,7 +58,6 @@ void randomizePotionEffects() {
 
 GameItem getItem(GameItems item) {
   GameItem newItem = itemList[item];
-  newItem.category = PotionCategory; // Or appropriate category
   return newItem;
 }
 
@@ -152,5 +152,5 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
   if ((areItemsEqual(item1, getItem(BluePotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(BluePotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(GreenPotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(GreenPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(GreenPotion)))) {return getItem(YellowPotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(OrangePotion);}
-  return { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
+  return { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, String(""), String(""), String("") };
 }

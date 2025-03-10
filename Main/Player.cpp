@@ -21,10 +21,10 @@ bool damselGotTaken = false;
 bool combiningTwoItems = false;
 bool playerMoving = false;
 bool starving = false;
-GameItem combiningItem1 = { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
-GameItem combiningItem2 = { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
+GameItem combiningItem1 = { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+GameItem combiningItem2 = { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, String(""), String(""), String("") };
 int ingredient1index = 0;
-int food = 100;
+int playerFood = 100;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -171,6 +171,10 @@ void handleInput() {
   } else if (dungeonMap[rNewY][rNewX] == Map) {
     hasMap = true;
     dungeonMap[rNewY][rNewX] = Floor;
+  } else if (dungeonMap[rNewY][rNewX] == MushroomItem) {
+    if (addToInventory(getItem(Mushroom))) {
+      dungeonMap[rNewY][rNewX] = Floor;
+    }
   }
 
   int rPx = round(playerX);
@@ -223,10 +227,10 @@ void handleHunger() {
     if (starving) {
       playerHP -= 1;
     } else {
-      food -= 1;
+      playerFood -= 1;
     }
     hungerTick = 0;
-    starving = food <= 0 ? true : false;
+    starving = playerFood <= 0 ? true : false;
   }
 
   if (playerHP <= 0) {

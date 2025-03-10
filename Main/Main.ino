@@ -35,7 +35,7 @@ void setup() {
 
   // Initialize inventory
   for (int i = 0; i < inventorySize; i++) {
-    inventory[i] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
+    inventory[i] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
   }
 
   // Randomize potion effects
@@ -202,12 +202,12 @@ void gameOver() {
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
     playerHP = 100;
-    food = 100;
+    playerFood = 100;
     dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
     for (int i = 0; i < inventorySize; i++) {
-      inventory[i] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, String(""), String(""), String("") };
+      inventory[i] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
     }
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;

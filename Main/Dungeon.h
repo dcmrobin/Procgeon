@@ -15,7 +15,8 @@ enum TileTypes {
   Bars,
   Exit,
   Potion,
-  Map
+  Map,
+  MushroomItem
 };
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];

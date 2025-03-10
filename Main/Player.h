@@ -25,7 +25,7 @@ extern bool starving;
 extern GameItem combiningItem1;
 extern GameItem combiningItem2;
 extern int ingredient1index;
-extern int food;
+extern int playerFood;
 
 void renderPlayer();
 void handleInput();
