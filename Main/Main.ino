@@ -104,6 +104,7 @@ void loop() {
 
 void updateGame() {
   handleInput();
+  handleHunger();
   updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
   updateDamsel();
   updateEnemies();

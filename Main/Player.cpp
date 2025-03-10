@@ -19,9 +19,12 @@ bool paused = false;
 bool carryingDamsel = false;
 bool damselGotTaken = false;
 bool combiningTwoItems = false;
+bool playerMoving = false;
+bool starving = false;
 GameItem combiningItem1 = { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
 GameItem combiningItem2 = { Null, PotionCategory, "Null", 0, 0, 0, 0, String(""), String(""), String("") };
 int ingredient1index = 0;
+int food = 100;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -105,6 +108,9 @@ void handleInput() {
     newX += diagSpeed; // Move right & down
     newY += diagSpeed; // Move up & left
   }
+
+  // Check if the player is moving
+  playerMoving = buttons.upPressed || buttons.downPressed || buttons.leftPressed || buttons.rightPressed ? true : false;
 
   float dx = playerX - damsel[0].x;
   float dy = playerY - damsel[0].y;
@@ -206,4 +212,24 @@ void handlePauseScreen() {
   display.setCursor(24, 65);
   display.print("Press [START]");
   display.display();
+}
+
+int hungerTick = 0;
+void handleHunger() {
+  if (playerMoving) {hungerTick++;}
+  hungerTick += playerMoving ? 2 : 1;
+
+  if (hungerTick >= (starving ? 200 : 700)) {
+    if (starving) {
+      playerHP -= 1;
+    } else {
+      food -= 1;
+    }
+    hungerTick = 0;
+    starving = food <= 0 ? true : false;
+  }
+
+  if (playerHP <= 0) {
+    deathCause = "hunger";
+  }
 }

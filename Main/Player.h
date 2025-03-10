@@ -20,13 +20,17 @@ extern bool paused;
 extern bool carryingDamsel;
 extern bool damselGotTaken;
 extern bool combiningTwoItems;
+extern bool playerMoving;
+extern bool starving;
 extern GameItem combiningItem1;
 extern GameItem combiningItem2;
 extern int ingredient1index;
+extern int food;
 
 void renderPlayer();
 void handleInput();
 void startCarryingDamsel();
 void handlePauseScreen();
+void handleHunger();
 
 #endif

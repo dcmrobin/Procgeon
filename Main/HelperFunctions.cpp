@@ -187,28 +187,45 @@ void updateAnimations() {
   }
 }
 
+int blinkTick = 0;
+int textColor = 3;
 void renderUI() {
-    char HP[4];
-    char Dngn[7];
-    snprintf(HP, sizeof(HP), "%d", playerHP);
-    snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
+  char HP[4];
+  char FOOD[7];
+  snprintf(HP, sizeof(HP), "%d", playerHP);
+  snprintf(FOOD, sizeof(FOOD), "%d", food);
 
-    display.setTextSize(1);
-    display.setCursor(5, 117);
-    display.print("HP:");
-    display.setCursor(21, 117);
-    display.print(HP);
-    display.setCursor(46, 117);
-    display.print("DUNGEON:");
-    display.setCursor(92, 117);
-    display.print(Dngn);
-    display.drawRect(0, 113, SCREEN_WIDTH, 15, SSD1327_WHITE);
-    if (hasMap) {
-      display.drawBitmap(100, 116, mapSprite, 8, 8, SSD1327_WHITE);
+  display.setTextColor(15);
+  display.setTextSize(1);
+  display.setCursor(5, 117);
+  display.print("HP:");
+  display.setCursor(21, 117);
+  display.print(HP);
+  display.setTextColor(textColor);
+
+  if (starving) {
+    blinkTick += 1;
+    if (blinkTick >= 35) {
+      textColor = (textColor == 15) ? 3 : 15; // Toggle text color
+      blinkTick = 0;
     }
-    if (speeding) {
-      display.drawBitmap(109, 116, fastbootSprite, 8, 8, SSD1327_WHITE);
-    }
+  } else {
+    textColor = 15; // Default color when not starving
+  }
+
+  display.setTextColor(textColor);
+
+  display.setCursor(46, 117);
+  display.print("FOOD:");
+  display.setCursor(74, 117);
+  display.print(FOOD);
+  display.drawRect(0, 113, SCREEN_WIDTH, 15, SSD1327_WHITE);
+  if (hasMap) {
+    display.drawBitmap(100, 116, mapSprite, 8, 8, SSD1327_WHITE);
+  }
+  if (speeding) {
+    display.drawBitmap(109, 116, fastbootSprite, 8, 8, SSD1327_WHITE);
+  }
 }
 
 bool isVisible(int x0, int y0, int x1, int y1) {
