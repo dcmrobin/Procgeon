@@ -46,8 +46,6 @@ Add a slowing potion.
 
 Add a hunger potion that decreases hunger faster over a period of time.
 
-Maybe implement a hunger mechanic with food items you can find.
-
 You might be able to mix any potion with any food item (if I implement those) and it would make the food item have a healing/damaging
 or slowing/speeding effect based on the potion in addition to recovering hunger.
 
