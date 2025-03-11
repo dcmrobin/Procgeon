@@ -194,10 +194,10 @@ const unsigned char PROGMEM mushroomSprite[] = {
   0b00111100,
   0b01111010,
   0b01111110,
-  0b01111110,
   0b00011000,
   0b00011000,
-  0b00011000
+  0b00011000,
+  0b00000000
 };
 
 const unsigned char PROGMEM fastbootSprite[] = {
