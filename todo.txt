@@ -25,7 +25,7 @@ detail) by pressing "select" button. The player would be able to pause the game 
 Add a see-all potion that makes the walls all not be dim and the player being able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
 normally see without it? Also highlights secret passages?
 
-Add a chaos potion that has randomized effects on each use.
+Add a chaos potion that has randomized effects on each use. (instead of putting fixed values for the potioneffect for this one, use random(min, max). This should work.)
 
 For when the player has a speed boost or any other effect, there would be a icon on the normal UI like a boot for speed or eye for see-all.
 
