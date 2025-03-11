@@ -78,9 +78,9 @@ void updatePotionName(GameItem &potion) {
 
       // Update all instances of the potion in the inventory
       for (int i = 0; i < inventorySize; i++) {
-        if (inventory[i].item == potion.item) {
-          inventory[i].name = effect.effectName;
-          inventory[i].description = effect.effectDescription;
+        if (inventoryPages[0].items[i].item == potion.item) {
+          inventoryPages[0].items[i].name = effect.effectName;
+          inventoryPages[0].items[i].description = effect.effectDescription;
         }
       }
 

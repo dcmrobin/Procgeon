@@ -1,7 +1,6 @@
 #include "Inventory.h"
 #include "Player.h"
 
-GameItem inventory[inventorySize];
 int selectedInventoryIndex = 0; // Currently selected inventory item
 String itemResultMessage = "";
 
@@ -12,15 +11,24 @@ InventoryPage inventoryPages[] = {
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
 
-// Add an item to the first empty slot
 bool addToInventory(GameItem item) {
-  for (int i = 0; i < inventorySize; i++) {
-    if (strcmp(inventory[i].name.c_str(), "Empty") == 0) { // Check for empty slot
-      inventory[i] = item;
-      return true; // Successfully added
+  // Find the matching tab category
+  for (int p = 0; p < numInventoryPages; p++) {
+    if (inventoryPages[p].category == item.category) {
+      // Check if the tab has space
+      if (inventoryPages[p].itemCount >= 8) return false;
+
+      // Find first empty slot in the tab
+      for (int i = 0; i < 8; i++) {
+        if (inventoryPages[p].items[i].item == Null) {
+          inventoryPages[p].items[i] = item;
+          inventoryPages[p].itemCount++;
+          return true;
+        }
+      }
     }
   }
-  return false; // Inventory full
+  return false; // No matching tab found
 }
 
 void handleInventoryNavigation() {
@@ -36,22 +44,22 @@ void handleInventoryNavigation() {
     selectedInventoryIndex = findFirstItemInCurrentCategory();
   }
 
-  // Handle item navigation within category
+  //InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
   if (buttons.upPressed && !buttons.upPressedPrev) {
-    int newIndex = findPreviousItemInCategory(selectedInventoryIndex);
-    if (newIndex != -1) selectedInventoryIndex = newIndex;
+    //selectedInventoryIndex = (selectedInventoryIndex - 1 + 8) % 8;
+    selectedInventoryIndex = findPreviousItemInCategory(selectedInventoryIndex);
   }
   if (buttons.downPressed && !buttons.downPressedPrev) {
-    int newIndex = findNextItemInCategory(selectedInventoryIndex);
-    if (newIndex != -1) selectedInventoryIndex = newIndex;
+    //selectedInventoryIndex = (selectedInventoryIndex + 1) % 8;
+    selectedInventoryIndex = findNextItemInCategory(selectedInventoryIndex);
   }
 }
 
 int findFirstItemInCurrentCategory() {
-  for (int i = 0; i < inventorySize; i++) {
-    if (inventory[i].item != Null && 
-      inventory[i].category == inventoryPages[currentInventoryPageIndex].category) {
-      return i;
+  InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
+  for (int i = 0; i < 8; i++) {
+    if (currentPage.items[i].item != Null) {
+      return i; // Index within the current tab
     }
   }
   return 0;
@@ -62,14 +70,14 @@ int findNextItemInCategory(int current) {
 
   // Check from current + 1 to the end
   for (int i = current + 1; i < inventorySize; i++) {
-    if (inventory[i].item != Null && inventory[i].category == category) {
+    if (inventoryPages[currentInventoryPageIndex].items[i].item != Null && inventoryPages[currentInventoryPageIndex].items[i].category == category) {
       return i;
     }
   }
 
   // Wrap around: check from start to current
   for (int i = 0; i <= current; i++) {
-    if (inventory[i].item != Null && inventory[i].category == category) {
+    if (inventoryPages[currentInventoryPageIndex].items[i].item != Null && inventoryPages[currentInventoryPageIndex].items[i].category == category) {
       return i;
     }
   }
@@ -82,14 +90,14 @@ int findPreviousItemInCategory(int current) {
 
   // Check from current - 1 down to 0
   for (int i = current - 1; i >= 0; i--) {
-    if (inventory[i].item != Null && inventory[i].category == category) {
+    if (inventoryPages[currentInventoryPageIndex].items[i].item != Null && inventoryPages[currentInventoryPageIndex].items[i].category == category) {
       return i;
     }
   }
 
   // Wrap around: check from end down to current
   for (int i = inventorySize - 1; i >= current; i--) {
-    if (inventory[i].item != Null && inventory[i].category == category) {
+    if (inventoryPages[currentInventoryPageIndex].items[i].item != Null && inventoryPages[currentInventoryPageIndex].items[i].category == category) {
       return i;
     }
   }
@@ -99,7 +107,7 @@ int findPreviousItemInCategory(int current) {
 
 void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && currentUIState == UI_INVENTORY) {
-    GameItem &selectedItem = inventory[selectedInventoryIndex];
+    GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (strcmp(selectedItem.name.c_str(), "Empty") != 0) {
       if (!combiningTwoItems) {
@@ -108,8 +116,8 @@ void handleInventoryItemUsage() {
       } else {
         combiningItem2 = selectedItem;
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
-        inventory[selectedInventoryIndex] = resultItem.name == "Null" ? inventory[selectedInventoryIndex] : resultItem;
-        inventory[ingredient1index] = resultItem.name == "Null" ? inventory[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] : resultItem;
+        inventoryPages[currentInventoryPageIndex].items[ingredient1index] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
         currentUIState = UI_ITEM_RESULT;
         itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
         combiningTwoItems = false;
@@ -136,7 +144,7 @@ void handleItemActionMenu() {
 
   // Confirm with B
   if (buttons.bPressed && !buttons.bPressedPrev) {
-    GameItem &selectedItem = inventory[selectedInventoryIndex];
+    GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (selectedActionIndex == 0) { // Use
       if (selectedItem.item >= RedPotion && selectedItem.item <= OrangePotion) {
@@ -158,8 +166,8 @@ void handleItemActionMenu() {
         }
         
         for (int i = 0; i < inventorySize; i++) {
-          if (inventory[i].item == selectedItem.item) {
-            updatePotionName(inventory[i]);
+          if (inventoryPages[currentInventoryPageIndex].items[i].item == selectedItem.item) {
+            updatePotionName(inventoryPages[currentInventoryPageIndex].items[i]);
           }
         }
       } else if (selectedItem.category == FoodCategory) {
@@ -169,11 +177,13 @@ void handleItemActionMenu() {
 
       itemResultMessage = selectedItem.itemResult;
       
-      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+      inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+      inventoryPages[currentInventoryPageIndex].itemCount--;
       currentUIState = UI_ITEM_RESULT; // Change to result screen
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
-      inventory[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+      inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+      inventoryPages[currentInventoryPageIndex].itemCount--;
       currentUIState = UI_INVENTORY;
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
@@ -202,13 +212,13 @@ void renderInventory() {
     display.println(pageName.c_str());
     display.setTextColor(15);
 
-    // Draw inventory items
     int yPos = 30;
-    for (int i = 0; i < inventorySize; i++) {
-      GameItem &item = inventory[i];
-      if (item.item == Null || item.category != inventoryPages[currentInventoryPageIndex].category) 
-        continue;
-
+    InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
+    // Draw items in the current tab
+    for (int i = 0; i < 8; i++) {
+      GameItem &item = currentPage.items[i];
+      if (item.item == Null) continue;
+      
       display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) display.print("> ");
       display.println(item.name);
@@ -222,9 +232,9 @@ void renderInventory() {
   } 
   else if (currentUIState == UI_ITEM_INFO) {
     display.setCursor(0, 120);
-    display.println(inventory[selectedInventoryIndex].originalName);
+    display.println(inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].originalName);
     display.setCursor(0, 10);
-    display.print(inventory[selectedInventoryIndex].description);
+    display.print(inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].description);
   } 
   else if (currentUIState == UI_ITEM_RESULT) {
     display.setCursor(0, 10);

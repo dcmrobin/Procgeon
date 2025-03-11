@@ -8,14 +8,16 @@
 
 #define inventorySize 8
 
-extern GameItem inventory[inventorySize];
-extern int selectedInventoryIndex; // Currently selected inventory item
-extern String itemResultMessage;
-
 struct InventoryPage {
   String name;
   ItemCategory category;
+  GameItem items[8]; // Each tab holds up to 8 items
+  int itemCount = 0; // Track how many items are in this tab
 };
+
+extern InventoryPage inventoryPages[];
+extern int selectedInventoryIndex; // Currently selected inventory item
+extern String itemResultMessage;
 
 extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;
