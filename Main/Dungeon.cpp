@@ -1,3 +1,4 @@
+#include <cmath>
 #include "WProgram.h"
 #include "Dungeon.h"
 #include "HelperFunctions.h"
@@ -259,6 +260,10 @@ void renderDungeon() {
 void drawTile(int mapX, int mapY, float screenX, float screenY) {
   TileTypes tileType = dungeonMap[mapY][mapX];
 
+  int floorbrightness = computeTileBrightness(mapX, mapY);
+  floorbrightness -= 10;
+  floorbrightness = floorbrightness < 0 ? 0 : floorbrightness;
+
   switch (tileType) {
     case Wall: {
       int brightness = computeTileBrightness(mapX, mapY);
@@ -266,32 +271,44 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       break;
     }
     case Bars: {
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
       int brightness = computeTileBrightness(mapX, mapY);
       display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, brightness);
       break;
     }
     case StartStairs:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Exit:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, 15);
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Potion:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, 15);
+        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Map:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, 15);
+        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case MushroomItem:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, mushroomSprite, tileSize, tileSize, 15);
+        display.drawBitmap(screenX, screenY, mushroomSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Floor:
-      // Optionally draw floor tiles if needed.
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
       break;
   }
 }
@@ -299,6 +316,19 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
 int computeTileBrightness(int mapX, int mapY) {
   int totalNeighbors = 0;
   int litNeighbors = 0;
+  
+  // Calculate distance from the player
+  float dist = sqrt(pow(playerX - mapX, 2) + pow(playerY - mapY, 2));
+
+  // Maximum brightness is 15, minimum is 3 (so it never goes fully dark)
+  int maxBrightness = 15;
+  int minBrightness = 3;
+
+  // Define a falloff range (adjust this for better results)
+  float falloffStart = 5.0f;  // Distance at which brightness starts decreasing
+  float falloffEnd = 10.0f;   // Maximum distance where brightness reaches min
+
+  // Compute brightness based on visibility of neighbors
   for (int dx = -1; dx <= 1; dx++) {
     for (int dy = -1; dy <= 1; dy++) {
       if (dx == 0 && dy == 0) continue;  // Skip the tile itself
@@ -313,15 +343,15 @@ int computeTileBrightness(int mapX, int mapY) {
     }
   }
 
-  // If the tile itself is visible, use full brightness.
-  if (isVisible(round(playerX), round(playerY), mapX, mapY)) {
-    return 15;
+  float fraction = totalNeighbors > 0 ? (float)litNeighbors / totalNeighbors : 0.0f;
+  int brightness = minBrightness + (int)(fraction * (maxBrightness - minBrightness));
+
+  // Apply distance-based dimming
+  if (dist > falloffStart) {
+    float factor = 1.0f - ((dist - falloffStart) / (falloffEnd - falloffStart));
+    factor = constrain(factor, 0.0f, 1.0f); // Keep factor between 0 and 1
+    brightness = minBrightness + (int)(factor * (brightness - minBrightness));
   }
 
-  // Calculate brightness from neighbors.
-  float fraction = totalNeighbors > 0 ? (float)litNeighbors / totalNeighbors : 0.0f;
-  int brightness = 5 + (int)(fraction * 10.0f);
-  if (brightness > 15) brightness = 15;
-  if (brightness < 5) brightness = 5;
   return brightness;
 }

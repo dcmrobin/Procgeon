@@ -51,3 +51,5 @@ or slowing/speeding effect based on the potion in addition to recovering hunger.
 
 Maybe when you mix potions, (or mix potions with anything) you don't only just get the result potion, but you get an empty bottle as well. The empty bottle was the one that used
 to contain the second potion you mixed with the first potion to create the resulting potion.
+
+It might be possible to when combining items, instead of returning a predefined item, make on right there: "return {name, healthregenamount, etc.}"
