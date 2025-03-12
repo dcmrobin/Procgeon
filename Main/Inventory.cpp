@@ -116,8 +116,13 @@ void handleInventoryItemUsage() {
       } else {
         combiningItem2 = selectedItem;
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
-        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] : resultItem;
-        inventoryPages[currentInventoryPageIndex].items[ingredient1index] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[ingredient1index] : GameItem{ Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+
+        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] : resultItem;// Assign the result item to the selected item's inventory index if the crafting worked
+        inventoryPages[currentInventoryPageIndex].items[ingredient1index] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[ingredient1index] : GameItem{ Null, PotionCategory, "Empty"};// Assign Null to the first ingredient's inventory index if the crafting worked
+        
+        if (inventoryPages[currentInventoryPageIndex].items[ingredient1index].category == PotionCategory && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
+          inventoryPages[currentInventoryPageIndex].items[ingredient1index] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[ingredient1index] : getItem(EmptyBottle);// If both ingredients were potions, have a left over bottle item after the crafting, in addition to the result item
+        }
         currentUIState = UI_ITEM_RESULT;
         itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
         combiningTwoItems = false;
@@ -154,7 +159,11 @@ void handleItemActionMenu() {
         if (speeding) {
           speedTimer += 1000;
         }
-        speeding = selectedItem.SpeedMultiplier > 0 ? true : false;
+
+        if (selectedItem.SpeedMultiplier > 0 || selectedItem.SpeedMultiplier < 0) {
+          speeding = true;
+          currentSpeedMultiplier = selectedItem.SpeedMultiplier;
+        }
 
         if (playerHP <= 0) {
           deathCause = "poison";
@@ -177,12 +186,19 @@ void handleItemActionMenu() {
 
       itemResultMessage = selectedItem.itemResult;
       
-      inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
-      inventoryPages[currentInventoryPageIndex].itemCount--;
+      if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
+        if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
+          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = getItem(EmptyBottle);
+        } else {
+          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+          inventoryPages[currentInventoryPageIndex].itemCount--;
+        }
+      }
+
       currentUIState = UI_ITEM_RESULT; // Change to result screen
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
-      inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+      inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
       inventoryPages[currentInventoryPageIndex].itemCount--;
       currentUIState = UI_INVENTORY;
     } else if (selectedActionIndex == 2) { // Info

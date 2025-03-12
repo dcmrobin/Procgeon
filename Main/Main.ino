@@ -36,7 +36,7 @@ void setup() {
   // Initialize inventory
   for (int i = 0; i < inventorySize; i++) {
     for (int j = 0; j < numInventoryPages; j++) {
-      inventoryPages[j].items[i] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+      inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
       inventoryPages[j].itemCount = 0;
     }
   }
@@ -211,7 +211,7 @@ void gameOver() {
     generateDungeon();
     for (int i = 0; i < inventorySize; i++) {
       for (int j = 0; j < numInventoryPages; j++) {
-        inventoryPages[j].items[i] = { Null, PotionCategory, "Empty", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+        inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
         inventoryPages[j].itemCount = 0;
       }
     }
@@ -220,6 +220,7 @@ void gameOver() {
     }
     currentUIState = UI_NORMAL;
     speeding = false;
+    currentSpeedMultiplier = 1;
     speedTimer = 1000;
     hasMap = false;
     resetPotionNames();

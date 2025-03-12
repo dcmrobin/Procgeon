@@ -6,6 +6,7 @@
 String deathCause = "";
 float playerX = 0;
 float playerY = 0;
+float currentSpeedMultiplier = 1;
 int playerHP = 100;
 int playerMaxHP = 100;
 int speedTimer = 1000;
@@ -21,8 +22,8 @@ bool damselGotTaken = false;
 bool combiningTwoItems = false;
 bool playerMoving = false;
 bool starving = false;
-GameItem combiningItem1 = { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, String(""), String(""), String("") };
-GameItem combiningItem2 = { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+GameItem combiningItem1 = {};
+GameItem combiningItem2 = {};
 int ingredient1index = 0;
 int playerFood = 100;
 
@@ -40,17 +41,19 @@ int shootDelay = 0;
 bool reloading;
 int damselHealDelay = 0;
 int carryingDelay = 0;
+float baseSpeed = 0.1;
 void handleInput() {
   float newX = playerX;
   float newY = playerY;
 
-  float speed = speeding ? 0.2 : 0.1;
+  float speed = speeding ? baseSpeed * currentSpeedMultiplier : baseSpeed;
 
   if (speeding) {
     speedTimer--;
     if (speedTimer <= 0) {
       speedTimer = 1000;
       speeding = false;
+      currentSpeedMultiplier = 1;
     }
   }
 

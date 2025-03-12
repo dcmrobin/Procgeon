@@ -7,6 +7,7 @@
 extern String deathCause;
 extern float playerX;
 extern float playerY;
+extern float currentSpeedMultiplier;
 extern int playerHP;
 extern int playerMaxHP;
 extern int speedTimer;

@@ -11,7 +11,8 @@ GameItem itemList[] = {
   { WhitePotion, PotionCategory, String("White Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.")},
   { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.")},
   { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")},
-  { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")}
+  { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
+  { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false}
 };
 
 // Possible potion effects
@@ -152,5 +153,5 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
   if ((areItemsEqual(item1, getItem(BluePotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(BluePotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(GreenPotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(GreenPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(GreenPotion)))) {return getItem(YellowPotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(OrangePotion);}
-  return { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, String(""), String(""), String("") };
+  return {};
 }

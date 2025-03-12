@@ -27,8 +27,6 @@ normally see without it? Also highlights secret passages?
 
 Add a chaos potion that has randomized effects on each use. (instead of putting fixed values for the potioneffect for this one, use random(min, max). This should work.)
 
-For when the player has a speed boost or any other effect, there would be a icon on the normal UI like a boot for speed or eye for see-all.
-
 There would be scrolls containing lore that you find around the map.
 
 There could be secret doors- walls you could walk through to another room that might be full of loot.
@@ -46,10 +44,5 @@ Add a slowing potion.
 
 Add a hunger potion that decreases hunger faster over a period of time.
 
-You might be able to mix any potion with any food item (if I implement those) and it would make the food item have a healing/damaging
+You might be able to mix any potion with any food item and it would make the food item have a healing/damaging
 or slowing/speeding effect based on the potion in addition to recovering hunger.
-
-Maybe when you mix potions, (or mix potions with anything) you don't only just get the result potion, but you get an empty bottle as well. The empty bottle was the one that used
-to contain the second potion you mixed with the first potion to create the resulting potion.
-
-It might be possible to when combining items, instead of returning a predefined item, make on right there: "return {name, healthregenamount, etc.}"

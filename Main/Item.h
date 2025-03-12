@@ -3,21 +3,22 @@
 
 #include <Arduino.h>
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, Mushroom, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, Mushroom, EmptyBottle, Null };
 enum ItemCategory { PotionCategory, FoodCategory };
 
 struct GameItem {
-  GameItems item;
-  ItemCategory category;
-  String name;
-  int healthRecoverAmount;
-  int hungerRecoverAmount;
-  int AOEsize;
-  int AOEdamage;
-  int SpeedMultiplier;
-  String description;
-  String originalName;
-  String itemResult;
+  GameItems item = Null;
+  ItemCategory category = PotionCategory;
+  String name = "Null";
+  int healthRecoverAmount = 0;
+  int hungerRecoverAmount = 0;
+  int AOEsize = 0;
+  int AOEdamage = 0;
+  int SpeedMultiplier = 0;
+  String description = "";
+  String originalName = "";
+  String itemResult = "";
+  bool oneTimeUse = true;
 };
 
 void randomizePotionEffects();  // Call this once at game start
