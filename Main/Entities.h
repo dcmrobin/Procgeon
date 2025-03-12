@@ -7,14 +7,18 @@
 #define maxProjectiles 30
 
 struct Damsel {
-    float x, y;
-    float speed;
-    bool dead;
-    bool followingPlayer;
-    bool active;
-    int levelOfLove;
+  float x, y;
+  float speed;
+  bool dead;
+  bool followingPlayer;
+  bool active;
+  int levelOfLove;
 };
 extern Damsel damsel[1];
+
+struct PathNode {
+  int x, y;
+};
 
 struct Enemy {
   float x, y;
@@ -24,6 +28,11 @@ struct Enemy {
   String name;
   int attackDelay;
   int damage;
+  // New fields for wander path (precomputed when not chasing)
+  bool hasWanderPath;
+  int pathLength;
+  int currentPathIndex;
+  PathNode wanderPath[32];  // maximum length for a wandering route
 };
 extern Enemy enemies[maxEnemies];
 

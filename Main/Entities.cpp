@@ -4,10 +4,154 @@
 #include "Dungeon.h"
 #include "Player.h"
 
+#include <cmath>
+
+// --- Helper: check if a grid cell is walkable ---
+bool isWalkable(int x, int y) {
+  if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
+  TileTypes tile = dungeonMap[y][x];
+  // Walkable if floor or items/stairs/exits (adjust as needed)
+  return (tile == Floor || tile == StartStairs || tile == Exit ||
+          tile == Potion || tile == Map || tile == MushroomItem);
+}
+
+// --- A* pathfinding implementation ---
+// Using cost values: straight = 10, diagonal = 14, and Manhattan heuristic.
+#define INF 999999
+#define COST_STRAIGHT 10
+#define COST_DIAGONAL 14
+
 Damsel damsel[1];
 Enemy enemies[maxEnemies];
 Projectile projectiles[maxProjectiles];
 int levelOfDamselDeath = -4;
+
+struct Coord {
+  int x, y;
+};
+
+bool computePath(int startX, int startY, int goalX, int goalY, PathNode* path, int &pathLength, int maxPathNodes = 32) {
+  int g[mapHeight][mapWidth];
+  int f[mapHeight][mapWidth];
+  bool closed[mapHeight][mapWidth];
+  bool inOpen[mapHeight][mapWidth];
+  int parentX[mapHeight][mapWidth];
+  int parentY[mapHeight][mapWidth];
+
+  // Initialize arrays
+  for (int y = 0; y < mapHeight; y++) {
+    for (int x = 0; x < mapWidth; x++) {
+      g[y][x] = INF;
+      f[y][x] = INF;
+      closed[y][x] = false;
+      inOpen[y][x] = false;
+      parentX[y][x] = -1;
+      parentY[y][x] = -1;
+    }
+  }
+
+  // Open list as a simple array
+  Coord openList[mapWidth * mapHeight];
+  int openCount = 0;
+
+  g[startY][startX] = 0;
+  int h = (abs(goalX - startX) + abs(goalY - startY)) * COST_STRAIGHT;
+  f[startY][startX] = h;
+  openList[openCount++] = {startX, startY};
+  inOpen[startY][startX] = true;
+
+  // Offsets for 8 neighbors (diagonals included)
+  int dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+  int dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+
+  bool pathFound = false;
+  int currentX, currentY;
+
+  while (openCount > 0) {
+    // Find node with lowest f value
+    int lowestIndex = 0;
+    int lowestF = f[ openList[0].y ][ openList[0].x ];
+    for (int i = 1; i < openCount; i++) {
+      int curF = f[ openList[i].y ][ openList[i].x ];
+      if (curF < lowestF) {
+        lowestF = curF;
+        lowestIndex = i;
+      }
+    }
+    Coord current = openList[lowestIndex];
+    currentX = current.x;
+    currentY = current.y;
+
+    // Remove current from open list
+    openList[lowestIndex] = openList[openCount - 1];
+    openCount--;
+    inOpen[currentY][currentX] = false;
+    closed[currentY][currentX] = true;
+
+    // Check if goal is reached
+    if (currentX == goalX && currentY == goalY) {
+      pathFound = true;
+      break;
+    }
+
+    // Process neighbors
+    for (int i = 0; i < 8; i++) {
+      int nx = currentX + dx[i];
+      int ny = currentY + dy[i];
+
+      if (nx < 0 || nx >= mapWidth || ny < 0 || ny >= mapHeight) continue;
+      if (!isWalkable(nx, ny)) continue;
+      if (closed[ny][nx]) continue;
+
+      // Determine cost: diagonal if both offsets nonzero
+      int moveCost = (dx[i] != 0 && dy[i] != 0) ? COST_DIAGONAL : COST_STRAIGHT;
+      int tentativeG = g[currentY][currentX] + moveCost;
+      if (!inOpen[ny][nx] || tentativeG < g[ny][nx]) {
+        parentX[ny][nx] = currentX;
+        parentY[ny][nx] = currentY;
+        g[ny][nx] = tentativeG;
+        int heuristic = (abs(goalX - nx) + abs(goalY - ny)) * COST_STRAIGHT;
+        f[ny][nx] = tentativeG + heuristic;
+        if (!inOpen[ny][nx]) {
+          openList[openCount++] = {nx, ny};
+          inOpen[ny][nx] = true;
+        }
+      }
+    }
+  }
+
+  if (!pathFound) {
+    return false;
+  }
+
+  // Reconstruct the path (from goal to start)
+  PathNode tempPath[mapWidth * mapHeight];
+  int tempLength = 0;
+  int cx = goalX, cy = goalY;
+  while (!(cx == startX && cy == startY)) {
+    tempPath[tempLength].x = cx;
+    tempPath[tempLength].y = cy;
+    tempLength++;
+    int px = parentX[cy][cx];
+    int py = parentY[cy][cx];
+    cx = px;
+    cy = py;
+    if (tempLength >= mapWidth * mapHeight) break;
+  }
+  // Include the start node
+  tempPath[tempLength].x = startX;
+  tempPath[tempLength].y = startY;
+  tempLength++;
+
+  // Reverse the path so that it goes from start to goal;
+  // only copy up to maxPathNodes nodes (e.g. 32)
+  int nodesToCopy = (tempLength < maxPathNodes) ? tempLength : maxPathNodes;
+  for (int i = 0; i < nodesToCopy; i++) {
+    path[i] = tempPath[tempLength - 1 - i];
+  }
+  pathLength = nodesToCopy;
+  return true;
+}
 
 int damselMoveDelay = 0;
 void updateDamsel() {
@@ -117,77 +261,127 @@ void updateEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
 
-    // Calculate distance to player
-    int dx = round(playerX) - round(enemies[i].x);
-    int dy = round(playerY) - round(enemies[i].y);
+    // Work in grid space (rounding enemy and player positions)
+    int enemyGridX = round(enemies[i].x);
+    int enemyGridY = round(enemies[i].y);
+    int playerGridX = round(playerX);
+    int playerGridY = round(playerY);
+
+    int dx = playerGridX - enemyGridX;
+    int dy = playerGridY - enemyGridY;
     int distanceSquared = dx * dx + dy * dy;
 
-    // Check if enemy should chase the player
-    if (distanceSquared <= 25) { // Chase if within 5 tiles (distance^2 = 25)
+    // Determine if the enemy should chase (within 5 tiles)
+    if (distanceSquared <= 25) {
       enemies[i].chasingPlayer = true;
     } else {
       enemies[i].chasingPlayer = false;
     }
 
     if (enemies[i].chasingPlayer) {
-      // Determine movement direction
-      float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
-      float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
-
-      // Normalize movement vector
-      float magnitude = sqrt(moveX * moveX + moveY * moveY);
-      if (magnitude > 0) {
-        moveX /= magnitude;
-        moveY /= magnitude;
-      }
-
-      // Attempt to move diagonally first
-      float nx = enemies[i].x + moveX * enemies[i].moveAmount;
-      float ny = enemies[i].y + moveY * enemies[i].moveAmount;
-
-      bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
-      bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
-
-      if (xValid && yValid) {
-        // Move diagonally if both directions are valid
-        enemies[i].x = nx;
-        enemies[i].y = ny;
-      } else if (xValid) {
-        // Slide along X if Y is blocked
-        enemies[i].x = nx;
-      } else if (yValid) {
-        // Slide along Y if X is blocked
-        enemies[i].y = ny;
+      // When chasing, compute a dynamic path using A*
+      PathNode dynamicPath[32];
+      int dynamicPathLength = 0;
+      bool found = computePath(enemyGridX, enemyGridY, playerGridX, playerGridY, dynamicPath, dynamicPathLength);
+      if (found && dynamicPathLength > 1) {
+        // The first node is the enemy's current cell; move toward the next cell
+        int nextX = dynamicPath[1].x;
+        int nextY = dynamicPath[1].y;
+        float targetX = nextX;
+        float targetY = nextY;
+        float moveX = targetX - enemies[i].x;
+        float moveY = targetY - enemies[i].y;
+        float magnitude = sqrt(moveX * moveX + moveY * moveY);
+        if (magnitude > 0) {
+          moveX = (moveX / magnitude) * enemies[i].moveAmount;
+          moveY = (moveY / magnitude) * enemies[i].moveAmount;
+        }
+        float nx = enemies[i].x + moveX;
+        float ny = enemies[i].y + moveY;
+        bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+        bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+        if (xValid && yValid) {
+          enemies[i].x = nx;
+          enemies[i].y = ny;
+        } else if (xValid) {
+          enemies[i].x = nx;
+        } else if (yValid) {
+          enemies[i].y = ny;
+        }
       }
     } else {
-      // Random wandering if not chasing
-      int dir = random(0, 4);
-      float nx = enemies[i].x + (dir == 0 ? enemies[i].moveAmount * 2 : dir == 1 ? -enemies[i].moveAmount * 2 : 0);
-      float ny = enemies[i].y + (dir == 2 ? enemies[i].moveAmount * 2 : dir == 3 ? -enemies[i].moveAmount * 2 : 0);
-
-      if (!checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y)) {
-        enemies[i].x = nx;
-      }
-      if (!checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x)) {
-        enemies[i].y = ny;
+      // When not chasing, follow a precomputed wander path
+      if (!enemies[i].hasWanderPath) {
+        // Compute a new wander path: choose a random destination near the enemy
+        int startX = enemyGridX;
+        int startY = enemyGridY;
+        int destX = startX + random(-5, 6);
+        int destY = startY + random(-5, 6);
+        // Clamp destination to the dungeon boundaries
+        if (destX < 0) destX = 0;
+        if (destX >= mapWidth) destX = mapWidth - 1;
+        if (destY < 0) destY = 0;
+        if (destY >= mapHeight) destY = mapHeight - 1;
+        if (isWalkable(destX, destY)) {
+          if (computePath(startX, startY, destX, destY, enemies[i].wanderPath, enemies[i].pathLength)) {
+            enemies[i].currentPathIndex = 0;
+            enemies[i].hasWanderPath = true;
+          }
+        }
+      } else {
+        // Follow the wander path nodes one by one
+        if (enemies[i].currentPathIndex < enemies[i].pathLength) {
+          int nextX = enemies[i].wanderPath[enemies[i].currentPathIndex].x;
+          int nextY = enemies[i].wanderPath[enemies[i].currentPathIndex].y;
+          // If the enemy is on the target cell, advance the index
+          if (enemyGridX == nextX && enemyGridY == nextY) {
+            enemies[i].currentPathIndex++;
+            if (enemies[i].currentPathIndex >= enemies[i].pathLength) {
+              enemies[i].hasWanderPath = false;
+            }
+          } else {
+            float targetX = nextX;
+            float targetY = nextY;
+            float moveX = targetX - enemies[i].x;
+            float moveY = targetY - enemies[i].y;
+            float magnitude = sqrt(moveX * moveX + moveY * moveY);
+            if (magnitude > 0) {
+              moveX = (moveX / magnitude) * enemies[i].moveAmount;
+              moveY = (moveY / magnitude) * enemies[i].moveAmount;
+            }
+            float nx = enemies[i].x + moveX;
+            float ny = enemies[i].y + moveY;
+            bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+            bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+            if (xValid && yValid) {
+              enemies[i].x = nx;
+              enemies[i].y = ny;
+            } else if (xValid) {
+              enemies[i].x = nx;
+            } else if (yValid) {
+              enemies[i].y = ny;
+            }
+          }
+        } else {
+          // If the wander path is finished, clear it to compute a new one later.
+          enemies[i].hasWanderPath = false;
+        }
       }
     }
 
-    // Check for collision with the player
+    // Existing collision with player logic remains unchanged:
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
       if (enemies[i].name == "teleporter") {
-        // Teleport player to a random valid position
         int newX, newY;
         do {
           newX = random(0, mapWidth);
           newY = random(0, mapHeight);
-        } while (dungeonMap[newY][newX] != Floor); // Ensure it's a walkable tile
-
+        } while (dungeonMap[newY][newX] != Floor);
         playerX = newX;
         playerY = newY;
       } else {
         if (atkDelayCounter >= enemies[i].attackDelay) {
-          playerHP -= enemies[i].damage; // Damage player
+          playerHP -= enemies[i].damage;
           atkDelayCounter = 0;
         }
         if (playerHP <= 0) {
@@ -208,7 +402,7 @@ void updateProjectiles() {
       int projectileTileY = predictYtile(projectiles[i].y);
 
       // Check for collisions with walls or out-of-bounds
-      if (dungeonMap[projectileTileY][projectileTileX] != Floor || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
+      if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
         projectiles[i].active = false; // Deactivate the bullet
       }
 
