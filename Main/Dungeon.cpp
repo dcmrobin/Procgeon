@@ -231,7 +231,15 @@ void drawMinimap() {
 
   int playerMinimapX = (playerX)*mapScale;
   int playerMinimapY = (playerY)*mapScale;
-  display.drawCircle(playerMinimapX, playerMinimapY, 1, 15);
+  display.drawCircle(playerMinimapX, playerMinimapY, 1, 10);
+
+  if (seeAll) {
+    for (int i = 0; i < maxEnemies; i++) {
+      int enemyMinimapX = (enemies[i].x)*mapScale;
+      int enemyMinimapY = (enemies[i].y)*mapScale;
+      display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
+    }
+  }
 
   display.display();
 }

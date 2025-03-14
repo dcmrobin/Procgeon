@@ -14,6 +14,8 @@ int dungeon = 1;
 int kills = 0;
 int playerDX;
 int playerDY;
+int ingredient1index = 0;
+int playerFood = 100;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
@@ -22,10 +24,9 @@ bool damselGotTaken = false;
 bool combiningTwoItems = false;
 bool playerMoving = false;
 bool starving = false;
+bool seeAll = false;
 GameItem combiningItem1 = {};
 GameItem combiningItem2 = {};
-int ingredient1index = 0;
-int playerFood = 100;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
