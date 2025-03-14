@@ -47,5 +47,4 @@ or slowing/speeding effect based on the potion in addition to recovering hunger.
 
 Maybe there could be an enemy that could dodge your bullets? The teleporter enemies probably.
 
-On the map, maybe just as a debug feature, maybe as an item you'd get, you might be able to see enemies moving around on the map? This would be useful in tracking the paths
-that they take.
+On the minimap, when you have drunk a see-all potion, you'll be able to little dots moving around that will be enemies.
