@@ -153,6 +153,7 @@ void generateDungeon() {
     // Place the damsel in the cell
     damsel[0].x = centerX - 1;
     damsel[0].y = centerY - 1;
+    dungeonMap[centerY][centerX] = Potion;
     damsel[0].speed = 0.1;
     damsel[0].followingPlayer = false;
     damsel[0].dead = false;
@@ -239,6 +240,9 @@ void drawMinimap() {
       int enemyMinimapY = (enemies[i].y)*mapScale;
       display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
     }
+    int damselMinimapX = (damsel[0].x)*mapScale;
+    int damselMinimapY = (damsel[0].y)*mapScale;
+    display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
   }
 
   display.display();

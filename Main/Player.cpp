@@ -169,7 +169,7 @@ void handleInput() {
     if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
-    if (addToInventory(getItem(getRandomPotion(random(7))))) {
+    if (addToInventory(getItem(getRandomPotion(random(8))))) {
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == Map) {

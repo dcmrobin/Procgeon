@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, Mushroom, EmptyBottle, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, Mushroom, EmptyBottle, Null };
 enum ItemCategory { PotionCategory, FoodCategory };
 
 struct GameItem {
@@ -14,7 +14,7 @@ struct GameItem {
   int hungerRecoverAmount = 0;
   int AOEsize = 0;
   int AOEdamage = 0;
-  int SpeedMultiplier = 0;
+  float SpeedMultiplier = 0;
   String description = "";
   String originalName = "";
   String itemResult = "";

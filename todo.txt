@@ -53,3 +53,5 @@ Periodically, the damsel could talk to you based on her love level. First, when 
 or berate your appearance. As the love level grows, however, she'll say things like that less and less until she is at a point where she is afraid you're going to die
 when your health is low- like "Don't die!" or something like that. Not really sure how I would do dialogue popups though, would I pause the game? Or would I have a box
 with text in that pops up and doesn't pause the game...
+
+The enemies need to not instantly give up on chasing the player when the player is out of their view radius.

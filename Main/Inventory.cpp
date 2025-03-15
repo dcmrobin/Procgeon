@@ -152,7 +152,7 @@ void handleItemActionMenu() {
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (selectedActionIndex == 0) { // Use
-      if (selectedItem.item >= RedPotion && selectedItem.item <= OrangePotion) {
+      if (selectedItem.item >= RedPotion && selectedItem.item <= PurplePotion) {
         playerHP += selectedItem.healthRecoverAmount;
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
 
@@ -160,7 +160,7 @@ void handleItemActionMenu() {
           speedTimer += 1000;
         }
 
-        if (selectedItem.SpeedMultiplier > 0 || selectedItem.SpeedMultiplier < 0) {
+        if (selectedItem.SpeedMultiplier > 0) {
           speeding = true;
           currentSpeedMultiplier = selectedItem.SpeedMultiplier;
         }
