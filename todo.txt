@@ -53,3 +53,5 @@ when your health is low- like "Don't die!" or something like that. Not really su
 with text in that pops up and doesn't pause the game...
 
 The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
+
+The Damsel and other NPCs could have randomly generated names.
