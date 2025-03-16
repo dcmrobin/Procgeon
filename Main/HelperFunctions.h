@@ -75,6 +75,8 @@ extern float offsetY;
 
 extern const float scrollSpeed;
 
+void trainFemaleMarkov();
+String generateFemaleName();
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
@@ -90,5 +92,6 @@ void handleUIStateTransitions();
 void updateAnimations();
 void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
+bool isWalkable(int x, int y);
 
 #endif

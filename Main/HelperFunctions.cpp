@@ -1,6 +1,9 @@
 #include "HelperFunctions.h"
 #include "Player.h"
 
+#define MAX_LETTERS 26
+#define NAME_BUFFER_SIZE 10  // Maximum length for generated names
+
 Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
 U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
@@ -20,6 +23,93 @@ float offsetX = 0;
 float offsetY = 0;
 
 const float scrollSpeed = 0.25f;
+
+// Transition table for letters [a-z]
+int femaleTransition[MAX_LETTERS][MAX_LETTERS];
+
+// Sample female names for training
+const char* sampleFemaleNames[] = {"Miriel", "Liora", "Lucy", "Ruby", "Talitha", "Mary", "Sarah", "Salina", "Olivia", "Evelyn", "Valerie", "Jennifer", "Jenny", "Emma", "Luna", "Isabella", "Maria", "Sienna", "Sophie", "Felicity", "Rebecca"};
+const int sampleFemaleNamesCount = sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]);
+
+// --- Train the Markov model ---
+void trainFemaleMarkov() {
+  // Initialize the transition table to zero
+  for (int i = 0; i < MAX_LETTERS; i++) {
+    for (int j = 0; j < MAX_LETTERS; j++) {
+      femaleTransition[i][j] = 0;
+    }
+  }
+
+  // Build transitions from each sample name
+  for (int i = 0; i < sampleFemaleNamesCount; i++) {
+    const char* name = sampleFemaleNames[i];
+    int len = strlen(name);
+    for (int j = 0; j < len - 1; j++) {
+      char current = tolower(name[j]);
+      char next = tolower(name[j + 1]);
+      if (current >= 'a' && current <= 'z' && next >= 'a' && next <= 'z') {
+        femaleTransition[current - 'a'][next - 'a']++;
+      }
+    }
+  }
+}
+
+// --- Generate a female name using the Markov chain ---
+String generateFemaleName() {
+  tryAgain:
+
+  char name[NAME_BUFFER_SIZE + 1];
+  // Start with a random letter (a–z)
+  int startLetter = random(0, MAX_LETTERS);
+  name[0] = 'a' + startLetter;
+  
+  // Randomly choose a length between 4 and NAME_BUFFER_SIZE
+  int length = random(4, NAME_BUFFER_SIZE);
+  
+  for (int i = 1; i < length; i++) {
+    int prev = name[i - 1] - 'a';
+    
+    // Calculate the total weight from the transition table for the previous letter
+    int total = 0;
+    for (int j = 0; j < MAX_LETTERS; j++) {
+      total += femaleTransition[prev][j];
+    }
+    
+    // Default next letter is random
+    int nextLetter = random(0, MAX_LETTERS);
+    
+    // If there is training data, select a weighted next letter
+    if (total > 0) {
+      int rnd = random(0, total);
+      int cumulative = 0;
+      for (int j = 0; j < MAX_LETTERS; j++) {
+        cumulative += femaleTransition[prev][j];
+        if (rnd < cumulative) {
+          nextLetter = j;
+          break;
+        }
+      }
+    }
+    name[i] = 'a' + nextLetter;
+  }
+  name[length] = '\0';
+  
+  // Capitalize the first letter
+  name[0] = toupper(name[0]);
+  
+  bool hasBadLetter = false;
+  for (int i = 0; i < length; i++) {
+    if (name[i] == 'z' || name[i] == 'Z' || name[i] == 'x' || name[i] == 'X' || name[i] == 'q' || name[i] == 'Q') {
+      hasBadLetter = true;
+    }
+  }
+
+  if (!hasBadLetter) {
+    return String(name);
+  } else {
+    goto tryAgain;
+  }
+}
 
 uint32_t generateRandomSeed()
 {
@@ -260,4 +350,12 @@ bool isVisible(int x0, int y0, int x1, int y1) {
     }
   }
   return true;
+}
+
+bool isWalkable(int x, int y) {
+  if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
+  TileTypes tile = dungeonMap[y][x];
+  // Walkable if floor or items/stairs/exits (adjust as needed)
+  return (tile == Floor || tile == StartStairs || tile == Exit ||
+          tile == Potion || tile == Map || tile == MushroomItem);
 }

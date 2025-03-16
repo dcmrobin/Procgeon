@@ -47,8 +47,6 @@ extern Projectile projectiles[maxProjectiles];
 
 extern int levelOfDamselDeath;
 
-void trainFemaleMarkov();
-String generateFemaleName();
 void updateEnemies();
 void updateDamsel();
 void updateProjectiles();
