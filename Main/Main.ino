@@ -18,6 +18,14 @@ const unsigned long frameDelay = 20; // Update every 100ms
 
 void setup() {
   Serial.begin(9600);
+
+  randomSeed(generateRandomSeed());
+
+  trainFemaleMarkov();
+  
+  // Assign a randomly generated name to the damsel
+  damsel[0].name = generateFemaleName();
+
   display.begin();
   u8g2_for_adafruit_gfx.begin(display);
   u8g2_for_adafruit_gfx.setForegroundColor(15);
@@ -31,7 +39,6 @@ void setup() {
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
   pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
   pinMode(BUTTON_START_PIN, INPUT_PULLUP);
-  randomSeed(generateRandomSeed());
 
   // Initialize inventory
   for (int i = 0; i < inventorySize; i++) {
@@ -209,6 +216,7 @@ void gameOver() {
     dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
+    damsel[0].name = generateFemaleName();
     for (int i = 0; i < inventorySize; i++) {
       for (int j = 0; j < numInventoryPages; j++) {
         inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
@@ -261,11 +269,13 @@ void showStatusScreen() {
           u8g2_for_adafruit_gfx.setCursor(0, 125);
           u8g2_for_adafruit_gfx.print(F("She loved you!"));
         }
+        damsel[0].name = generateFemaleName();
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
         display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
         u8g2_for_adafruit_gfx.setCursor(0, 125);
         u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
         damsel[0].levelOfLove = 0;
+        damsel[0].name = generateFemaleName();
       }
     } else {
       display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);

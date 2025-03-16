@@ -13,6 +13,7 @@ struct Damsel {
   bool followingPlayer;
   bool active;
   int levelOfLove;
+  String name;
 };
 extern Damsel damsel[1];
 
@@ -28,7 +29,6 @@ struct Enemy {
   String name;
   int attackDelay;
   int damage;
-  // New fields for wander path (precomputed when not chasing)
   bool hasWanderPath;
   int pathLength;
   int currentPathIndex;
@@ -47,6 +47,8 @@ extern Projectile projectiles[maxProjectiles];
 
 extern int levelOfDamselDeath;
 
+void trainFemaleMarkov();
+String generateFemaleName();
 void updateEnemies();
 void updateDamsel();
 void updateProjectiles();
