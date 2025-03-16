@@ -4,6 +4,7 @@
 #include "Dungeon.h"
 
 String deathCause = "";
+String currentDialogue = "";
 float playerX = 0;
 float playerY = 0;
 float currentSpeedMultiplier = 1;
@@ -16,6 +17,7 @@ int playerDX;
 int playerDY;
 int ingredient1index = 0;
 int playerFood = 100;
+int dialogueTimeLength = 1000;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
@@ -25,6 +27,7 @@ bool combiningTwoItems = false;
 bool playerMoving = false;
 bool starving = false;
 bool seeAll = false;
+bool showDialogue = false;
 GameItem combiningItem1 = {};
 GameItem combiningItem2 = {};
 
@@ -239,5 +242,23 @@ void handleHunger() {
 
   if (playerHP <= 0) {
     deathCause = "hunger";
+  }
+}
+
+int dialogueTimer = 0;
+void handleDialogue() {
+  if (showDialogue) {
+    dialogueTimer++;
+    if (dialogueTimer >= dialogueTimeLength) {
+      dialogueTimer = 0;
+      showDialogue = false;
+    }
+    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+    display.fillRect(25, 10, 100, 34, 0);
+    display.drawRect(25, 10, 100, 34, 15);
+    u8g2_for_adafruit_gfx.setCursor(27, 19);
+    drawWrappedText(27, 19, 96, currentDialogue);
+    display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
+    display.drawRect(8, 10, 18, 34, 15);
   }
 }

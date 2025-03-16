@@ -198,6 +198,14 @@ void updateDamsel() {
       damselMoveDelay = 0;
     }
   } else {
+    if (damsel[0].levelOfLove == 0) {
+      showDialogue = true;
+      currentDamselPortrait = damselPortraitNormal;
+      dialogueTimeLength = 500;
+      currentDialogue = "Hey! I shall follow you, please get me out of here.";
+      damsel[0].levelOfLove = 1;
+    }
+
     // Following the player
     if (damselMoveDelay >= 3) {
       float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
@@ -408,6 +416,10 @@ void updateProjectiles() {
         } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
           levelOfDamselDeath = dungeon;
           damsel[0].dead = true;
+          showDialogue = true;
+          currentDamselPortrait = damselPortraitDying;
+          dialogueTimeLength = 200;
+          currentDialogue = "Ugh-!";
           damsel[0].active = false;
           projectiles[i].active = false;
         }

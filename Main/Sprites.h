@@ -45,6 +45,13 @@ extern const unsigned char teleporterSpriteF3[];
 extern const unsigned char teleporterSpriteF4[];
 extern const unsigned char* teleporterSprite;
 
+// Portraits
+extern const unsigned char damselPortraitNormal[];
+extern const unsigned char damselPortraitAlone[];
+extern const unsigned char damselPortraitScared[];
+extern const unsigned char damselPortraitDying [];
+extern const unsigned char* currentDamselPortrait;
+
 // Screens
 extern const unsigned char rescueDamselScreen[];
 extern const unsigned char deadDamselScreen[];

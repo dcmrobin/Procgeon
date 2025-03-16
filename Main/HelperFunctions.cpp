@@ -359,3 +359,41 @@ bool isWalkable(int x, int y) {
   return (tile == Floor || tile == StartStairs || tile == Exit ||
           tile == Potion || tile == Map || tile == MushroomItem);
 }
+
+void drawWrappedText(int x, int y, int maxWidth, const String &text) {
+  u8g2_for_adafruit_gfx.setCursor(x, y);
+
+  int lineHeight = 10; // Adjust based on your font size
+  int cursorX = x;
+  int cursorY = y;
+  String currentLine = "";
+  String word = "";
+
+  for (unsigned int i = 0; i < text.length(); i++) {
+    char c = text[i];
+
+    if (c == ' ' || c == '\n') {
+      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width((currentLine + word).c_str());
+
+      if (wordWidth > maxWidth) {
+        // If adding the word would exceed width, print the current line and start a new one
+        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+        u8g2_for_adafruit_gfx.print(currentLine);
+        cursorY += lineHeight;
+        currentLine = word + ' '; // Move word to the new line
+      } else {
+        currentLine += word + ' ';
+      }
+
+      word = "";
+    } else {
+      word += c;
+    }
+  }
+
+  // Print any remaining text
+  if (currentLine.length() > 0 || word.length() > 0) {
+    u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+    u8g2_for_adafruit_gfx.print(currentLine + word);
+  }
+}

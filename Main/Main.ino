@@ -130,6 +130,7 @@ void renderGame() {
   renderPlayer();
   updateAnimations();
   renderUI();
+  handleDialogue();
   display.display();
 }
 
