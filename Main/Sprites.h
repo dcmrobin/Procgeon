@@ -50,6 +50,7 @@ extern const unsigned char damselPortraitNormal[];
 extern const unsigned char damselPortraitAlone[];
 extern const unsigned char damselPortraitScared[];
 extern const unsigned char damselPortraitDying [];
+extern const unsigned char damselPortraitCarrying[];
 extern const unsigned char* currentDamselPortrait;
 
 // Screens
