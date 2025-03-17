@@ -228,6 +228,7 @@ void gameOver() {
       projectiles[i].active = false;
     }
     currentUIState = UI_NORMAL;
+    showDialogue = false;
     speeding = false;
     currentSpeedMultiplier = 1;
     speedTimer = 1000;

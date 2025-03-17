@@ -19,6 +19,7 @@ extern int playerDY;
 extern int ingredient1index;
 extern int playerFood;
 extern int dialogueTimeLength;
+extern int timeTillNextDialogue;
 extern bool speeding;
 extern bool hasMap;
 extern bool paused;

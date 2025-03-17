@@ -363,7 +363,7 @@ bool isWalkable(int x, int y) {
 void drawWrappedText(int x, int y, int maxWidth, const String &text) {
   u8g2_for_adafruit_gfx.setCursor(x, y);
 
-  int lineHeight = 10; // Adjust based on your font size
+  int lineHeight = 10; // Adjust based on font size
   int cursorX = x;
   int cursorY = y;
   String currentLine = "";
@@ -376,22 +376,29 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text) {
       int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width((currentLine + word).c_str());
 
       if (wordWidth > maxWidth) {
-        // If adding the word would exceed width, print the current line and start a new one
+        // Print the current line before adding a new word
         u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
         u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
-        currentLine = word + ' '; // Move word to the new line
+        currentLine = word + ' '; // Move the word to the new line
       } else {
         currentLine += word + ' ';
       }
 
       word = "";
+
+      if (c == '\n') {  // Force a new line on explicit newline characters
+        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+        u8g2_for_adafruit_gfx.print(currentLine);
+        cursorY += lineHeight;
+        currentLine = "";
+      }
     } else {
       word += c;
     }
   }
 
-  // Print any remaining text
+  // Print the remaining text
   if (currentLine.length() > 0 || word.length() > 0) {
     u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
     u8g2_for_adafruit_gfx.print(currentLine + word);
