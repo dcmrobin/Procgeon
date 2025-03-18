@@ -25,7 +25,6 @@ void setup() {
   
   // Assign a randomly generated name to the damsel
   damsel[0].name = generateFemaleName();
-  Serial.println(damsel[0].name);
 
   display.begin();
   u8g2_for_adafruit_gfx.begin(display);

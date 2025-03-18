@@ -55,3 +55,5 @@ with text in that pops up and doesn't pause the game...
 The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
 
 The damsel needs to say "Hey! Wait up!" when you like go to fast and she stops following you or something.
+
+The player needs visual feedback for things that they do in the game. They need to recieve dopamine when they play the game.
