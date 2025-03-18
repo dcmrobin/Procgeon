@@ -218,6 +218,8 @@ void gameOver() {
     levelOfDamselDeath = -4;
     generateDungeon();
     damsel[0].name = generateFemaleName();
+    damsel[0].levelOfLove = 0;
+    knowsDamselName = false;
     for (int i = 0; i < inventorySize; i++) {
       for (int j = 0; j < numInventoryPages; j++) {
         inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
@@ -239,6 +241,7 @@ void gameOver() {
   }
 }
 
+bool leftDamsel = false;
 void showStatusScreen() {
   static bool damselKidnapScreen = false; // Tracks if we are showing the kidnap screen
 
@@ -264,20 +267,28 @@ void showStatusScreen() {
       if (damsel[0].dead) {
         display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
         u8g2_for_adafruit_gfx.setCursor(0, 105);
-        u8g2_for_adafruit_gfx.print(F("You killed the Damsel!"));
+        if (!knowsDamselName) {
+          u8g2_for_adafruit_gfx.print(F("You killed the Damsel!"));
+        } else {
+          String msg = "You killed " + damsel[0].name + "!";
+          u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+        }
         u8g2_for_adafruit_gfx.setCursor(0, 115);
         u8g2_for_adafruit_gfx.print(F(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!"));
         if (damsel[0].levelOfLove >= 5) {
           u8g2_for_adafruit_gfx.setCursor(0, 125);
           u8g2_for_adafruit_gfx.print(F("She loved you!"));
         }
-        damsel[0].name = generateFemaleName();
       } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
         display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
         u8g2_for_adafruit_gfx.setCursor(0, 125);
-        u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
-        damsel[0].levelOfLove = 0;
-        damsel[0].name = generateFemaleName();
+        if (!knowsDamselName) {
+          u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
+        } else {
+          String msg = "You left " + damsel[0].name + "!";
+          u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+        }
+        leftDamsel = true;
       }
     } else {
       display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
@@ -298,6 +309,7 @@ void showStatusScreen() {
       // Exit the kidnap screen
       damselKidnapScreen = false;
       statusScreen = false;
+      damselSayThanksForRescue = true;
     } else if (statusScreen) {
       bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
 
@@ -321,6 +333,14 @@ void showStatusScreen() {
       damselGotTaken = rescued ? false : damselGotTaken;
       if (damsel[0].dead) {
         damsel[0].levelOfLove = 0;
+        knowsDamselName = false;
+        damsel[0].name = generateFemaleName();
+      }
+      if (leftDamsel) {
+        damsel[0].levelOfLove = 0;
+        knowsDamselName = false;
+        damsel[0].name = generateFemaleName();
+        leftDamsel = false;
       }
 
       if (rescued && randomChance == 3 && !carryingDamsel) {

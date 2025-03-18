@@ -49,7 +49,7 @@ Dialogue damselGoodDialogue[] = {
   {"I'm sorry if I was annoying you.", 400},
   {"Do you mind... carrying me? (Hold B next to me)", 400, "alone"},
   {"Does that staff ever run out?", 350},
-  {"I am glad I'm with you.", 300},
+  {"I'm glad I'm with you.", 300},
   {"I don't want to die.", 300, "annoying"},
   {"Do you think we're almost at the end?", 500}
 };
@@ -247,6 +247,13 @@ void updateDamsel() {
       dialogueTimeLength = 500;
       currentDialogue = "Hey! I shall follow you, please get me out of here.";
       damsel[0].levelOfLove = 1;
+    }
+    if (damselGotTaken && damselSayThanksForRescue) {
+      showDialogue = true;
+      currentDamselPortrait = damselPortraitAlone;
+      dialogueTimeLength = 400;
+      currentDialogue = "He- wasn't gentle...";
+      damselSayThanksForRescue = false;
     }
 
     // Following the player

@@ -54,8 +54,6 @@ with text in that pops up and doesn't pause the game...
 
 The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
 
-When you find out the damsel's name, instead of "you killed the damsel!" or "you left the damsel!" or anything "----- the damsel!" it'll say "----- [damsel name]".
-
 Maybe expanding the list of training names that the random name generator has will improve the names it generates.
 
-More dialogue for the damsel!
+The damsel needs to say "Hey! Wait up!" when you like go to fast and she stops following you or something.

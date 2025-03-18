@@ -25,6 +25,8 @@ bool hasMap = false;
 bool paused = false;
 bool carryingDamsel = false;
 bool damselGotTaken = false;
+bool damselSayThanksForRescue = false;
+bool knowsDamselName = false;
 bool combiningTwoItems = false;
 bool playerMoving = false;
 bool starving = false;
@@ -207,6 +209,10 @@ void startCarryingDamsel() {
     carryingDamsel = !carryingDamsel;
 
     if (carryingDamsel) {
+      showDialogue = true;
+      currentDamselPortrait = damselPortraitCarrying;
+      dialogueTimeLength = 300;
+      currentDialogue = "Oh! Thanks...";
       playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
     } else {
       playerSprite = playerSprite == playerCarryingDamselSpriteRight ? playerSpriteRight : playerSpriteLeft;
@@ -229,8 +235,7 @@ void handlePauseScreen() {
 
 int hungerTick = 0;
 void handleHunger() {
-  if (playerMoving) {hungerTick++;}
-  hungerTick += playerMoving ? 2 : 1;
+  hungerTick += playerMoving || carryingDamsel ? 2 : 1;
 
   if (hungerTick >= (starving ? 200 : 700)) {
     if (starving) {
@@ -324,16 +329,22 @@ void handleDialogue() {
           currentDialogue = damselPassiveDialogue[index].message;
           damselPassiveDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 6) {
-          int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
-          int index = pickDialogue(damselGoodDialogue, length);
-          currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
-                                  damselPortraitScared : 
-                                  (damselGoodDialogue[index].tone == "alone") ? 
-                                  damselPortraitAlone : 
-                                  damselPortraitNormal;
-          dialogueTimeLength = damselGoodDialogue[index].duration;
-          currentDialogue = damselGoodDialogue[index].message;
-          damselGoodDialogue[index].alreadyBeenSaid = true;
+          if (!knowsDamselName) {
+            dialogueTimeLength = 500;
+            currentDialogue = "By the way, my name is " + damsel[0].name + "...";
+            knowsDamselName = true;
+          } else {
+            int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
+            int index = pickDialogue(damselGoodDialogue, length);
+            currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+                                    damselPortraitScared : 
+                                    (damselGoodDialogue[index].tone == "alone") ? 
+                                    damselPortraitAlone : 
+                                    damselPortraitNormal;
+            dialogueTimeLength = damselGoodDialogue[index].duration;
+            currentDialogue = damselGoodDialogue[index].message;
+            damselGoodDialogue[index].alreadyBeenSaid = true;
+          }
         }
       }
 

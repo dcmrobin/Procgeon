@@ -25,6 +25,8 @@ extern bool hasMap;
 extern bool paused;
 extern bool carryingDamsel;
 extern bool damselGotTaken;
+extern bool damselSayThanksForRescue;
+extern bool knowsDamselName;
 extern bool combiningTwoItems;
 extern bool playerMoving;
 extern bool starving;
