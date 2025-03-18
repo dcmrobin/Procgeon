@@ -28,7 +28,7 @@ const float scrollSpeed = 0.25f;
 int femaleTransition[MAX_LETTERS][MAX_LETTERS];
 
 // Sample female names for training
-const char* sampleFemaleNames[] = {"Miriel", "Liora", "Lucy", "Ruby", "Talitha", "Mary", "Sarah", "Salina", "Olivia", "Evelyn", "Valerie", "Jennifer", "Jenny", "Emma", "Luna", "Isabella", "Maria", "Sienna", "Sophie", "Felicity", "Rebecca"};
+const char* sampleFemaleNames[] = {"Liora", "Lucy", "Ruby", "Talitha", "Mary", "Sarah", "Salina", "Olivia", "Evelyn", "Valerie", "Jenny", "Eva", "Luna", "Isabella", "Maria", "Arwen", "Sophie", "Felicity", "Rebecca", "Julia", "Rebecca"};
 const int sampleFemaleNamesCount = sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]);
 
 // --- Train the Markov model ---
@@ -56,8 +56,6 @@ void trainFemaleMarkov() {
 
 // --- Generate a female name using the Markov chain ---
 String generateFemaleName() {
-  tryAgain:
-
   char name[NAME_BUFFER_SIZE + 1];
   // Start with a random letter (a–z)
   int startLetter = random(0, MAX_LETTERS);
@@ -107,7 +105,7 @@ String generateFemaleName() {
   if (!hasBadLetter) {
     return String(name);
   } else {
-    goto tryAgain;
+    return String(sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
   }
 }
 

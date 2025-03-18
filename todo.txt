@@ -54,6 +54,4 @@ with text in that pops up and doesn't pause the game...
 
 The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
 
-Maybe expanding the list of training names that the random name generator has will improve the names it generates.
-
 The damsel needs to say "Hey! Wait up!" when you like go to fast and she stops following you or something.
