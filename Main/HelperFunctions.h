@@ -75,6 +75,7 @@ extern float offsetY;
 
 extern const float scrollSpeed;
 
+void generateRiddle();
 void trainFemaleMarkov();
 String generateFemaleName();
 uint32_t generateRandomSeed();

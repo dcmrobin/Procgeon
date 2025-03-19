@@ -24,12 +24,138 @@ float offsetY = 0;
 
 const float scrollSpeed = 0.25f;
 
+// Structure for a riddle answer and its attributes
+struct RiddleAnswer {
+  const char* word;
+  const char* attributes[4];  // 4 attributes per answer for variety
+};
+
+// Define a larger list of possible answers with their descriptive attributes
+RiddleAnswer possibleAnswers[] = {
+    {"sea",      {"wet", "vast", "deep", "blue"}},
+    {"fire",     {"hot", "bright", "dangerous", "fiery"}},
+    {"shadow",   {"dark", "elusive", "silent", "shifting"}},
+    {"cloud",    {"fluffy", "drifting", "light", "white"}},
+    {"wind",     {"invisible", "restless", "whispering", "swift"}},
+    {"time",     {"endless", "fleeting", "mysterious", "steady"}},
+    {"mountain", {"tall", "majestic", "ancient", "solid"}},
+    {"river",    {"flowing", "ever-changing", "gentle", "meandering"}},
+    {"star",     {"distant", "sparkling", "guiding", "enigmatic"}},
+    {"tree",     {"rooted", "green", "nurturing", "whispering"}}
+};
+const int numAnswers = sizeof(possibleAnswers) / sizeof(possibleAnswers[0]);
+
+// Define many riddle templates (using %s for attribute insertion)
+const char* templates[] = {
+    "I am always %s, yet sometimes %s. What am I?",
+    "I can be %s and also %s. What could I be?",
+    "Often %s, occasionally %s. Who am I?",
+    "I embody %s and reveal %s. Can you name me?",
+    "Known for being %s, and sometimes %s. Guess what I am?",
+    "I am described as %s, but also %s. What am I?",
+    "Many say I am %s, yet I can be %s too. Who am I?",
+    "I move with %s and hide in %s. What might I be?",
+    "I am both %s and %s. Who might I be?",
+    "I appear %s, and sometimes I feel %s. What is my name?",
+    "I am often seen as %s, but I can turn %s. Who am I?",
+    "Some say I'm %s, while others call me %s. What am I?"
+};
+const int numTemplates = sizeof(templates) / sizeof(templates[0]);
+
 // Transition table for letters [a-z]
 int femaleTransition[MAX_LETTERS][MAX_LETTERS];
 
 // Sample female names for training
 const char* sampleFemaleNames[] = {"Liora", "Lucy", "Ruby", "Talitha", "Mary", "Sarah", "Salina", "Olivia", "Evelyn", "Valerie", "Jenny", "Eva", "Luna", "Isabella", "Maria", "Arwen", "Sophie", "Felicity", "Rebecca", "Julia", "Rebecca"};
 const int sampleFemaleNamesCount = sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]);
+
+// Helper function to shuffle an array of integers
+void shuffleArray(int arr[], int n) {
+  for (int i = n - 1; i > 0; i--) {
+    int j = random(i + 1);
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+}
+
+// Function to generate and print a riddle with multiple choice answers
+void generateRiddle() {
+  // Pick a random answer from the list as the correct answer.
+  int answerIndex = random(numAnswers);
+  RiddleAnswer chosen = possibleAnswers[answerIndex];
+
+  // Pick two distinct attributes from the chosen answer (from 4 options)
+  int index1 = random(4);
+  int index2 = random(4);
+  while (index2 == index1) {
+    index2 = random(4);
+  }
+  const char* attr1 = chosen.attributes[index1];
+  const char* attr2 = chosen.attributes[index2];
+
+  // Choose a random template and format the riddle string.
+  int templateIndex = random(numTemplates);
+  char riddle[128];  // Buffer for the formatted riddle.
+  snprintf(riddle, sizeof(riddle), templates[templateIndex], attr1, attr2);
+
+  // Prepare a list of indices for the answer options.
+  // The correct answer is 'answerIndex'. We'll choose 3 decoys.
+  const int totalOptions = 4;
+  int options[totalOptions];
+  options[0] = answerIndex;  // correct answer
+
+  // Pick 3 unique decoy indices.
+  int count = 1;
+  while (count < totalOptions) {
+    int decoy = random(numAnswers);
+    bool unique = true;
+    // Ensure decoy isn't the correct answer or already chosen.
+    if (decoy == answerIndex) {
+      unique = false;
+    } else {
+      for (int i = 0; i < count; i++) {
+        if (options[i] == decoy) {
+          unique = false;
+          break;
+        }
+      }
+    }
+    if (unique) {
+      options[count] = decoy;
+      count++;
+    }
+  }
+  
+  // Shuffle the options array so the correct answer isn't always first.
+  shuffleArray(options, totalOptions);
+
+  // Find which letter (A, B, C, or D) corresponds to the correct answer.
+  char correctLetter = 'X';
+  const char letters[4] = {'A', 'B', 'C', 'D'};
+  for (int i = 0; i < totalOptions; i++) {
+    if (options[i] == answerIndex) {
+      correctLetter = letters[i];
+      break;
+    }
+  }
+
+  // Output the riddle and the multiple-choice options to the Serial monitor.
+  /*
+  Serial.println("====================================");
+  Serial.print("Riddle: ");
+  Serial.println(riddle);
+  Serial.println("Choices:");
+  for (int i = 0; i < totalOptions; i++) {
+    Serial.print(letters[i]);
+    Serial.print(") ");
+    Serial.println(possibleAnswers[options[i]].word);
+  }
+  Serial.print("Correct Answer: ");
+  Serial.println(correctLetter);
+  Serial.println("====================================");
+  */
+}
 
 // --- Train the Markov model ---
 void trainFemaleMarkov() {

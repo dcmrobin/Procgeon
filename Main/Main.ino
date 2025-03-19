@@ -7,6 +7,7 @@
 #include "Inventory.h"
 #include "Player.h"
 
+
 bool itemResultScreenActive = false;
 
 unsigned int dngnHighscoreAddress = 0;
@@ -20,6 +21,8 @@ void setup() {
   Serial.begin(9600);
 
   randomSeed(generateRandomSeed());
+
+  generateRiddle();
 
   trainFemaleMarkov();
   
