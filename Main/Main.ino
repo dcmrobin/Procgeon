@@ -22,8 +22,6 @@ void setup() {
 
   randomSeed(generateRandomSeed());
 
-  generateRiddle();
-
   trainFemaleMarkov();
   
   // Assign a randomly generated name to the damsel
