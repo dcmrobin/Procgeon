@@ -6,7 +6,8 @@ String itemResultMessage = "";
 
 InventoryPage inventoryPages[] = {
   {"Potions", PotionCategory},
-  {"Food", FoodCategory}
+  {"Food", FoodCategory},
+  {"Equipment", EquipmentCategory}
 };
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
@@ -44,13 +45,10 @@ void handleInventoryNavigation() {
     selectedInventoryIndex = findFirstItemInCurrentCategory();
   }
 
-  //InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
   if (buttons.upPressed && !buttons.upPressedPrev) {
-    //selectedInventoryIndex = (selectedInventoryIndex - 1 + 8) % 8;
     selectedInventoryIndex = findPreviousItemInCategory(selectedInventoryIndex);
   }
   if (buttons.downPressed && !buttons.downPressedPrev) {
-    //selectedInventoryIndex = (selectedInventoryIndex + 1) % 8;
     selectedInventoryIndex = findNextItemInCategory(selectedInventoryIndex);
   }
 }
@@ -185,7 +183,13 @@ void handleItemActionMenu() {
       }
 
       itemResultMessage = selectedItem.itemResult;
-      
+
+      if (selectedItem.item == RiddleStone) {
+        currentUIState = UI_RIDDLE; // Riddlesssss
+      } else {
+        currentUIState = UI_ITEM_RESULT; // Change to result screen
+      }
+
       if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
         if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = getItem(EmptyBottle);
@@ -195,7 +199,6 @@ void handleItemActionMenu() {
         }
       }
 
-      currentUIState = UI_ITEM_RESULT; // Change to result screen
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
       inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};

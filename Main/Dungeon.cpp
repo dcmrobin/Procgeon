@@ -67,7 +67,13 @@ void generateDungeon() {
         for (int x = roomX; x < roomX + roomWidth; x++) {
           dungeonMap[y][x] = Floor;
           if (random(0, 50) > 47) {
-            dungeonMap[y][x] = random(0, 50) > 25 ? Potion : MushroomItem;
+            if (random(0, 70) >= 30) {
+              dungeonMap[y][x] = MushroomItem;
+            } else if (random(0, 70) > 50) {
+              dungeonMap[y][x] = Potion;
+            } else if (random(0, 70) > 65) {
+              dungeonMap[y][x] = RiddleStoneItem;
+            }
           }
           if (!generatedMapItem && x > roomX + 1 && y > roomY + 1) {
             dungeonMap[y][x] = Map;
@@ -316,6 +322,12 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, mushroomSprite, tileSize, tileSize, floorbrightness+10);
+      break;
+    case RiddleStoneItem:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, riddleStoneSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Floor:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);

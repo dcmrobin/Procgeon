@@ -104,6 +104,10 @@ void loop() {
         case UI_PAUSE:
           handlePauseScreen();
           break;
+
+        case UI_RIDDLE:
+          handleRiddles();
+          break;
       }
     } else {
       showStatusScreen();
@@ -319,6 +323,7 @@ void showStatusScreen() {
       playerDY = 1;
       statusScreen = false;
       generateDungeon(); // Generate a new dungeon
+      showDialogue = false;
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;
       }

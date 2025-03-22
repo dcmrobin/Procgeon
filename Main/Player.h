@@ -41,5 +41,6 @@ void startCarryingDamsel();
 void handlePauseScreen();
 void handleHunger();
 void handleDialogue();
+void handleRiddles();
 
 #endif

@@ -24,24 +24,23 @@ float offsetY = 0;
 
 const float scrollSpeed = 0.25f;
 
-// Structure for a riddle answer and its attributes
-struct RiddleAnswer {
-  const char* word;
-  const char* attributes[4];  // 4 attributes per answer for variety
-};
+// Global variable for the current riddle
+GeneratedRiddle currentRiddle;
+int selectedRiddleOption = 0;  // Tracks the current selection when scrolling
+bool riddleGenerated = false;  // Flag to generate only once per riddle
 
 // Define a larger list of possible answers with their descriptive attributes
 RiddleAnswer possibleAnswers[] = {
-    {"sea",      {"wet", "vast", "deep", "blue"}},
-    {"fire",     {"hot", "bright", "dangerous", "fiery"}},
-    {"shadow",   {"dark", "elusive", "silent", "shifting"}},
-    {"cloud",    {"fluffy", "drifting", "light", "white"}},
-    {"wind",     {"invisible", "restless", "whispering", "swift"}},
-    {"time",     {"endless", "fleeting", "mysterious", "steady"}},
-    {"mountain", {"tall", "majestic", "ancient", "solid"}},
-    {"river",    {"flowing", "ever-changing", "gentle", "meandering"}},
-    {"star",     {"distant", "sparkling", "guiding", "enigmatic"}},
-    {"tree",     {"rooted", "green", "nurturing", "whispering"}}
+    {"sea",      {"boundless", "whispering", "enigmatic", "murmuring"}},
+    {"fire",     {"burning", "flickering", "transient", "intense"}},
+    {"shadow",   {"elusive", "fleeting", "whispering", "ephemeral"}},
+    {"cloud",    {"drifting", "evanescent", "vague", "mysterious"}},
+    {"wind",     {"invisible", "restless", "unseen", "quiet"}},
+    {"time",     {"slipping", "silent", "elusive", "everflowing"}},
+    {"mountain", {"stolid", "ancient", "unmoving", "enduring"}},
+    {"river",    {"wandering", "serene", "meandering", "subtle"}},
+    {"star",     {"distant", "silent", "celestial", "untold"}},
+    {"tree",     {"rooted", "whispering", "quiet", "timeless"}}
 };
 const int numAnswers = sizeof(possibleAnswers) / sizeof(possibleAnswers[0]);
 
@@ -79,13 +78,12 @@ void shuffleArray(int arr[], int n) {
   }
 }
 
-// Function to generate and print a riddle with multiple choice answers
-void generateRiddle() {
+void generateRiddleUI() {
   // Pick a random answer from the list as the correct answer.
   int answerIndex = random(numAnswers);
   RiddleAnswer chosen = possibleAnswers[answerIndex];
 
-  // Pick two distinct attributes from the chosen answer (from 4 options)
+  // Pick two distinct attributes from the chosen answer.
   int index1 = random(4);
   int index2 = random(4);
   while (index2 == index1) {
@@ -96,65 +94,47 @@ void generateRiddle() {
 
   // Choose a random template and format the riddle string.
   int templateIndex = random(numTemplates);
-  char riddle[128];  // Buffer for the formatted riddle.
-  snprintf(riddle, sizeof(riddle), templates[templateIndex], attr1, attr2);
+  char riddleBuffer[128];  // Buffer for the formatted riddle.
+  snprintf(riddleBuffer, sizeof(riddleBuffer), templates[templateIndex], attr1, attr2);
+  currentRiddle.riddle = String(riddleBuffer);
 
   // Prepare a list of indices for the answer options.
-  // The correct answer is 'answerIndex'. We'll choose 3 decoys.
   const int totalOptions = 4;
-  int options[totalOptions];
-  options[0] = answerIndex;  // correct answer
-
-  // Pick 3 unique decoy indices.
+  int optionIndices[totalOptions];
+  optionIndices[0] = answerIndex;  // The correct answer.
   int count = 1;
   while (count < totalOptions) {
     int decoy = random(numAnswers);
     bool unique = true;
-    // Ensure decoy isn't the correct answer or already chosen.
     if (decoy == answerIndex) {
       unique = false;
     } else {
       for (int i = 0; i < count; i++) {
-        if (options[i] == decoy) {
+        if (optionIndices[i] == decoy) {
           unique = false;
           break;
         }
       }
     }
     if (unique) {
-      options[count] = decoy;
+      optionIndices[count] = decoy;
       count++;
     }
   }
-  
-  // Shuffle the options array so the correct answer isn't always first.
-  shuffleArray(options, totalOptions);
 
-  // Find which letter (A, B, C, or D) corresponds to the correct answer.
-  char correctLetter = 'X';
-  const char letters[4] = {'A', 'B', 'C', 'D'};
+  // Shuffle the options so the correct answer isn’t always first.
+  shuffleArray(optionIndices, totalOptions);
+
+  // Fill in the answer options and record the index of the correct answer.
   for (int i = 0; i < totalOptions; i++) {
-    if (options[i] == answerIndex) {
-      correctLetter = letters[i];
-      break;
+    currentRiddle.options[i] = String(possibleAnswers[optionIndices[i]].word);
+    if (optionIndices[i] == answerIndex) {
+      currentRiddle.correctOption = i;
     }
   }
-
-  // Output the riddle and the multiple-choice options to the Serial monitor.
-  /*
-  Serial.println("====================================");
-  Serial.print("Riddle: ");
-  Serial.println(riddle);
-  Serial.println("Choices:");
-  for (int i = 0; i < totalOptions; i++) {
-    Serial.print(letters[i]);
-    Serial.print(") ");
-    Serial.println(possibleAnswers[options[i]].word);
-  }
-  Serial.print("Correct Answer: ");
-  Serial.println(correctLetter);
-  Serial.println("====================================");
-  */
+  // Reset selection and flag so we don’t regenerate the riddle repeatedly.
+  selectedRiddleOption = 0;
+  riddleGenerated = true;
 }
 
 // --- Train the Markov model ---
@@ -372,6 +352,8 @@ void handleUIStateTransitions() {
       case UI_PAUSE: 
         currentUIState = UI_PAUSE;
         break;
+      case UI_RIDDLE:
+        currentUIState = UI_RIDDLE;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     currentUIState = currentUIState == UI_PAUSE ? UI_NORMAL : UI_PAUSE;
@@ -439,6 +421,9 @@ void renderUI() {
   }
   if (speeding) {
     display.drawBitmap(109, 116, fastbootSprite, 8, 8, SSD1327_WHITE);
+  }
+  if (seeAll) {
+    display.drawBitmap(118, 116, eyeSprite, 8, 8, SSD1327_WHITE);
   }
 }
 

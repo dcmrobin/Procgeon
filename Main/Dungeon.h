@@ -16,7 +16,8 @@ enum TileTypes {
   Exit,
   Potion,
   Map,
-  MushroomItem
+  MushroomItem,
+  RiddleStoneItem
 };
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];

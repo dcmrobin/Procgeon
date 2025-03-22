@@ -178,6 +178,28 @@ const unsigned char PROGMEM potionSprite[] = {
   0b00011000
 };
 
+const unsigned char PROGMEM riddleStoneSprite[] = {
+  0b00111000,
+  0b01101110,
+  0b01010111,
+  0b11110111,
+  0b11101110,
+  0b11111110,
+  0b01101100,
+  0b00111000
+};
+
+const unsigned char PROGMEM eyeSprite[] = {
+  0b00000000,
+  0b00111100,
+  0b01000010,
+  0b10011001,
+  0b10011001,
+  0b01000010,
+  0b00111100,
+  0b00000000
+};
+
 const unsigned char PROGMEM mapSprite[] = {
   0b00000000,
   0b11111111,

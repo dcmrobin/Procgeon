@@ -57,8 +57,24 @@ enum UIState {
   UI_ITEM_ACTION, // Item action selection screen
   UI_ITEM_INFO,   // Item info screen
   UI_ITEM_RESULT, // Item result screen
-  UI_PAUSE        // Pause screen
+  UI_PAUSE,       // Pause screen
+  UI_RIDDLE       // Riddle screen
 };
+
+struct GeneratedRiddle {
+  String riddle;       // The riddle text (with inserted attributes)
+  String options[4];   // Four answer options (one is correct)
+  int correctOption;   // Index (0-3) of the correct answer in options[]
+};
+
+struct RiddleAnswer {
+  const char* word;
+  const char* attributes[4];  // 4 attributes per answer for variety
+};
+
+extern GeneratedRiddle currentRiddle;
+extern int selectedRiddleOption; 
+extern bool riddleGenerated; 
 
 // Add action selection tracking
 extern int selectedActionIndex; // 0 = Use, 1 = Drop, 2 = Info
@@ -75,7 +91,7 @@ extern float offsetY;
 
 extern const float scrollSpeed;
 
-void generateRiddle();
+void generateRiddleUI();
 void trainFemaleMarkov();
 String generateFemaleName();
 uint32_t generateRandomSeed();

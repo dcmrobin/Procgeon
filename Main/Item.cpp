@@ -13,7 +13,8 @@ GameItem itemList[] = {
   { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")},
   { PurplePotion, PotionCategory, String("Purple Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Purple Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
-  { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false}
+  { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
+  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!")}
 };
 
 // Possible potion effects

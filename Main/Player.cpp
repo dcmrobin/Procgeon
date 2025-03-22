@@ -186,6 +186,10 @@ void handleInput() {
     if (addToInventory(getItem(Mushroom))) {
       dungeonMap[rNewY][rNewX] = Floor;
     }
+  } else if (dungeonMap[rNewY][rNewX] == RiddleStoneItem) {
+    if (addToInventory(getItem(RiddleStone))) {
+      dungeonMap[rNewY][rNewX] = Floor;
+    }
   }
 
   int rPx = round(playerX);
@@ -350,5 +354,67 @@ void handleDialogue() {
 
       timeTillNextDialogue = random(1000, 2000);
     }
+  }
+}
+
+void handleRiddles() {
+  // Generate the riddle only once per riddle screen
+  if (!riddleGenerated) {
+    generateRiddleUI();
+  }
+  
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1327_WHITE);
+  
+  // Display the riddle prompt.
+  display.setCursor(0, 10);
+  display.print("Solve this riddle!");
+  
+  // Display the riddle text below the prompt.
+  display.setCursor(0, 22);
+  display.print(currentRiddle.riddle);
+
+  // Display the four answer options.
+  // We'll assume each option is displayed on its own line.
+  for (int i = 0; i < 4; i++) {
+    int optionY = 70 + (i * 12);  // Adjust spacing as needed
+    if (i == selectedRiddleOption) {
+      // Highlight the currently selected option (for example, using inverse colors)
+      display.setTextColor(SSD1327_BLACK, SSD1327_WHITE);  // Inverted
+    } else {
+      display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
+    }
+    display.setCursor(10, optionY);
+    display.print(currentRiddle.options[i]);
+  }
+  
+  display.display();
+
+  // --- Handle button scrolling and selection ---
+  // (Assume updateButtonStates() is being called elsewhere in your main loop)
+  if (buttons.upPressed && !buttons.upPressedPrev) {
+    selectedRiddleOption--;
+    if (selectedRiddleOption < 0) selectedRiddleOption = 0;  // Prevent underflow
+  }
+  if (buttons.downPressed && !buttons.downPressedPrev) {
+    selectedRiddleOption++;
+    if (selectedRiddleOption > 3) selectedRiddleOption = 3;  // Maximum index is 3
+  }
+  
+  // If the B button is pressed, check the answer.
+  if (buttons.bPressed && !buttons.bPressedPrev) {
+    if (selectedRiddleOption == currentRiddle.correctOption) {
+      itemResultMessage = "Correct! You are rewarded.";
+    } else {
+      itemResultMessage = "Wrong answer! You suffer.";
+      playerHP -= 10;
+      if (playerHP <= 0) {
+        deathCause = "stupidity";
+      }
+    }
+    currentUIState = UI_ITEM_RESULT;
+    // Reset riddle so a new one can be generated next time.
+    riddleGenerated = false;
   }
 }

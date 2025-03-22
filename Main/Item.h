@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, Mushroom, EmptyBottle, Null };
-enum ItemCategory { PotionCategory, FoodCategory };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, Mushroom, EmptyBottle, RiddleStone, Null };
+enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
 
 struct GameItem {
   GameItems item = Null;

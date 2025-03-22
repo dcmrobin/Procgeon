@@ -22,24 +22,24 @@ struct Coord {
 };
 
 Dialogue damselAnnoyingDialogue[] = {
-  {"Why are you even down here, anyway?", 500},
+  {"Why are you even down here, anyway?", 400},
   {"Don't die.", 400},
   {"I hate this place!", 300, "annoying"},
-  {"Why do wizards wear that stupid hat?", 500, "annoying"},
+  {"Why do wizards wear that stupid hat?", 400, "annoying"},
   {"Hurry up, will you?", 300},
-  {"You expect a thanks, don't you? Not gonna happen.", 500, "annoying"},
+  {"You expect a thanks, don't you? Not gonna happen.", 400, "annoying"},
   {"Does this place ever end?", 350},
-  {"Just saying, I don't like you.", 500, "annoying"},
-  {"When was the last time you showered?", 500, "annoying"},
+  {"Just saying, I don't like you.", 400, "annoying"},
+  {"When was the last time you showered?", 400, "annoying"},
   {"I could probably get out on my own.", 400}
 };
 
 Dialogue damselPassiveDialogue[] = {
-  {"Maybe you're not as dumb as I thought.", 500},
-  {"Maybe you know where you're going after all...", 500},
-  {"Sorry if I said anything hurtful.", 500, "alone"},
+  {"Maybe you're not as dumb as I thought.", 400},
+  {"Maybe you know where you're going after all...", 400},
+  {"Sorry if I said anything hurtful.", 400, "alone"},
   {"Please don't die.", 300, "alone"},
-  {"I probably couldn't get out on my own.", 500},
+  {"I probably couldn't get out on my own.", 400},
   {"Thanks for rescuing me, anyway.", 400, "alone"},
   {"Well, at least I'm not alone anymore.", 500}
 };
@@ -51,7 +51,7 @@ Dialogue damselGoodDialogue[] = {
   {"Does that staff ever run out?", 350},
   {"I'm glad I'm with you.", 300},
   {"I don't want to die.", 300, "annoying"},
-  {"Do you think we're almost at the end?", 500}
+  {"Do you think we're almost at the end?", 400}
 };
 
 Dialogue damselCarryDialogue[] = {
@@ -244,7 +244,7 @@ void updateDamsel() {
     if (damsel[0].levelOfLove == 0) {
       showDialogue = true;
       currentDamselPortrait = damselPortraitNormal;
-      dialogueTimeLength = 500;
+      dialogueTimeLength = 400;
       currentDialogue = "Hey! I shall follow you, please get me out of here.";
       damsel[0].levelOfLove = 1;
     }

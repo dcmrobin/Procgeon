@@ -34,6 +34,8 @@ extern const unsigned char* blobSprite;
 
 // Item sprites
 extern const unsigned char potionSprite[];
+extern const unsigned char riddleStoneSprite[];
+extern const unsigned char eyeSprite[];
 extern const unsigned char mapSprite[];
 extern const unsigned char mushroomSprite[];
 extern const unsigned char fastbootSprite[];
