@@ -310,23 +310,64 @@ void updateEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
 
-    // Work in grid space (rounding enemy and player positions)
+    // Calculate the vector from the player to the enemy.
+    float diffX = enemies[i].x - playerX;
+    float diffY = enemies[i].y - playerY;
+    int distanceSquared = diffX * diffX + diffY * diffY;
+    float distance = sqrt(distanceSquared);
+    
+    // Only consider enemies within a certain range (e.g. within 8 tiles)
+    if (distance > 0 && distanceSquared < 64) { // 64 = 8^2
+      // Assuming playerDX and playerDY are normalized (or nearly so),
+      // compute the cosine of the angle between the player's facing and the enemy's direction.
+      float dot = diffX * playerDX + diffY * playerDY;
+      float cosAngle = dot / distance; // since (playerDX,playerDY) is roughly unit length
+      
+      // If cosAngle is very high (close to 1), the enemy lies nearly directly ahead.
+      const float avoidanceThreshold = 0.95; // adjust threshold as needed
+      if (cosAngle > avoidanceThreshold) {
+        // Calculate a perpendicular (sideways) vector relative to the player's facing direction.
+        // For example, if the player's direction is (playerDX, playerDY),
+        // then one perpendicular is (-playerDY, playerDX).
+        float avoidX = -playerDY;
+        float avoidY = playerDX;
+        // Multiply by enemy's moveAmount (or an increased speed factor if desired)
+        float avoidSpeed = enemies[i].moveAmount; // you can tweak this multiplier
+        float newX = enemies[i].x + avoidX * avoidSpeed;
+        float newY = enemies[i].y + avoidY * avoidSpeed;
+        
+        // Optionally, check for collisions before moving:
+        bool xValid = !checkSpriteCollisionWithTileX(newX, enemies[i].x, enemies[i].y);
+        bool yValid = !checkSpriteCollisionWithTileY(newY, enemies[i].y, enemies[i].x);
+        if (xValid && yValid) {
+          enemies[i].x = newX;
+          enemies[i].y = newY;
+        } else if (xValid) {
+          enemies[i].x = newX;
+        } else if (yValid) {
+          enemies[i].y = newY;
+        }
+        // Skip the rest of the enemy update for this enemy so that it prioritizes avoiding the shot.
+        continue;
+      }
+    }
+
+    // Existing grid-space logic for chase/wander behavior:
     int enemyGridX = round(enemies[i].x);
     int enemyGridY = round(enemies[i].y);
     int playerGridX = round(playerX);
     int playerGridY = round(playerY);
-
     int dx = playerGridX - enemyGridX;
     int dy = playerGridY - enemyGridY;
-    int distanceSquared = dx * dx + dy * dy;
-
+    int gridDistanceSquared = dx * dx + dy * dy;
+    
     // Determine if the enemy should chase (within 5 tiles)
-    if (distanceSquared <= 25) {
+    if (gridDistanceSquared <= 25) {
       enemies[i].chasingPlayer = true;
     } else {
       enemies[i].chasingPlayer = false;
     }
-
+    
     if (enemies[i].chasingPlayer) {
       // When chasing, compute a dynamic path using A*
       PathNode dynamicPath[32];
