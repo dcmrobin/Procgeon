@@ -11,10 +11,9 @@
 
 #define OLED_MOSI 11
 #define OLED_CLK 13
-#define OLED_DC 7
+#define OLED_DC 14
 #define OLED_CS 10
 #define OLED_RST 9
-#define BUTTON_SELECT_PIN 8
 #define BUTTON_START_PIN 6
 #define BUTTON_UP_PIN    2
 #define BUTTON_DOWN_PIN  3
@@ -44,8 +43,6 @@ struct ButtonStates {
   bool rightPressedPrev;
   bool startPressed;
   bool startPressedPrev;
-  bool selectPressed;
-  bool selectPressedPrev;
 };
 
 extern ButtonStates buttons;

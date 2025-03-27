@@ -315,7 +315,6 @@ void updateButtonStates() {
   buttons.leftPressedPrev = buttons.leftPressed;
   buttons.rightPressedPrev = buttons.rightPressed;
   buttons.startPressedPrev = buttons.startPressed;
-  buttons.selectPressedPrev = buttons.selectPressed;
 
   // Read current states
   buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
@@ -325,7 +324,6 @@ void updateButtonStates() {
   buttons.leftPressed = !digitalRead(BUTTON_LEFT_PIN);
   buttons.rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
   buttons.startPressed = !digitalRead(BUTTON_START_PIN);
-  buttons.selectPressed = !digitalRead(BUTTON_SELECT_PIN);
 }
 
 void handleUIStateTransitions() {

@@ -38,7 +38,6 @@ void setup() {
   pinMode(BUTTON_RIGHT_PIN, INPUT_PULLUP);
   pinMode(BUTTON_B_PIN, INPUT_PULLUP);
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
-  pinMode(BUTTON_SELECT_PIN, INPUT_PULLUP);
   pinMode(BUTTON_START_PIN, INPUT_PULLUP);
 
   // Initialize inventory

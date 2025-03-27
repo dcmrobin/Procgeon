@@ -17,9 +17,6 @@ could you hurt the boss.
 
 Need to scale enemy hp and damage with levels- but also make the player have some way of getting an increase in damage.
 
-The player could level up the more kills they get, and therefore increase in health. The player would be able to see their status (level, health, etc in greater
-detail) by pressing "select" button. The player would be able to pause the game using "start" button.
-
 Add a see-all potion that makes the walls all not be dim and the player being able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
 normally see without it? Also highlights secret passages?
 
