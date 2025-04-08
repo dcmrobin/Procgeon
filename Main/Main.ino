@@ -1,4 +1,9 @@
 #include <EEPROM.h>
+#include <Audio.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <SerialFlash.h>
 #include "Sprites.h"
 #include "Dungeon.h"
 #include "HelperFunctions.h"
@@ -17,8 +22,38 @@ unsigned int killHighscoreAddress = 1;
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
 
+// Audio components
+AudioPlaySdWav           playWav1;     // WAV file player
+AudioOutputI2S           audioOutput;  // Audio output to the Audio Board
+AudioConnection          patchCord1(playWav1, 0, audioOutput, 0);
+AudioConnection          patchCord2(playWav1, 1, audioOutput, 1);
+AudioControlSGTL5000     sgtl5000_1;   // Controls the SGTL5000 chip on the Audio Board
+
+// SD card chip select pin for Teensy Audio Board
+const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
+
 void setup() {
   Serial.begin(9600);
+
+  AudioMemory(20);
+
+  // Enable the audio board
+  sgtl5000_1.enable();
+  sgtl5000_1.volume(0.5);
+
+  // Initialize SD card
+  if (!SD.begin(SD_CS)) {
+    Serial.println("SD initialization failed!");
+    while (1);  // Stop execution
+  }
+  Serial.println("SD initialization done.");
+
+  // Play the WAV file
+  /*if (!playWav1.play("bossfight.wav")) {
+    Serial.println("Failed to play bossfight.wav");
+  } else {
+    Serial.println("Playing bossfight.wav...");
+  }*/
 
   randomSeed(generateRandomSeed());
 

@@ -40,11 +40,6 @@ Add a hunger potion that decreases hunger faster over a period of time.
 You might be able to mix any potion with any food item and it would make the food item have a healing/damaging
 or slowing/speeding effect based on the potion in addition to recovering hunger.
 
-Periodically, the damsel could talk to you based on her love level. First, when the love level is low, she could say things like "You idiot! Why would you go there?"
-or berate your appearance. As the love level grows, however, she'll say things like that less and less until she is at a point where she is afraid you're going to die
-when your health is low- like "Don't die!" or something like that. Not really sure how I would do dialogue popups though, would I pause the game? Or would I have a box
-with text in that pops up and doesn't pause the game...
-
 The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
 
 The damsel needs to say "Hey! Wait up!" when you like go to fast and she stops following you or something.
