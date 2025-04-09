@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Audio.h>
 
-#define NUM_SFX 2
+#define NUM_SFX 24
 #define MAX_SFX_SIZE 15000  // ~340ms of 44100Hz 16-bit mono audio (30K max on Teensy 4.1)
 
 // Declare audio objects (defined in .cpp)

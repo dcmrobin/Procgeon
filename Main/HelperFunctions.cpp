@@ -330,12 +330,19 @@ void handleUIStateTransitions() {
   if (buttons.aPressed && !buttons.aPressedPrev) {
     switch (currentUIState) {
       case UI_NORMAL: 
-        if (!statusScreen) currentUIState = UI_INVENTORY;
+        if (!statusScreen) {
+          currentUIState = UI_INVENTORY;
+          playRawSFX(sfxData[12], sfxLength[12]);
+        }
         break;
       case UI_INVENTORY: 
         currentUIState = hasMap ? UI_MINIMAP : UI_NORMAL; 
+        if (!hasMap) {
+          playRawSFX(sfxData[13], sfxLength[13]);
+        }
         break;
       case UI_MINIMAP: 
+        playRawSFX(sfxData[13], sfxLength[13]);
         currentUIState = UI_NORMAL; 
         break;
       case UI_ITEM_ACTION: 
@@ -354,6 +361,7 @@ void handleUIStateTransitions() {
         currentUIState = UI_RIDDLE;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
+    playRawSFX(sfxData[9], sfxLength[9]);
     currentUIState = currentUIState == UI_PAUSE ? UI_NORMAL : UI_PAUSE;
   }
 }

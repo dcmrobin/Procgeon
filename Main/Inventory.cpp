@@ -1,5 +1,6 @@
 #include "Inventory.h"
 #include "Player.h"
+#include "GameAudio.h"
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
 String itemResultMessage = "";
@@ -46,9 +47,11 @@ void handleInventoryNavigation() {
   }
 
   if (buttons.upPressed && !buttons.upPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     selectedInventoryIndex = findPreviousItemInCategory(selectedInventoryIndex);
   }
   if (buttons.downPressed && !buttons.downPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     selectedInventoryIndex = findNextItemInCategory(selectedInventoryIndex);
   }
 }
@@ -105,6 +108,7 @@ int findPreviousItemInCategory(int current) {
 
 void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && currentUIState == UI_INVENTORY) {
+    playRawSFX(sfxData[7], sfxLength[7]);
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (strcmp(selectedItem.name.c_str(), "Empty") != 0) {
@@ -132,9 +136,11 @@ void handleInventoryItemUsage() {
 void handleItemActionMenu() {
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     selectedActionIndex--;
   }
   if (buttons.downPressed && !buttons.downPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     selectedActionIndex++;
   }
 
@@ -147,10 +153,12 @@ void handleItemActionMenu() {
 
   // Confirm with B
   if (buttons.bPressed && !buttons.bPressedPrev) {
+    playRawSFX(sfxData[7], sfxLength[7]);
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (selectedActionIndex == 0) { // Use
       if (selectedItem.item >= RedPotion && selectedItem.item <= PurplePotion) {
+        playRawSFX(sfxData[6], sfxLength[6]);
         playerHP += selectedItem.healthRecoverAmount;
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
 
@@ -164,6 +172,7 @@ void handleItemActionMenu() {
         }
 
         if (playerHP <= 0) {
+          playRawSFX(sfxData[10], sfxLength[10]);
           deathCause = "poison";
           buttons.bPressedPrev = true;
         }
@@ -178,8 +187,11 @@ void handleItemActionMenu() {
           }
         }
       } else if (selectedItem.category == FoodCategory) {
+        playRawSFX(sfxData[5], sfxLength[5]);
         playerFood += selectedItem.hungerRecoverAmount;
         playerFood = playerFood > 100 ? 100 : playerFood;
+      } else {
+        playRawSFX(sfxData[2], sfxLength[2]);
       }
 
       itemResultMessage = selectedItem.itemResult;

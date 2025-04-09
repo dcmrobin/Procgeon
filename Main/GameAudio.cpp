@@ -18,8 +18,30 @@ uint8_t* sfxData[NUM_SFX] = { nullptr };
 size_t sfxLength[NUM_SFX] = { 0 };
 
 const char* sfxFilenames[NUM_SFX] = {
-  "player_hurt.raw",
-  "player_shoot.raw"
+  "player_hurt.raw",//        0
+  "player_shoot.raw",//       1
+  "player_use.raw",//         2
+  "player_pickup.raw",//      3
+  "player_footstep.raw",//    4 IMPLEMENT
+  "player_eat.raw",//         5
+  "player_drink.raw",//       6
+  "menu_select.raw",//        7
+  "menu_scroll.raw",//        8
+  "menu_pause.raw",//         9
+  "menu_gameOver.raw",//      10
+  "level_end.raw",//          11
+  "inventory_open.raw",//     12
+  "inventory_close.raw",//    13
+  "enemy_teleport.raw",//     14
+  "damsel_putDown.raw",//     15
+  "damsel_passive.raw",//     16
+  "damsel_hurt.raw",//        17
+  "damsel_good.raw",//        18
+  "damsel_footstep.raw",//    19
+  "damsel_carry.raw",//       20
+  "damsel_annoying.raw",//    21
+  "bullet_impactWall.raw",//  22
+  "bullet_impactEnemy.raw"//  23
 };
 
 // Definitions for your functions

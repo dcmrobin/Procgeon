@@ -179,6 +179,7 @@ void handleInput() {
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
     if (addToInventory(getItem(getRandomPotion(random(8))))) {
+      playRawSFX(sfxData[3], sfxLength[3]);
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == Map) {
@@ -186,10 +187,12 @@ void handleInput() {
     dungeonMap[rNewY][rNewX] = Floor;
   } else if (dungeonMap[rNewY][rNewX] == MushroomItem) {
     if (addToInventory(getItem(Mushroom))) {
+      playRawSFX(sfxData[3], sfxLength[3]);
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == RiddleStoneItem) {
     if (addToInventory(getItem(RiddleStone))) {
+      playRawSFX(sfxData[3], sfxLength[3]);
       dungeonMap[rNewY][rNewX] = Floor;
     }
   }
@@ -199,6 +202,7 @@ void handleInput() {
 
   // Check if the player reached the exit
   if (dungeonMap[rPy][rPx] == Exit) {
+    playRawSFX(sfxData[11], sfxLength[11]);
     if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
       levelOfDamselDeath = dungeon;
       damsel[0].active = false;
@@ -221,6 +225,7 @@ void startCarryingDamsel() {
       currentDialogue = "Oh! Thanks...";
       playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
     } else {
+      playRawSFX(sfxData[15], sfxLength[15]);
       playerSprite = playerSprite == playerCarryingDamselSpriteRight ? playerSpriteRight : playerSpriteLeft;
     }
 
@@ -254,6 +259,7 @@ void handleHunger() {
   }
 
   if (playerHP <= 0) {
+    playRawSFX(sfxData[10], sfxLength[10]);
     deathCause = "hunger";
   }
 }
@@ -310,9 +316,15 @@ void handleDialogue() {
         dialogueTimeLength = damselCarryDialogue[index].duration;
         currentDialogue = damselCarryDialogue[index].message;
         damselCarryDialogue[index].alreadyBeenSaid = true;
+        if (dialogueTimer == 1) {
+          playRawSFX(sfxData[18], sfxLength[18]);
+        }
       } else {
         // Choose dialogue based on levelOfLove.
         if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
+          if (dialogueTimer == 1) {
+            playDamselSFX(damselAnnoyingDialogue[index].tone);
+          }
           int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
           int index = pickDialogue(damselAnnoyingDialogue, length);
           currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
@@ -324,6 +336,9 @@ void handleDialogue() {
           currentDialogue = damselAnnoyingDialogue[index].message;
           damselAnnoyingDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
+          if (dialogueTimer == 1) {
+            playDamselSFX(damselPassiveDialogue[index].tone);
+          }
           int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
           int index = pickDialogue(damselPassiveDialogue, length);
           currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
@@ -335,6 +350,9 @@ void handleDialogue() {
           currentDialogue = damselPassiveDialogue[index].message;
           damselPassiveDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 6) {
+          if (dialogueTimer == 1) {
+            playDamselSFX(damselGoodDialogue[index].tone);
+          }
           if (!knowsDamselName) {
             dialogueTimeLength = 500;
             currentDialogue = "By the way, my name is " + damsel[0].name + "...";
@@ -356,6 +374,16 @@ void handleDialogue() {
 
       timeTillNextDialogue = random(1000, 2000);
     }
+  }
+}
+
+void playDamselSFX(String tone) {
+  if (tone == "normal") {
+    playRawSFX(sfxData[16], sfxLength[16]);
+  } else if (tone == "annoying") {
+    playRawSFX(sfxData[21], sfxLength[21]);
+  } else if (tone == "alone") {
+    playRawSFX(sfxData[16], sfxLength[16]);
   }
 }
 
@@ -396,22 +424,26 @@ void handleRiddles() {
   // --- Handle button scrolling and selection ---
   // (Assume updateButtonStates() is being called elsewhere in your main loop)
   if (buttons.upPressed && !buttons.upPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     selectedRiddleOption--;
     if (selectedRiddleOption < 0) selectedRiddleOption = 0;  // Prevent underflow
   }
   if (buttons.downPressed && !buttons.downPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     selectedRiddleOption++;
     if (selectedRiddleOption > 3) selectedRiddleOption = 3;  // Maximum index is 3
   }
   
   // If the B button is pressed, check the answer.
   if (buttons.bPressed && !buttons.bPressedPrev) {
+    playRawSFX(sfxData[7], sfxLength[7]);
     if (selectedRiddleOption == currentRiddle.correctOption) {
       itemResultMessage = "Correct! You are rewarded.";
     } else {
       itemResultMessage = "Wrong answer! You suffer.";
       playerHP -= 10;
       if (playerHP <= 0) {
+        playRawSFX(sfxData[10], sfxLength[10]);
         deathCause = "stupidity";
       }
     }

@@ -246,10 +246,12 @@ void updateDamsel() {
       showDialogue = true;
       currentDamselPortrait = damselPortraitNormal;
       dialogueTimeLength = 400;
+      playRawSFX(sfxData[16], sfxLength[16]);
       currentDialogue = "Hey! I shall follow you, please get me out of here.";
       damsel[0].levelOfLove = 1;
     }
     if (damselGotTaken && damselSayThanksForRescue) {
+      playRawSFX(sfxData[17], sfxLength[17]);
       showDialogue = true;
       currentDamselPortrait = damselPortraitAlone;
       dialogueTimeLength = 400;
@@ -463,6 +465,7 @@ void updateEnemies() {
     // Existing collision with player logic remains unchanged:
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
       if (enemies[i].name == "teleporter") {
+        playRawSFX(sfxData[14], sfxLength[14]);
         int newX, newY;
         do {
           newX = random(0, mapWidth);
@@ -477,6 +480,7 @@ void updateEnemies() {
           atkDelayCounter = 0;
         }
         if (playerHP <= 0) {
+          playRawSFX(sfxData[10], sfxLength[10]);
           deathCause = enemies[i].name;
         }
       }
@@ -496,17 +500,21 @@ void updateProjectiles() {
       // Check for collisions with walls or out-of-bounds
       if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
         projectiles[i].active = false; // Deactivate the bullet
+        playRawSFX(sfxData[22], sfxLength[22]);
       }
 
       // Check for collisions with enemies
       for (int j = 0; j < maxEnemies; j++) {
         if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && enemies[j].hp > 0) {
           enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
+          playRawSFX(sfxData[23], sfxLength[23]);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
             kills += 1;
           }
           projectiles[i].active = false; // Deactivate the bullet
         } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
+          playRawSFX(sfxData[23], sfxLength[23]);
+          playRawSFX(sfxData[17], sfxLength[17]);
           levelOfDamselDeath = dungeon;
           damsel[0].dead = true;
           showDialogue = true;

@@ -51,11 +51,9 @@ void setup() {
     Serial.println("Failed to load SFX to RAM");
   } else {
     Serial.println("SFX loaded successfully");
-    // Play player_hurt.raw (index 0)
-    //playRawSFX(sfxData[0], sfxLength[0]);
   }
 
-  // Play the WAV file
+  // Play a WAV file
   /*if (!playWav1.play("bossfight.wav")) {
     Serial.println("Failed to play bossfight.wav");
   } else {
@@ -100,6 +98,7 @@ void setup() {
 
   // Generate a random dungeon
   generateDungeon();
+  playRawSFX(sfxData[11], sfxLength[11]);
   spawnEnemies();
 }
 
@@ -183,6 +182,7 @@ void renderGame() {
 int page = 1;
 void gameOver() {
   if (buttons.aPressed && !buttons.aPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     page++;
     if (page == 3) {
       page = 1;
@@ -263,6 +263,7 @@ void gameOver() {
     dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
+    playRawSFX(sfxData[11], sfxLength[11]);
     damsel[0].name = generateFemaleName();
     damsel[0].levelOfLove = 0;
     knowsDamselName = false;
