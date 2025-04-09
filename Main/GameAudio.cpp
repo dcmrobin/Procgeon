@@ -44,7 +44,6 @@ const char* sfxFilenames[NUM_SFX] = {
   "bullet_impactEnemy.raw"//  23
 };
 
-// Definitions for your functions
 void playRawSFX(const uint8_t* data, uint32_t length) {
     int samplesRemaining = length / 2;
 

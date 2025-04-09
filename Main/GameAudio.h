@@ -5,7 +5,7 @@
 #include <Audio.h>
 
 #define NUM_SFX 24
-#define MAX_SFX_SIZE 15000  // ~340ms of 44100Hz 16-bit mono audio (30K max on Teensy 4.1)
+#define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
 
 // Declare audio objects (defined in .cpp)
 extern AudioPlaySdWav      playWav1;
