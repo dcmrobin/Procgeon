@@ -37,7 +37,7 @@ const char* sfxFilenames[NUM_SFX] = {
   "damsel_passive.raw",//     16
   "damsel_hurt.raw",//        17
   "damsel_good.raw",//        18
-  "damsel_footstep.raw",//    19
+  "damsel_footstep.raw",//    19 IMPLEMENT
   "damsel_carry.raw",//       20
   "damsel_annoying.raw",//    21
   "bullet_impactWall.raw",//  22

@@ -264,6 +264,16 @@ void handleHunger() {
   }
 }
 
+void playDamselSFX(String tone) {
+  if (tone == "normal") {
+    playRawSFX(sfxData[16], sfxLength[16]);
+  } else if (tone == "annoying") {
+    playRawSFX(sfxData[21], sfxLength[21]);
+  } else if (tone == "alone") {
+    playRawSFX(sfxData[16], sfxLength[16]);
+  }
+}
+
 int dialogueTimer = 0;
 void handleDialogue() {
   if (showDialogue) {
@@ -315,18 +325,18 @@ void handleDialogue() {
         currentDamselPortrait = damselPortraitCarrying;
         dialogueTimeLength = damselCarryDialogue[index].duration;
         currentDialogue = damselCarryDialogue[index].message;
-        damselCarryDialogue[index].alreadyBeenSaid = true;
-        if (dialogueTimer == 1) {
+        if (!damselCarryDialogue[index].alreadyBeenSaid) {
           playRawSFX(sfxData[18], sfxLength[18]);
         }
+        damselCarryDialogue[index].alreadyBeenSaid = true;
       } else {
         // Choose dialogue based on levelOfLove.
         if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
-          if (dialogueTimer == 1) {
-            playDamselSFX(damselAnnoyingDialogue[index].tone);
-          }
           int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
           int index = pickDialogue(damselAnnoyingDialogue, length);
+          if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
+            playDamselSFX(damselAnnoyingDialogue[index].tone);
+          }
           currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
                                   damselPortraitScared : 
                                   (damselAnnoyingDialogue[index].tone == "alone") ? 
@@ -336,11 +346,11 @@ void handleDialogue() {
           currentDialogue = damselAnnoyingDialogue[index].message;
           damselAnnoyingDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
-          if (dialogueTimer == 1) {
-            playDamselSFX(damselPassiveDialogue[index].tone);
-          }
           int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
           int index = pickDialogue(damselPassiveDialogue, length);
+          if (!damselPassiveDialogue[index].alreadyBeenSaid) {
+            playDamselSFX(damselPassiveDialogue[index].tone);
+          }
           currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
                                   damselPortraitScared : 
                                   (damselPassiveDialogue[index].tone == "alone") ? 
@@ -350,16 +360,19 @@ void handleDialogue() {
           currentDialogue = damselPassiveDialogue[index].message;
           damselPassiveDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 6) {
-          if (dialogueTimer == 1) {
-            playDamselSFX(damselGoodDialogue[index].tone);
-          }
           if (!knowsDamselName) {
             dialogueTimeLength = 500;
+            if (!knowsDamselName) {
+              playDamselSFX("normal");
+            }
             currentDialogue = "By the way, my name is " + damsel[0].name + "...";
             knowsDamselName = true;
           } else {
             int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
             int index = pickDialogue(damselGoodDialogue, length);
+            if (!damselGoodDialogue[index].alreadyBeenSaid) {
+              playDamselSFX(damselGoodDialogue[index].tone);
+            }
             currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
                                     damselPortraitScared : 
                                     (damselGoodDialogue[index].tone == "alone") ? 
@@ -374,16 +387,6 @@ void handleDialogue() {
 
       timeTillNextDialogue = random(1000, 2000);
     }
-  }
-}
-
-void playDamselSFX(String tone) {
-  if (tone == "normal") {
-    playRawSFX(sfxData[16], sfxLength[16]);
-  } else if (tone == "annoying") {
-    playRawSFX(sfxData[21], sfxLength[21]);
-  } else if (tone == "alone") {
-    playRawSFX(sfxData[16], sfxLength[16]);
   }
 }
 

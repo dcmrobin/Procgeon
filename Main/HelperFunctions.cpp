@@ -1,5 +1,6 @@
 #include "HelperFunctions.h"
 #include "Player.h"
+#include "GameAudio.h"
 
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names

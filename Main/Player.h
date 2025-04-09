@@ -42,5 +42,6 @@ void handlePauseScreen();
 void handleHunger();
 void handleDialogue();
 void handleRiddles();
+void playDamselSFX(String tone);
 
 #endif
