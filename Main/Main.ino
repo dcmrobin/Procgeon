@@ -11,6 +11,7 @@
 #include "Item.h"
 #include "Inventory.h"
 #include "Player.h"
+#include "GameAudio.h"
 
 
 bool itemResultScreenActive = false;
@@ -22,24 +23,21 @@ unsigned int killHighscoreAddress = 1;
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
 
-// Audio components
-AudioPlaySdWav           playWav1;     // WAV file player
-AudioOutputI2S           audioOutput;  // Audio output to the Audio Board
-AudioConnection          patchCord1(playWav1, 0, audioOutput, 0);
-AudioConnection          patchCord2(playWav1, 1, audioOutput, 1);
-AudioControlSGTL5000     sgtl5000_1;   // Controls the SGTL5000 chip on the Audio Board
-
 // SD card chip select pin for Teensy Audio Board
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void setup() {
   Serial.begin(9600);
 
-  AudioMemory(20);
+  AudioMemory(30);
 
   // Enable the audio board
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.5);
+
+  // Optional: set relative volumes
+  //mixer1.gain(0, 0.5); // Music
+  //mixer1.gain(1, 1.0); // SFX
 
   // Initialize SD card
   if (!SD.begin(SD_CS)) {
@@ -47,6 +45,15 @@ void setup() {
     while (1);  // Stop execution
   }
   Serial.println("SD initialization done.");
+
+  // Play a sound effect from memory
+  if (!loadSFXtoRAM()) {
+    Serial.println("Failed to load SFX to RAM");
+  } else {
+    Serial.println("SFX loaded successfully");
+    // Play player_hurt.raw (index 0)
+    //playRawSFX(sfxData[0], sfxLength[0]);
+  }
 
   // Play the WAV file
   /*if (!playWav1.play("bossfight.wav")) {

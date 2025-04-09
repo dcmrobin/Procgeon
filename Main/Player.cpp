@@ -3,6 +3,7 @@
 #include "Inventory.h"
 #include "Dungeon.h"
 #include "Entities.h"
+#include "GameAudio.h"
 
 String deathCause = "";
 String currentDialogue = "";
@@ -138,6 +139,7 @@ void handleInput() {
   if (buttons.bPressed) {
     if (!reloading && !carryingDamsel && distanceSquared > 0.3) {
       shootProjectile(playerDX, playerDY); // Shoot in current direction
+      playRawSFX(sfxData[1], sfxLength[1]);
       reloading = true;
     }
   }

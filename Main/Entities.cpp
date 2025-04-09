@@ -3,6 +3,7 @@
 #include "HelperFunctions.h"
 #include "Dungeon.h"
 #include "Player.h"
+#include "GameAudio.h"
 
 #include <cmath>
 
@@ -472,6 +473,7 @@ void updateEnemies() {
       } else {
         if (atkDelayCounter >= enemies[i].attackDelay) {
           playerHP -= enemies[i].damage;
+          playRawSFX(sfxData[0], sfxLength[0]);
           atkDelayCounter = 0;
         }
         if (playerHP <= 0) {
