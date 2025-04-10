@@ -109,10 +109,10 @@ void loop() {
   unsigned long currentTime = millis();
   if (currentTime - lastUpdateTime >= frameDelay) {
     lastUpdateTime = currentTime;
+    updateButtonStates();
+    handleUIStateTransitions();
     if (playerHP > 0) {
       if (!statusScreen) {
-        updateButtonStates();
-        handleUIStateTransitions();
         switch (currentUIState) {
           case UI_NORMAL:
             renderGame();
