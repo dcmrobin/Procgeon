@@ -23,7 +23,18 @@ extern uint8_t* sfxData[NUM_SFX];
 extern size_t sfxLength[NUM_SFX];
 extern const char* sfxFilenames[NUM_SFX];
 
-void playRawSFX(const uint8_t* data, uint32_t length);
+struct RawSFXPlayback {
+    const int16_t* data = nullptr;
+    size_t samplesTotal = 0;
+    size_t samplesPlayed = 0;
+    bool isPlaying = false;
+};
+
+extern RawSFXPlayback currentSFX;
+
+void playRawSFX(const uint8_t* data, size_t length);  // initiate playback
+void serviceRawSFX();  // call this every frame
+
 void freeSFX();
 bool loadSFXtoRAM();
 

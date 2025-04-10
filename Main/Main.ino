@@ -105,6 +105,8 @@ void setup() {
 void loop() {
   updateButtonStates();
 
+  serviceRawSFX();
+
   unsigned long currentTime = millis();
   if (playerHP > 0) {
     if (!statusScreen) {

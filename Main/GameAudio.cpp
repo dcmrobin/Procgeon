@@ -44,22 +44,36 @@ const char* sfxFilenames[NUM_SFX] = {
   "bullet_impactEnemy.raw"//  23
 };
 
-void playRawSFX(const uint8_t* data, uint32_t length) {
-    int samplesRemaining = length / 2;
+RawSFXPlayback currentSFX;
 
-    while (samplesRemaining > 0) {
-        int16_t* block = queue1.getBuffer();
-        if (!block) break;
+void playRawSFX(const uint8_t* data, size_t length) {
+    currentSFX.data = (const int16_t*)data;
+    currentSFX.samplesTotal = length / 2;
+    currentSFX.samplesPlayed = 0;
+    currentSFX.isPlaying = true;
+}
 
-        int samplesToCopy = min(samplesRemaining, AUDIO_BLOCK_SAMPLES);
-        memcpy(block, data + (length - samplesRemaining * 2), samplesToCopy * 2);
+void serviceRawSFX() {
+    if (!currentSFX.isPlaying) return;
+    if (!queue1.available()) return;
 
-        if (samplesToCopy < AUDIO_BLOCK_SAMPLES) {
-            memset(((uint8_t*)block) + samplesToCopy * 2, 0, (AUDIO_BLOCK_SAMPLES - samplesToCopy) * 2);
-        }
+    int16_t* block = queue1.getBuffer();
+    if (!block) return;
 
-        queue1.playBuffer();
-        samplesRemaining -= samplesToCopy;
+    size_t remaining = currentSFX.samplesTotal - currentSFX.samplesPlayed;
+    size_t samplesToCopy = min(remaining, AUDIO_BLOCK_SAMPLES);
+
+    memcpy(block, currentSFX.data + currentSFX.samplesPlayed, samplesToCopy * 2);
+
+    if (samplesToCopy < AUDIO_BLOCK_SAMPLES) {
+        memset(((uint8_t*)block) + samplesToCopy * 2, 0, (AUDIO_BLOCK_SAMPLES - samplesToCopy) * 2);
+    }
+
+    queue1.playBuffer();
+    currentSFX.samplesPlayed += samplesToCopy;
+
+    if (currentSFX.samplesPlayed >= currentSFX.samplesTotal) {
+        currentSFX.isPlaying = false;
     }
 }
 
