@@ -183,7 +183,7 @@ void handleInput() {
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == Map) {
-    playRawSFX(sfxData[3], sfxLength[3])
+    playRawSFX(sfxData[3], sfxLength[3]);
     hasMap = true;
     dungeonMap[rNewY][rNewX] = Floor;
   } else if (dungeonMap[rNewY][rNewX] == MushroomItem) {
@@ -445,7 +445,7 @@ void handleRiddles() {
       playRawSFX(sfxData[6], sfxLength[6]);
       itemResultMessage = "Correct! You are rewarded.";
     } else {
-      playRawSFX(sfxData[13], sfxLength[13])
+      playRawSFX(sfxData[13], sfxLength[13]);
       itemResultMessage = "Wrong answer! You suffer.";
       playerHP -= 10;
       if (playerHP <= 0) {
