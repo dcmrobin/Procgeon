@@ -22,6 +22,8 @@ normally see without it? Also highlights secret passages?
 
 Add a chaos potion that has randomized effects on each use. (instead of putting fixed values for the potioneffect for this one, use random(min, max). This should work.)
 
+Add a glamour potion that does nothing except make things look better or just make you feel cool.
+
 There would be scrolls containing lore that you find around the map.
 
 There could be secret doors- walls you could walk through to another room that might be full of loot.
