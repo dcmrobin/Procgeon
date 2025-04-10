@@ -38,10 +38,12 @@ void handleInventoryNavigation() {
 
   // Handle page switching
   if (buttons.leftPressed && !buttons.leftPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     currentInventoryPageIndex = (currentInventoryPageIndex - 1 + numInventoryPages) % numInventoryPages;
     selectedInventoryIndex = findFirstItemInCurrentCategory();
   }
   if (buttons.rightPressed && !buttons.rightPressedPrev) {
+    playRawSFX(sfxData[8], sfxLength[8]);
     currentInventoryPageIndex = (currentInventoryPageIndex + 1) % numInventoryPages;
     selectedInventoryIndex = findFirstItemInCurrentCategory();
   }

@@ -347,12 +347,15 @@ void handleUIStateTransitions() {
         currentUIState = UI_NORMAL; 
         break;
       case UI_ITEM_ACTION: 
+        playRawSFX(sfxData[12], sfxLength[12]);
         currentUIState = UI_INVENTORY;
         break;
       case UI_ITEM_INFO: 
+        playRawSFX(sfxData[12], sfxLength[12]);
         currentUIState = UI_INVENTORY;
         break;
       case UI_ITEM_RESULT: 
+        playRawSFX(sfxData[12], sfxLength[12]);
         currentUIState = UI_NORMAL;
         break;
       case UI_PAUSE: 

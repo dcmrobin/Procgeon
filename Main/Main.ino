@@ -103,59 +103,59 @@ void setup() {
 }
 
 void loop() {
-  updateButtonStates();
 
   serviceRawSFX();
 
   unsigned long currentTime = millis();
-  if (playerHP > 0) {
-    if (!statusScreen) {
-      handleUIStateTransitions();
-      switch (currentUIState) {
-        case UI_NORMAL:
-          if (currentTime - lastUpdateTime >= frameDelay) {
-            lastUpdateTime = currentTime;
+  if (currentTime - lastUpdateTime >= frameDelay) {
+    lastUpdateTime = currentTime;
+    if (playerHP > 0) {
+      if (!statusScreen) {
+        updateButtonStates();
+        handleUIStateTransitions();
+        switch (currentUIState) {
+          case UI_NORMAL:
             renderGame();
             updateGame();
-          }
-          break;
+            break;
 
-        case UI_INVENTORY:
-          renderInventory();
-          handleInventoryNavigation();
-          handleInventoryItemUsage();
-          break;
+          case UI_INVENTORY:
+            renderInventory();
+            handleInventoryNavigation();
+            handleInventoryItemUsage();
+            break;
 
-        case UI_MINIMAP:
-          drawMinimap();
-          break;
+          case UI_MINIMAP:
+            drawMinimap();
+            break;
 
-        case UI_ITEM_ACTION:
-          handleItemActionMenu();
-          renderInventory();
-          break;
+          case UI_ITEM_ACTION:
+            handleItemActionMenu();
+            renderInventory();
+            break;
 
-        case UI_ITEM_INFO:
-          renderInventory();
-          break;
+          case UI_ITEM_INFO:
+            renderInventory();
+            break;
 
-        case UI_ITEM_RESULT:
-          renderInventory();
-          break;
+          case UI_ITEM_RESULT:
+            renderInventory();
+            break;
 
-        case UI_PAUSE:
-          handlePauseScreen();
-          break;
+          case UI_PAUSE:
+            handlePauseScreen();
+            break;
 
-        case UI_RIDDLE:
-          handleRiddles();
-          break;
+          case UI_RIDDLE:
+            handleRiddles();
+            break;
+        }
+      } else {
+        showStatusScreen();
       }
     } else {
-      showStatusScreen();
+      gameOver();
     }
-  } else {
-    gameOver();
   }
 }
 
