@@ -29,15 +29,7 @@ const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 void setup() {
   Serial.begin(9600);
 
-  AudioMemory(30);
-
-  // Enable the audio board
-  sgtl5000_1.enable();
-  sgtl5000_1.volume(0.5);
-
-  // Optional: set relative volumes
-  //mixer1.gain(0, 0.5); // Music
-  //mixer1.gain(1, 1.0); // SFX
+  initAudio();
 
   // Initialize SD card
   if (!SD.begin(SD_CS)) {
@@ -98,7 +90,7 @@ void setup() {
 
   // Generate a random dungeon
   generateDungeon();
-  playRawSFX(sfxData[11], sfxLength[11]);
+  playRawSFX(11);
   spawnEnemies();
 }
 
@@ -110,8 +102,8 @@ void loop() {
   if (currentTime - lastUpdateTime >= frameDelay) {
     lastUpdateTime = currentTime;
     updateButtonStates();
-    handleUIStateTransitions();
     if (playerHP > 0) {
+      handleUIStateTransitions();
       if (!statusScreen) {
         switch (currentUIState) {
           case UI_NORMAL:
@@ -184,7 +176,7 @@ void renderGame() {
 int page = 1;
 void gameOver() {
   if (buttons.aPressed && !buttons.aPressedPrev) {
-    playRawSFX(sfxData[8], sfxLength[8]);
+    playRawSFX(8);
     page++;
     if (page == 3) {
       page = 1;
@@ -265,7 +257,7 @@ void gameOver() {
     dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
-    playRawSFX(sfxData[11], sfxLength[11]);
+    playRawSFX(11);
     damsel[0].name = generateFemaleName();
     damsel[0].levelOfLove = 0;
     knowsDamselName = false;

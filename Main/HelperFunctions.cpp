@@ -333,29 +333,29 @@ void handleUIStateTransitions() {
       case UI_NORMAL: 
         if (!statusScreen) {
           currentUIState = UI_INVENTORY;
-          playRawSFX(sfxData[12], sfxLength[12]);
+          playRawSFX(12);
         }
         break;
       case UI_INVENTORY: 
         currentUIState = hasMap ? UI_MINIMAP : UI_NORMAL; 
         if (!hasMap) {
-          playRawSFX(sfxData[13], sfxLength[13]);
+          playRawSFX(13);
         }
         break;
       case UI_MINIMAP: 
-        playRawSFX(sfxData[13], sfxLength[13]);
+        playRawSFX(13);
         currentUIState = UI_NORMAL; 
         break;
       case UI_ITEM_ACTION: 
-        playRawSFX(sfxData[12], sfxLength[12]);
+        playRawSFX(12);
         currentUIState = UI_INVENTORY;
         break;
       case UI_ITEM_INFO: 
-        playRawSFX(sfxData[12], sfxLength[12]);
+        playRawSFX(12);
         currentUIState = UI_INVENTORY;
         break;
       case UI_ITEM_RESULT: 
-        playRawSFX(sfxData[12], sfxLength[12]);
+        playRawSFX(12);
         currentUIState = UI_NORMAL;
         break;
       case UI_PAUSE: 
@@ -365,7 +365,7 @@ void handleUIStateTransitions() {
         currentUIState = UI_RIDDLE;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
-    playRawSFX(sfxData[9], sfxLength[9]);
+    playRawSFX(9);
     currentUIState = currentUIState == UI_PAUSE ? UI_NORMAL : UI_PAUSE;
   }
 }
