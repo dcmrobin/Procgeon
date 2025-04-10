@@ -61,7 +61,7 @@ void serviceRawSFX() {
     if (!block) return;
 
     size_t remaining = currentSFX.samplesTotal - currentSFX.samplesPlayed;
-    size_t samplesToCopy = min(remaining, AUDIO_BLOCK_SAMPLES);
+    size_t samplesToCopy = min(remaining, static_cast<size_t>(AUDIO_BLOCK_SAMPLES));
 
     memcpy(block, currentSFX.data + currentSFX.samplesPlayed, samplesToCopy * 2);
 
