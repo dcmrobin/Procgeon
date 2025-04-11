@@ -86,6 +86,9 @@ extern const int viewportHeight;
 extern float offsetX;
 extern float offsetY;
 
+extern int shakeDuration;
+extern int shakeIntensity;
+
 extern const float scrollSpeed;
 
 void generateRiddleUI();
@@ -108,5 +111,7 @@ void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 bool isWalkable(int x, int y);
 void drawWrappedText(int x, int y, int maxWidth, const String &text);
+void updateScreenShake();
+void triggerScreenShake(int duration, int intensity);
 
 #endif

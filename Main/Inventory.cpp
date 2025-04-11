@@ -110,10 +110,10 @@ int findPreviousItemInCategory(int current) {
 
 void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && currentUIState == UI_INVENTORY) {
-    playRawSFX(7);
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    
-    if (strcmp(selectedItem.name.c_str(), "Empty") != 0) {
+  
+    if (selectedItem.name != "Empty" && selectedItem.name != "") {
+      playRawSFX(7);
       if (!combiningTwoItems) {
         currentUIState = UI_ITEM_ACTION;
         selectedActionIndex = 0;

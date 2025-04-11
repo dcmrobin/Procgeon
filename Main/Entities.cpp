@@ -476,6 +476,7 @@ void updateEnemies() {
       } else {
         if (atkDelayCounter >= enemies[i].attackDelay) {
           playerHP -= enemies[i].damage;
+          triggerScreenShake(2, 1);
           playRawSFX(0);
           atkDelayCounter = 0;
         }

@@ -23,6 +23,9 @@ const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
 float offsetX = 0;
 float offsetY = 0;
 
+int shakeDuration = 0;   // How many frames to shake for
+int shakeIntensity = 1;  // How strong the shake is
+
 const float scrollSpeed = 0.25f;
 
 // Global variable for the current riddle
@@ -522,4 +525,17 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text) {
     u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
     u8g2_for_adafruit_gfx.print(currentLine + word);
   }
+}
+
+void updateScreenShake() {
+  if (shakeDuration > 0) {
+    offsetX += random(-shakeIntensity, shakeIntensity + 1);
+    offsetY += random(-shakeIntensity, shakeIntensity + 1);
+    shakeDuration--;
+  }
+}
+
+void triggerScreenShake(int duration, int intensity) {
+  shakeDuration = duration;
+  shakeIntensity = intensity;
 }
