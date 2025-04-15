@@ -182,6 +182,10 @@ void handleItemActionMenu() {
         if (selectedItem.AOEsize > 0) {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
         }
+
+        if (selectedItem.itemResult == "You are now more hungry.") {
+          playerFood -= 51;//heheheh u want it to be 50 don't u >:D
+        }
         
         for (int i = 0; i < inventorySize; i++) {
           if (inventoryPages[currentInventoryPageIndex].items[i].item == selectedItem.item) {

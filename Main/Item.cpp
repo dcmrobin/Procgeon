@@ -12,20 +12,10 @@ GameItem itemList[] = {
   { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.")},
   { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")},
   { PurplePotion, PotionCategory, String("Purple Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Purple Potion"), String("Nothing happens.")},
+  { CyanPotion, PotionCategory, String("Cyan Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Cyan Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
   { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!")}
-};
-
-// Possible potion effects
-struct PotionEffect {
-  int healthChange;
-  int AOEsize;
-  int AOEdamage;
-  float SpeedMultiplier;
-  String effectName;
-  String effectDescription;
-  String effectResult;
 };
 
 // Possible effect pool
@@ -37,12 +27,13 @@ PotionEffect potionEffects[] = {
   { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better.") },
   { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this."), String("You lose 50 HP, and the enemies around you gain 20 HP.") },
   { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your are faster now, but only for a limited amount of time.") },
-  { 0,  0,  0, 0.4, String("Slowing Potion"), String("Drink this, and you'll go half as fast."), String("Your are slower now, but only for a limited amount of time.") }
+  { 0,  0,  0, 0.4, String("Slowing Potion"), String("Drink this, and you'll go half as fast."), String("Your are slower now, but only for a limited amount of time.") },
+  { 0,  0,  0, 0, String("Hunger Potion"), String("Makes you more hungry."), String("You are now more hungry.") }// Don't change the position of this effect in the list- it needs to stay here in order to be found by the hunger potion
 };
 
 void randomizePotionEffects() {
   // Shuffle the potion effects array
-  for (int i = 7; i > 0; i--) {
+  for (int i = 8; i > 0; i--) {
     int j = random(i + 1);  // Random index from 0 to i inclusive
     // Swap effects
     PotionEffect temp = potionEffects[i];
@@ -51,7 +42,7 @@ void randomizePotionEffects() {
   }
 
   // Assign shuffled effects to potions
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 9; i++) {
     itemList[i].healthRecoverAmount = potionEffects[i].healthChange;
     itemList[i].AOEsize = potionEffects[i].AOEsize;
     itemList[i].AOEdamage = potionEffects[i].AOEdamage;
@@ -72,7 +63,7 @@ void updatePotionName(GameItem &potion) {
         potion.AOEdamage == effect.AOEdamage && 
         potion.SpeedMultiplier == effect.SpeedMultiplier) {
 
-      for (int i = 0; i < 7; i++) {
+      for (int i = 0; i < 9; i++) {
         if (itemList[i].item == potion.item) {  
           itemList[i].name = effect.effectName;
           itemList[i].description = effect.effectDescription;
@@ -101,6 +92,7 @@ void resetPotionNames() {
   itemList[5].name = "Yellow Potion";
   itemList[6].name = "Orange Potion";
   itemList[7].name = "Purple Potion";
+  itemList[8].name = "Cyan Potion";
 }
 
 
@@ -157,5 +149,6 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(GreenPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(GreenPotion)))) {return getItem(YellowPotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(OrangePotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(BluePotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(BluePotion)))) {return getItem(PurplePotion);}
+  if ((areItemsEqual(item1, getItem(GreenPotion)) && areItemsEqual(item2, getItem(BluePotion))) || (areItemsEqual(item2, getItem(GreenPotion)) && areItemsEqual(item1, getItem(BluePotion)))) {return getItem(CyanPotion);}
   return {};
 }

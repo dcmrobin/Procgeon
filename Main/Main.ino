@@ -102,7 +102,6 @@ void loop() {
   if (currentTime - lastUpdateTime >= frameDelay) {
     lastUpdateTime = currentTime;
     updateButtonStates();
-    updateScreenShake();
     if (playerHP > 0) {
       handleUIStateTransitions();
       if (!statusScreen) {
@@ -153,6 +152,7 @@ void loop() {
 }
 
 void updateGame() {
+  updateScreenShake();
   handleInput();
   handleHunger();
   updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
