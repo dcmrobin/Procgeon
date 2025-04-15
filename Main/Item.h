@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define NUM_POTIONS 9
+
 enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, Mushroom, EmptyBottle, RiddleStone, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
 

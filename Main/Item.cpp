@@ -33,7 +33,7 @@ PotionEffect potionEffects[] = {
 
 void randomizePotionEffects() {
   // Shuffle the potion effects array
-  for (int i = 8; i > 0; i--) {
+  for (int i = NUM_POTIONS - 1; i > 0; i--) {
     int j = random(i + 1);  // Random index from 0 to i inclusive
     // Swap effects
     PotionEffect temp = potionEffects[i];
@@ -42,7 +42,7 @@ void randomizePotionEffects() {
   }
 
   // Assign shuffled effects to potions
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < NUM_POTIONS; i++) {
     itemList[i].healthRecoverAmount = potionEffects[i].healthChange;
     itemList[i].AOEsize = potionEffects[i].AOEsize;
     itemList[i].AOEdamage = potionEffects[i].AOEdamage;
@@ -63,7 +63,7 @@ void updatePotionName(GameItem &potion) {
         potion.AOEdamage == effect.AOEdamage && 
         potion.SpeedMultiplier == effect.SpeedMultiplier) {
 
-      for (int i = 0; i < 9; i++) {
+      for (int i = 0; i < NUM_POTIONS; i++) {
         if (itemList[i].item == potion.item) {  
           itemList[i].name = effect.effectName;
           itemList[i].description = effect.effectDescription;
@@ -97,7 +97,7 @@ void resetPotionNames() {
 
 
 GameItems getRandomPotion(int randInt) {
-  GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };
+  GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };// Only pick a potion out of the primary color potions
   return potions[randInt % 6];  // Ensure it's within bounds
 }
 
