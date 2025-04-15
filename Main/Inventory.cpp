@@ -185,6 +185,9 @@ void handleItemActionMenu() {
 
         if (selectedItem.itemResult == "You are now more hungry.") {
           playerFood -= 51;//heheheh u want it to be 50 don't u >:D
+        } else if (selectedItem.itemResult == "You can now see that which was unseen for a limited time.") {
+          seeAll = true;
+          seeAllTimer = 1000;
         }
         
         for (int i = 0; i < inventorySize; i++) {

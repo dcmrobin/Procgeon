@@ -13,6 +13,7 @@ float currentSpeedMultiplier = 1;
 int playerHP = 100;
 int playerMaxHP = 100;
 int speedTimer = 1000;
+int seeAllTimer = 1000;
 int dungeon = 1;
 int kills = 0;
 int playerDX;
@@ -63,6 +64,14 @@ void handleInput() {
       speedTimer = 1000;
       speeding = false;
       currentSpeedMultiplier = 1;
+    }
+  }
+
+  if (seeAll) {
+    seeAllTimer--;
+    if (seeAllTimer <= 0) {
+      seeAllTimer = 1000;
+      seeAll = false;
     }
   }
 

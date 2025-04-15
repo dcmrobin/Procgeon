@@ -12,6 +12,7 @@ extern float currentSpeedMultiplier;
 extern int playerHP;
 extern int playerMaxHP;
 extern int speedTimer;
+extern int seeAllTimer;
 extern int dungeon;
 extern int kills;
 extern int playerDX;

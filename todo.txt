@@ -17,7 +17,7 @@ could you hurt the boss- and you fail the boss fight if all the boss fight music
 
 Need to scale enemy hp and damage with levels- but also make the player have some way of getting an increase in damage.
 
-Add a see-all potion that makes the walls all not be dim and the player being able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
+Make the see-all potion make the walls all not be dim and the player able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
 normally see without it? Also highlights secret passages?
 
 Add a chaos potion that has randomized effects on each use. (instead of putting fixed values for the potioneffect for this one, use random(min, max). This should work.)
@@ -25,6 +25,8 @@ Add a chaos potion that has randomized effects on each use. (instead of putting 
 Add a confusion potion that reverses the controls
 
 Add a glamour potion that does nothing except make things look better or just make you feel cool.
+
+Add a ridicule potion that makes the game ridicule you.
 
 There would be scrolls containing lore that you find around the map.
 

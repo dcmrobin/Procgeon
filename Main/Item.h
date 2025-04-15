@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-#define NUM_POTIONS 9
+#define NUM_POTIONS 10
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, Mushroom, EmptyBottle, RiddleStone, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, Mushroom, EmptyBottle, RiddleStone, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
 
 struct GameItem {
