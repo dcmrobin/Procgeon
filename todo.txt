@@ -24,7 +24,7 @@ Add a chaos potion that has randomized effects on each use. (instead of putting 
 
 Add a confusion potion that reverses the controls
 
-Add a glamour potion that does nothing except make things look better or just make you feel cool.
+Add a glamour potion that does nothing except make things look better or just make you feel cool- or maybe the game compliments you or something?
 
 Add a ridicule potion that makes the game ridicule you.
 
