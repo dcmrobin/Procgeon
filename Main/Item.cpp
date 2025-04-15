@@ -152,5 +152,6 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(OrangePotion);}
   if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(BluePotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(BluePotion)))) {return getItem(PurplePotion);}
   if ((areItemsEqual(item1, getItem(GreenPotion)) && areItemsEqual(item2, getItem(BluePotion))) || (areItemsEqual(item2, getItem(GreenPotion)) && areItemsEqual(item1, getItem(BluePotion)))) {return getItem(CyanPotion);}
+  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(BlackPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(BlackPotion)))) {return getItem(MaroonPotion);}
   return {};
 }
