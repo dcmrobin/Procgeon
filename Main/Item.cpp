@@ -33,6 +33,18 @@ PotionEffect potionEffects[] = {
   { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time.") }
 };
 
+// Define all possible potion combinations
+PotionCombination potionCombinations[] = {
+    {BluePotion, YellowPotion, GreenPotion},
+    {RedPotion, GreenPotion, YellowPotion},
+    {RedPotion, YellowPotion, OrangePotion},
+    {RedPotion, BluePotion, PurplePotion},
+    {GreenPotion, BluePotion, CyanPotion},
+    {RedPotion, BlackPotion, MaroonPotion}
+};
+
+const int NUM_POTION_COMBINATIONS = sizeof(potionCombinations) / sizeof(potionCombinations[0]);
+
 void randomizePotionEffects() {
   // Shuffle the potion effects array
   for (int i = NUM_POTIONS - 1; i > 0; i--) {
@@ -146,12 +158,28 @@ bool areItemsEqual(GameItem item1, GameItem item2) {
         (item1.itemResult.equals(item2.itemResult));
 }
 
+GameItem combinePotions(GameItem item1, GameItem item2) {
+    // Check if both items are potions
+    if (item1.category != PotionCategory || item2.category != PotionCategory) {
+        return {};  // Return empty item if not both potions
+    }
+
+    // Try to find a matching combination
+    for (int i = 0; i < NUM_POTION_COMBINATIONS; i++) {
+        const PotionCombination& combo = potionCombinations[i];
+        
+        // Check both possible orderings of the ingredients
+        if ((item1.item == combo.ingredient1 && item2.item == combo.ingredient2) ||
+            (item1.item == combo.ingredient2 && item2.item == combo.ingredient1)) {
+            return getItem(combo.result);
+        }
+    }
+
+    // If no combination found, return empty item
+    return {};
+}
+
+// Keep the old function for backward compatibility, but make it use the new system
 GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
-  if ((areItemsEqual(item1, getItem(BluePotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(BluePotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(GreenPotion);}
-  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(GreenPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(GreenPotion)))) {return getItem(YellowPotion);}
-  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(YellowPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(YellowPotion)))) {return getItem(OrangePotion);}
-  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(BluePotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(BluePotion)))) {return getItem(PurplePotion);}
-  if ((areItemsEqual(item1, getItem(GreenPotion)) && areItemsEqual(item2, getItem(BluePotion))) || (areItemsEqual(item2, getItem(GreenPotion)) && areItemsEqual(item1, getItem(BluePotion)))) {return getItem(CyanPotion);}
-  if ((areItemsEqual(item1, getItem(RedPotion)) && areItemsEqual(item2, getItem(BlackPotion))) || (areItemsEqual(item2, getItem(RedPotion)) && areItemsEqual(item1, getItem(BlackPotion)))) {return getItem(MaroonPotion);}
-  return {};
+    return combinePotions(item1, item2);
 }

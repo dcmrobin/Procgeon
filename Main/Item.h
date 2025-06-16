@@ -34,7 +34,16 @@ struct PotionEffect {
   String effectResult;
 };
 
+// Structure to define potion combinations
+struct PotionCombination {
+    GameItems ingredient1;
+    GameItems ingredient2;
+    GameItems result;
+};
+
 extern PotionEffect potionEffects[];
+extern PotionCombination potionCombinations[];
+extern const int NUM_POTION_COMBINATIONS;
 
 void randomizePotionEffects();  // Call this once at game start
 GameItem getItem(GameItems item);
@@ -45,5 +54,6 @@ void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
 void renderItemResult();
 bool areItemsEqual(GameItem item1, GameItem item2);
 GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2);
+GameItem combinePotions(GameItem item1, GameItem item2);
 
 #endif // ITEM_H
