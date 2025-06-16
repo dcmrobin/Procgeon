@@ -282,6 +282,10 @@ void handleHungerAndEffects() {
     }
     hungerTick = 0;
     starving = playerFood <= 0 ? true : false;
+
+    if (playerFood < 0) {
+      playerFood = 0; // Keep the hunger level grounded to 0 if it goes below 0
+    }
   }
 
   if (playerHP <= 0) {

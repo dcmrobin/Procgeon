@@ -74,28 +74,33 @@ GameItem getItem(GameItems item) {
 }
 
 void updatePotionName(GameItem &potion) {
-  for (PotionEffect effect : potionEffects) {
-    if (potion.healthRecoverAmount == effect.healthChange &&
-        potion.AOEsize == effect.AOEsize &&
-        potion.AOEdamage == effect.AOEdamage && 
-        potion.SpeedMultiplier == effect.SpeedMultiplier) {
-
-      for (int i = 0; i < NUM_POTIONS; i++) {
-        if (itemList[i].item == potion.item) {  
-          itemList[i].name = effect.effectName;
-          itemList[i].description = effect.effectDescription;
-        }
-      }
-
-      // Update all instances of the potion in the inventory
-      for (int i = 0; i < inventorySize; i++) {
-        if (inventoryPages[0].items[i].item == potion.item) {
-          inventoryPages[0].items[i].name = effect.effectName;
-          inventoryPages[0].items[i].description = effect.effectDescription;
-        }
-      }
-
+  // Find the index of this potion in itemList
+  int potionIndex = -1;
+  for (int i = 0; i < NUM_POTIONS; i++) {
+    if (itemList[i].item == potion.item) {
+      potionIndex = i;
       break;
+    }
+  }
+  
+  if (potionIndex != -1) {
+    // Get the effect that was assigned to this potion during randomization
+    PotionEffect effect = potionEffects[potionIndex];
+    
+    // Update the potion's name and description
+    potion.name = effect.effectName;
+    potion.description = effect.effectDescription;
+    
+    // Update the base item in itemList
+    itemList[potionIndex].name = effect.effectName;
+    itemList[potionIndex].description = effect.effectDescription;
+    
+    // Update all instances of this potion in the inventory
+    for (int i = 0; i < inventorySize; i++) {
+      if (inventoryPages[0].items[i].item == potion.item) {
+        inventoryPages[0].items[i].name = effect.effectName;
+        inventoryPages[0].items[i].description = effect.effectDescription;
+      }
     }
   }
 }

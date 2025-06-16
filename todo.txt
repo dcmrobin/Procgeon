@@ -74,4 +74,4 @@ enemy's detection radius. This will lead to enemies being able to detect the pla
 
 There might be a bug with the potions that modify speed so that the speed modifier never goes away. (the slowing potion in particular...)
 
-Some potion effects not updating their names when drank?
+the last effect (confusion effect) seems to not be working, and not updating the potion name when drank
