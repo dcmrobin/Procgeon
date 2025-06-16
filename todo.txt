@@ -74,4 +74,5 @@ enemy's detection radius. This will lead to enemies being able to detect the pla
 
 There might be a bug with the potions that modify speed so that the speed modifier never goes away. (the slowing potion in particular...)
 
-the last effect (confusion effect) seems to not be working, and not updating the potion name when drank
+the last effect (confusion effect) seems to not be working, and not updating the potion name when drank- same thing happened when maroon potion was mega heal potion?
+It wasn't healing me even though it said it was, and wasn't updating the maroon potion name? Same exact thing happened with a cyan hunger-draining potion...
