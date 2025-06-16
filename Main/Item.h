@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-#define NUM_POTIONS 10
+#define NUM_POTIONS 11
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, Mushroom, EmptyBottle, RiddleStone, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
 
 struct GameItem {
@@ -48,7 +48,7 @@ extern const int NUM_POTION_COMBINATIONS;
 void randomizePotionEffects();  // Call this once at game start
 GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
-GameItems getRandomPotion(int randInt);
+GameItems getRandomPotion(int randInt, bool primaryColors);
 void resetPotionNames();
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
 void renderItemResult();

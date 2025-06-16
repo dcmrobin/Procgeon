@@ -4,6 +4,7 @@
 #include "Dungeon.h"
 #include "Entities.h"
 #include "GameAudio.h"
+#include "Item.h"
 
 String deathCause = "";
 String currentDialogue = "";
@@ -37,6 +38,8 @@ bool showDialogue = false;
 GameItem combiningItem1 = {};
 GameItem combiningItem2 = {};
 bool playerActed = false;  // Initialize the new variable
+bool confused = false;  // State for confusion effect
+int confusionTimer = 0;  // Timer for confusion effect
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -62,84 +65,74 @@ void handleInput() {
   // Reset playerActed at the start of each input handling
   playerActed = false;
 
-  if (speeding) {
-    speedTimer--;
-    if (speedTimer <= 0) {
-      speedTimer = 1000;
-      speeding = false;
-      currentSpeedMultiplier = 1;
-    }
-  }
-
-  if (seeAll) {
-    seeAllTimer--;
-    if (seeAllTimer <= 0) {
-      seeAllTimer = 1000;
-      seeAll = false;
-    }
-  }
-
-  if (carryingDamsel) {
-    damselHealDelay++;
-    if (damselHealDelay >= 200) {
-      damselHealDelay = 0;
-      playerHP += damsel[0].levelOfLove;
-      if (playerHP > playerMaxHP) playerHP = playerMaxHP;
-    }
-  }
-
   float diagSpeed = speed * 0.7071;
 
-  if (buttons.upPressed && !buttons.leftPressed && !buttons.rightPressed) {
+  // Store the actual button states
+  bool upPressed = buttons.upPressed;
+  bool downPressed = buttons.downPressed;
+  bool leftPressed = buttons.leftPressed;
+  bool rightPressed = buttons.rightPressed;
+
+  // Reverse controls if confused
+  if (confused) {
+    bool temp = upPressed;
+    upPressed = downPressed;
+    downPressed = temp;
+    temp = leftPressed;
+    leftPressed = rightPressed;
+    rightPressed = temp;
+  }
+
+  if (upPressed && !leftPressed && !rightPressed) {
     playerDY = -1;
     playerDX = 0;
     newY -= speed; // Move up
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.downPressed && !buttons.leftPressed && !buttons.rightPressed) {
+    playerActed = true;
+  } else if (downPressed && !leftPressed && !rightPressed) {
     playerDY = 1;
     playerDX = 0;
     newY += speed; // Move down
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.leftPressed && !buttons.upPressed && !buttons.downPressed) {
+    playerActed = true;
+  } else if (leftPressed && !upPressed && !downPressed) {
     playerDX = -1;
     playerDY = 0;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newX -= speed; // Move left
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.rightPressed && !buttons.upPressed && !buttons.downPressed) {
+    playerActed = true;
+  } else if (rightPressed && !upPressed && !downPressed) {
     playerDX = 1;
     playerDY = 0;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newX += speed; // Move right
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.upPressed && buttons.leftPressed) {
+    playerActed = true;
+  } else if (upPressed && leftPressed) {
     playerDY = -1;
     playerDX = -1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newY -= diagSpeed; // Move up & left
     newX -= diagSpeed; // Move up & left
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.upPressed && buttons.rightPressed) {
+    playerActed = true;
+  } else if (upPressed && rightPressed) {
     playerDY = -1;
     playerDX = 1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newY -= diagSpeed; // Move up & right
     newX += diagSpeed; // Move up & left
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.downPressed && buttons.leftPressed) {
+    playerActed = true;
+  } else if (downPressed && leftPressed) {
     playerDX = -1;
     playerDY = 1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newX -= diagSpeed; // Move left & down
     newY += diagSpeed; // Move up & left
-    playerActed = true;  // Player has taken an action
-  } else if (buttons.downPressed && buttons.rightPressed) {
+    playerActed = true;
+  } else if (downPressed && rightPressed) {
     playerDX = 1;
     playerDY = 1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newX += diagSpeed; // Move right & down
     newY += diagSpeed; // Move up & left
-    playerActed = true;  // Player has taken an action
+    playerActed = true;
   }
 
   // Check if the player is moving
@@ -186,6 +179,12 @@ void handleInput() {
       if (!damsel[0].active) {
         Serial.println("The damsel is not active.");
       }
+    } else if (input == '6') {
+      addToInventory(getItem(getRandomPotion(random(0, NUM_POTIONS), false)));
+    } else if (input == '5') {
+      setTile((int)playerX, (int)playerY, RiddleStoneTile);
+    } else if (input == '4') {
+      setTile((int)playerX, (int)playerY, MushroomTile);
     }
   }
 
@@ -203,7 +202,7 @@ void handleInput() {
     if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
     if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
-    if (addToInventory(getItem(getRandomPotion(random(8))))) {
+    if (addToInventory(getItem(getRandomPotion(random(8), true)))) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -211,12 +210,12 @@ void handleInput() {
     playRawSFX(3);
     hasMap = true;
     dungeonMap[rNewY][rNewX] = Floor;
-  } else if (dungeonMap[rNewY][rNewX] == MushroomItem) {
+  } else if (dungeonMap[rNewY][rNewX] == MushroomTile) {
     if (addToInventory(getItem(Mushroom))) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
-  } else if (dungeonMap[rNewY][rNewX] == RiddleStoneItem) {
+  } else if (dungeonMap[rNewY][rNewX] == RiddleStoneTile) {
     if (addToInventory(getItem(RiddleStone))) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
@@ -272,7 +271,7 @@ void handlePauseScreen() {
 }
 
 int hungerTick = 0;
-void handleHunger() {
+void handleHungerAndEffects() {
   hungerTick += playerMoving || carryingDamsel ? 2 : 1;
 
   if (hungerTick >= (starving ? 200 : 700)) {
@@ -288,6 +287,41 @@ void handleHunger() {
   if (playerHP <= 0) {
     playRawSFX(10);
     deathCause = "hunger";
+  }
+
+  // Update confusion timer
+  if (confused) {
+    confusionTimer--;
+    if (confusionTimer <= 0) {
+      confusionTimer = 1000;
+      confused = false;
+    }
+  }
+
+  if (speeding) {
+    speedTimer--;
+    if (speedTimer <= 0) {
+      speedTimer = 1000;
+      speeding = false;
+      currentSpeedMultiplier = 1;
+    }
+  }
+
+  if (seeAll) {
+    seeAllTimer--;
+    if (seeAllTimer <= 0) {
+      seeAllTimer = 1000;
+      seeAll = false;
+    }
+  }
+
+  if (carryingDamsel) {
+    damselHealDelay++;
+    if (damselHealDelay >= 200) {
+      damselHealDelay = 0;
+      playerHP += damsel[0].levelOfLove;
+      if (playerHP > playerMaxHP) playerHP = playerMaxHP;
+    }
   }
 }
 

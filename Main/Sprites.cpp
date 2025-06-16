@@ -233,6 +233,17 @@ const unsigned char PROGMEM fastbootSprite[] = {
   0b00000000
 };
 
+const unsigned char PROGMEM confusionSprite[] = {
+  0b00111100,
+  0b01100110,
+  0b00000110,
+  0b00000110,
+  0b00001100,
+  0b00011000,
+  0b00000000,
+  0b00011000
+};
+
 // Teleporter sprites
 const unsigned char PROGMEM teleporterSpriteF1[] = {
   0b01111110,

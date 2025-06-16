@@ -438,6 +438,9 @@ void renderUI() {
   if (seeAll) {
     display.drawBitmap(118, 116, eyeSprite, 8, 8, SSD1327_WHITE);
   }
+  if (confused) {
+    display.drawBitmap(91, 116, confusionSprite, 8, 8, SSD1327_WHITE);
+  }
 }
 
 bool isVisible(int x0, int y0, int x1, int y1) {
@@ -479,7 +482,7 @@ bool isWalkable(int x, int y) {
   TileTypes tile = dungeonMap[y][x];
   // Walkable if floor or items/stairs/exits (adjust as needed)
   return (tile == Floor || tile == StartStairs || tile == Exit ||
-          tile == Potion || tile == Map || tile == MushroomItem);
+          tile == Potion || tile == Map || tile == MushroomTile);
 }
 
 void drawWrappedText(int x, int y, int maxWidth, const String &text) {

@@ -36,12 +36,14 @@ extern bool showDialogue;
 extern GameItem combiningItem1;
 extern GameItem combiningItem2;
 extern bool playerActed;
+extern bool confused;
+extern int confusionTimer;
 
 void renderPlayer();
 void handleInput();
 void startCarryingDamsel();
 void handlePauseScreen();
-void handleHunger();
+void handleHungerAndEffects();
 void handleDialogue();
 void handleRiddles();
 void playDamselSFX(String tone);

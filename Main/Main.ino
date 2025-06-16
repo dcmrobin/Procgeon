@@ -45,6 +45,12 @@ void setup() {
     Serial.println("SFX loaded successfully");
   }
 
+  Serial.println("type 8: teleport damsel to player if damsel is available");
+  Serial.println("type 7: make tile player is on into the exit");
+  Serial.println("type 6: add potion to inventory");
+  Serial.println("type 5: make tile player is on into a riddlestone");
+  Serial.println("type 4: make tile player is on into a mushroom");
+
   // Play a WAV file
   /*if (!playWav1.play("bossfight.wav")) {
     Serial.println("Failed to play bossfight.wav");
@@ -157,7 +163,7 @@ void updateGame() {
   
   // Only update game state if the player has taken an action
   if (playerActed) {
-    handleHunger();
+    handleHungerAndEffects();
     updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
     updateDamsel();
     updateEnemies();
@@ -173,9 +179,9 @@ void renderGame() {
   renderProjectiles();
   renderPlayer();
   renderUI();
+  handleDialogue();
   if (playerActed) {
     updateAnimations();
-    handleDialogue();
   }
   display.display();
 }

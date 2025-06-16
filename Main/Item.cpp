@@ -14,6 +14,7 @@ GameItem itemList[] = {
   { PurplePotion, PotionCategory, String("Purple Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Purple Potion"), String("Nothing happens.")},
   { CyanPotion, PotionCategory, String("Cyan Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Cyan Potion"), String("Nothing happens.")},
   { MaroonPotion, PotionCategory, String("Maroon Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Maroon Potion"), String("Nothing happens.")},
+  { DarkGreenPotion, PotionCategory, String("DarkGreen Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("DarkGreen Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
   { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!")}
@@ -30,7 +31,8 @@ PotionEffect potionEffects[] = {
   { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your are faster now, but only for a limited amount of time.") },
   { 0,  0,  0, 0.4, String("Slowing Potion"), String("Drink this, and you'll go half as fast."), String("Your are slower now, but only for a limited amount of time.") },
   { 0,  0,  0, 0, String("Hunger Potion"), String("Makes you more hungry."), String("You are now more hungry.") },
-  { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time.") }
+  { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time.") },
+  { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?") }
 };
 
 // Define all possible potion combinations
@@ -40,7 +42,8 @@ PotionCombination potionCombinations[] = {
     {RedPotion, YellowPotion, OrangePotion},
     {RedPotion, BluePotion, PurplePotion},
     {GreenPotion, BluePotion, CyanPotion},
-    {RedPotion, BlackPotion, MaroonPotion}
+    {RedPotion, BlackPotion, MaroonPotion},
+    {GreenPotion, BlackPotion, DarkGreenPotion}
 };
 
 const int NUM_POTION_COMBINATIONS = sizeof(potionCombinations) / sizeof(potionCombinations[0]);
@@ -97,22 +100,23 @@ void updatePotionName(GameItem &potion) {
   }
 }
 
+// Resets all potion names to their original names using the stored originalName field
 void resetPotionNames() {
-  itemList[0].name = "Red Potion";
-  itemList[1].name = "Green Potion";
-  itemList[2].name = "Blue Potion";
-  itemList[3].name = "Black Potion";
-  itemList[4].name = "White Potion";
-  itemList[5].name = "Yellow Potion";
-  itemList[6].name = "Orange Potion";
-  itemList[7].name = "Purple Potion";
-  itemList[8].name = "Cyan Potion";
+  for (int i = 0; i < NUM_POTIONS; i++)
+  {
+    itemList[i].name = itemList[i].originalName;
+  }
 }
 
-
-GameItems getRandomPotion(int randInt) {
-  GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };// Only pick a potion out of the primary color potions
-  return potions[randInt % 6];  // Ensure it's within bounds
+GameItems getRandomPotion(int randInt, bool primaryColors) {
+  if (primaryColors) {
+    GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };
+    return potions[randInt % 6];  // Ensure it's within bounds
+  } else {
+    GameItems allPotions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, 
+                              OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion };
+    return allPotions[randInt % NUM_POTIONS];  // Use all potions
+  }
 }
 
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage) {
