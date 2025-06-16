@@ -7,6 +7,19 @@
 
 enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
+enum EffectType { 
+  HealingEffect, 
+  PoisonEffect, 
+  ExplosionEffect, 
+  BuffingEffect, 
+  MegaHealEffect, 
+  BadEffect, 
+  SpeedEffect, 
+  SlowEffect, 
+  HungerEffect, 
+  SeeAllEffect, 
+  ConfusionEffect 
+};
 
 struct GameItem {
   GameItems item = Null;
@@ -21,6 +34,7 @@ struct GameItem {
   String originalName = "";
   String itemResult = "";
   bool oneTimeUse = true;
+  EffectType effectType;
 };
 
 // Possible potion effects
@@ -32,6 +46,7 @@ struct PotionEffect {
   String effectName;
   String effectDescription;
   String effectResult;
+  EffectType effectType;
 };
 
 // Structure to define potion combinations

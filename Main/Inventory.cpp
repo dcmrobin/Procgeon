@@ -159,7 +159,7 @@ void handleItemActionMenu() {
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (selectedActionIndex == 0) { // Use
-      if (selectedItem.item >= RedPotion && selectedItem.item <= PurplePotion) {
+      if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
         playRawSFX(6);
         playerHP += selectedItem.healthRecoverAmount;
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;

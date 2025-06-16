@@ -22,17 +22,17 @@ GameItem itemList[] = {
 
 // Possible effect pool
 PotionEffect potionEffects[] = {
-  { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP."), String("You feel better.") },
-  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something..."), String("You lose 20 HP.") },
-  { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you."), String("The enemies around you lose 40 HP.") },
-  { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you."), String("You feel better, but so do the enemies close to you.") },
-  { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better.") },
-  { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this."), String("You lose 50 HP, and the enemies around you gain 20 HP.") },
-  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your are faster now, but only for a limited amount of time.") },
-  { 0,  0,  0, 0.4, String("Slowing Potion"), String("Drink this, and you'll go half as fast."), String("Your are slower now, but only for a limited amount of time.") },
-  { 0,  0,  0, 0, String("Hunger Potion"), String("Makes you more hungry."), String("You are now more hungry.") },
-  { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time.") },
-  { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?") }
+  { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP."), String("You feel better."), HealingEffect },
+  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something..."), String("You lose 20 HP."), PoisonEffect },
+  { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you."), String("The enemies around you lose 40 HP."), ExplosionEffect },
+  { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you."), String("You feel better, but so do the enemies close to you."), BuffingEffect },
+  { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better."), MegaHealEffect },
+  { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this."), String("You lose 50 HP, and the enemies around you gain 20 HP."), BadEffect },
+  { 0,  0,  0, 2, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your are faster now, but only for a limited amount of time."), SpeedEffect },
+  { 0,  0,  0, 0.4, String("Slowing Potion"), String("Drink this, and you'll go half as fast."), String("Your are slower now, but only for a limited amount of time."), SlowEffect },
+  { 0,  0,  0, 0, String("Hunger Potion"), String("Makes you more hungry."), String("You are now more hungry."), HungerEffect },
+  { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time."), SeeAllEffect },
+  { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?"), ConfusionEffect }
 };
 
 // Define all possible potion combinations
@@ -65,6 +65,7 @@ void randomizePotionEffects() {
     itemList[i].AOEdamage = potionEffects[i].AOEdamage;
     itemList[i].SpeedMultiplier = potionEffects[i].SpeedMultiplier;
     itemList[i].itemResult = potionEffects[i].effectResult;
+    itemList[i].effectType = potionEffects[i].effectType;
   }
 }
 
@@ -74,33 +75,24 @@ GameItem getItem(GameItems item) {
 }
 
 void updatePotionName(GameItem &potion) {
-  // Find the index of this potion in itemList
-  int potionIndex = -1;
-  for (int i = 0; i < NUM_POTIONS; i++) {
-    if (itemList[i].item == potion.item) {
-      potionIndex = i;
-      break;
-    }
-  }
-  
-  if (potionIndex != -1) {
-    // Get the effect that was assigned to this potion during randomization
-    PotionEffect effect = potionEffects[potionIndex];
-    
-    // Update the potion's name and description
-    potion.name = effect.effectName;
-    potion.description = effect.effectDescription;
-    
-    // Update the base item in itemList
-    itemList[potionIndex].name = effect.effectName;
-    itemList[potionIndex].description = effect.effectDescription;
-    
-    // Update all instances of this potion in the inventory
-    for (int i = 0; i < inventorySize; i++) {
-      if (inventoryPages[0].items[i].item == potion.item) {
-        inventoryPages[0].items[i].name = effect.effectName;
-        inventoryPages[0].items[i].description = effect.effectDescription;
+  for (PotionEffect effect : potionEffects) {
+    if (potion.effectType == effect.effectType) {
+      for (int i = 0; i < NUM_POTIONS; i++) {
+        if (itemList[i].item == potion.item) {  
+          itemList[i].name = effect.effectName;
+          itemList[i].description = effect.effectDescription;
+        }
       }
+
+      // Update all instances of the potion in the inventory
+      for (int i = 0; i < inventorySize; i++) {
+        if (inventoryPages[0].items[i].item == potion.item) {
+          inventoryPages[0].items[i].name = effect.effectName;
+          inventoryPages[0].items[i].description = effect.effectDescription;
+        }
+      }
+
+      break;
     }
   }
 }
