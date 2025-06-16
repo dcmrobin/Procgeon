@@ -35,6 +35,7 @@ extern bool seeAll;
 extern bool showDialogue;
 extern GameItem combiningItem1;
 extern GameItem combiningItem2;
+extern bool playerActed;
 
 void renderPlayer();
 void handleInput();

@@ -154,11 +154,15 @@ void loop() {
 void updateGame() {
   updateScreenShake();
   handleInput();
-  handleHunger();
-  updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
-  updateDamsel();
-  updateEnemies();
-  updateProjectiles();
+  
+  // Only update game state if the player has taken an action
+  if (playerActed) {
+    handleHunger();
+    updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
+    updateDamsel();
+    updateEnemies();
+    updateProjectiles();
+  }
 }
 
 void renderGame() {
@@ -168,9 +172,11 @@ void renderGame() {
   renderEnemies();
   renderProjectiles();
   renderPlayer();
-  updateAnimations();
   renderUI();
-  handleDialogue();
+  if (playerActed) {
+    updateAnimations();
+    handleDialogue();
+  }
   display.display();
 }
 

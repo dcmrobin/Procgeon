@@ -36,6 +36,7 @@ bool seeAll = false;
 bool showDialogue = false;
 GameItem combiningItem1 = {};
 GameItem combiningItem2 = {};
+bool playerActed = false;  // Initialize the new variable
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -57,6 +58,9 @@ void handleInput() {
   float newY = playerY;
 
   float speed = speeding ? baseSpeed * currentSpeedMultiplier : baseSpeed;
+
+  // Reset playerActed at the start of each input handling
+  playerActed = false;
 
   if (speeding) {
     speedTimer--;
@@ -90,44 +94,52 @@ void handleInput() {
     playerDY = -1;
     playerDX = 0;
     newY -= speed; // Move up
+    playerActed = true;  // Player has taken an action
   } else if (buttons.downPressed && !buttons.leftPressed && !buttons.rightPressed) {
     playerDY = 1;
     playerDX = 0;
     newY += speed; // Move down
+    playerActed = true;  // Player has taken an action
   } else if (buttons.leftPressed && !buttons.upPressed && !buttons.downPressed) {
     playerDX = -1;
     playerDY = 0;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newX -= speed; // Move left
+    playerActed = true;  // Player has taken an action
   } else if (buttons.rightPressed && !buttons.upPressed && !buttons.downPressed) {
     playerDX = 1;
     playerDY = 0;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newX += speed; // Move right
+    playerActed = true;  // Player has taken an action
   } else if (buttons.upPressed && buttons.leftPressed) {
     playerDY = -1;
     playerDX = -1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newY -= diagSpeed; // Move up & left
     newX -= diagSpeed; // Move up & left
+    playerActed = true;  // Player has taken an action
   } else if (buttons.upPressed && buttons.rightPressed) {
     playerDY = -1;
     playerDX = 1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newY -= diagSpeed; // Move up & right
     newX += diagSpeed; // Move up & left
+    playerActed = true;  // Player has taken an action
   } else if (buttons.downPressed && buttons.leftPressed) {
     playerDX = -1;
     playerDY = 1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
     newX -= diagSpeed; // Move left & down
     newY += diagSpeed; // Move up & left
+    playerActed = true;  // Player has taken an action
   } else if (buttons.downPressed && buttons.rightPressed) {
     playerDX = 1;
     playerDY = 1;
     playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
     newX += diagSpeed; // Move right & down
     newY += diagSpeed; // Move up & left
+    playerActed = true;  // Player has taken an action
   }
 
   // Check if the player is moving
@@ -138,6 +150,7 @@ void handleInput() {
   float distanceSquared = dx * dx + dy * dy;
 
   if (buttons.bPressed) {
+    playerActed = true;
     if (distanceSquared <= 0.3 && !damsel[0].dead && damsel[0].levelOfLove >= 6) {
       startCarryingDamsel();
     }
@@ -150,14 +163,17 @@ void handleInput() {
       shootProjectile(playerDX, playerDY); // Shoot in current direction
       playRawSFX(1);
       reloading = true;
+      playerActed = true;  // Player has taken an action
     }
   }
 
-  if (reloading) {
-    shootDelay++;
-    if (shootDelay >= 10) {
-      reloading = false;
-      shootDelay = 0;
+  if (playerActed) {
+    if (reloading) {
+      shootDelay++;
+      if (shootDelay >= 10) {
+        reloading = false;
+        shootDelay = 0;
+      }
     }
   }
 
