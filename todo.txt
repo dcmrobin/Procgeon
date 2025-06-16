@@ -18,7 +18,7 @@ could you hurt the boss- and you fail the boss fight if all the boss fight music
 Need to scale enemy hp and damage with levels- but also make the player have some way of getting an increase in damage.
 
 Make the see-all potion make the walls all not be dim and the player able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
-normally see without it? Also highlights secret passages?
+normally see without it? Also highlights secret passages and be able to see hidden doors?
 
 Add a chaos potion that has randomized effects on each use. (instead of putting fixed values for the potioneffect for this one, use random(min, max). This should work.)
 
@@ -27,6 +27,8 @@ Add a confusion potion that reverses the controls
 Add a glamour potion that does nothing except make things look better or just make you feel cool- or maybe the game compliments you or something?
 
 Add a ridicule potion that makes the game ridicule you.
+
+Add a blindness potion. (the worst potion possible)
 
 There would be scrolls containing lore that you find around the map.
 
@@ -54,3 +56,22 @@ Kind of like a second life.
 
 There could be a secret passage out of the map that transports you to another dungeon, but this time without any enemies and with weird items. Then it corrupts slowly after
 time and keeps corrupting.
+
+Sometimes doors at the ends of corridors that block you seeing the room behind them until you open them by walking through them. They could sometimes be locked? Also walls
+could sometimes be disguised doors and that would mean the exit is sometimes concealed.
+
+Scrolls that have a randomly generated name but when you read it, the random effect assigned to that scroll on boot up happens, and the name of that scroll is revealed for
+the rest of the run. "Hhshshd sjs heaj" (would use a naming algorithm so that it sounds a bit more natural) for example could be the random name, but when you use it, the
+the name is updated to, say, "scroll of confusion" and when you next pick up that scroll in that run, it will be named "scroll of confusion" instead of the generated name.
+
+For when you try to mix a potion that isn't one of the primary colors (which are red green blue yellow white and black), instead of it saying you can't combine them, it
+just creates a brown potion.
+
+Cursed items, (equippables will have a chance to be cursed when picked up) when equipped, cannot be unequpped unless you read a scroll of uncurse.
+
+Need a trap that you can't see at first but when you step on it you fall through to the next dungeon no matter if you wanted to or not.
+
+Add a sound level mechanic where depending on the sound effect played, the sound level integer will be increased, and that sound level integer is always added to every
+enemy's detection radius. This will lead to enemies being able to detect the player from further away depending on how much noise is happening at the current time.
+
+Maybe time would only progress forward when the player is moving? To align with original roguelikes sort of.
