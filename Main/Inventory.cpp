@@ -238,16 +238,14 @@ void handleItemActionMenu() {
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
     } else if (selectedActionIndex == 3) { // Equip
-      if (selectedItem.category == EquipmentCategory && selectedItem.armorValue > 0) {
+      if (selectedItem.category == EquipmentCategory) {
         // Unequip current armor if any
-        if (equippedArmorValue > 0) {
-          // Find the equipped armor in inventory and unequip it
-          for (int p = 0; p < numInventoryPages; p++) {
-            for (int i = 0; i < inventorySize; i++) {
-              if (inventoryPages[p].items[i].isEquipped) {
-                inventoryPages[p].items[i].isEquipped = false;
-                break;
-              }
+        // Find and unequip any currently equipped armor
+        for (int p = 0; p < numInventoryPages; p++) {
+          for (int i = 0; i < inventorySize; i++) {
+            if (inventoryPages[p].items[i].isEquipped) {
+              inventoryPages[p].items[i].isEquipped = false;
+              break;
             }
           }
         }
