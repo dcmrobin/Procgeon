@@ -46,8 +46,6 @@ or slowing/speeding effect based on the potion in addition to recovering hunger.
 
 The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
 
-The damsel needs to say "Hey! Wait up!" when you like go to fast and she stops following you or something.
-
 When you use the riddle stone, it gives you a little riddle to solve and then when you solve it, it gives you a reward- destroying the riddle stone. But if you equip it
 and don't use it, and then die, it'll give you a chance to solve the riddle and when you do, it'll bring you back to life, also destroying the riddle stone in the process.
 Kind of like a second life.

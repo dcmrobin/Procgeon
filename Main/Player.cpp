@@ -40,6 +40,9 @@ GameItem combiningItem2 = {};
 bool playerActed = false;  // Initialize the new variable
 bool confused = false;  // State for confusion effect
 int confusionTimer = 0;  // Timer for confusion effect
+bool damselWasFollowing = false;  // Track if damsel was following last frame
+int damselWaitUpTimer = 0;  // Timer to prevent spam of "wait up" messages
+bool damselSaidWaitUp = false;  // Track if damsel has said "wait up" recently
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -263,6 +266,7 @@ void handlePauseScreen() {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(27, 40);
+  display.setTextColor(15);
   display.print("PAUSED");
   display.setTextSize(1);
   display.setCursor(24, 65);

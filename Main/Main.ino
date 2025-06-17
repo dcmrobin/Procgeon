@@ -292,6 +292,9 @@ void gameOver() {
     resetPotionNames();
     randomizePotionEffects();
     spawnEnemies();
+    damselWasFollowing = false;
+    damselWaitUpTimer = 0;
+    damselSaidWaitUp = false;
   }
 }
 

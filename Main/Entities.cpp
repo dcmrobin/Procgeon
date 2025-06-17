@@ -223,6 +223,30 @@ void updateDamsel() {
     damsel[0].speed = 0.1;
   }
 
+  // Check if damsel just stopped following and say "Hey! Wait up!"
+  if (damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0) {
+    showDialogue = true;
+    currentDamselPortrait = damselPortraitScared;
+    dialogueTimeLength = 300;
+    playRawSFX(17);
+    currentDialogue = "Hey! Wait up!";
+    damselSaidWaitUp = true;
+    damselWaitUpTimer = 200; // Prevent spam for 200 frames
+  }
+
+  // Update tracking variables
+  damselWasFollowing = damsel[0].followingPlayer;
+  
+  // Decrement timers
+  if (damselWaitUpTimer > 0) {
+    damselWaitUpTimer--;
+  }
+  
+  // Reset the flag when timer expires
+  if (damselWaitUpTimer <= 0) {
+    damselSaidWaitUp = false;
+  }
+
   if (!damsel[0].followingPlayer) {
     // Random wandering
     if (damselMoveDelay >= 30) {
