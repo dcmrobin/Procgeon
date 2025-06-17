@@ -208,6 +208,10 @@ void handleItemActionMenu() {
 
       itemResultMessage = selectedItem.itemResult;
 
+      if (selectedItem.effectType == ArmorEffect) {
+        itemResultMessage = "You can't use this, Try equipping it.";
+      }
+
       if (selectedItem.item == RiddleStone) {
         currentUIState = UI_RIDDLE; // Riddlesssss
       } else {
