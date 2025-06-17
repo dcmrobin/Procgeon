@@ -18,7 +18,8 @@ enum EffectType {
   SlowEffect, 
   HungerEffect, 
   SeeAllEffect, 
-  ConfusionEffect 
+  ConfusionEffect, 
+  ArmorEffect
 };
 
 struct GameItem {

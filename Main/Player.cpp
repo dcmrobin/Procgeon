@@ -45,6 +45,7 @@ int damselWaitUpTimer = 0;  // Timer to prevent spam of "wait up" messages
 bool damselSaidWaitUp = false;  // Track if damsel has said "wait up" recently
 int equippedArmorValue = 0;  // Current armor value (damage reduction)
 GameItem equippedArmor = {};  // Currently equipped armor item
+bool equippedRiddleStone = false;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;

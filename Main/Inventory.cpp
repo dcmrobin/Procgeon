@@ -240,23 +240,28 @@ void handleItemActionMenu() {
     } else if (selectedActionIndex == 3) { // Equip
       if (selectedItem.category == EquipmentCategory) {
         // Unequip current armor if any
-        // Find and unequip any currently equipped armor
-        for (int p = 0; p < numInventoryPages; p++) {
-          for (int i = 0; i < inventorySize; i++) {
-            if (inventoryPages[p].items[i].isEquipped) {
-              inventoryPages[p].items[i].isEquipped = false;
-              break;
+        // Find and unequip any currently equipped armor if item is armor
+        if (selectedItem.effectType == ArmorEffect) {
+          for (int p = 0; p < numInventoryPages; p++) {
+            for (int i = 0; i < inventorySize; i++) {
+              if (inventoryPages[p].items[i].isEquipped) {
+                inventoryPages[p].items[i].isEquipped = false;
+                break;
+              }
             }
           }
         }
         
-        // Equip the new armor
+        // Equip the new item
         selectedItem.isEquipped = true;
-        equippedArmorValue = selectedItem.armorValue;
-        equippedArmor = selectedItem;
+        if (selectedItem.effectType == ArmorEffect) {
+            equippedArmorValue = selectedItem.armorValue;
+            equippedArmor = selectedItem;
+        }
         
-        playRawSFX(6);
-        itemResultMessage = selectedItem.itemResult;
+        playRawSFX(2);
+        itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : selectedItem.itemResult; // override riddle stone text
+        equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
         currentUIState = UI_ITEM_RESULT;
       } else {
         playRawSFX(2);

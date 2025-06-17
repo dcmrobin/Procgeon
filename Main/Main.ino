@@ -278,6 +278,7 @@ void gameOver() {
     dungeon = 1;
     levelOfDamselDeath = -4;
     generateDungeon();
+    equippedRiddleStone = false;
     playRawSFX(11);
     damsel[0].name = generateFemaleName();
     damsel[0].levelOfLove = 0;

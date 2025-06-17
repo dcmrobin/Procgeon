@@ -43,6 +43,7 @@ extern int damselWaitUpTimer;
 extern bool damselSaidWaitUp;
 extern int equippedArmorValue;
 extern GameItem equippedArmor;
+extern bool equippedRiddleStone;
 
 void renderPlayer();
 void handleInput();
