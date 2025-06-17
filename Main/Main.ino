@@ -87,6 +87,13 @@ void setup() {
     }
   }
 
+  // Give player a cloak and equip it at startup
+  GameItem cloak = getItem(Cloak);
+  cloak.isEquipped = true;
+  addToInventory(cloak);
+  equippedArmorValue = cloak.armorValue;
+  equippedArmor = cloak;
+
   // Randomize potion effects
   randomizePotionEffects();
 
@@ -281,6 +288,14 @@ void gameOver() {
         inventoryPages[j].itemCount = 0;
       }
     }
+    
+    // Give player a cloak and equip it on restart
+    GameItem cloak = getItem(Cloak);
+    cloak.isEquipped = true;
+    addToInventory(cloak);
+    equippedArmorValue = cloak.armorValue;
+    equippedArmor = cloak;
+    
     for (int i = 0; i < maxProjectiles; i++) {
       projectiles[i].active = false;
     }
@@ -296,8 +311,6 @@ void gameOver() {
     damselWasFollowing = false;
     damselWaitUpTimer = 0;
     damselSaidWaitUp = false;
-    equippedArmorValue = 0;
-    equippedArmor = {};
   }
 }
 

@@ -229,8 +229,8 @@ void handleInput() {
     }
   } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
     // Randomly choose an armor type
-    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe };
-    GameItems randomArmor = armorTypes[random(0, 3)];
+    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
+    GameItems randomArmor = armorTypes[random(0, 4)];
     
     if (addToInventory(getItem(randomArmor))) {
       playRawSFX(3);

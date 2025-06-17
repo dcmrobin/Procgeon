@@ -5,7 +5,7 @@
 
 #define NUM_POTIONS 11
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, LeatherArmor, IronArmor, MagicRobe, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
 enum EffectType { 
   HealingEffect, 
