@@ -329,29 +329,75 @@ void updateEnemies() {
       // If cosAngle is very high (close to 1), the enemy lies nearly directly ahead.
       const float avoidanceThreshold = 0.95; // adjust threshold as needed
       if (cosAngle > avoidanceThreshold) {
-        // Calculate a perpendicular (sideways) vector relative to the player's facing direction.
-        // For example, if the player's direction is (playerDX, playerDY),
-        // then one perpendicular is (-playerDY, playerDX).
-        float avoidX = -playerDY;
-        float avoidY = playerDX;
-        // Multiply by enemy's moveAmount (or an increased speed factor if desired)
-        float avoidSpeed = enemies[i].moveAmount; // you can tweak this multiplier
-        float newX = enemies[i].x + avoidX * avoidSpeed;
-        float newY = enemies[i].y + avoidY * avoidSpeed;
+        // Check if there's space to dodge by looking at adjacent tiles
+        int enemyGridX = round(enemies[i].x);
+        int enemyGridY = round(enemies[i].y);
         
-        // Optionally, check for collisions before moving:
-        bool xValid = !checkSpriteCollisionWithTileX(newX, enemies[i].x, enemies[i].y);
-        bool yValid = !checkSpriteCollisionWithTileY(newY, enemies[i].y, enemies[i].x);
-        if (xValid && yValid) {
-          enemies[i].x = newX;
-          enemies[i].y = newY;
-        } else if (xValid) {
-          enemies[i].x = newX;
-        } else if (yValid) {
-          enemies[i].y = newY;
+        // Check if we're in a corridor (limited space)
+        bool inCorridor = false;
+        int freeDirections = 0;
+        
+        // Check all 8 directions for walkable space
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dy = -1; dy <= 1; dy++) {
+            if (dx == 0 && dy == 0) continue; // Skip the center tile
+            
+            int checkX = enemyGridX + dx;
+            int checkY = enemyGridY + dy;
+            
+            if (checkX >= 0 && checkX < mapWidth && checkY >= 0 && checkY < mapHeight) {
+              if (dungeonMap[checkY][checkX] == Floor) {
+                freeDirections++;
+              }
+            }
+          }
         }
-        // Skip the rest of the enemy update for this enemy so that it prioritizes avoiding the shot.
-        continue;
+        
+        // If we have less than 3 free directions, we're in a corridor
+        inCorridor = (freeDirections < 3);
+        
+        if (!inCorridor) {
+          // Calculate a perpendicular (sideways) vector relative to the player's facing direction.
+          // For example, if the player's direction is (playerDX, playerDY),
+          // then one perpendicular is (-playerDY, playerDX).
+          float avoidX = -playerDY;
+          float avoidY = playerDX;
+          
+          // Also calculate the direction toward the player
+          float towardPlayerX = -diffX / distance;
+          float towardPlayerY = -diffY / distance;
+          
+          // Combine dodge and approach movements (70% dodge, 30% approach)
+          float combinedX = (avoidX * 0.7f) + (towardPlayerX * 0.3f);
+          float combinedY = (avoidY * 0.7f) + (towardPlayerY * 0.3f);
+          
+          // Normalize the combined vector
+          float combinedMagnitude = sqrt(combinedX * combinedX + combinedY * combinedY);
+          if (combinedMagnitude > 0) {
+            combinedX /= combinedMagnitude;
+            combinedY /= combinedMagnitude;
+          }
+          
+          // Multiply by enemy's moveAmount
+          float avoidSpeed = enemies[i].moveAmount;
+          float newX = enemies[i].x + combinedX * avoidSpeed;
+          float newY = enemies[i].y + combinedY * avoidSpeed;
+          
+          // Check for collisions before moving
+          bool xValid = !checkSpriteCollisionWithTileX(newX, enemies[i].x, enemies[i].y);
+          bool yValid = !checkSpriteCollisionWithTileY(newY, enemies[i].y, enemies[i].x);
+          if (xValid && yValid) {
+            enemies[i].x = newX;
+            enemies[i].y = newY;
+          } else if (xValid) {
+            enemies[i].x = newX;
+          } else if (yValid) {
+            enemies[i].y = newY;
+          }
+          // Skip the rest of the enemy update for this enemy so that it prioritizes avoiding the shot.
+          continue;
+        }
+        // If in corridor, fall through to normal movement
       }
     }
 
@@ -421,44 +467,43 @@ void updateEnemies() {
             enemies[i].hasWanderPath = true;
           }
         }
-      } else {
-        // Follow the wander path nodes one by one
-        if (enemies[i].currentPathIndex < enemies[i].pathLength) {
-          int nextX = enemies[i].wanderPath[enemies[i].currentPathIndex].x;
-          int nextY = enemies[i].wanderPath[enemies[i].currentPathIndex].y;
-          // If the enemy is on the target cell, advance the index
-          if (enemyGridX == nextX && enemyGridY == nextY) {
-            enemies[i].currentPathIndex++;
-            if (enemies[i].currentPathIndex >= enemies[i].pathLength) {
-              enemies[i].hasWanderPath = false;
-            }
-          } else {
-            float targetX = nextX;
-            float targetY = nextY;
-            float moveX = targetX - enemies[i].x;
-            float moveY = targetY - enemies[i].y;
-            float magnitude = sqrt(moveX * moveX + moveY * moveY);
-            if (magnitude > 0) {
-              moveX = (moveX / magnitude) * enemies[i].moveAmount;
-              moveY = (moveY / magnitude) * enemies[i].moveAmount;
-            }
-            float nx = enemies[i].x + moveX;
-            float ny = enemies[i].y + moveY;
-            bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
-            bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
-            if (xValid && yValid) {
-              enemies[i].x = nx;
-              enemies[i].y = ny;
-            } else if (xValid) {
-              enemies[i].x = nx;
-            } else if (yValid) {
-              enemies[i].y = ny;
-            }
+      }
+      // Follow the wander path nodes one by one
+      if (enemies[i].currentPathIndex < enemies[i].pathLength) {
+        int nextX = enemies[i].wanderPath[enemies[i].currentPathIndex].x;
+        int nextY = enemies[i].wanderPath[enemies[i].currentPathIndex].y;
+        // If the enemy is on the target cell, advance the index
+        if (enemyGridX == nextX && enemyGridY == nextY) {
+          enemies[i].currentPathIndex++;
+          if (enemies[i].currentPathIndex >= enemies[i].pathLength) {
+            enemies[i].hasWanderPath = false;
           }
         } else {
-          // If the wander path is finished, clear it to compute a new one later.
-          enemies[i].hasWanderPath = false;
+          float targetX = nextX;
+          float targetY = nextY;
+          float moveX = targetX - enemies[i].x;
+          float moveY = targetY - enemies[i].y;
+          float magnitude = sqrt(moveX * moveX + moveY * moveY);
+          if (magnitude > 0) {
+            moveX = (moveX / magnitude) * enemies[i].moveAmount;
+            moveY = (moveY / magnitude) * enemies[i].moveAmount;
+          }
+          float nx = enemies[i].x + moveX;
+          float ny = enemies[i].y + moveY;
+          bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+          bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+          if (xValid && yValid) {
+            enemies[i].x = nx;
+            enemies[i].y = ny;
+          } else if (xValid) {
+            enemies[i].x = nx;
+          } else if (yValid) {
+            enemies[i].y = ny;
+          }
         }
+      } else {
+        // If the wander path is finished, clear it to compute a new one later.
+        enemies[i].hasWanderPath = false;
       }
     }
 
