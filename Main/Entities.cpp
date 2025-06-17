@@ -544,7 +544,9 @@ void updateEnemies() {
         playerY = newY;
       } else {
         if (atkDelayCounter >= enemies[i].attackDelay) {
-          playerHP -= enemies[i].damage;
+          int damage = enemies[i].damage - equippedArmorValue;
+          if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
+          playerHP -= damage;
           triggerScreenShake(2, 1);
           playRawSFX(0);
           atkDelayCounter = 0;

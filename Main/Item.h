@@ -5,7 +5,7 @@
 
 #define NUM_POTIONS 11
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, LeatherArmor, IronArmor, MagicRobe, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
 enum EffectType { 
   HealingEffect, 
@@ -35,6 +35,8 @@ struct GameItem {
   String itemResult = "";
   bool oneTimeUse = true;
   EffectType effectType;
+  int armorValue = 0;  // Damage reduction when equipped
+  bool isEquipped = false;  // Whether this item is currently equipped
 };
 
 // Possible potion effects

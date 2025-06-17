@@ -182,6 +182,21 @@ void generateDungeon() {
   // Place the exit in the last room
   dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]
             [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = Exit;
+
+  // Spawn some equipment items in random rooms
+  int equipmentCount = random(1, 4); // Spawn 1-3 equipment items
+  for (int i = 0; i < equipmentCount; i++) {
+    int roomIndex = random(1, roomCount - 1); // Don't spawn in start or exit room
+    Room &room = rooms[roomIndex];
+    
+    int itemX = room.x + random(1, room.width - 1);
+    int itemY = room.y + random(1, room.height - 1);
+    
+    // Only place if the tile is floor and not occupied
+    if (dungeonMap[itemY][itemX] == Floor) {
+      dungeonMap[itemY][itemX] = ArmorTile;
+    }
+  }
 }
 
 void spawnEnemies() {
@@ -328,6 +343,12 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, riddleStoneSprite, tileSize, tileSize, floorbrightness+10);
+      break;
+    case ArmorTile:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, armorSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Floor:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);

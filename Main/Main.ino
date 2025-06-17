@@ -50,6 +50,7 @@ void setup() {
   Serial.println("type 6: add potion to inventory");
   Serial.println("type 5: make tile player is on into a riddlestone");
   Serial.println("type 4: make tile player is on into a mushroom");
+  Serial.println("type 3: make tile player is on into an armor");
 
   // Play a WAV file
   /*if (!playWav1.play("bossfight.wav")) {
@@ -295,6 +296,8 @@ void gameOver() {
     damselWasFollowing = false;
     damselWaitUpTimer = 0;
     damselSaidWaitUp = false;
+    equippedArmorValue = 0;
+    equippedArmor = {};
   }
 }
 

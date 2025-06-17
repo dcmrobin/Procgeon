@@ -41,6 +41,8 @@ extern int confusionTimer;
 extern bool damselWasFollowing;
 extern int damselWaitUpTimer;
 extern bool damselSaidWaitUp;
+extern int equippedArmorValue;
+extern GameItem equippedArmor;
 
 void renderPlayer();
 void handleInput();

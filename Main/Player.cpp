@@ -43,6 +43,8 @@ int confusionTimer = 0;  // Timer for confusion effect
 bool damselWasFollowing = false;  // Track if damsel was following last frame
 int damselWaitUpTimer = 0;  // Timer to prevent spam of "wait up" messages
 bool damselSaidWaitUp = false;  // Track if damsel has said "wait up" recently
+int equippedArmorValue = 0;  // Current armor value (damage reduction)
+GameItem equippedArmor = {};  // Currently equipped armor item
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -188,6 +190,8 @@ void handleInput() {
       setTile((int)playerX, (int)playerY, RiddleStoneTile);
     } else if (input == '4') {
       setTile((int)playerX, (int)playerY, MushroomTile);
+    } else if (input == '3') {
+      setTile((int)playerX, (int)playerY, ArmorTile);
     }
   }
 
@@ -220,6 +224,15 @@ void handleInput() {
     }
   } else if (dungeonMap[rNewY][rNewX] == RiddleStoneTile) {
     if (addToInventory(getItem(RiddleStone))) {
+      playRawSFX(3);
+      dungeonMap[rNewY][rNewX] = Floor;
+    }
+  } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
+    // Randomly choose an armor type
+    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe };
+    GameItems randomArmor = armorTypes[random(0, 3)];
+    
+    if (addToInventory(getItem(randomArmor))) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }

@@ -38,6 +38,7 @@ extern const unsigned char riddleStoneSprite[];
 extern const unsigned char eyeSprite[];
 extern const unsigned char mapSprite[];
 extern const unsigned char mushroomSprite[];
+extern const unsigned char armorSprite[];
 extern const unsigned char fastbootSprite[];
 extern const unsigned char confusionSprite[];
 

@@ -146,7 +146,7 @@ void handleItemActionMenu() {
     selectedActionIndex++;
   }
 
-  selectedActionIndex = selectedActionIndex == 4 ? 0 : selectedActionIndex == -1 ? 3 : selectedActionIndex;
+  selectedActionIndex = selectedActionIndex == 5 ? 0 : selectedActionIndex == -1 ? 4 : selectedActionIndex;
 
   // Cancel with A
   if (buttons.aPressed && !buttons.aPressedPrev) {
@@ -225,12 +225,48 @@ void handleItemActionMenu() {
 
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
+      // If dropping an equipped item, unequip it first
+      if (selectedItem.isEquipped) {
+        selectedItem.isEquipped = false;
+        equippedArmorValue = 0;
+        equippedArmor = {};
+      }
+      
       inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
       inventoryPages[currentInventoryPageIndex].itemCount--;
       currentUIState = UI_INVENTORY;
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
-    } else if (selectedActionIndex == 3) {
+    } else if (selectedActionIndex == 3) { // Equip
+      if (selectedItem.category == EquipmentCategory && selectedItem.armorValue > 0) {
+        // Unequip current armor if any
+        if (equippedArmorValue > 0) {
+          // Find the equipped armor in inventory and unequip it
+          for (int p = 0; p < numInventoryPages; p++) {
+            for (int i = 0; i < inventorySize; i++) {
+              if (inventoryPages[p].items[i].isEquipped) {
+                inventoryPages[p].items[i].isEquipped = false;
+                break;
+              }
+            }
+          }
+        }
+        
+        // Equip the new armor
+        selectedItem.isEquipped = true;
+        equippedArmorValue = selectedItem.armorValue;
+        equippedArmor = selectedItem;
+        
+        playRawSFX(6);
+        itemResultMessage = selectedItem.itemResult;
+        currentUIState = UI_ITEM_RESULT;
+      } else {
+        playRawSFX(2);
+        itemResultMessage = "This item cannot be equipped.";
+        currentUIState = UI_ITEM_RESULT;
+      }
+      buttons.bPressedPrev = true;
+    } else if (selectedActionIndex == 4) { // Combine
       combiningTwoItems = true;
       combiningItem1 = selectedItem;
       ingredient1index = selectedInventoryIndex;
@@ -239,6 +275,7 @@ void handleItemActionMenu() {
   }
 }
 
+bool showTooltip = true;
 void renderInventory() {
   display.clearDisplay();
   display.setTextSize(1);
@@ -264,13 +301,26 @@ void renderInventory() {
       
       display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) display.print("> ");
-      display.println(item.name);
+      display.print(item.name);
+      
+      // Add equipped indicator
+      if (item.isEquipped) {
+        display.setCursor(110, yPos);
+        display.print("*");
+      }
+      
       yPos += 12;
     }
 
     if (yPos == 30) { // No items
       display.setCursor(15, 30);
       display.println("Empty");
+    }
+    
+    if (showTooltip) {
+      // Add legend for equipped items
+      display.setCursor(0, 120);
+      display.print("* = Equipped");
     }
   } 
   else if (currentUIState == UI_ITEM_INFO) {
@@ -285,10 +335,11 @@ void renderInventory() {
     if (buttons.bPressed && !buttons.bPressedPrev) {
       currentUIState = UI_NORMAL;
     }
+    showTooltip = false;
   } 
   else if (currentUIState == UI_ITEM_ACTION) {    
     // Draw options menu box
-    display.drawRect(50, 40, 65, 65, 15);
+    display.drawRect(50, 40, 65, 75, 15);
     display.fillRect(50, 40, 65, 12, 15);
 
     // Title
@@ -305,7 +356,9 @@ void renderInventory() {
     display.setCursor(55, 80);
     display.println(selectedActionIndex == 2 ? "> Info" : " Info");
     display.setCursor(55, 90);
-    display.println(selectedActionIndex == 3 ? "> Combine" : " Combine");
+    display.println(selectedActionIndex == 3 ? "> Equip" : " Equip");
+    display.setCursor(55, 100);
+    display.println(selectedActionIndex == 4 ? "> Combine" : " Combine");
   }
 
   display.display();
