@@ -26,6 +26,65 @@ const unsigned long frameDelay = 20; // Update every 100ms
 // SD card chip select pin for Teensy Audio Board
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
+void resetGame() {
+  // Reset player stats
+  playerHP = 100;
+  playerFood = 100;
+  dungeon = 1;
+  levelOfDamselDeath = -4;
+  kills = 0;
+  
+  // Reset damsel
+  damsel[0].name = generateFemaleName();
+  damsel[0].levelOfLove = 0;
+  knowsDamselName = false;
+  
+  // Reset inventory
+  for (int i = 0; i < inventorySize; i++) {
+    for (int j = 0; j < numInventoryPages; j++) {
+      inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
+      inventoryPages[j].itemCount = 0;
+    }
+  }
+  
+  // Give player a cloak and equip it
+  GameItem cloak = getItem(Cloak);
+  cloak.isEquipped = true;
+  addToInventory(cloak);
+  equippedArmorValue = cloak.armorValue;
+  equippedArmor = cloak;
+  
+  // Reset projectiles
+  for (int i = 0; i < maxProjectiles; i++) {
+    projectiles[i].active = false;
+  }
+  
+  // Reset UI and game state
+  currentUIState = UI_NORMAL;
+  showDialogue = false;
+  speeding = false;
+  currentSpeedMultiplier = 1;
+  speedTimer = 1000;
+  hasMap = false;
+  equippedRiddleStone = false;
+  starving = false;
+  seeAll = false;
+  confused = false;
+  
+  // Reset damsel state
+  damselWasFollowing = false;
+  damselWaitUpTimer = 0;
+  damselSaidWaitUp = false;
+  
+  // Reset potion effects
+  resetPotionNames();
+  randomizePotionEffects();
+  
+  // Generate new dungeon and spawn enemies
+  generateDungeon();
+  spawnEnemies();
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -79,33 +138,9 @@ void setup() {
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
   pinMode(BUTTON_START_PIN, INPUT_PULLUP);
 
-  // Initialize inventory
-  for (int i = 0; i < inventorySize; i++) {
-    for (int j = 0; j < numInventoryPages; j++) {
-      inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
-      inventoryPages[j].itemCount = 0;
-    }
-  }
-
-  // Give player a cloak and equip it at startup
-  GameItem cloak = getItem(Cloak);
-  cloak.isEquipped = true;
-  addToInventory(cloak);
-  equippedArmorValue = cloak.armorValue;
-  equippedArmor = cloak;
-
-  // Randomize potion effects
-  randomizePotionEffects();
-
-  // Initialize projectiles
-  for (int i = 0; i < maxProjectiles; i++) {
-    projectiles[i].active = false;
-  }
-
-  // Generate a random dungeon
-  generateDungeon();
+  // Initialize the game
+  resetGame();
   playRawSFX(11);
-  spawnEnemies();
 }
 
 void loop() {
@@ -273,45 +308,7 @@ void gameOver() {
   display.display();
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
-    playerHP = 100;
-    playerFood = 100;
-    dungeon = 1;
-    levelOfDamselDeath = -4;
-    generateDungeon();
-    equippedRiddleStone = false;
-    playRawSFX(11);
-    damsel[0].name = generateFemaleName();
-    damsel[0].levelOfLove = 0;
-    knowsDamselName = false;
-    for (int i = 0; i < inventorySize; i++) {
-      for (int j = 0; j < numInventoryPages; j++) {
-        inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
-        inventoryPages[j].itemCount = 0;
-      }
-    }
-    
-    // Give player a cloak and equip it on restart
-    GameItem cloak = getItem(Cloak);
-    cloak.isEquipped = true;
-    addToInventory(cloak);
-    equippedArmorValue = cloak.armorValue;
-    equippedArmor = cloak;
-    
-    for (int i = 0; i < maxProjectiles; i++) {
-      projectiles[i].active = false;
-    }
-    currentUIState = UI_NORMAL;
-    showDialogue = false;
-    speeding = false;
-    currentSpeedMultiplier = 1;
-    speedTimer = 1000;
-    hasMap = false;
-    resetPotionNames();
-    randomizePotionEffects();
-    spawnEnemies();
-    damselWasFollowing = false;
-    damselWaitUpTimer = 0;
-    damselSaidWaitUp = false;
+    resetGame();
   }
 }
 
