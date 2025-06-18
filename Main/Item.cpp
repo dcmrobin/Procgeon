@@ -17,11 +17,18 @@ GameItem itemList[] = {
   { DarkGreenPotion, PotionCategory, String("DarkGreen Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("DarkGreen Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
-  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), true, ArmorEffect, 0, false, false, 2},
+  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), true, DefaultEffect, 0, false, false, 2},
+  { Scroll, PotionCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens.")},
   { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), false, ArmorEffect, 2, false, false, 2},
   { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), false, ArmorEffect, 3, false, false, 2},
   { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), false, ArmorEffect, 1, false, false, 2},
   { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), false, ArmorEffect, 0, false, false, 2}
+};
+
+String scrollNames[] = {
+  "null",
+  "null",
+  "null"
 };
 
 // Possible effect pool
@@ -37,6 +44,12 @@ PotionEffect potionEffects[] = {
   { 0,  0,  0, 0, String("Hunger Potion"), String("Makes you more hungry."), String("You are now more hungry."), HungerEffect },
   { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time."), SeeAllEffect },
   { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?"), ConfusionEffect }
+};
+
+ScrollEffect scrollEffects[] = {
+  {String("Protection scroll"), String("Protects your armor from rusting and raises its damage reduction."), String("Your armor is covered by a shimmering gold shield!")},
+  {String("Identify scroll"), String("Reveals the true name of an item and sees if it is cursed."), String("Select an item to identify.")},
+  {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant.")}
 };
 
 // Define all possible potion combinations

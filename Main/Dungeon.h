@@ -18,7 +18,8 @@ enum TileTypes {
   Map,
   MushroomTile,
   RiddleStoneTile,
-  ArmorTile
+  ArmorTile,
+  ScrollTile
 };
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];

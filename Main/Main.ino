@@ -110,6 +110,7 @@ void setup() {
   Serial.println("type 5: make tile player is on into a riddlestone");
   Serial.println("type 4: make tile player is on into a mushroom");
   Serial.println("type 3: make tile player is on into an armor");
+  Serial.println("type 2: make tile player is on into a scroll");
 
   // Play a WAV file
   /*if (!playWav1.play("bossfight.wav")) {

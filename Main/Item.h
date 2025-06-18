@@ -4,10 +4,12 @@
 #include <Arduino.h>
 
 #define NUM_POTIONS 11
+#define NUM_SCROLLS 3
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Scroll, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
-enum EffectType { 
+enum EffectType {
+  DefaultEffect,
   HealingEffect, 
   PoisonEffect, 
   ExplosionEffect, 
@@ -35,7 +37,7 @@ struct GameItem {
   String originalName = "";
   String itemResult = "";
   bool oneTimeUse = true;
-  EffectType effectType;
+  EffectType effectType = DefaultEffect;
   int armorValue = 0;  // Damage reduction when equipped
   bool isEquipped = false;  // Whether this item is currently equipped
   bool isCursed = false;
@@ -54,6 +56,12 @@ struct PotionEffect {
   EffectType effectType;
 };
 
+struct ScrollEffect {
+  String effectName;
+  String effectDescription;
+  String effectResult;
+};
+
 // Structure to define potion combinations
 struct PotionCombination {
     GameItems ingredient1;
@@ -61,6 +69,7 @@ struct PotionCombination {
     GameItems result;
 };
 
+extern String scrollNames[];
 extern PotionEffect potionEffects[];
 extern PotionCombination potionCombinations[];
 extern const int NUM_POTION_COMBINATIONS;

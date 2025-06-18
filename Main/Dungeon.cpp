@@ -71,6 +71,8 @@ void generateDungeon() {
               dungeonMap[y][x] = MushroomTile;
             } else if (random(0, 70) > 50) {
               dungeonMap[y][x] = Potion;
+            } else if (random(0, 70) > 55) {
+              dungeonMap[y][x] = ScrollTile;
             } else if (random(0, 70) > 65) {
               dungeonMap[y][x] = RiddleStoneTile;
             }
@@ -349,6 +351,12 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, armorSprite, tileSize, tileSize, floorbrightness+10);
+      break;
+    case ScrollTile:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, scrollSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Floor:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);

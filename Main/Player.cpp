@@ -199,6 +199,8 @@ void handleInput() {
       setTile((int)playerX, (int)playerY, MushroomTile);
     } else if (input == '3') {
       setTile((int)playerX, (int)playerY, ArmorTile);
+    } else if (input == '2') {
+      setTile((int)playerX, (int)playerY, ScrollTile);
     }
   }
 
@@ -234,6 +236,11 @@ void handleInput() {
     GameItems randomArmor = armorTypes[random(0, 4)];
     
     if (addToInventory(getItem(randomArmor), true)) {
+      playRawSFX(3);
+      dungeonMap[rNewY][rNewX] = Floor;
+    }
+  } else if (dungeonMap[rNewY][rNewX] == ScrollTile) {    
+    if (addToInventory(getItem(Scroll), true)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
