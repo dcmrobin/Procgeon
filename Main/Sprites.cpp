@@ -233,6 +233,17 @@ const unsigned char PROGMEM armorSprite[] = {
   0b00000000
 };
 
+const unsigned char PROGMEM scrollSprite[] = {
+  0b00000000,
+  0b01111100,
+  0b00100010,
+  0b01111110,
+  0b01000110,
+  0b01111100,
+  0b00111110,
+  0b00000000
+};
+
 const unsigned char PROGMEM fastbootSprite[] = {
   0b00000000,
   0b00000000,
