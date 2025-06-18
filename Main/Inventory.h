@@ -23,7 +23,7 @@ extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;
 extern int numInventoryPages;
 
-bool addToInventory(GameItem item);
+bool addToInventory(GameItem item, bool canBeCursed);
 void handleInventoryNavigation();
 int findFirstItemInCurrentCategory();
 int findPreviousItemInCategory(int current);

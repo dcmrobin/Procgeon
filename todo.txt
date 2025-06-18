@@ -1,9 +1,6 @@
 There could be traps- Arrow traps that shoot in a straight line out of the wall, teleporters that teleport the player to a random place in the map, and spike traps that
 deal damage when stepped on.
 
-Some items could be cursed or blessed... one thing that these curses could do is increase the enemy awareness radius, and blessed items, when equipped, in addition
-to their normal function, could like add a max health bonus or speed bonus- but only when wearing that item.
-
 Add rings that when you equip them, grant you a buff or debuff in things like speed, damage, or even one that is called The Ring of Power or The One Ring that makes you
 invisible to enemies- unfortunately, invisible to the damsel as well. That ring would only be used in solo runs when you don't care about the damsel maybe.
 

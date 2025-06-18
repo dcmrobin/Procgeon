@@ -55,6 +55,12 @@ void renderPlayer() {
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
     display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
   }
+
+  // Update viewport offset if needed
+  if (playerX - offsetX < 2 && offsetX > 0) offsetX -= scrollSpeed;
+  if (playerX - offsetX > viewportWidth - 3 && offsetX < mapWidth - viewportWidth) offsetX += scrollSpeed;
+  if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
+  if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
 }
 
 int shootDelay = 0;
@@ -186,7 +192,7 @@ void handleInput() {
         Serial.println("The damsel is not active.");
       }
     } else if (input == '6') {
-      addToInventory(getItem(getRandomPotion(random(0, NUM_POTIONS), false)));
+      addToInventory(getItem(getRandomPotion(random(0, NUM_POTIONS), false)), false);
     } else if (input == '5') {
       setTile((int)playerX, (int)playerY, RiddleStoneTile);
     } else if (input == '4') {
@@ -203,14 +209,8 @@ void handleInput() {
   if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs) {
     playerX = newX;
     playerY = newY;
-
-    // Update viewport offset if needed
-    if (playerX - offsetX < 2 && offsetX > 0) offsetX -= scrollSpeed;
-    if (playerX - offsetX > viewportWidth - 3 && offsetX < mapWidth - viewportWidth) offsetX += scrollSpeed;
-    if (playerY - offsetY < 2 && offsetY > 0) offsetY -= scrollSpeed;
-    if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
-    if (addToInventory(getItem(getRandomPotion(random(8), true)))) {
+    if (addToInventory(getItem(getRandomPotion(random(8), true)), false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -219,12 +219,12 @@ void handleInput() {
     hasMap = true;
     dungeonMap[rNewY][rNewX] = Floor;
   } else if (dungeonMap[rNewY][rNewX] == MushroomTile) {
-    if (addToInventory(getItem(Mushroom))) {
+    if (addToInventory(getItem(Mushroom), false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == RiddleStoneTile) {
-    if (addToInventory(getItem(RiddleStone))) {
+    if (addToInventory(getItem(RiddleStone), true)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -233,7 +233,7 @@ void handleInput() {
     GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
     GameItems randomArmor = armorTypes[random(0, 4)];
     
-    if (addToInventory(getItem(randomArmor))) {
+    if (addToInventory(getItem(randomArmor), true)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }

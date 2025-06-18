@@ -39,6 +39,7 @@ struct GameItem {
   int armorValue = 0;  // Damage reduction when equipped
   bool isEquipped = false;  // Whether this item is currently equipped
   bool isCursed = false;
+  int curseChance = 0;
 };
 
 // Possible potion effects

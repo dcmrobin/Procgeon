@@ -50,7 +50,7 @@ void resetGame() {
   // Give player a cloak and equip it
   GameItem cloak = getItem(Cloak);
   cloak.isEquipped = true;
-  addToInventory(cloak);
+  addToInventory(cloak, false);
   equippedArmorValue = cloak.armorValue;
   equippedArmor = cloak;
   

@@ -13,7 +13,12 @@ InventoryPage inventoryPages[] = {
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
 
-bool addToInventory(GameItem item) {
+bool addToInventory(GameItem item, bool canBeCursed) {
+  // Chance to curse the item if cursable
+  if (canBeCursed && random(0, 11) < item.curseChance) {
+    item.isCursed = true;
+  }
+  
   // Find the matching tab category
   for (int p = 0; p < numInventoryPages; p++) {
     if (inventoryPages[p].category == item.category) {
@@ -229,44 +234,60 @@ void handleItemActionMenu() {
 
       buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
-      // If dropping an equipped item, unequip it first
+      // Prevent dropping equipped items
       if (selectedItem.isEquipped) {
-        selectedItem.isEquipped = false;
-        equippedArmorValue = 0;
-        equippedArmor = {};
+        playRawSFX(13);
+        itemResultMessage = "You need to unequip it first.";
+        currentUIState = UI_ITEM_RESULT;
+        buttons.bPressedPrev = true;
+      } else {
+        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+        inventoryPages[currentInventoryPageIndex].itemCount--;
+        currentUIState = UI_INVENTORY;
       }
-      
-      inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
-      inventoryPages[currentInventoryPageIndex].itemCount--;
-      currentUIState = UI_INVENTORY;
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
-    } else if (selectedActionIndex == 3) { // Equip
+    } else if (selectedActionIndex == 3) { // Equip/Unequip
       if (selectedItem.category == EquipmentCategory) {
-        // Unequip current armor if any
-        // Find and unequip any currently equipped armor if item is armor
-        if (selectedItem.effectType == ArmorEffect) {
-          for (int p = 0; p < numInventoryPages; p++) {
-            for (int i = 0; i < inventorySize; i++) {
-              if (inventoryPages[p].items[i].isEquipped) {
-                inventoryPages[p].items[i].isEquipped = false;
-                break;
-              }
+        if (selectedItem.isEquipped) {
+          // Unequip the item
+          if (selectedItem.isCursed) {
+            itemResultMessage = "You can't. It appears to be cursed.";
+            currentUIState = UI_ITEM_RESULT;
+          } else {
+            selectedItem.isEquipped = false;
+            if (selectedItem.effectType == ArmorEffect) {
+              equippedArmorValue = 0;
+              equippedArmor = {};
             }
+            if (selectedItem.item == RiddleStone) {
+              equippedRiddleStone = false;
+            }
+            
+            playRawSFX(2);
+            currentUIState = UI_INVENTORY;
+          }
+        } else {
+          // Check if trying to equip armor when armor is already equipped
+          if (selectedItem.effectType == ArmorEffect && equippedArmor.item != Null) {
+            playRawSFX(13);
+            itemResultMessage = "You need to unequip the armor first.";
+            currentUIState = UI_ITEM_RESULT;
+            buttons.bPressedPrev = true;
+          } else {
+            // Equip the item
+            selectedItem.isEquipped = true;
+            if (selectedItem.effectType == ArmorEffect) {
+                equippedArmorValue = selectedItem.armorValue;
+                equippedArmor = selectedItem;
+            }
+            
+            playRawSFX(2);
+            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : selectedItem.itemResult; // override riddle stone text
+            equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
+            currentUIState = UI_ITEM_RESULT;
           }
         }
-        
-        // Equip the new item
-        selectedItem.isEquipped = true;
-        if (selectedItem.effectType == ArmorEffect) {
-            equippedArmorValue = selectedItem.armorValue;
-            equippedArmor = selectedItem;
-        }
-        
-        playRawSFX(2);
-        itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : selectedItem.itemResult; // override riddle stone text
-        equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
-        currentUIState = UI_ITEM_RESULT;
       } else {
         playRawSFX(2);
         itemResultMessage = "This item cannot be equipped.";
@@ -355,6 +376,10 @@ void renderInventory() {
     display.println("Options:");
     display.setTextColor(15);
 
+    // Get the selected item to check if it's equipped
+    GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
+    String equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+
     // Options
     display.setCursor(55, 60);
     display.println(selectedActionIndex == 0 ? "> Use" : " Use");
@@ -363,7 +388,7 @@ void renderInventory() {
     display.setCursor(55, 80);
     display.println(selectedActionIndex == 2 ? "> Info" : " Info");
     display.setCursor(55, 90);
-    display.println(selectedActionIndex == 3 ? "> Equip" : " Equip");
+    display.println(selectedActionIndex == 3 ? "> " + equipText : " " + equipText);
     display.setCursor(55, 100);
     display.println(selectedActionIndex == 4 ? "> Combine" : " Combine");
   }
