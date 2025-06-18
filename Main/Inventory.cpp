@@ -163,8 +163,43 @@ void handleItemActionMenu() {
     playRawSFX(7);
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
-    if (selectedActionIndex == 0) { // Use
-      if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
+    if (selectedActionIndex == 0) { // Use/Read/Drink
+      if (selectedItem.item == Scroll) {
+        // Handle scroll reading - scrolls are destroyed after first use
+        if (!selectedItem.isScrollRevealed) {
+          // First time reading - reveal name and apply effect
+          if (selectedItem.effectType == ScrollProtectionEffect && equippedArmor.item == Null) {
+            // Don't update the name as there is no armor equipped
+          } else {
+            updateScrollName(selectedItem);
+          }
+        }
+
+        playRawSFX(2);
+        itemResultMessage = selectedItem.itemResult;
+        
+        // Apply scroll effects based on type
+        if (selectedItem.effectType == ScrollProtectionEffect) {
+          if (equippedArmor.item != Null) {
+            equippedArmor.armorValue += 1;
+            equippedArmorValue += 1; // Increase armor protection
+          } else {
+            itemResultMessage = "The scroll disappears.";
+          }
+        } else if (selectedItem.effectType == ScrollIdentifyEffect) {
+          // TODO: Implement identify functionality
+        } else if (selectedItem.effectType == ScrollEnchantEffect) {
+          // TODO: Implement enchant functionality
+        }
+        
+        // Destroy the scroll after reading
+        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+        inventoryPages[currentInventoryPageIndex].itemCount--;
+        
+        currentUIState = UI_ITEM_RESULT;
+        buttons.bPressedPrev = true;
+      } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
+        // Handle potion drinking
         playRawSFX(6);
         playerHP += selectedItem.healthRecoverAmount;
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
@@ -203,36 +238,53 @@ void handleItemActionMenu() {
             updatePotionName(inventoryPages[currentInventoryPageIndex].items[i]);
           }
         }
+
+        itemResultMessage = selectedItem.itemResult;
+
+        if (selectedItem.effectType == ArmorEffect) {
+          itemResultMessage = "You can't use this, Try equipping it.";
+        }
+
+        if (selectedItem.item == RiddleStone) {
+          currentUIState = UI_RIDDLE; // Riddlesssss
+        } else {
+          currentUIState = UI_ITEM_RESULT; // Change to result screen
+        }
+
+        if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
+          if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
+            inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = getItem(EmptyBottle);
+          } else {
+            inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+            inventoryPages[currentInventoryPageIndex].itemCount--;
+          }
+        }
+
+        buttons.bPressedPrev = true;
       } else if (selectedItem.category == FoodCategory) {
         playRawSFX(5);
         playerFood += selectedItem.hungerRecoverAmount;
         playerFood = playerFood > 100 ? 100 : playerFood;
-      } else {
-        playRawSFX(2);
-      }
-
-      itemResultMessage = selectedItem.itemResult;
-
-      if (selectedItem.effectType == ArmorEffect) {
-        itemResultMessage = "You can't use this, Try equipping it.";
-      }
-
-      if (selectedItem.item == RiddleStone) {
-        currentUIState = UI_RIDDLE; // Riddlesssss
-      } else {
-        currentUIState = UI_ITEM_RESULT; // Change to result screen
-      }
-
-      if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
-        if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
-          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = getItem(EmptyBottle);
-        } else {
+        
+        itemResultMessage = selectedItem.itemResult;
+        currentUIState = UI_ITEM_RESULT;
+        
+        if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
         }
+        
+        buttons.bPressedPrev = true;
+      } else if (selectedItem.effectType == ArmorEffect) {
+        itemResultMessage = "You can't use this, try equipping it.";
+        currentUIState = UI_ITEM_RESULT;
+        buttons.bPressedPrev = true;
+      } else {
+        playRawSFX(2);
+        itemResultMessage = selectedItem.itemResult;
+        currentUIState = UI_ITEM_RESULT;
+        buttons.bPressedPrev = true;
       }
-
-      buttons.bPressedPrev = true;
     } else if (selectedActionIndex == 1) { // Drop
       // Prevent dropping equipped items
       if (selectedItem.isEquipped) {
@@ -379,10 +431,20 @@ void renderInventory() {
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     String equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+    
+    // Determine the use text based on item type
+    String useText = "Use";
+    if (selectedItem.item == Scroll) {
+      useText = "Read";
+    } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
+      useText = "Drink";
+    } else if (selectedItem.category == FoodCategory && selectedItem.item != EmptyBottle) {
+      useText = "Eat";
+    }
 
     // Options
     display.setCursor(55, 60);
-    display.println(selectedActionIndex == 0 ? "> Use" : " Use");
+    display.println(selectedActionIndex == 0 ? "> " + useText : " " + useText);
     display.setCursor(55, 70);
     display.println(selectedActionIndex == 1 ? "> Drop" : " Drop");
     display.setCursor(55, 80);

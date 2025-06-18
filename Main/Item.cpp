@@ -3,6 +3,8 @@
 #include "HelperFunctions.h"
 #include "Player.h"
 
+extern int numInventoryPages;
+
 GameItem itemList[] = {
   { RedPotion, PotionCategory, String("Red Potion"),  0,  0,  0, 0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.")},
   { GreenPotion, PotionCategory, String("Green Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.")},
@@ -47,9 +49,9 @@ PotionEffect potionEffects[] = {
 };
 
 ScrollEffect scrollEffects[] = {
-  {String("Protection scroll"), String("Protects your armor from rusting and raises its damage reduction."), String("Your armor is covered by a shimmering gold shield!")},
-  {String("Identify scroll"), String("Reveals the true name of an item and sees if it is cursed."), String("Select an item to identify.")},
-  {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant.")}
+  {String("Protect scroll"), String("Protects your armor from rusting and raises its damage reduction."), String("Your armor is covered by a shimmering gold shield!"), ScrollProtectionEffect},
+  {String("Identify scroll"), String("Reveals the true name of an item and sees if it is cursed."), String("Select an item to identify."), ScrollIdentifyEffect},
+  {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant."), ScrollEnchantEffect}
 };
 
 // Define all possible potion combinations
@@ -88,6 +90,16 @@ void randomizePotionEffects() {
 
 GameItem getItem(GameItems item) {
   GameItem newItem = itemList[item];
+  
+  // If it's a scroll, assign a random effect and name
+  if (item == Scroll) {
+    int effectIndex = random(0, NUM_SCROLLS);
+    newItem.scrollEffectIndex = effectIndex;
+    newItem.name = scrollNames[effectIndex];
+    newItem.description = "Read it to find out.";
+    newItem.isScrollRevealed = false;
+  }
+  
   return newItem;
 }
 
@@ -200,4 +212,74 @@ GameItem combinePotions(GameItem item1, GameItem item2) {
 // Keep the old function for backward compatibility, but make it use the new system
 GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
     return combinePotions(item1, item2);
+}
+
+// Generate a random scroll name using a simple algorithm
+String generateScrollName() {
+  const char* consonants[] = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
+  const char* vowels[] = {"a", "e", "i", "o", "u"};
+  
+  String name = "";
+  int length = random(4, 8); // Random length between 4-7 characters
+  
+  for (int i = 0; i < length; i++) {
+    if (i % 2 == 0) {
+      // Even positions get consonants
+      name += consonants[random(0, sizeof(consonants)/sizeof(consonants[0]))];
+    } else {
+      // Odd positions get vowels
+      name += vowels[random(0, sizeof(vowels)/sizeof(vowels[0]))];
+    }
+  }
+  
+  // Capitalize first letter
+  name.setCharAt(0, toupper(name.charAt(0)));
+  
+  return "Scroll: " + name;
+}
+
+void randomizeScrollEffects() {
+  // Generate random names for scrolls
+  for (int i = 0; i < NUM_SCROLLS; i++) {
+    scrollNames[i] = generateScrollName();
+  }
+  
+  // Shuffle the scroll effects array
+  for (int i = NUM_SCROLLS - 1; i > 0; i--) {
+    int j = random(i + 1);  // Random index from 0 to i inclusive
+    // Swap effects
+    ScrollEffect temp = scrollEffects[i];
+    scrollEffects[i] = scrollEffects[j];
+    scrollEffects[j] = temp;
+  }
+}
+
+void updateScrollName(GameItem &scroll) {
+  if (scroll.scrollEffectIndex >= 0 && scroll.scrollEffectIndex < NUM_SCROLLS) {
+    ScrollEffect effect = scrollEffects[scroll.scrollEffectIndex];
+    
+    // Update the scroll's name and description
+    scroll.name = effect.effectName;
+    scroll.description = effect.effectDescription;
+    scroll.itemResult = effect.effectResult;
+    scroll.effectType = effect.effectType;
+    scroll.isScrollRevealed = true;
+    
+    // Update the scrollNames array so future scrolls use the revealed name
+    scrollNames[scroll.scrollEffectIndex] = effect.effectName;
+    
+    // Update all instances of this scroll in the inventory
+    for (int p = 0; p < numInventoryPages; p++) {
+      for (int i = 0; i < inventorySize; i++) {
+        if (inventoryPages[p].items[i].item == Scroll && 
+            inventoryPages[p].items[i].scrollEffectIndex == scroll.scrollEffectIndex) {
+          inventoryPages[p].items[i].name = effect.effectName;
+          inventoryPages[p].items[i].description = effect.effectDescription;
+          inventoryPages[p].items[i].itemResult = effect.effectResult;
+          inventoryPages[p].items[i].effectType = effect.effectType;
+          inventoryPages[p].items[i].isScrollRevealed = true;
+        }
+      }
+    }
+  }
 }

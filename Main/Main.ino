@@ -79,6 +79,7 @@ void resetGame() {
   // Reset potion effects
   resetPotionNames();
   randomizePotionEffects();
+  randomizeScrollEffects();
   
   // Generate new dungeon and spawn enemies
   generateDungeon();

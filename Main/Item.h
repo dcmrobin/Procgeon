@@ -21,7 +21,10 @@ enum EffectType {
   HungerEffect, 
   SeeAllEffect, 
   ConfusionEffect, 
-  ArmorEffect
+  ArmorEffect,
+  ScrollProtectionEffect,
+  ScrollIdentifyEffect,
+  ScrollEnchantEffect
 };
 
 struct GameItem {
@@ -42,6 +45,8 @@ struct GameItem {
   bool isEquipped = false;  // Whether this item is currently equipped
   bool isCursed = false;
   int curseChance = 0;
+  bool isScrollRevealed = false;  // Whether the scroll's true name has been revealed
+  int scrollEffectIndex = -1;  // Index of the assigned scroll effect
 };
 
 // Possible potion effects
@@ -60,6 +65,7 @@ struct ScrollEffect {
   String effectName;
   String effectDescription;
   String effectResult;
+  EffectType effectType;
 };
 
 // Structure to define potion combinations
@@ -75,8 +81,11 @@ extern PotionCombination potionCombinations[];
 extern const int NUM_POTION_COMBINATIONS;
 
 void randomizePotionEffects();  // Call this once at game start
+void randomizeScrollEffects();  // Call this once at game start
+String generateScrollName();  // Generate a random scroll name
 GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
+void updateScrollName(GameItem &scroll);  // Reveals scroll's true name when read
 GameItems getRandomPotion(int randInt, bool primaryColors);
 void resetPotionNames();
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
