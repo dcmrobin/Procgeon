@@ -38,6 +38,7 @@ struct GameItem {
   EffectType effectType;
   int armorValue = 0;  // Damage reduction when equipped
   bool isEquipped = false;  // Whether this item is currently equipped
+  bool isCursed = false;
 };
 
 // Possible potion effects
