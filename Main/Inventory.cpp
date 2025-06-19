@@ -8,10 +8,30 @@ String itemResultMessage = "";
 InventoryPage inventoryPages[] = {
   {"Potions", PotionCategory},
   {"Food", FoodCategory},
-  {"Equipment", EquipmentCategory}
+  {"Equipment", EquipmentCategory},
+  {"Scrolls", ScrollsCategory}
 };
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
+
+// --- Identify Scroll Mechanic ---
+bool identifyingItem = false;
+int identifyScrollPage = -1;
+int identifyScrollIndex = -1;
+
+// Helper function to reveal true name and curse status
+void identifyItem(GameItem &item) {
+  if (item.category == PotionCategory) {
+    updatePotionName(item);
+  } else if (item.item == Scroll) {
+    updateScrollName(item);
+  }
+  //item.name = item.originalName;
+  // If the description already contains (Cursed), don't append again
+  if (item.isCursed && item.description.indexOf("(Cursed)") == -1) {
+    item.description += " (Cursed)";
+  }
+}
 
 bool addToInventory(GameItem item, bool canBeCursed) {
   // Chance to curse the item if cursable
@@ -114,7 +134,26 @@ int findPreviousItemInCategory(int current) {
 }
 
 void handleInventoryItemUsage() {
-  if (buttons.bPressed && !buttons.bPressedPrev && currentUIState == UI_INVENTORY) {
+  if (buttons.bPressed && !buttons.bPressedPrev && identifyingItem && currentUIState == UI_INVENTORY) {
+    // Select item to identify
+    GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
+    if (selectedItem.name != "Empty" && selectedItem.name != "") {
+      identifyItem(selectedItem);
+      itemResultMessage = "Identified: " + selectedItem.name + (selectedItem.isCursed ? ". It is cursed!" : ". Not cursed.");
+      // Remove the scroll
+      if (identifyScrollPage >= 0 && identifyScrollIndex >= 0) {
+        inventoryPages[identifyScrollPage].items[identifyScrollIndex] = { Null, PotionCategory, "Empty"};
+        inventoryPages[identifyScrollPage].itemCount--;
+      }
+      identifyingItem = false;
+      identifyScrollPage = -1;
+      identifyScrollIndex = -1;
+      currentUIState = UI_ITEM_RESULT;
+      playRawSFX(2);
+    }
+    return;
+  }
+  if (buttons.bPressed && !buttons.bPressedPrev && !identifyingItem && currentUIState == UI_INVENTORY) {
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
   
     if (selectedItem.name != "Empty" && selectedItem.name != "") {
@@ -164,7 +203,7 @@ void handleItemActionMenu() {
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
     
     if (selectedActionIndex == 0) { // Use/Read/Drink
-      if (selectedItem.item == Scroll) {
+      if (selectedItem.category == ScrollsCategory) {
         // Handle scroll reading - scrolls are destroyed after first use
         if (!selectedItem.isScrollRevealed) {
           // First time reading - reveal name and apply effect
@@ -187,7 +226,12 @@ void handleItemActionMenu() {
             itemResultMessage = "The scroll disappears.";
           }
         } else if (selectedItem.effectType == ScrollIdentifyEffect) {
-          // TODO: Implement identify functionality
+          // Start identify flow
+          identifyingItem = true;
+          identifyScrollPage = currentInventoryPageIndex;
+          identifyScrollIndex = selectedInventoryIndex;
+          currentUIState = UI_INVENTORY;
+          return;
         } else if (selectedItem.effectType == ScrollEnchantEffect) {
           // Enchant scroll: increase player attack damage
           playerAttackDamage += 2; // Increase by 2, adjust as desired
@@ -198,11 +242,14 @@ void handleItemActionMenu() {
           currentUIState = UI_ITEM_RESULT;
         }
         
-        // Destroy the scroll after reading
-        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
-        inventoryPages[currentInventoryPageIndex].itemCount--;
-        
-        currentUIState = UI_ITEM_RESULT;
+        // Destroy the scroll after reading (unless it's identify, which is handled after identification)
+        if (selectedItem.effectType != ScrollIdentifyEffect) {
+          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+          inventoryPages[currentInventoryPageIndex].itemCount--;
+        }
+        if (selectedItem.effectType != ScrollIdentifyEffect) {
+          currentUIState = UI_ITEM_RESULT;
+        }
         buttons.bPressedPrev = true;
       } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
         // Handle potion drinking
@@ -368,8 +415,8 @@ void renderInventory() {
 
   if (currentUIState == UI_INVENTORY) {
     display.setCursor(combiningTwoItems ? 0 : 10, combiningTwoItems ? 0 : 3);
-    display.setTextSize(combiningTwoItems ? 1 : 2);
-    display.println(combiningTwoItems ? "Select second item tocombine..." : "Inventory");
+    display.setTextSize(combiningTwoItems || identifyingItem ? 1 : 2);
+    display.println(combiningTwoItems ? "Select second item tocombine..." : identifyingItem ? "Select item to identify..." : "Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
     display.setTextColor(0);

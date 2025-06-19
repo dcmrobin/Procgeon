@@ -7,7 +7,7 @@
 #define NUM_SCROLLS 3
 
 enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Scroll, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
-enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory };
+enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };
 enum EffectType {
   DefaultEffect,
   HealingEffect, 

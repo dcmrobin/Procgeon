@@ -23,6 +23,10 @@ extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;
 extern int numInventoryPages;
 
+extern bool identifyingItem;
+extern int identifyScrollPage;
+extern int identifyScrollIndex;
+
 bool addToInventory(GameItem item, bool canBeCursed);
 void handleInventoryNavigation();
 int findFirstItemInCurrentCategory();
@@ -31,5 +35,6 @@ int findNextItemInCategory(int current);
 void handleInventoryItemUsage();
 void handleItemActionMenu();
 void renderInventory();
+void identifyItem(GameItem &item);
 
 #endif

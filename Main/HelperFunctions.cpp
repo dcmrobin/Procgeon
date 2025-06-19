@@ -1,6 +1,7 @@
 #include "HelperFunctions.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include "Inventory.h"
 
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
@@ -343,6 +344,16 @@ void handleUIStateTransitions() {
         currentUIState = hasMap ? UI_MINIMAP : UI_NORMAL; 
         if (!hasMap) {
           playRawSFX(13);
+        }
+        if (identifyingItem) {
+          // Waste the scroll
+          if (identifyScrollPage >= 0 && identifyScrollIndex >= 0) {
+            inventoryPages[identifyScrollPage].items[identifyScrollIndex] = { Null, PotionCategory, "Empty"};
+            inventoryPages[identifyScrollPage].itemCount--;
+          }
+          identifyingItem = false;
+          identifyScrollPage = -1;
+          identifyScrollIndex = -1;
         }
         break;
       case UI_MINIMAP: 
