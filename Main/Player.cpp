@@ -46,6 +46,7 @@ bool damselSaidWaitUp = false;  // Track if damsel has said "wait up" recently
 int equippedArmorValue = 0;  // Current armor value (damage reduction)
 GameItem equippedArmor = {};  // Currently equipped armor item
 bool equippedRiddleStone = false;
+int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;

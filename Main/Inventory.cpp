@@ -189,7 +189,13 @@ void handleItemActionMenu() {
         } else if (selectedItem.effectType == ScrollIdentifyEffect) {
           // TODO: Implement identify functionality
         } else if (selectedItem.effectType == ScrollEnchantEffect) {
-          // TODO: Implement enchant functionality
+          // Enchant scroll: increase player attack damage
+          playerAttackDamage += 2; // Increase by 2, adjust as desired
+          itemResultMessage = "You feel more powerful! Your attacks do more damage.";
+          // Destroy the enchant scroll
+          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+          inventoryPages[currentInventoryPageIndex].itemCount--;
+          currentUIState = UI_ITEM_RESULT;
         }
         
         // Destroy the scroll after reading
