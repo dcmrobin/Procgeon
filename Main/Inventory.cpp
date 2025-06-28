@@ -165,11 +165,18 @@ void handleInventoryItemUsage() {
         combiningItem2 = selectedItem;
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
 
-        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] : resultItem;// Assign the result item to the selected item's inventory index if the crafting worked
-        inventoryPages[currentInventoryPageIndex].items[ingredient1index] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[ingredient1index] : GameItem{ Null, PotionCategory, "Empty"};// Assign Null to the first ingredient's inventory index if the crafting worked
-        
-        if (inventoryPages[currentInventoryPageIndex].items[ingredient1index].category == PotionCategory && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
-          inventoryPages[currentInventoryPageIndex].items[ingredient1index] = resultItem.name == "Null" ? inventoryPages[currentInventoryPageIndex].items[ingredient1index] : getItem(EmptyBottle);// If both ingredients were potions, have a left over bottle item after the crafting, in addition to the result item
+        if (resultItem.name != "Null") {
+          bool ingredient1IsPotion = inventoryPages[currentInventoryPageIndex].items[ingredient1index].category == PotionCategory;
+          bool ingredient2IsPotion = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory;
+
+          // Place result in the first slot, and either an empty bottle or null in the second
+          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = resultItem;
+          if (ingredient1IsPotion || ingredient2IsPotion) {
+            inventoryPages[currentInventoryPageIndex].items[ingredient1index] = getItem(EmptyBottle);
+          } else {
+            inventoryPages[currentInventoryPageIndex].items[ingredient1index] = getItem(Null);
+          }
+          selectedInventoryIndex = 0;
         }
         currentUIState = UI_ITEM_RESULT;
         itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
