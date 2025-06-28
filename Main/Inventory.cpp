@@ -166,15 +166,61 @@ void handleInventoryItemUsage() {
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
 
         if (resultItem.name != "Null") {
-          bool ingredient1IsPotion = inventoryPages[currentInventoryPageIndex].items[ingredient1index].category == PotionCategory;
-          bool ingredient2IsPotion = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory;
+          bool ingredient1IsPotion = combiningItem1.category == PotionCategory;
+          bool ingredient2IsPotion = combiningItem2.category == PotionCategory;
 
-          // Place result in the first slot, and either an empty bottle or null in the second
-          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = resultItem;
+          // Find which page each ingredient is on
+          int ingredient1Page = -1;
+          int ingredient1Index = -1;
+          int ingredient2Page = -1;
+          int ingredient2Index = -1;
+
+          // Search for ingredient1 across all pages
+          for (int p = 0; p < numInventoryPages; p++) {
+            for (int i = 0; i < inventorySize; i++) {
+              if (inventoryPages[p].items[i].item == combiningItem1.item && 
+                  inventoryPages[p].items[i].name == combiningItem1.name) {
+                ingredient1Page = p;
+                ingredient1Index = i;
+                break;
+              }
+            }
+            if (ingredient1Page != -1) break;
+          }
+
+          // Search for ingredient2 across all pages
+          for (int p = 0; p < numInventoryPages; p++) {
+            for (int i = 0; i < inventorySize; i++) {
+              if (inventoryPages[p].items[i].item == combiningItem2.item && 
+                  inventoryPages[p].items[i].name == combiningItem2.name) {
+                ingredient2Page = p;
+                ingredient2Index = i;
+                break;
+              }
+            }
+            if (ingredient2Page != -1) break;
+          }
+
+          // Remove both ingredients from their respective pages
+          if (ingredient1Page != -1 && ingredient1Index != -1) {
+            removeItemFromInventory(ingredient1Page, ingredient1Index);
+            
+            // If both ingredients are on the same page and ingredient2 comes after ingredient1,
+            // adjust ingredient2's index since items shifted left
+            if (ingredient2Page == ingredient1Page && ingredient2Index > ingredient1Index) {
+                ingredient2Index--;
+            }
+          }
+          if (ingredient2Page != -1 && ingredient2Index != -1) {
+            removeItemFromInventory(ingredient2Page, ingredient2Index);
+          }
+
+          // Add result item to correct page
+          addToInventory(resultItem, false);
+
+          // Add empty bottle if needed
           if (ingredient1IsPotion || ingredient2IsPotion) {
-            inventoryPages[currentInventoryPageIndex].items[ingredient1index] = getItem(EmptyBottle);
-          } else {
-            inventoryPages[currentInventoryPageIndex].items[ingredient1index] = getItem(Null);
+            addToInventory(getItem(EmptyBottle), false);
           }
           selectedInventoryIndex = 0;
         }
@@ -250,7 +296,7 @@ void handleItemActionMenu() {
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)
-        if (selectedItem.effectType != ScrollIdentifyEffect) {
+        if (selectedItem.effectType != ScrollIdentifyEffect && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
         }
@@ -516,4 +562,14 @@ void renderInventory() {
   }
 
   display.display();
+}
+
+// Helper function to remove an item from inventory and shift others left
+void removeItemFromInventory(int page, int index) {
+    InventoryPage &invPage = inventoryPages[page];
+    for (int i = index; i < inventorySize - 1; i++) {
+        invPage.items[i] = invPage.items[i + 1];
+    }
+    invPage.items[inventorySize - 1] = getItem(Null);
+    invPage.itemCount--;
 }

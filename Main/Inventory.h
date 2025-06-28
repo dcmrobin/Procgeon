@@ -36,5 +36,6 @@ void handleInventoryItemUsage();
 void handleItemActionMenu();
 void renderInventory();
 void identifyItem(GameItem &item);
+void removeItemFromInventory(int page, int index);
 
 #endif
