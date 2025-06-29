@@ -241,7 +241,12 @@ void handleInput() {
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == ScrollTile) {    
-    if (addToInventory(getItem(Scroll), true)) {
+    if (addToInventory(getItem(Scroll), false)) {
+      playRawSFX(3);
+      dungeonMap[rNewY][rNewX] = Floor;
+    }
+  } else if (dungeonMap[rNewY][rNewX] == RingTile) {    
+    if (addToInventory(getItem(Ring), false)) {// the FALSE for canBeCursed is because the only rings that are cursed are the ones with negative effects
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }

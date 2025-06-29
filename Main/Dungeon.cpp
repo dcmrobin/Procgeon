@@ -196,7 +196,7 @@ void generateDungeon() {
     
     // Only place if the tile is floor and not occupied
     if (dungeonMap[itemY][itemX] == Floor) {
-      dungeonMap[itemY][itemX] = ArmorTile;
+      dungeonMap[itemY][itemX] = random(0, 100) > 50 ? ArmorTile : RingTile;
     }
   }
 }
@@ -357,6 +357,12 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, scrollSprite, tileSize, tileSize, floorbrightness+10);
+      break;
+    case RingTile:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, ringSprite, tileSize, tileSize, floorbrightness+10);
       break;
     case Floor:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);

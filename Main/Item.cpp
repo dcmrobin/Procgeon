@@ -22,6 +22,7 @@ GameItem itemList[] = {
   { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), true, DefaultEffect, 0, false, false, 2},
   { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens.")},
   { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), false},
+  { Ring, EquipmentCategory, String("Ring"), 0,  0,  0, 0, 0, String("Put it on to find out."), String("Ring"), String("You equip the ring."), false},
   { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), false, ArmorEffect, 2, false, false, 2},
   { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), false, ArmorEffect, 3, false, false, 2},
   { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), false, ArmorEffect, 1, false, false, 2},
