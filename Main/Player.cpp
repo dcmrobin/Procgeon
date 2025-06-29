@@ -202,6 +202,8 @@ void handleInput() {
       setTile((int)playerX, (int)playerY, ArmorTile);
     } else if (input == '2') {
       setTile((int)playerX, (int)playerY, ScrollTile);
+    } else if (input == '1') {
+      setTile((int)playerX, (int)playerY, RingTile);
     }
   }
 

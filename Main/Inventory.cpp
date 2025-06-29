@@ -25,6 +25,8 @@ void identifyItem(GameItem &item) {
     updatePotionName(item);
   } else if (item.item == Scroll) {
     updateScrollName(item);
+  } else if (item.item == Ring) {
+    updateRingName(item);
   }
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
@@ -381,7 +383,7 @@ void handleItemActionMenu() {
         }
         
         buttons.bPressedPrev = true;
-      } else if (selectedItem.effectType == ArmorEffect) {
+      } else if (selectedItem.effectType == ArmorEffect || selectedItem.item == Ring) {
         itemResultMessage = "You can't use this, try equipping it.";
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;

@@ -5,6 +5,7 @@
 
 #define NUM_POTIONS 11
 #define NUM_SCROLLS 3
+#define NUM_RINGS 5
 
 enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Scroll, WetScroll, Ring, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };
@@ -47,6 +48,9 @@ struct GameItem {
   int curseChance = 0;
   bool isScrollRevealed = false;  // Whether the scroll's true name has been revealed
   int scrollEffectIndex = -1;  // Index of the assigned scroll effect
+  // --- Ring support ---
+  int ringEffectIndex = -1; // Index of the assigned ring effect
+  bool isRingIdentified = false;
 };
 
 // Possible potion effects
@@ -80,6 +84,11 @@ extern PotionEffect potionEffects[];
 extern PotionCombination potionCombinations[];
 extern const int NUM_POTION_COMBINATIONS;
 
+extern String ringTypes[NUM_RINGS];
+extern String ringEffects[NUM_RINGS];
+extern bool ringCursed[NUM_RINGS];
+extern bool ringIdentified[NUM_RINGS];
+
 void randomizePotionEffects();  // Call this once at game start
 void randomizeScrollEffects();  // Call this once at game start
 String generateScrollName();  // Generate a random scroll name
@@ -93,5 +102,7 @@ void renderItemResult();
 bool areItemsEqual(GameItem item1, GameItem item2);
 GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2);
 GameItem combinePotions(GameItem item1, GameItem item2);
+void randomizeRingEffects();
+void updateRingName(GameItem &ring);
 
 #endif // ITEM_H

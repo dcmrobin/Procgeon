@@ -70,6 +70,11 @@ PotionCombination potionCombinations[] = {
 
 const int NUM_POTION_COMBINATIONS = sizeof(potionCombinations) / sizeof(potionCombinations[0]);
 
+String ringTypes[NUM_RINGS] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Iron Ring" };
+String ringEffects[NUM_RINGS] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration" };
+bool ringCursed[NUM_RINGS] = { false, false, true, true, false };
+bool ringIdentified[NUM_RINGS] = { false, false, false, false, false };
+
 void randomizePotionEffects() {
   // Shuffle the potion effects array
   for (int i = NUM_POTIONS - 1; i > 0; i--) {
@@ -101,6 +106,20 @@ GameItem getItem(GameItems item) {
     newItem.name = scrollNames[effectIndex];
     newItem.description = "Read it to find out.";
     newItem.isScrollRevealed = false;
+  }
+  
+  // Assign a random effect to rings
+  if (item == Ring) {
+    int effectIndex = random(0, NUM_RINGS);
+    newItem.ringEffectIndex = effectIndex;
+    newItem.isCursed = ringCursed[effectIndex];
+    if (ringIdentified[effectIndex]) {
+      newItem.isRingIdentified = true;
+      newItem.name = ringEffects[effectIndex];
+    } else {
+      newItem.isRingIdentified = false;
+      newItem.name = ringTypes[effectIndex];
+    }
   }
   
   return newItem;
@@ -301,4 +320,22 @@ void updateScrollName(GameItem &scroll) {
       }
     }
   }
+}
+
+void randomizeRingEffects() {
+    for (int i = NUM_RINGS - 1; i > 0; i--) {
+        int j = random(i + 1);
+        std::swap(ringEffects[i], ringEffects[j]);
+        std::swap(ringCursed[i], ringCursed[j]);
+    }
+}
+
+void updateRingName(GameItem &ring) {
+    if (ring.ringEffectIndex >= 0 && ring.ringEffectIndex < NUM_RINGS) {
+        ring.name = ringEffects[ring.ringEffectIndex];
+        ring.description = "A mysterious ring. Its power is now revealed.";
+        ring.isRingIdentified = true;
+        ringIdentified[ring.ringEffectIndex] = true; // Mark globally as identified
+        ring.isCursed = ringCursed[ring.ringEffectIndex];
+    }
 }

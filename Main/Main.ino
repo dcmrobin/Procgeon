@@ -80,6 +80,7 @@ void resetGame() {
   resetPotionNames();
   randomizePotionEffects();
   randomizeScrollEffects();
+  randomizeRingEffects();
   
   // Generate new dungeon and spawn enemies
   generateDungeon();
@@ -112,6 +113,7 @@ void setup() {
   Serial.println("type 4: make tile player is on into a mushroom");
   Serial.println("type 3: make tile player is on into an armor");
   Serial.println("type 2: make tile player is on into a scroll");
+  Serial.println("type 1: make tile player is on into a ring");
 
   // Play a WAV file
   /*if (!playWav1.play("bossfight.wav")) {
