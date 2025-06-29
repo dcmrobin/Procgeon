@@ -57,8 +57,8 @@ ScrollEffect scrollEffects[] = {
   {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant."), ScrollEnchantEffect}
 };
 
-// Define all possible potion combinations
-PotionCombination potionCombinations[] = {
+// Define all possible item combinations (generalized from potions)
+ItemCombination itemCombinations[] = {
     {BluePotion, YellowPotion, GreenPotion},
     {RedPotion, GreenPotion, YellowPotion},
     {RedPotion, YellowPotion, OrangePotion},
@@ -66,9 +66,10 @@ PotionCombination potionCombinations[] = {
     {GreenPotion, BluePotion, CyanPotion},
     {RedPotion, BlackPotion, MaroonPotion},
     {GreenPotion, BlackPotion, DarkGreenPotion}
+    // Add more general item combinations here
 };
 
-const int NUM_POTION_COMBINATIONS = sizeof(potionCombinations) / sizeof(potionCombinations[0]);
+const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinations[0]);
 
 String ringTypes[NUM_RINGS] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Iron Ring" };
 String ringEffects[NUM_RINGS] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration" };
@@ -210,42 +211,33 @@ bool areItemsEqual(GameItem item1, GameItem item2) {
         (item1.itemResult.equals(item2.itemResult));
 }
 
-GameItem combinePotions(GameItem item1, GameItem item2) {
-    // Check if both items are potions
-    if (item1.category != PotionCategory || item2.category != PotionCategory) {
-        return {};  // Return empty item if not both potions
-    }
-
+// Generalized combination function
+GameItem combineItems(GameItem item1, GameItem item2) {
     // Try to find a matching combination
-    for (int i = 0; i < NUM_POTION_COMBINATIONS; i++) {
-        const PotionCombination& combo = potionCombinations[i];
-        
+    for (int i = 0; i < NUM_ITEM_COMBINATIONS; i++) {
+        const ItemCombination& combo = itemCombinations[i];
         // Check both possible orderings of the ingredients
         if ((item1.item == combo.ingredient1 && item2.item == combo.ingredient2) ||
             (item1.item == combo.ingredient2 && item2.item == combo.ingredient1)) {
             return getItem(combo.result);
         }
     }
-
     // If no combination found, return empty item
-    return {};
+    return getItem(Null);
 }
 
-// Keep the old function for backward compatibility, but make it use the new system
+// Update CombineTwoItemsToGetItem to use combineItems for all types
 GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
-    // Potion + Potion (existing logic)
-    if (item1.category == PotionCategory && item2.category == PotionCategory) {
-        return combinePotions(item1, item2);
+    // Generalized item combination
+    GameItem result = combineItems(item1, item2);
+    if (result.item != Null) {
+        return result;
     }
-
-    // Potion + Scroll or Scroll + Potion → Wet Scroll
+    // Potion + Scroll or Scroll + Potion → Wet Scroll (special case)
     if ((item1.category == PotionCategory && item2.category == ScrollsCategory) ||
         (item2.category == PotionCategory && item1.category == ScrollsCategory)) {
         return getItem(WetScroll);
     }
-
-    // Add more combinations here as needed
-
     // No valid combination
     GameItem nullItem = getItem(Null);
     nullItem.name = "Null";

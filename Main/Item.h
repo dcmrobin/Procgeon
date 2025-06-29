@@ -72,17 +72,18 @@ struct ScrollEffect {
   EffectType effectType;
 };
 
-// Structure to define potion combinations
-struct PotionCombination {
+// Structure to define item combinations (generalized from potions)
+struct ItemCombination {
     GameItems ingredient1;
     GameItems ingredient2;
     GameItems result;
 };
 
+extern ItemCombination itemCombinations[];
+extern const int NUM_ITEM_COMBINATIONS;
+
 extern String scrollNames[];
 extern PotionEffect potionEffects[];
-extern PotionCombination potionCombinations[];
-extern const int NUM_POTION_COMBINATIONS;
 
 extern String ringTypes[NUM_RINGS];
 extern String ringEffects[NUM_RINGS];
@@ -101,7 +102,7 @@ void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
 void renderItemResult();
 bool areItemsEqual(GameItem item1, GameItem item2);
 GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2);
-GameItem combinePotions(GameItem item1, GameItem item2);
+GameItem combineItems(GameItem item1, GameItem item2);
 void randomizeRingEffects();
 void updateRingName(GameItem &ring);
 
