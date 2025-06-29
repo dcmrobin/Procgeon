@@ -81,7 +81,16 @@ void resetGame() {
   randomizePotionEffects();
   randomizeScrollEffects();
   randomizeRingEffects();
-  
+
+  // --- Explicitly reset all ring and speed effect flags ---
+  ringOfSwiftnessActive = false;
+  ringOfStrengthActive = false;
+  ringOfWeaknessActive = false;
+  ringOfHungerActive = false;
+  ringOfRegenActive = false;
+  lastPotionSpeedModifier = 0;
+  playerAttackDamage = 10;
+
   // Generate new dungeon and spawn enemies
   generateDungeon();
   spawnEnemies();

@@ -47,6 +47,12 @@ int equippedArmorValue = 0;  // Current armor value (damage reduction)
 GameItem equippedArmor = {};  // Currently equipped armor item
 bool equippedRiddleStone = false;
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
+bool ringOfSwiftnessActive = false;
+bool ringOfStrengthActive = false;
+bool ringOfWeaknessActive = false;
+bool ringOfHungerActive = false;
+bool ringOfRegenActive = false;
+float lastPotionSpeedModifier = 0;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -311,7 +317,9 @@ void handleHungerAndEffects() {
     if (starving) {
       playerHP -= 1;
     } else {
-      playerFood -= 1;
+      int hungerDrain = 1;
+      if (ringOfHungerActive) hungerDrain += 4; // Increase drain if hunger ring is active
+      playerFood -= hungerDrain;
     }
     hungerTick = 0;
     starving = playerFood <= 0 ? true : false;
@@ -336,7 +344,8 @@ void handleHungerAndEffects() {
     if (speedTimer <= 0) {
       speedTimer = 1000;
       speeding = false;
-      currentSpeedMultiplier = 1;
+      currentSpeedMultiplier -= lastPotionSpeedModifier;
+      lastPotionSpeedModifier = 0;
     }
   }
 
@@ -356,6 +365,8 @@ void handleHungerAndEffects() {
       if (playerHP > playerMaxHP) playerHP = playerMaxHP;
     }
   }
+
+  handleRingEffects();
 }
 
 void playDamselSFX(String tone) {
@@ -550,4 +561,17 @@ void handleRiddles() {
     // Reset riddle so a new one can be generated next time.
     riddleGenerated = false;
   }
+}
+
+void handleRingEffects() {
+    static int regenCounter = 0;
+    if (ringOfRegenActive) {
+        regenCounter++;
+        if (regenCounter >= 50) { // Regenerate every 50 ticks (adjust as needed)
+            if (playerHP < playerMaxHP) playerHP++;
+            regenCounter = 0;
+        }
+    } else {
+        regenCounter = 0;
+    }
 }

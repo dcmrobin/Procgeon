@@ -45,6 +45,12 @@ extern int equippedArmorValue;
 extern GameItem equippedArmor;
 extern bool equippedRiddleStone;
 extern int playerAttackDamage;
+extern bool ringOfSwiftnessActive;
+extern bool ringOfStrengthActive;
+extern bool ringOfWeaknessActive;
+extern bool ringOfHungerActive;
+extern bool ringOfRegenActive;
+extern float lastPotionSpeedModifier;
 
 void renderPlayer();
 void handleInput();
@@ -54,5 +60,6 @@ void handleHungerAndEffects();
 void handleDialogue();
 void handleRiddles();
 void playDamselSFX(String tone);
+void handleRingEffects();
 
 #endif

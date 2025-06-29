@@ -318,7 +318,8 @@ void handleItemActionMenu() {
 
         if (selectedItem.SpeedMultiplier != 0) {
           speeding = true;
-          currentSpeedMultiplier = selectedItem.SpeedMultiplier;
+          lastPotionSpeedModifier = selectedItem.SpeedMultiplier;
+          currentSpeedMultiplier += selectedItem.SpeedMultiplier;
         }
 
         if (playerHP <= 0) {
@@ -423,7 +424,24 @@ void handleItemActionMenu() {
             if (selectedItem.item == RiddleStone) {
               equippedRiddleStone = false;
             }
-            
+            // --- Remove ring effects when unequipped ---
+            if (selectedItem.item == Ring) {
+              int idx = selectedItem.ringEffectIndex;
+              if (ringEffects[idx] == "Ring of Swiftness") {
+                ringOfSwiftnessActive = false;
+                currentSpeedMultiplier -= 0.5;
+              } else if (ringEffects[idx] == "Ring of Strength") {
+                ringOfStrengthActive = false;
+                playerAttackDamage -= 5;
+              } else if (ringEffects[idx] == "Ring of Weakness") {
+                ringOfWeaknessActive = false;
+                playerAttackDamage += 5;
+              } else if (ringEffects[idx] == "Ring of Hunger") {
+                ringOfHungerActive = false;
+              } else if (ringEffects[idx] == "Ring of Regeneration") {
+                ringOfRegenActive = false;
+              }
+            }
             playRawSFX(2);
             currentUIState = UI_INVENTORY;
           }
@@ -441,7 +459,24 @@ void handleItemActionMenu() {
                 equippedArmorValue = selectedItem.armorValue;
                 equippedArmor = selectedItem;
             }
-            
+            // --- Apply ring effects when equipped ---
+            if (selectedItem.item == Ring) {
+              int idx = selectedItem.ringEffectIndex;
+              if (ringEffects[idx] == "Ring of Swiftness") {
+                ringOfSwiftnessActive = true;
+                currentSpeedMultiplier += 0.5;
+              } else if (ringEffects[idx] == "Ring of Strength") {
+                ringOfStrengthActive = true;
+                playerAttackDamage += 5;
+              } else if (ringEffects[idx] == "Ring of Weakness") {
+                ringOfWeaknessActive = true;
+                playerAttackDamage -= 5;
+              } else if (ringEffects[idx] == "Ring of Hunger") {
+                ringOfHungerActive = true;
+              } else if (ringEffects[idx] == "Ring of Regeneration") {
+                ringOfRegenActive = true;
+              }
+            }
             playRawSFX(2);
             itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : selectedItem.itemResult; // override riddle stone text
             equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
