@@ -171,7 +171,7 @@ GameItems getRandomPotion(int randInt, bool primaryColors) {
         // Dynamically collect all potions from itemList
         GameItems potions[NUM_POTIONS];
         int count = 0;
-        for (int i = 0; i < sizeof(itemList)/sizeof(itemList[0]); i++) {
+        for (size_t i = 0; i < sizeof(itemList)/sizeof(itemList[0]); i++) {
             if (itemList[i].category == PotionCategory && itemList[i].item != EmptyBottle && itemList[i].item != Null) {
                 potions[count++] = itemList[i].item;
             }
