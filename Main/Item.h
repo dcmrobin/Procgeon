@@ -3,11 +3,11 @@
 
 #include <Arduino.h>
 
-#define NUM_POTIONS 11
+#define NUM_POTIONS 12
 #define NUM_SCROLLS 3
 #define NUM_RINGS 5
 
-enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, Mushroom, EmptyBottle, RiddleStone, Scroll, WetScroll, Ring, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
+enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, LimePotion, Mushroom, EmptyBottle, RiddleStone, Scroll, WetScroll, Ring, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };
 enum EffectType {
   DefaultEffect,
@@ -22,6 +22,7 @@ enum EffectType {
   HungerEffect, 
   SeeAllEffect, 
   ConfusionEffect, 
+  RidiculeEffect,
   ArmorEffect,
   ScrollProtectionEffect,
   ScrollIdentifyEffect,
