@@ -340,7 +340,18 @@ void handleItemActionMenu() {
         } else if (selectedItem.itemResult == "What is going on?") {
           confused = true;
           confusionTimer = 1000;
+        } else if (selectedItem.itemResult == "You feel fabulous!") {
+          if (ridiculed) {
+            ridiculed = false;
+            ridiculeTimer = 0;
+          }
+          glamoured = true;
+          glamourTimer = 1000;
         } else if (selectedItem.itemResult == "You feel stupid.") {
+          if (glamoured) {
+            glamoured = false;
+            glamourTimer = 0;
+          }
           ridiculed = true;
           ridiculeTimer = RIDICULE_DURATION;
         }

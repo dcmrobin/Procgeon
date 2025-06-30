@@ -54,7 +54,7 @@ PotionEffect potionEffects[] = {
   { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?"), ConfusionEffect },
   { 0,  0,  0, 0, String("Ridicule Potion"), String("Drinking this makes you feel stupid."), String("You feel stupid."), RidiculeEffect },
   { 0,  0,  0, 0, String("Bland Potion"), String("Colored liquid that does nothing."), String("Nothing happens."), NoEffect },
-  { 0,  0,  0, 0, String("Glamour Potion"), String("Drinking this makes you feel awesome."), String("You feel awsome."), GlamourEffect}
+  { 0,  0,  0, 0, String("Glamour Potion"), String("Drinking this makes you feel awesome."), String("You feel fabulous!"), GlamourEffect}
 };
 
 ScrollEffect scrollEffects[] = {

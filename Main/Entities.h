@@ -32,6 +32,7 @@ extern Dialogue damselPassiveDialogue[7];
 extern Dialogue damselGoodDialogue[7];
 extern Dialogue damselCarryDialogue[7];
 extern Dialogue ridiculeDialogue[8];
+extern Dialogue glamourDialogue[8];
 
 struct Enemy {
   float x, y;

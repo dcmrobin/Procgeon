@@ -57,6 +57,8 @@ bool ridiculed = false;
 int ridiculeTimer = 0;
 int lastRidiculeIndex = -1;
 bool isRidiculeDialogue = false;
+bool glamoured = false;
+int glamourTimer = 0;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -380,6 +382,14 @@ void handleHungerAndEffects() {
       ridiculed = false;
     }
   }
+
+  if (glamoured) {
+    glamourTimer--;
+    if (glamourTimer <= 0) {
+      glamourTimer = 1000;
+      glamoured = false;
+    }
+  }
 }
 
 void playDamselSFX(String tone) {
@@ -394,6 +404,24 @@ void playDamselSFX(String tone) {
 
 int dialogueTimer = 0;
 void handleDialogue() {
+  // Glamour dialogue system
+  if (glamoured) {
+    static int lastGlamourIndex = -1;
+    if (!showDialogue) {
+      int length = sizeof(glamourDialogue) / sizeof(glamourDialogue[0]);
+      if (length <= 0) return; // Defensive: don't proceed if array is empty
+      int index = random(0, length);
+      if (index == lastGlamourIndex && length > 1) {
+        index = (index + 1) % length;
+      }
+      lastGlamourIndex = index;
+      dialogueTimeLength = glamourDialogue[index].duration;
+      currentDialogue = glamourDialogue[index].message;
+      showDialogue = true;
+      isRidiculeDialogue = true; // Reuse this to hide portrait
+    }
+  }
+
   // Ridicule dialogue system
   if (ridiculed) {
     if (!showDialogue) {
@@ -403,14 +431,6 @@ void handleDialogue() {
       if (index == lastRidiculeIndex && length > 1) {
         index = (index + 1) % length;
       }
-      /*Serial.print("[DEBUG] Ridicule array length: ");
-      Serial.println(length);
-      Serial.print("[DEBUG] Chosen index: ");
-      Serial.println(index);
-      if (index < 0 || index >= length) {
-        Serial.println("[ERROR] Ridicule index out of bounds!");
-        return;
-      }*/
       lastRidiculeIndex = index;
       dialogueTimeLength = ridiculeDialogue[index].duration;
       currentDialogue = ridiculeDialogue[index].message;

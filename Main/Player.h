@@ -55,6 +55,8 @@ extern bool ringOfRegenActive;
 extern float lastPotionSpeedModifier;
 extern bool ridiculed;
 extern int ridiculeTimer;
+extern bool glamoured;
+extern int glamourTimer;
 
 void renderPlayer();
 void handleInput();

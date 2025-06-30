@@ -76,6 +76,17 @@ Dialogue ridiculeDialogue[] = {
   {"Maybe potions just aren't your thing.", 400}
 };
 
+Dialogue glamourDialogue[] = {
+  {"You're looking sharp today!", 400},
+  {"That was some impressive magic!", 400},
+  {"You make this look so easy.", 400},
+  {"Is there anything you can't do?", 400},
+  {"You're a true hero!", 400},
+  {"Many aren't as skilled as you.", 400},
+  {"Your bravery is inspiring.", 400},
+  {"Keep going, champion!", 400}
+};
+
 bool computePath(int startX, int startY, int goalX, int goalY, PathNode* path, int &pathLength, int maxPathNodes = 32) {
   int g[mapHeight][mapWidth];
   int f[mapHeight][mapWidth];
