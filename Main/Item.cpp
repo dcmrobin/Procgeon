@@ -20,6 +20,7 @@ GameItem itemList[] = {
   { LimePotion, PotionCategory, String("Lime Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Lime Potion"), String("Nothing happens.")},
   { GreyPotion, PotionCategory, String("Grey Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Grey Potion"), String("Nothing happens.")},
   { OlivePotion, PotionCategory, String("Olive Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Olive Potion"), String("Nothing happens.")},
+  { CreamPotion, PotionCategory, String("Cream Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Cream Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
   { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), true, DefaultEffect, 0, false, false, 2},
@@ -54,7 +55,8 @@ PotionEffect potionEffects[] = {
   { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?"), ConfusionEffect },
   { 0,  0,  0, 0, String("Ridicule Potion"), String("Drinking this makes you feel stupid."), String("You feel stupid."), RidiculeEffect },
   { 0,  0,  0, 0, String("Bland Potion"), String("Colored liquid that does nothing."), String("Nothing happens."), NoEffect },
-  { 0,  0,  0, 0, String("Glamour Potion"), String("Drinking this makes you feel awesome."), String("You feel fabulous!"), GlamourEffect}
+  { 0,  0,  0, 0, String("Glamour Potion"), String("Drinking this makes you feel awesome."), String("You feel fabulous!"), GlamourEffect},
+  { 0,  0,  0, 0, String("Chaos Potion"), String("The effect of this potion is random."), String("A lot happens."), ChoasEffect},
 };
 
 ScrollEffect scrollEffects[] = {
