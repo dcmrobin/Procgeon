@@ -87,6 +87,10 @@ void handleInput() {
 
   float speed = speeding ? baseSpeed * currentSpeedMultiplier : baseSpeed;
 
+  if (speed <= 0) {
+    speed = 0.01;
+  }
+
   // Reset playerActed at the start of each input handling
   playerActed = false;
 

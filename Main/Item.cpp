@@ -41,7 +41,7 @@ String scrollNames[] = {
 };
 
 // Possible effect pool
-PotionEffect potionEffects[] = {
+PotionEffect potionEffects[] = {// do not change any of the effectresult strings, as they are used for comparing effects
   { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP."), String("You feel better."), HealingEffect },
   { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something..."), String("You lose 20 HP."), PoisonEffect },
   { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you."), String("The enemies around you lose 40 HP."), ExplosionEffect },
@@ -76,7 +76,8 @@ ItemCombination itemCombinations[] = {
     {GreenPotion, BlackPotion, DarkGreenPotion},
     {GreenPotion, YellowPotion, LimePotion},
     {WhitePotion, BlackPotion, GreyPotion},
-    {YellowPotion, BlackPotion, OlivePotion}
+    {YellowPotion, BlackPotion, OlivePotion},
+    {YellowPotion, WhitePotion, CreamPotion}
     // Add more general item combinations here
 };
 

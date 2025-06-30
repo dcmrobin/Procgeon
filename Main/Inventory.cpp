@@ -307,6 +307,14 @@ void handleItemActionMenu() {
         }
         buttons.bPressedPrev = true;
       } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
+        if (selectedItem.itemResult == "A lot happens.") { // random effect applied to the potion before anything else so that all the effects can be applied after
+          selectedItem.healthRecoverAmount = random(-90, 101); // -90 to +100
+          selectedItem.hungerRecoverAmount = random(-90, 101); // -90 to +100
+          selectedItem.AOEsize = random(0, 11); // 0 to 10
+          selectedItem.AOEdamage = random(-10, 21); // -10 to +20
+          selectedItem.SpeedMultiplier = (random(-20, 21)) / 10.0; // -2.0 to +2.0
+        }
+
         // Handle potion drinking
         playRawSFX(6);
         playerHP += selectedItem.healthRecoverAmount;
