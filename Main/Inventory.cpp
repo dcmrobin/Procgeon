@@ -528,7 +528,7 @@ void renderInventory() {
       display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) display.print("> ");
       // Highlight combinable items when combiningTwoItems is true
-      if (combiningTwoItems && i != ingredient1index) {
+      if (combiningTwoItems) {
         GameItem result = CombineTwoItemsToGetItem(combiningItem1, item);
         if (result.item != Null) {
           display.print(">>"); // Marker for combinable
