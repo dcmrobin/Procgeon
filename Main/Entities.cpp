@@ -65,6 +65,17 @@ Dialogue damselCarryDialogue[] = {
   {"Can I stay with you after we escape?", 500}
 };
 
+Dialogue ridiculeDialogue[] = {
+  {"Is that the best you can do?", 400},
+  {"I've seen slimes with more brains.", 400},
+  {"Use your brain! Oh wait- you don't have one.", 400},
+  {"Nice move genius.", 400},
+  {"You call that magic?", 400},
+  {"You're not the greatest at this.", 400},
+  {"Wow. Just wow.", 400},
+  {"Maybe potions just aren't your thing.", 400}
+};
+
 bool computePath(int startX, int startY, int goalX, int goalY, PathNode* path, int &pathLength, int maxPathNodes = 32) {
   int g[mapHeight][mapWidth];
   int f[mapHeight][mapWidth];

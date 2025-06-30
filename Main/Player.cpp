@@ -53,6 +53,10 @@ bool ringOfWeaknessActive = false;
 bool ringOfHungerActive = false;
 bool ringOfRegenActive = false;
 float lastPotionSpeedModifier = 0;
+bool ridiculed = false;
+int ridiculeTimer = 0;
+int lastRidiculeIndex = -1;
+bool isRidiculeDialogue = false;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -221,7 +225,7 @@ void handleInput() {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
-    if (addToInventory(getItem(getRandomPotion(random(8), true)), false)) {
+    if (addToInventory(getItem(getRandomPotion(random(6), true)), false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -367,6 +371,15 @@ void handleHungerAndEffects() {
   }
 
   handleRingEffects();
+
+  // Update ridicule timer
+  if (ridiculed) {
+    ridiculeTimer--;
+    if (ridiculeTimer <= 0) {
+      ridiculeTimer = RIDICULE_DURATION;
+      ridiculed = false;
+    }
+  }
 }
 
 void playDamselSFX(String tone) {
@@ -381,6 +394,32 @@ void playDamselSFX(String tone) {
 
 int dialogueTimer = 0;
 void handleDialogue() {
+  // Ridicule dialogue system
+  if (ridiculed) {
+    if (!showDialogue) {
+      int length = sizeof(ridiculeDialogue) / sizeof(ridiculeDialogue[0]);
+      if (length <= 0) return; // Defensive: don't proceed if array is empty
+      int index = random(0, length);
+      if (index == lastRidiculeIndex && length > 1) {
+        index = (index + 1) % length;
+      }
+      /*Serial.print("[DEBUG] Ridicule array length: ");
+      Serial.println(length);
+      Serial.print("[DEBUG] Chosen index: ");
+      Serial.println(index);
+      if (index < 0 || index >= length) {
+        Serial.println("[ERROR] Ridicule index out of bounds!");
+        return;
+      }*/
+      lastRidiculeIndex = index;
+      dialogueTimeLength = ridiculeDialogue[index].duration;
+      currentDialogue = ridiculeDialogue[index].message;
+      showDialogue = true;
+      isRidiculeDialogue = true;
+    }
+  }
+
+  // Drawing code (always runs if showDialogue is true)
   if (showDialogue) {
     dialogueTimer++;
     if (dialogueTimer >= dialogueTimeLength) {
@@ -392,8 +431,10 @@ void handleDialogue() {
     u8g2_for_adafruit_gfx.setCursor(27, 19);
     drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
-    display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
-    display.drawRect(8, 10, 18, 34, 15);
+    if (!isRidiculeDialogue) {
+      display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
+      display.drawRect(8, 10, 18, 34, 15);
+    }
   }
 
   if (damsel[0].followingPlayer && !damsel[0].dead) {
@@ -429,6 +470,7 @@ void handleDialogue() {
         int index = pickDialogue(damselCarryDialogue, length);
         currentDamselPortrait = damselPortraitCarrying;
         dialogueTimeLength = damselCarryDialogue[index].duration;
+        isRidiculeDialogue = false;
         currentDialogue = damselCarryDialogue[index].message;
         if (!damselCarryDialogue[index].alreadyBeenSaid) {
           playRawSFX(18);
@@ -448,6 +490,7 @@ void handleDialogue() {
                                   damselPortraitAlone : 
                                   damselPortraitNormal;
           dialogueTimeLength = damselAnnoyingDialogue[index].duration;
+          isRidiculeDialogue = false;
           currentDialogue = damselAnnoyingDialogue[index].message;
           damselAnnoyingDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
@@ -462,6 +505,7 @@ void handleDialogue() {
                                   damselPortraitAlone : 
                                   damselPortraitNormal;
           dialogueTimeLength = damselPassiveDialogue[index].duration;
+          isRidiculeDialogue = false;
           currentDialogue = damselPassiveDialogue[index].message;
           damselPassiveDialogue[index].alreadyBeenSaid = true;
         } else if (damsel[0].levelOfLove >= 6) {
@@ -484,6 +528,7 @@ void handleDialogue() {
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
             dialogueTimeLength = damselGoodDialogue[index].duration;
+            isRidiculeDialogue = false;
             currentDialogue = damselGoodDialogue[index].message;
             damselGoodDialogue[index].alreadyBeenSaid = true;
           }

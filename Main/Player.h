@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include "Item.h"
 
+#define RIDICULE_DURATION 1000
+
 extern String deathCause;
 extern String currentDialogue;
 extern float playerX;
@@ -51,6 +53,8 @@ extern bool ringOfWeaknessActive;
 extern bool ringOfHungerActive;
 extern bool ringOfRegenActive;
 extern float lastPotionSpeedModifier;
+extern bool ridiculed;
+extern int ridiculeTimer;
 
 void renderPlayer();
 void handleInput();

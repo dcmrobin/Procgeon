@@ -161,14 +161,20 @@ void resetPotionNames() {
 }
 
 GameItems getRandomPotion(int randInt, bool primaryColors) {
-  if (primaryColors) {
-    GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };
-    return potions[randInt % 6];  // Ensure it's within bounds
-  } else {
-    GameItems allPotions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, 
-                              OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion };
-    return allPotions[randInt % NUM_POTIONS];  // Use all potions
-  }
+    if (primaryColors) {
+        GameItems potions[] = { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion };
+        return potions[randInt % 6];
+    } else {
+        // Dynamically collect all potions from itemList
+        GameItems potions[NUM_POTIONS];
+        int count = 0;
+        for (int i = 0; i < sizeof(itemList)/sizeof(itemList[0]); i++) {
+            if (itemList[i].category == PotionCategory && itemList[i].item != EmptyBottle && itemList[i].item != Null) {
+                potions[count++] = itemList[i].item;
+            }
+        }
+        return potions[randInt % count];
+    }
 }
 
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage) {

@@ -17,8 +17,6 @@ Add a chaos potion that has randomized effects on each use. (instead of putting 
 
 Add a glamour potion that does nothing except make things look better or just make you feel cool- or maybe the game compliments you or something?
 
-Add a ridicule potion that makes the game ridicule you.
-
 Add a blindness potion. (the worst potion possible)
 
 There could be secret doors- walls you could walk through to another room that might be full of loot.

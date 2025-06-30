@@ -340,6 +340,9 @@ void handleItemActionMenu() {
         } else if (selectedItem.itemResult == "What is going on?") {
           confused = true;
           confusionTimer = 1000;
+        } else if (selectedItem.itemResult == "You feel stupid.") {
+          ridiculed = true;
+          ridiculeTimer = RIDICULE_DURATION;
         }
         
         for (int i = 0; i < inventorySize; i++) {
