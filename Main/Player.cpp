@@ -13,7 +13,7 @@ float playerY = 0;
 float currentSpeedMultiplier = 1;
 int playerHP = 100;
 int playerMaxHP = 100;
-int speedTimer = 1000;
+int speedTimer = 500;
 int seeAllTimer = 1000;
 int dungeon = 1;
 int kills = 0;
@@ -59,6 +59,8 @@ int lastRidiculeIndex = -1;
 bool isRidiculeDialogue = false;
 bool glamoured = false;
 int glamourTimer = 0;
+bool blinded = false;
+int blindnessTimer = 0;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -325,7 +327,7 @@ void handleHungerAndEffects() {
 
   if (hungerTick >= (starving ? 200 : 700)) {
     if (starving) {
-      playerHP -= 1;
+      playerHP -= 3;
     } else {
       int hungerDrain = 1;
       if (ringOfHungerActive) hungerDrain += 4; // Increase drain if hunger ring is active
@@ -352,7 +354,7 @@ void handleHungerAndEffects() {
   if (speeding) {
     speedTimer--;
     if (speedTimer <= 0) {
-      speedTimer = 1000;
+      speedTimer = 500;
       speeding = false;
       currentSpeedMultiplier -= lastPotionSpeedModifier;
       lastPotionSpeedModifier = 0;
@@ -392,6 +394,14 @@ void handleHungerAndEffects() {
     if (glamourTimer <= 0) {
       glamourTimer = 1000;
       glamoured = false;
+    }
+  }
+
+  if (blinded) {
+    blindnessTimer--;
+    if (blindnessTimer <= 0) {
+      blindnessTimer = 700;
+      blinded = false;
     }
   }
 }

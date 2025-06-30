@@ -57,6 +57,8 @@ extern bool ridiculed;
 extern int ridiculeTimer;
 extern bool glamoured;
 extern int glamourTimer;
+extern bool blinded;
+extern int blindnessTimer;
 
 void renderPlayer();
 void handleInput();

@@ -61,15 +61,18 @@ void resetGame() {
   
   // Reset UI and game state
   currentUIState = UI_NORMAL;
-  showDialogue = false;
   speeding = false;
   currentSpeedMultiplier = 1;
-  speedTimer = 1000;
+  speedTimer = 500;
   hasMap = false;
   equippedRiddleStone = false;
   starving = false;
   seeAll = false;
   confused = false;
+  ridiculed = false;
+  glamoured = false;
+  blinded = false;
+  showDialogue = false;
   
   // Reset damsel state
   damselWasFollowing = false;
@@ -229,10 +232,12 @@ void updateGame() {
 
 void renderGame() {
   display.clearDisplay();
-  renderDungeon();
-  renderDamsel();
-  renderEnemies();
-  renderProjectiles();
+  if (!blinded) {
+    renderDungeon();
+    renderDamsel();
+    renderEnemies();
+    renderProjectiles();
+  }
   renderPlayer();
   renderUI();
   handleDialogue();

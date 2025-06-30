@@ -259,6 +259,12 @@ void handleItemActionMenu() {
     
     if (selectedActionIndex == 0) { // Use/Read/Drink
       if (selectedItem.category == ScrollsCategory) {
+        if (blinded) {
+          itemResultMessage = "You can't read while blind!";
+          currentUIState = UI_ITEM_RESULT;
+          buttons.bPressedPrev = true;
+          return;
+        }
         // Handle scroll reading - scrolls are destroyed after first use
         if (!selectedItem.isScrollRevealed) {
           // First time reading - reveal name and apply effect
@@ -321,7 +327,7 @@ void handleItemActionMenu() {
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
 
         if (speeding) {
-          speedTimer += 1000;
+          speedTimer += 500;
         }
 
         if (selectedItem.SpeedMultiplier != 0) {
@@ -362,6 +368,9 @@ void handleItemActionMenu() {
           }
           ridiculed = true;
           ridiculeTimer = RIDICULE_DURATION;
+        } else if (selectedItem.itemResult == "A cloak of darkness falls around you.") {
+          blinded = true;
+          blindnessTimer = 700;
         }
         
         for (int i = 0; i < inventorySize; i++) {
