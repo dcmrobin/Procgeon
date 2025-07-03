@@ -374,7 +374,27 @@ void handleItemActionMenu() {
         } else if (selectedItem.itemResult == "You feel stronger.") {
           playerAttackDamage += 3;
         } else if (selectedItem.itemResult == "You feel restored!") {
-          //
+          //cures blindness, confusion, ridicule, and glamoured, and restores speed, and raises player attack damage, and restores player hp and food
+          blinded = false;
+          blindnessTimer = 0;
+          confused = false;
+          confusionTimer = 0;
+          if (ridiculed) {
+            ridiculed = false;
+            ridiculeTimer = 0;
+            showDialogue = false;
+          }
+          if (currentSpeedMultiplier < 1) {
+            currentSpeedMultiplier = 0;
+            speedTimer = 0;
+            speeding = false;
+            lastPotionSpeedModifier = 0;
+          }
+          playerAttackDamage += 3;
+          playerHP += 15;
+          playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
+          playerFood += 15;
+          playerFood = playerFood > 100 ? 100 : playerFood;
         }
         
         for (int i = 0; i < inventorySize; i++) {
