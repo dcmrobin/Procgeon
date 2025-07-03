@@ -86,6 +86,28 @@ void renderPlayer() {
       display.setCursor(textX, textY);
       display.print("Carry [B]");
     }
+    // --- Show 'Open Chest [B]' prompt if player is adjacent to a chest ---
+    int rPx = round(playerX);
+    int rPy = round(playerY);
+    bool nearChest = false;
+    for (int dx = -1; dx <= 1 && !nearChest; dx++) {
+      for (int dy = -1; dy <= 1 && !nearChest; dy++) {
+        int cx = rPx + dx;
+        int cy = rPy + dy;
+        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
+          nearChest = true;
+        }
+      }
+    }
+    if (nearChest) {
+      display.setTextSize(1);
+      display.setTextColor(15);
+      int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
+      int textX = (screenX + tileSize / 2) - (textWidth / 2);
+      int textY = (screenY + tileSize) + 12;
+      display.setCursor(textX, textY);
+      display.print("Open Chest [B]");
+    }
   }
 
   // Update viewport offset if needed
@@ -305,30 +327,6 @@ void handleInput() {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
-  } else if (dungeonMap[rNewY][rNewX] == ChestTile) {
-    // Open the chest: remove chest and spawn loot in 3x3 area
-    playRawSFX(3); // Play pickup sound
-    dungeonMap[rNewY][rNewX] = Floor;
-    for (int dx = -1; dx <= 1; dx++) {
-      for (int dy = -1; dy <= 1; dy++) {
-        int lx = rNewX + dx;
-        int ly = rNewY + dy;
-        if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-          int lootType = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
-          if (lootType == 0 && random(0, 100) < 60) {
-            dungeonMap[ly][lx] = RiddleStoneTile;
-          } else if (lootType == 1 && random(0, 100) < 80) {
-            dungeonMap[ly][lx] = ArmorTile;
-          } else if (lootType == 2 && random(0, 100) < 80) {
-            dungeonMap[ly][lx] = RingTile;
-          } else if (lootType == 3 && random(0, 100) < 80) {
-            dungeonMap[ly][lx] = ScrollTile;
-          } else if (lootType == 4) {
-            dungeonMap[ly][lx] = Potion;
-          }
-        }
-      }
-    }
   }
 
   int rPx = round(playerX);
@@ -342,6 +340,43 @@ void handleInput() {
       damsel[0].active = false;
     }
     statusScreen = true;
+  }
+
+  // --- Open chest only if B is pressed and player is adjacent to a chest ---
+  if (buttons.bPressed) {
+    for (int dx = -1; dx <= 1; dx++) {
+      for (int dy = -1; dy <= 1; dy++) {
+        int cx = rPx + dx;
+        int cy = rPy + dy;
+        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
+          // Open the chest: remove chest and spawn loot in 3x3 area
+          playRawSFX(3); // Play pickup sound
+          dungeonMap[cy][cx] = Floor;
+          for (int ldx = -1; ldx <= 1; ldx++) {
+            for (int ldy = -1; ldy <= 1; ldy++) {
+              int lx = cx + ldx;
+              int ly = cy + ldy;
+              if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
+                int lootType = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
+                if (lootType == 0 && random(0, 100) < 60) {
+                  dungeonMap[ly][lx] = RiddleStoneTile;
+                } else if (lootType == 1 && random(0, 100) < 80) {
+                  dungeonMap[ly][lx] = ArmorTile;
+                } else if (lootType == 2 && random(0, 100) < 80) {
+                  dungeonMap[ly][lx] = RingTile;
+                } else if (lootType == 3 && random(0, 100) < 80) {
+                  dungeonMap[ly][lx] = ScrollTile;
+                } else if (lootType == 4) {
+                  dungeonMap[ly][lx] = Potion;
+                }
+              }
+            }
+          }
+          dx = 2; // break outer loop
+          break;
+        }
+      }
+    }
   }
 }
 
