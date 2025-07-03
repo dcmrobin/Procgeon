@@ -48,5 +48,3 @@ Need a trap that you can't see at first but when you step on it you fall through
 
 Add a sound level mechanic where depending on the sound effect played, the sound level integer will be increased, and that sound level integer is always added to every
 enemy's detection radius. This will lead to enemies being able to detect the player from further away depending on how much noise is happening at the current time.
-
-Add a restore potion that restores the player to normal stats.
