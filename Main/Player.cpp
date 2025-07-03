@@ -71,6 +71,21 @@ void renderPlayer() {
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
     display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
+
+    // --- Show 'carry [b]' prompt if player can carry damsel ---
+    float dx = playerX - damsel[0].x;
+    float dy = playerY - damsel[0].y;
+    float distanceSquared = dx * dx + dy * dy;
+    if (!carryingDamsel && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
+      display.setTextSize(1);
+      display.setTextColor(15);
+      // Center the text under the player sprite (estimate 6px per char, 9 chars)
+      int textWidth = 9 * 6;
+      int textX = (screenX + tileSize / 2) - (textWidth / 2);
+      int textY = (screenY + tileSize) + 2;
+      display.setCursor(textX, textY);
+      display.print("Carry [B]");
+    }
   }
 
   // Update viewport offset if needed
@@ -193,7 +208,7 @@ void handleInput() {
 
   if (buttons.bPressed) {
     playerActed = true;
-    if (distanceSquared <= 0.3 && !damsel[0].dead && damsel[0].levelOfLove >= 6) {
+    if (distanceSquared <= 0.4 && !damsel[0].dead && damsel[0].levelOfLove >= 6) {
       startCarryingDamsel();
     }
   } else {
