@@ -371,6 +371,8 @@ void handleItemActionMenu() {
         } else if (selectedItem.itemResult == "A cloak of darkness falls around you.") {
           blinded = true;
           blindnessTimer = 700;
+        } else if (selectedItem.itemResult == "You feel stronger.") {
+          playerAttackDamage += 3;
         }
         
         for (int i = 0; i < inventorySize; i++) {

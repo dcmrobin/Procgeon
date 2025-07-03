@@ -13,8 +13,6 @@ the more dangerous monster types there would be.
 Make the see-all potion make the walls all not be dim and the player able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
 normally see without it? Also highlights secret passages and be able to see hidden doors?
 
-Add a blindness potion. (the worst potion possible)
-
 There could be secret doors- walls you could walk through to another room that might be full of loot.
 
 There could be an enemy type that has a randomly generated sprite.
@@ -50,3 +48,5 @@ Need a trap that you can't see at first but when you step on it you fall through
 
 Add a sound level mechanic where depending on the sound effect played, the sound level integer will be increased, and that sound level integer is always added to every
 enemy's detection radius. This will lead to enemies being able to detect the player from further away depending on how much noise is happening at the current time.
+
+Add a restore potion that restores the player to normal stats.
