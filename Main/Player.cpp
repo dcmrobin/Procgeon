@@ -61,6 +61,8 @@ bool glamoured = false;
 int glamourTimer = 0;
 bool blinded = false;
 int blindnessTimer = 0;
+bool paralyzed = false;
+int paralysisTimer = 0;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -115,54 +117,70 @@ void handleInput() {
   }
 
   if (upPressed && !leftPressed && !rightPressed) {
-    playerDY = -1;
-    playerDX = 0;
-    newY -= speed; // Move up
+    if (!paralyzed) {
+      playerDY = -1;
+      playerDX = 0;
+      newY -= speed; // Move up
+    }
     playerActed = true;
   } else if (downPressed && !leftPressed && !rightPressed) {
-    playerDY = 1;
-    playerDX = 0;
-    newY += speed; // Move down
+    if (!paralyzed) {
+      playerDY = 1;
+      playerDX = 0;
+      newY += speed; // Move down
+    }
     playerActed = true;
   } else if (leftPressed && !upPressed && !downPressed) {
-    playerDX = -1;
-    playerDY = 0;
-    playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
-    newX -= speed; // Move left
+    if (!paralyzed) {
+      playerDX = -1;
+      playerDY = 0;
+      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      newX -= speed; // Move left
+    }
     playerActed = true;
   } else if (rightPressed && !upPressed && !downPressed) {
-    playerDX = 1;
-    playerDY = 0;
-    playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
-    newX += speed; // Move right
+    if (!paralyzed) {
+      playerDX = 1;
+      playerDY = 0;
+      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      newX += speed; // Move right
+    }
     playerActed = true;
   } else if (upPressed && leftPressed) {
-    playerDY = -1;
-    playerDX = -1;
-    playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
-    newY -= diagSpeed; // Move up & left
-    newX -= diagSpeed; // Move up & left
+    if (!paralyzed) {
+      playerDY = -1;
+      playerDX = -1;
+      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      newY -= diagSpeed; // Move up & left
+      newX -= diagSpeed; // Move up & left
+    }
     playerActed = true;
   } else if (upPressed && rightPressed) {
-    playerDY = -1;
-    playerDX = 1;
-    playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
-    newY -= diagSpeed; // Move up & right
-    newX += diagSpeed; // Move up & left
+    if (!paralyzed) {
+      playerDY = -1;
+      playerDX = 1;
+      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      newY -= diagSpeed; // Move up & right
+      newX += diagSpeed; // Move up & left
+    }
     playerActed = true;
   } else if (downPressed && leftPressed) {
-    playerDX = -1;
-    playerDY = 1;
-    playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
-    newX -= diagSpeed; // Move left & down
-    newY += diagSpeed; // Move up & left
+    if (!paralyzed) {
+      playerDX = -1;
+      playerDY = 1;
+      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      newX -= diagSpeed; // Move left & down
+      newY += diagSpeed; // Move up & left
+    }
     playerActed = true;
   } else if (downPressed && rightPressed) {
-    playerDX = 1;
-    playerDY = 1;
-    playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
-    newX += diagSpeed; // Move right & down
-    newY += diagSpeed; // Move up & left
+    if (!paralyzed) {
+      playerDX = 1;
+      playerDY = 1;
+      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      newX += diagSpeed; // Move right & down
+      newY += diagSpeed; // Move up & left
+    }
     playerActed = true;
   }
 
@@ -402,6 +420,14 @@ void handleHungerAndEffects() {
     if (blindnessTimer <= 0) {
       blindnessTimer = 700;
       blinded = false;
+    }
+  }
+
+  if (paralyzed) {
+    paralysisTimer--;
+    if (paralysisTimer <= 0) {
+      paralysisTimer = 1000;
+      paralyzed = false;
     }
   }
 }

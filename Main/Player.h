@@ -59,6 +59,8 @@ extern bool glamoured;
 extern int glamourTimer;
 extern bool blinded;
 extern int blindnessTimer;
+extern bool paralyzed;
+extern int paralysisTimer;
 
 void renderPlayer();
 void handleInput();

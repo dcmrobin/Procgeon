@@ -384,6 +384,8 @@ void handleItemActionMenu() {
             ridiculeTimer = 0;
             showDialogue = false;
           }
+          paralyzed = false;
+          paralysisTimer = 0;
           if (currentSpeedMultiplier < 1) {
             currentSpeedMultiplier = 0;
             speedTimer = 0;
@@ -395,6 +397,9 @@ void handleItemActionMenu() {
           playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
           playerFood += 15;
           playerFood = playerFood > 100 ? 100 : playerFood;
+        } else if (selectedItem.itemResult == "You can't move!") {
+          paralyzed = true;
+          paralysisTimer = 1000;
         }
         
         for (int i = 0; i < inventorySize; i++) {
