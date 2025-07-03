@@ -244,6 +244,17 @@ const unsigned char PROGMEM ringSprite[] = {
   0b00000000
 };
 
+const unsigned char PROGMEM chestSprite[] = {
+  0b00000000,
+  0b01111110,
+  0b11111111,
+  0b11100111,
+  0b00000000,
+  0b11100111,
+  0b11111111,
+  0b11111111
+};
+
 const unsigned char PROGMEM scrollSprite[] = {
   0b00000000,
   0b01111100,
