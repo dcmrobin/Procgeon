@@ -443,10 +443,10 @@ void renderUI() {
   if (hasMap) {
     display.drawBitmap(100, 116, mapSprite, 8, 8, SSD1327_WHITE);
   }
-  if (speeding) {
+  if (speeding || paralyzed) {
     display.drawBitmap(109, 116, fastbootSprite, 8, 8, SSD1327_WHITE);
   }
-  if (seeAll) {
+  if (seeAll || blinded) {
     display.drawBitmap(118, 116, eyeSprite, 8, 8, SSD1327_WHITE);
   }
   if (confused) {
