@@ -126,6 +126,7 @@ void setup() {
   Serial.println("type 3: make tile player is on into an armor");
   Serial.println("type 2: make tile player is on into a scroll");
   Serial.println("type 1: make tile player is on into a ring");
+  Serial.println("type 0: make tile player is on into a chest");
 
   // Play a WAV file
   /*if (!playWav1.play("bossfight.wav")) {
