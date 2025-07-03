@@ -86,6 +86,19 @@ void generateDungeon() {
     }
   }
 
+  // Spawn chests in random rooms
+  int chestCount = random(2, 5); // 2-4 chests per dungeon
+  for (int i = 0; i < chestCount; i++) {
+    int roomIndex = random(0, roomCount);
+    Room &room = rooms[roomIndex];
+    int chestX = room.x + random(1, room.width - 1);
+    int chestY = room.y + random(1, room.height - 1);
+    // Only place if the tile is floor and not occupied by player/damsel/exit
+    if (dungeonMap[chestY][chestX] == Floor) {
+      dungeonMap[chestY][chestX] = ChestTile;
+    }
+  }
+
   // Connect rooms with corridors
   for (int i = 1; i < roomCount; i++) {
     // Get the center of the current room and the previous room
@@ -366,6 +379,11 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       break;
     case Floor:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      break;
+    case ChestTile:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, chestSprite, tileSize, tileSize, floorbrightness+10);
       break;
   }
 }

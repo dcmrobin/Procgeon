@@ -303,6 +303,30 @@ void handleInput() {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
+  } else if (dungeonMap[rNewY][rNewX] == ChestTile) {
+    // Open the chest: remove chest and spawn loot in 3x3 area
+    playRawSFX(3); // Play pickup sound
+    dungeonMap[rNewY][rNewX] = Floor;
+    for (int dx = -1; dx <= 1; dx++) {
+      for (int dy = -1; dy <= 1; dy++) {
+        int lx = rNewX + dx;
+        int ly = rNewY + dy;
+        if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
+          int lootType = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
+          if (lootType == 0 && random(0, 100) < 60) {
+            dungeonMap[ly][lx] = RiddleStoneTile;
+          } else if (lootType == 1 && random(0, 100) < 80) {
+            dungeonMap[ly][lx] = ArmorTile;
+          } else if (lootType == 2 && random(0, 100) < 80) {
+            dungeonMap[ly][lx] = RingTile;
+          } else if (lootType == 3 && random(0, 100) < 80) {
+            dungeonMap[ly][lx] = ScrollTile;
+          } else if (lootType == 4) {
+            dungeonMap[ly][lx] = Potion;
+          }
+        }
+      }
+    }
   }
 
   int rPx = round(playerX);
