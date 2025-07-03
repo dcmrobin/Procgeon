@@ -373,6 +373,8 @@ void handleItemActionMenu() {
           blindnessTimer = 700;
         } else if (selectedItem.itemResult == "You feel stronger.") {
           playerAttackDamage += 3;
+        } else if (selectedItem.itemResult == "You feel restored!") {
+          //
         }
         
         for (int i = 0; i < inventorySize; i++) {

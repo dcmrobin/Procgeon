@@ -23,6 +23,7 @@ GameItem itemList[] = {
   { CreamPotion, PotionCategory, String("Cream Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Cream Potion"), String("Nothing happens.")},
   { NavyPotion, PotionCategory, String("Navy Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Navy Potion"), String("Nothing happens.")},
   { AzurePotion, PotionCategory, String("Azure Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Azure Potion"), String("Nothing happens.")},
+  { MintPotion, PotionCategory, String("Mint Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Mint Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
   { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), true, DefaultEffect, 0, false, false, 2},
@@ -61,6 +62,7 @@ PotionEffect potionEffects[] = {// do not change any of the effectresult strings
   { 0,  0,  0, 0, String("Chaos Potion"), String("The effect of this potion is random."), String("A lot happens."), ChaosEffect},
   { 0,  0,  0, 0, String("Blindness Potion"), String("Makes you blind for a time. Do not drink this potion."), String("A cloak of darkness falls around you."), BlindnessEffect},
   { 0,  0,  0, 0, String("Strength Potion"), String("Makes you do more damage."), String("You feel stronger."), StrengthEffect},
+  { 0,  0,  0, 0, String("Restore Potion"), String("Cures all your ailments."), String("You feel restored!"), RestoreEffect},
 };
 
 ScrollEffect scrollEffects[] = {
@@ -83,7 +85,8 @@ ItemCombination itemCombinations[] = {
     {YellowPotion, BlackPotion, OlivePotion},
     {YellowPotion, WhitePotion, CreamPotion},
     {BluePotion, BlackPotion, NavyPotion},
-    {BluePotion, WhitePotion, AzurePotion}
+    {BluePotion, WhitePotion, AzurePotion},
+    {GreenPotion, WhitePotion, MintPotion}
     // Add more general item combinations here
 };
 
