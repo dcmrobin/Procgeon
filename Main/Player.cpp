@@ -727,6 +727,28 @@ void handleRiddles() {
     if (selectedRiddleOption == currentRiddle.correctOption) {
       playRawSFX(6);
       itemResultMessage = "Correct! You are rewarded.";
+      // Give three random items as a reward
+      for (int i = 0; i < 3; i++) {
+        int category = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom
+        GameItem reward;
+        if (category == 0) {
+          reward = getItem(getRandomPotion(random(0, NUM_POTIONS), false));
+          addToInventory(reward, false);
+        } else if (category == 1) {
+          reward = getItem(Scroll);
+          addToInventory(reward, false);
+        } else if (category == 2) {
+          reward = getItem(Ring);
+          addToInventory(reward, false); // or true if you want rings to be possibly cursed
+        } else if (category == 3) {
+          GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
+          reward = getItem(armorTypes[random(0, 4)]);
+          addToInventory(reward, false);
+        } else if (category == 4) {
+          reward = getItem(Mushroom);
+          addToInventory(reward, false);
+        }
+      }
     } else {
       playRawSFX(13);
       itemResultMessage = "Wrong answer! You suffer.";

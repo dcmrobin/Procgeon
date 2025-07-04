@@ -414,11 +414,7 @@ void handleItemActionMenu() {
           itemResultMessage = "You can't use this, Try equipping it.";
         }
 
-        if (selectedItem.item == RiddleStone) {
-          currentUIState = UI_RIDDLE; // Riddlesssss
-        } else {
-          currentUIState = UI_ITEM_RESULT; // Change to result screen
-        }
+        currentUIState = UI_ITEM_RESULT; // Change to result screen
 
         if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
           if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].category == PotionCategory) {
@@ -448,6 +444,10 @@ void handleItemActionMenu() {
         itemResultMessage = "You can't use this, try equipping it.";
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
+      } else if (selectedItem.item == RiddleStone) {
+        currentUIState = UI_RIDDLE;
+        inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
+        inventoryPages[currentInventoryPageIndex].itemCount--;
       } else {
         playRawSFX(2);
         itemResultMessage = selectedItem.itemResult;

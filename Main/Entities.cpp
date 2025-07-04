@@ -83,7 +83,7 @@ Dialogue glamourDialogue[] = {
   {"Is there anything you can't do?", 400},
   {"You're a true hero!", 400},
   {"Many aren't as skilled as you.", 400},
-  {"Your bravery is inspiring.", 400},
+  {"Your bravery is very inspiring.", 400},
   {"Keep going, champion!", 400}
 };
 
