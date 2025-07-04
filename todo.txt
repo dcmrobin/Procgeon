@@ -50,3 +50,5 @@ Add a sound level mechanic where depending on the sound effect played, the sound
 enemy's detection radius. This will lead to enemies being able to detect the player from further away depending on how much noise is happening at the current time.
 
 Each item needs a "rarity" value that influences how often it spawns.
+
+Chests spawn way too much loot right now.
