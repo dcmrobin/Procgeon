@@ -174,7 +174,7 @@ void generateDungeon() {
     // Place the damsel in the cell
     damsel[0].x = centerX - 1;
     damsel[0].y = centerY - 1;
-    dungeonMap[centerY][centerX] = Potion;
+    dungeonMap[centerY][centerX] = ChestTile;
     damsel[0].speed = 0.1;
     damsel[0].followingPlayer = false;
     damsel[0].dead = false;
