@@ -277,8 +277,6 @@ void handleInput() {
       setTile((int)playerX, (int)playerY, ScrollTile);
     } else if (input == '1') {
       setTile((int)playerX, (int)playerY, RingTile);
-    } else if (input == '0') {
-      setTile((int)playerX, (int)playerY, ChestTile);
     }
   }
 
