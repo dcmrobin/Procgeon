@@ -5,6 +5,7 @@
 #include "Entities.h"
 #include "GameAudio.h"
 #include "Item.h"
+#include "Puzzles.h"
 
 String deathCause = "";
 String currentDialogue = "";
@@ -755,6 +756,10 @@ void handleRingEffects() {
 }
 
 void OpenChest(int cy, int cx, int dx) {
+  // Require solving Picross puzzle before opening
+  if (!launchPicrossPuzzle()) {
+    return; // Player did not solve puzzle, do not open chest
+  }
   // Open the chest: remove chest and spawn loot in 3x3 area
   playRawSFX(3); // Play pickup sound
   dungeonMap[cy][cx] = Floor;

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "Item.h"
+#include "Puzzles.h"
 
 #define RIDICULE_DURATION 1000
 
