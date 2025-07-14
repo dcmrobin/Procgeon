@@ -756,8 +756,8 @@ void handleRingEffects() {
 }
 
 void OpenChest(int cy, int cx, int dx) {
-  // Require solving Picross puzzle before opening
-  if (!launchPicrossPuzzle()) {
+  // Require solving a random puzzle before opening
+  if (!launchRandomPuzzle()) {
     return; // Player did not solve puzzle, do not open chest
   }
   // Open the chest: remove chest and spawn loot in 3x3 area

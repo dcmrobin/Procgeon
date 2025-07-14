@@ -9,6 +9,11 @@ bool picrossPlayerGrid[PICROSS_SIZE][PICROSS_SIZE];
 static int picrossCursorX = 0;
 static int picrossCursorY = 0;
 
+// --- Lights Out Puzzle State ---
+bool lightsOutGrid[LIGHTSOUT_SIZE][LIGHTSOUT_SIZE];
+int lightsOutCursorX = 0;
+int lightsOutCursorY = 0;
+
 void resetPicrossPuzzle() {
     generatePicrossPuzzle();
     for (int y = 0; y < PICROSS_SIZE; y++)
@@ -150,4 +155,118 @@ bool launchPicrossPuzzle() {
     delay(800);
     currentUIState = UI_NORMAL; // Return to normal UI
     return true;
+}
+
+void resetLightsOutPuzzle() {
+    generateLightsOutPuzzle();
+    lightsOutCursorX = 0;
+    lightsOutCursorY = 0;
+}
+
+void generateLightsOutPuzzle() {
+    // Start with all off, then do a few random toggles to ensure solvable and easy
+    for (int y = 0; y < LIGHTSOUT_SIZE; y++)
+        for (int x = 0; x < LIGHTSOUT_SIZE; x++)
+            lightsOutGrid[y][x] = false;
+    int numToggles = random(2, 5); // 2-4 random toggles
+    for (int i = 0; i < numToggles; i++) {
+        int rx = random(0, LIGHTSOUT_SIZE);
+        int ry = random(0, LIGHTSOUT_SIZE);
+        int dx[5] = {0, 1, -1, 0, 0};
+        int dy[5] = {0, 0, 0, 1, -1};
+        for (int j = 0; j < 5; j++) {
+            int nx = rx + dx[j];
+            int ny = ry + dy[j];
+            if (nx >= 0 && nx < LIGHTSOUT_SIZE && ny >= 0 && ny < LIGHTSOUT_SIZE) {
+                lightsOutGrid[ny][nx] = !lightsOutGrid[ny][nx];
+            }
+        }
+    }
+}
+
+void drawLightsOutPuzzle() {
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(15);
+    int cellSize = 16;
+    int gridX = 32, gridY = 16;
+    for (int y = 0; y < LIGHTSOUT_SIZE; y++) {
+        for (int x = 0; x < LIGHTSOUT_SIZE; x++) {
+            int px = gridX + x * cellSize;
+            int py = gridY + y * cellSize;
+            display.drawRect(px, py, cellSize, cellSize, 15);
+            if (lightsOutGrid[y][x]) {
+                display.fillRect(px+2, py+2, cellSize-4, cellSize-4, 15);
+            }
+            // Make the current square indicator highly visible
+            if (x == lightsOutCursorX && y == lightsOutCursorY) {
+                if (lightsOutGrid[y][x]) {
+                    display.fillRect(px+4, py+4, cellSize-8, cellSize-8, 0); // Black center if lit
+                } else {
+                    display.fillRect(px+4, py+4, cellSize-8, cellSize-8, 15); // White center if unlit
+                }
+                display.drawRect(px-2, py-2, cellSize+4, cellSize+4, 1); // Extra thick border
+            }
+        }
+    }
+    display.setCursor(0, 120);
+    display.print("Lights Out puzzle");
+    display.display();
+}
+
+void handleLightsOutInput() {
+    updateButtonStates();
+    if (buttons.upPressed && !buttons.upPressedPrev) {
+        if (lightsOutCursorY > 0) lightsOutCursorY--;
+    } else if (buttons.downPressed && !buttons.downPressedPrev) {
+        if (lightsOutCursorY < LIGHTSOUT_SIZE-1) lightsOutCursorY++;
+    } else if (buttons.leftPressed && !buttons.leftPressedPrev) {
+        if (lightsOutCursorX > 0) lightsOutCursorX--;
+    } else if (buttons.rightPressed && !buttons.rightPressedPrev) {
+        if (lightsOutCursorX < LIGHTSOUT_SIZE-1) lightsOutCursorX++;
+    } else if (buttons.bPressed && !buttons.bPressedPrev) {
+        // Toggle this cell and its neighbors
+        int dx[5] = {0, 1, -1, 0, 0};
+        int dy[5] = {0, 0, 0, 1, -1};
+        for (int i = 0; i < 5; i++) {
+            int nx = lightsOutCursorX + dx[i];
+            int ny = lightsOutCursorY + dy[i];
+            if (nx >= 0 && nx < LIGHTSOUT_SIZE && ny >= 0 && ny < LIGHTSOUT_SIZE) {
+                lightsOutGrid[ny][nx] = !lightsOutGrid[ny][nx];
+            }
+        }
+    }
+}
+
+bool isLightsOutSolved() {
+    for (int y = 0; y < LIGHTSOUT_SIZE; y++)
+        for (int x = 0; x < LIGHTSOUT_SIZE; x++)
+            if (lightsOutGrid[y][x]) return false;
+    return true;
+}
+
+bool launchLightsOutPuzzle() {
+    resetLightsOutPuzzle();
+    while (!isLightsOutSolved()) {
+        drawLightsOutPuzzle();
+        handleLightsOutInput();
+        delay(20);
+    }
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(15);
+    display.setCursor(20, 50);
+    display.print("Solved!");
+    display.display();
+    delay(800);
+    currentUIState = UI_NORMAL;
+    return true;
+}
+
+bool launchRandomPuzzle() {
+    if (random(0, 2) == 0) {
+        return launchPicrossPuzzle();
+    } else {
+        return launchLightsOutPuzzle();
+    }
 }
