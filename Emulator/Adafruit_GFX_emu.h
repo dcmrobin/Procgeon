@@ -1,42 +1,65 @@
 #pragma once
 #include <cstdint>
+#include <string>
+#include <algorithm>
 
 class Adafruit_GFX {
 public:
-    Adafruit_GFX(int16_t w, int16_t h) : _width(w), _height(h) {}
+    Adafruit_GFX(int16_t w, int16_t h);
+    virtual ~Adafruit_GFX() = default;
     
     virtual void drawPixel(int16_t x, int16_t y, uint16_t color) = 0;
     
-    // Basic drawing functions
-    void fillScreen(uint16_t color) {
-        for (int16_t y = 0; y < _height; y++) {
-            for (int16_t x = 0; x < _width; x++) {
-                drawPixel(x, y, color);
-            }
-        }
-    }
+    // Drawing functions
+    void startWrite();
+    void endWrite();
     
-    void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-        for (int16_t i = x; i < x + w; i++) {
-            drawPixel(i, y, color);
-            drawPixel(i, y + h - 1, color);
-        }
-        for (int16_t i = y; i < y + h; i++) {
-            drawPixel(x, i, color);
-            drawPixel(x + w - 1, i, color);
-        }
-    }
+    void writePixel(int16_t x, int16_t y, uint16_t color);
+    void writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+    void writeFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+    void writeFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
     
-    void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-        for (int16_t i = y; i < y + h; i++) {
-            for (int16_t j = x; j < x + w; j++) {
-                drawPixel(j, i, color);
-            }
-        }
-    }
+    void fillScreen(uint16_t color);
+    void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+    void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+    void drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t radius, uint16_t color);
+    void fillRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t radius, uint16_t color);
     
-    // Add more drawing functions as needed (drawLine, drawCircle, etc.)
-
+    void drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+    void fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+    void drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, uint16_t color);
+    void fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, int16_t delta, uint16_t color);
+    
+    void drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+    void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+    
+    void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+    void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+    void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+    
+    // Text functions
+    void setTextSize(uint8_t s);
+    void setTextColor(uint16_t c);
+    void setTextColor(uint16_t c, uint16_t b);
+    void setTextWrap(bool w);
+    void setCursor(int16_t x, int16_t y);
+    
+    size_t print(const std::string &str);
+    size_t print(char c);
+    
+    // Font support
+    void setFont(const uint8_t *f = nullptr);
+    
 protected:
     int16_t _width, _height;
+    int16_t cursor_x = 0, cursor_y = 0;
+    uint16_t textcolor = 15, textbgcolor = 0;
+    uint8_t textsize = 1;
+    bool wrap = true;
+    const uint8_t *font = nullptr;
+    
+    // Simple built-in font (5x7)
+    static const uint8_t builtin_font[];
+    
+    void charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy);
 };
