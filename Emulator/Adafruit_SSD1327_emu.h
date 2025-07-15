@@ -21,11 +21,11 @@ public:
     uint8_t* getBuffer();
 
     // Color definitions
-    static const uint16_t BLACK = 0;
-    static const uint16_t WHITE = 15;
-    static const uint16_t LIGHTGRAY = 10;
-    static const uint16_t GRAY = 7;
-    static const uint16_t DARKGRAY = 3;
+    static const uint16_t SSD1327_BLACK = 0;
+    static const uint16_t SSD1327_WHITE = 15;
+    static const uint16_t SSD1327_LIGHTGRAY = 10;
+    static const uint16_t SSD1327_GRAY = 7;
+    static const uint16_t SSD1327_DARKGRAY = 3;
     
 private:
     uint8_t* _buffer;

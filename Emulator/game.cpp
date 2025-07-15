@@ -6,6 +6,17 @@ extern Adafruit_SSD1327 display; // Defined in main.cpp
 static int playerX = 64;
 static int playerY = 64;
 
+const uint8_t sprite[] = {
+    0b00111100,
+    0b01000010,
+    0b10100101,
+    0b10000001,
+    0b10100101,
+    0b10011001,
+    0b01000010,
+    0b00111100
+};
+
 void game_setup() {
     display.clearDisplay();
     display.fillRect(0, 0, 128, 128, 0);
@@ -18,6 +29,7 @@ void game_loop() {
     
     // Clear previous frame
     display.fillScreen(0);
+    display.drawBitmap(10, 30, sprite, 8, 8, 15);
     
     // Update position
     x += dx;

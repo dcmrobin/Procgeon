@@ -43,6 +43,19 @@ public:
     void setTextColor(uint16_t c, uint16_t b);
     void setTextWrap(bool w);
     void setCursor(int16_t x, int16_t y);
+
+    // Bitmap drawing functions
+    void drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                   int16_t w, int16_t h, uint16_t color);
+    
+    void drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                   int16_t w, int16_t h, uint16_t color, uint16_t bg);
+    
+    void drawGrayscaleBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                            int16_t w, int16_t h);
+    
+    void drawGrayscaleBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                            int16_t w, int16_t h, uint8_t contrast);
     
     size_t print(const std::string &str);
     size_t print(char c);

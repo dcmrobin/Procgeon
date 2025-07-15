@@ -2,6 +2,11 @@
 #include <algorithm>
 #include <cstring>
 
+#ifndef __AVR__
+// Emulate PROGMEM for non-Arduino platforms
+#define pgm_read_byte(addr) (*(const uint8_t *)(addr))
+#endif
+
 Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h) : _width(w), _height(h) {}
 
 // Drawing functions
@@ -473,4 +478,58 @@ size_t Adafruit_GFX::print(const std::string &str) {
 
 void Adafruit_GFX::setFont(const uint8_t *f) {
     font = f;
+}
+
+// Monochrome bitmap (1-bit per pixel)
+void Adafruit_GFX::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                             int16_t w, int16_t h, uint16_t color) {
+    startWrite();
+    for (int16_t j = 0; j < h; j++) {
+        for (int16_t i = 0; i < w; i++) {
+            if (pgm_read_byte(bitmap + j * ((w + 7) / 8) + (i / 8)) & (128 >> (i & 7))) {
+                writePixel(x + i, y + j, color);
+            }
+        }
+    }
+    endWrite();
+}
+
+void Adafruit_GFX::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                             int16_t w, int16_t h, uint16_t color, uint16_t bg) {
+    startWrite();
+    for (int16_t j = 0; j < h; j++) {
+        for (int16_t i = 0; i < w; i++) {
+            bool pixel = pgm_read_byte(bitmap + j * ((w + 7) / 8) + (i / 8)) & (128 >> (i & 7));
+            writePixel(x + i, y + j, pixel ? color : bg);
+        }
+    }
+    endWrite();
+}
+
+// Grayscale bitmap (4-bit per pixel)
+void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                                      int16_t w, int16_t h) {
+    startWrite();
+    for (int16_t j = 0; j < h; j++) {
+        for (int16_t i = 0; i < w; i++) {
+            // Get 4-bit pixel value (0-15)
+            uint8_t pixel = pgm_read_byte(bitmap + j * w + i);
+            writePixel(x + i, y + j, pixel);
+        }
+    }
+    endWrite();
+}
+
+void Adafruit_GFX::drawGrayscaleBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
+                                      int16_t w, int16_t h, uint8_t contrast) {
+    startWrite();
+    for (int16_t j = 0; j < h; j++) {
+        for (int16_t i = 0; i < w; i++) {
+            // Apply contrast to 4-bit pixel
+            uint8_t pixel = pgm_read_byte(bitmap + j * w + i);
+            pixel = (pixel * contrast) >> 4;  // Scale to 0-15
+            writePixel(x + i, y + j, pixel);
+        }
+    }
+    endWrite();
 }
