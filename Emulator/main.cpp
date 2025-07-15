@@ -53,7 +53,7 @@ int main() {
 }*/
 
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
+#include "SDL.h"
 #include "Adafruit_SSD1327_emu.h"
 #include "game.h"
 

@@ -1,7 +1,7 @@
 #include "Adafruit_SSD1327_emu.h"
 #include <cstring>
 
-Adafruit_SSD1327::Adafruit_SSD1327(int8_t rst_pin) 
+Adafruit_SSD1327::Adafruit_SSD1327(int8_t /* rst_pin */) 
   : Adafruit_GFX(128, 128) {
     _buffer = new uint8_t[128 * 128](); // Zero-initialize
 }
@@ -10,7 +10,7 @@ Adafruit_SSD1327::~Adafruit_SSD1327() {
     delete[] _buffer;
 }
 
-bool Adafruit_SSD1327::begin(uint8_t i2c_addr) {
+bool Adafruit_SSD1327::begin(uint8_t /* i2c_addr */) {
     return true;
 }
 

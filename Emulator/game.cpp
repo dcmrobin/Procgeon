@@ -12,7 +12,7 @@ void game_setup() {
 }
 
 void game_loop() {
-    //display.fillScreen(0);
+    display.fillScreen(0);
     
     // Update position (simple movement)
     static int dx = 1, dy = 1;
