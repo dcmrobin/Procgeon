@@ -19,7 +19,7 @@ const uint8_t sprite[] = {
 
 void game_setup() {
     display.clearDisplay();
-    display.fillRect(0, 0, 128, 128, 0);
+    display.fillRect(0, 0, 128, 128, SSD1327_BLACK);
 }
 
 // Draw a bouncing ball
@@ -29,7 +29,7 @@ void game_loop() {
     
     // Clear previous frame
     display.fillScreen(0);
-    display.drawBitmap(10, 30, sprite, 8, 8, 15);
+    display.drawBitmap(10, 30, sprite, 8, 8, SSD1327_WHITE);
     
     // Update position
     x += dx;
@@ -38,15 +38,15 @@ void game_loop() {
     if (y <= 5 || y >= 123) dy = -dy;
     
     // Draw ball
-    display.fillCircle(x, y, 5, 15);
+    display.fillCircle(x, y, 5, SSD1327_WHITE);
     
     // Draw score
     display.setTextSize(1);
-    display.setTextColor(15);
+    display.setTextColor(SSD1327_WHITE);
     display.setCursor(5, 5);
     display.print("Score: 42");
     
     // Draw obstacles
-    display.drawRoundRect(20, 20, 30, 10, 3, 7);
-    display.fillTriangle(80, 100, 90, 90, 100, 100, 7);
+    display.drawRoundRect(20, 20, 30, 10, 3, SSD1327_GRAY);
+    display.fillTriangle(80, 100, 90, 90, 100, 100, SSD1327_DARKGRAY);
 }

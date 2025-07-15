@@ -1,6 +1,13 @@
 #pragma once
 #include "Adafruit_GFX_emu.h"
 
+// Global color constants (match Arduino usage)
+#define SSD1327_BLACK     0
+#define SSD1327_WHITE     15
+#define SSD1327_LIGHTGRAY 10
+#define SSD1327_GRAY      7
+#define SSD1327_DARKGRAY  3
+
 class Adafruit_SSD1327 : public Adafruit_GFX {
 public:
     Adafruit_SSD1327(int8_t rst_pin = -1);
@@ -20,13 +27,6 @@ public:
     
     uint8_t* getBuffer();
 
-    // Color definitions
-    static const uint16_t SSD1327_BLACK = 0;
-    static const uint16_t SSD1327_WHITE = 15;
-    static const uint16_t SSD1327_LIGHTGRAY = 10;
-    static const uint16_t SSD1327_GRAY = 7;
-    static const uint16_t SSD1327_DARKGRAY = 3;
-    
 private:
     uint8_t* _buffer;
     uint8_t _rotation;
