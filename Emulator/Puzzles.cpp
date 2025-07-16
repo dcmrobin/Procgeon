@@ -26,8 +26,8 @@ void resetPicrossPuzzle() {
 void generatePicrossPuzzle() {
     // Only one contiguous group per row, random length 0-5, random start
     for (int y = 0; y < PICROSS_SIZE; y++) {
-        int len = random(0, PICROSS_SIZE+1); // 0 to 5
-        int start = (len == 0) ? 0 : random(0, PICROSS_SIZE-len+1);
+        int len = rand() % (PICROSS_SIZE + 1); // 0 to 5
+        int start = (len == 0) ? 0 : rand() % (PICROSS_SIZE - len + 1);
         for (int x = 0; x < PICROSS_SIZE; x++) {
             picrossSolution[y][x] = (x >= start && x < start+len);
         }
@@ -168,10 +168,10 @@ void generateLightsOutPuzzle() {
     for (int y = 0; y < LIGHTSOUT_SIZE; y++)
         for (int x = 0; x < LIGHTSOUT_SIZE; x++)
             lightsOutGrid[y][x] = false;
-    int numToggles = random(2, 5); // 2-4 random toggles
+    int numToggles = rand() % (5 - 2 + 1) + 2; // 2-4 random toggles
     for (int i = 0; i < numToggles; i++) {
-        int rx = random(0, LIGHTSOUT_SIZE);
-        int ry = random(0, LIGHTSOUT_SIZE);
+        int rx = rand() % LIGHTSOUT_SIZE;
+        int ry = rand() % LIGHTSOUT_SIZE;
         int dx[5] = {0, 1, -1, 0, 0};
         int dy[5] = {0, 0, 0, 1, -1};
         for (int j = 0; j < 5; j++) {
@@ -264,7 +264,7 @@ bool launchLightsOutPuzzle() {
 }
 
 bool launchRandomPuzzle() {
-    if (random(0, 2) == 0) {
+    if (rand() % 2 == 0) {
         return launchPicrossPuzzle();
     } else {
         return launchLightsOutPuzzle();

@@ -59,6 +59,7 @@ public:
     
     size_t print(const std::string &str);
     size_t print(char c);
+    size_t println(const std::string &str);
     
     // Font support
     void setFont(const uint8_t *f = nullptr);

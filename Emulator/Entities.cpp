@@ -272,7 +272,7 @@ void updateDamsel() {
   if (!damsel[0].followingPlayer) {
     // Random wandering
     if (damselMoveDelay >= 30) {
-      int dir = random(0, 4);
+      int dir = rand() % (4 + 1);
       float nx = damsel[0].x + (dir == 0 ? damsel[0].speed : dir == 1 ? -damsel[0].speed : 0);
       float ny = damsel[0].y + (dir == 2 ? damsel[0].speed : dir == 3 ? -damsel[0].speed : 0);
 
@@ -500,8 +500,8 @@ void updateEnemies() {
         // Compute a new wander path: choose a random destination near the enemy
         int startX = enemyGridX;
         int startY = enemyGridY;
-        int destX = startX + random(-5, 6);
-        int destY = startY + random(-5, 6);
+        int destX = startX + rand() % 11 - 5;
+        int destY = startY + rand() % 11 - 5;
         // Clamp destination to the dungeon boundaries
         if (destX < 0) destX = 0;
         if (destX >= mapWidth) destX = mapWidth - 1;
@@ -559,8 +559,8 @@ void updateEnemies() {
         playRawSFX(14);
         int newX, newY;
         do {
-          newX = random(0, mapWidth);
-          newY = random(0, mapHeight);
+          newX = rand() % (mapWidth + 1);
+          newY = rand() % (mapHeight + 1);
         } while (dungeonMap[newY][newX] != Floor);
         playerX = newX;
         playerY = newY;

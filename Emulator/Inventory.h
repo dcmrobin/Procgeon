@@ -8,7 +8,7 @@
 #define inventorySize 8
 
 struct InventoryPage {
-  String name;
+  std::string name;
   ItemCategory category;
   GameItem items[8]; // Each tab holds up to 8 items
   int itemCount = 0; // Track how many items are in this tab
@@ -16,7 +16,7 @@ struct InventoryPage {
 
 extern InventoryPage inventoryPages[];
 extern int selectedInventoryIndex; // Currently selected inventory item
-extern String itemResultMessage;
+extern std::string itemResultMessage;
 
 extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;

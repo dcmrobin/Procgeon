@@ -1,6 +1,7 @@
 #include "Dungeon.h"
 #include "Sprites.h"
 #include "HelperFunctions.h"
+#include "Player.h"
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
@@ -463,7 +464,7 @@ int computeTileBrightness(int mapX, int mapY) {
   // Apply distance-based dimming
   if (dist > falloffStart) {
     float factor = 1.0f - ((dist - falloffStart) / (falloffEnd - falloffStart));
-    factor = constrain(factor, 0.0f, 1.0f); // Keep factor between 0 and 1
+    factor = std::max(0.0f, std::min(1.0f, factor)); // Keep factor between 0 and 1
     brightness = minBrightness + (int)(factor * (brightness - minBrightness));
   }
 

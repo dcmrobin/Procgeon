@@ -11,7 +11,7 @@ struct Damsel {
   bool followingPlayer;
   bool active;
   int levelOfLove;
-  String name;
+  std::string name;
 };
 extern Damsel damsel[1];
 
@@ -20,9 +20,9 @@ struct PathNode {
 };
 
 struct Dialogue {
-  String message = "";
+  std::string message = "";
   int duration;
-  String tone = "normal";
+  std::string tone = "normal";
   bool alreadyBeenSaid = false;
 };
 extern Dialogue damselAnnoyingDialogue[10];
@@ -37,7 +37,7 @@ struct Enemy {
   int hp;
   bool chasingPlayer;
   float moveAmount;
-  String name;
+  std::string name;
   int attackDelay;
   int damage;
   bool hasWanderPath;

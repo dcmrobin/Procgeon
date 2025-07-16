@@ -6,8 +6,8 @@
 
 #define RIDICULE_DURATION 1000
 
-extern String deathCause;
-extern String currentDialogue;
+extern std::string deathCause;
+extern std::string currentDialogue;
 extern float playerX;
 extern float playerY;
 extern float currentSpeedMultiplier;
@@ -69,7 +69,7 @@ void handlePauseScreen();
 void handleHungerAndEffects();
 void handleDialogue();
 void handleRiddles();
-void playDamselSFX(String tone);
+void playDamselSFX(std::string tone);
 void handleRingEffects();
 void OpenChest(int cy, int cx, int dx);
 

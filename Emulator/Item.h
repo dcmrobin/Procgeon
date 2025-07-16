@@ -38,15 +38,15 @@ enum EffectType {
 struct GameItem {
   GameItems item = Null;
   ItemCategory category = PotionCategory;
-  String name = "Null";
+  std::string name = "Null";
   int healthRecoverAmount = 0;
   int hungerRecoverAmount = 0;
   int AOEsize = 0;
   int AOEdamage = 0;
   float SpeedMultiplier = 0;
-  String description = "";
-  String originalName = "";
-  String itemResult = "";
+  std::string description = "";
+  std::string originalName = "";
+  std::string itemResult = "";
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
   int armorValue = 0;  // Damage reduction when equipped
@@ -66,16 +66,16 @@ struct PotionEffect {
   int AOEsize;
   int AOEdamage;
   float SpeedMultiplier;
-  String effectName;
-  String effectDescription;
-  String effectResult;
+  std::string effectName;
+  std::string effectDescription;
+  std::string effectResult;
   EffectType effectType;
 };
 
 struct ScrollEffect {
-  String effectName;
-  String effectDescription;
-  String effectResult;
+  std::string effectName;
+  std::string effectDescription;
+  std::string effectResult;
   EffectType effectType;
 };
 
@@ -89,17 +89,17 @@ struct ItemCombination {
 extern ItemCombination itemCombinations[];
 extern const int NUM_ITEM_COMBINATIONS;
 
-extern String scrollNames[];
+extern std::string scrollNames[];
 extern PotionEffect potionEffects[];
 
-extern String ringTypes[NUM_RINGS];
-extern String ringEffects[NUM_RINGS];
+extern std::string ringTypes[NUM_RINGS];
+extern std::string ringEffects[NUM_RINGS];
 extern bool ringCursed[NUM_RINGS];
 extern bool ringIdentified[NUM_RINGS];
 
 void randomizePotionEffects();  // Call this once at game start
 void randomizeScrollEffects();  // Call this once at game start
-String generateScrollName();  // Generate a random scroll name
+// std::string generateScrollName();  // Generate a random scroll name
 GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
 void updateScrollName(GameItem &scroll);  // Reveals scroll's true name when read

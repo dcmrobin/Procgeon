@@ -476,6 +476,16 @@ size_t Adafruit_GFX::print(const std::string &str) {
     return count;
 }
 
+size_t Adafruit_GFX::println(const std::string &str) {
+    size_t count = print(str); // Draw the string using existing print logic
+
+    // Move to the beginning of the next line
+    cursor_x = 0;
+    cursor_y += 8 * textsize;
+
+    return count;
+}
+
 void Adafruit_GFX::setFont(const uint8_t *f) {
     font = f;
 }

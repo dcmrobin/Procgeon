@@ -7,8 +7,8 @@
 #include "Item.h"
 #include "Puzzles.h"
 
-String deathCause = "";
-String currentDialogue = "";
+std::string deathCause = "";
+std::string currentDialogue = "";
 float playerX = 0;
 float playerY = 0;
 float currentSpeedMultiplier = 1;
@@ -257,7 +257,7 @@ void handleInput() {
     }
   }
 
-  if (Serial.available() > 0) {// for debug purposes
+  /*if (Serial.available() > 0) {// for debug purposes
     char input = Serial.read();
     if (input == '7') {
       setTile((int)playerX, (int)playerY, Exit);
@@ -267,7 +267,7 @@ void handleInput() {
         Serial.println("The damsel is not active.");
       }
     } else if (input == '6') {
-      addToInventory(getItem(getRandomPotion(random(0, NUM_POTIONS), false)), false);
+      addToInventory(getItem(getRandomPotion(rand() % (NUM_POTIONS + 1), false)), false);
     } else if (input == '5') {
       setTile((int)playerX, (int)playerY, RiddleStoneTile);
     } else if (input == '4') {
@@ -279,7 +279,7 @@ void handleInput() {
     } else if (input == '1') {
       setTile((int)playerX, (int)playerY, RingTile);
     }
-  }
+  }*/
 
   int rNewX = round(newX);
   int rNewY = round(newY);
@@ -289,7 +289,7 @@ void handleInput() {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
-    if (addToInventory(getItem(getRandomPotion(random(6), true)), false)) {
+    if (addToInventory(getItem(getRandomPotion(rand() % 7, true)), false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -310,7 +310,7 @@ void handleInput() {
   } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
     // Randomly choose an armor type
     GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
-    GameItems randomArmor = armorTypes[random(0, 4)];
+    GameItems randomArmor = armorTypes[rand() % 5];
     
     if (addToInventory(getItem(randomArmor), true)) {
       playRawSFX(3);
@@ -484,7 +484,7 @@ void handleHungerAndEffects() {
   }
 }
 
-void playDamselSFX(String tone) {
+void playDamselSFX(std::string tone) {
   if (tone == "normal") {
     playRawSFX(16);
   } else if (tone == "annoying") {
@@ -502,7 +502,7 @@ void handleDialogue() {
     if (!showDialogue) {
       int length = sizeof(glamourDialogue) / sizeof(glamourDialogue[0]);
       if (length <= 0) return; // Defensive: don't proceed if array is empty
-      int index = random(0, length);
+      int index = rand() % (length + 1);
       if (index == lastGlamourIndex && length > 1) {
         index = (index + 1) % length;
       }
@@ -519,7 +519,7 @@ void handleDialogue() {
     if (!showDialogue) {
       int length = sizeof(ridiculeDialogue) / sizeof(ridiculeDialogue[0]);
       if (length <= 0) return; // Defensive: don't proceed if array is empty
-      int index = random(0, length);
+      int index = rand() % (length + 1);
       if (index == lastRidiculeIndex && length > 1) {
         index = (index + 1) % length;
       }
@@ -538,9 +538,7 @@ void handleDialogue() {
       dialogueTimer = 0;
       showDialogue = false;
     }
-    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
-    u8g2_for_adafruit_gfx.setCursor(27, 19);
     drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
     if (!isRidiculeDialogue) {
@@ -572,7 +570,7 @@ void handleDialogue() {
         //  unsaidCount = length;
         //}
         // Choose a random index from the unsaid list.
-        int chosenIndex = unsaidIndices[random(0, unsaidCount)];
+        int chosenIndex = unsaidIndices[rand() % (unsaidCount + 1)];
         return chosenIndex;
       };
 
@@ -647,7 +645,7 @@ void handleDialogue() {
         }
       }
 
-      timeTillNextDialogue = random(1000, 2000);
+      timeTillNextDialogue = rand() % 1000 + 2000;
     }
   }
 }
@@ -707,10 +705,10 @@ void handleRiddles() {
       itemResultMessage = "Correct! You are rewarded.";
       // Give three random items as a reward
       for (int i = 0; i < 3; i++) {
-        int category = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom
+        int category = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom
         GameItem reward;
         if (category == 0) {
-          reward = getItem(getRandomPotion(random(0, NUM_POTIONS), false));
+          reward = getItem(getRandomPotion(rand() % (NUM_POTIONS+1), false));
           addToInventory(reward, false);
         } else if (category == 1) {
           reward = getItem(Scroll);
@@ -720,7 +718,7 @@ void handleRiddles() {
           addToInventory(reward, false); // or true if you want rings to be possibly cursed
         } else if (category == 3) {
           GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
-          reward = getItem(armorTypes[random(0, 4)]);
+          reward = getItem(armorTypes[rand() % (4 + 1)]);
           addToInventory(reward, false);
         } else if (category == 4) {
           reward = getItem(Mushroom);
@@ -768,14 +766,14 @@ void OpenChest(int cy, int cx, int dx) {
       int lx = cx + ldx;
       int ly = cy + ldy;
       if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-        int lootType = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
-        if (lootType == 0 && random(0, 100) < 60) {
+        int lootType = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
+        if (lootType == 0 && rand() % 101 < 60) {
           dungeonMap[ly][lx] = RiddleStoneTile;
-        } else if (lootType == 1 && random(0, 100) < 80) {
+        } else if (lootType == 1 && rand() % 101 < 80) {
           dungeonMap[ly][lx] = ArmorTile;
-        } else if (lootType == 2 && random(0, 100) < 80) {
+        } else if (lootType == 2 && rand() % 101 < 80) {
           dungeonMap[ly][lx] = RingTile;
-        } else if (lootType == 3 && random(0, 100) < 80) {
+        } else if (lootType == 3 && rand() % 101 < 80) {
           dungeonMap[ly][lx] = ScrollTile;
         } else if (lootType == 4) {
           dungeonMap[ly][lx] = Potion;

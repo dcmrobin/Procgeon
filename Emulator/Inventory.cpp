@@ -3,7 +3,7 @@
 #include "GameAudio.h"
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
-String itemResultMessage = "";
+std::string itemResultMessage = "";
 
 InventoryPage inventoryPages[] = {
   {"Potions", PotionCategory},
@@ -30,14 +30,14 @@ void identifyItem(GameItem &item) {
   }
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
-  if (item.isCursed && item.description.indexOf("(Cursed)") == -1) {
+  if (item.isCursed && item.description.find("(Cursed)") == std::string::npos) {
     item.description += " (Cursed)";
   }
 }
 
 bool addToInventory(GameItem item, bool canBeCursed) {
   // Chance to curse the item if cursable
-  if (canBeCursed && random(0, 11) < item.curseChance) {
+  if (canBeCursed && rand() % (11 + 1) < item.curseChance) {
     item.isCursed = true;
   }
   
@@ -314,11 +314,11 @@ void handleItemActionMenu() {
         buttons.bPressedPrev = true;
       } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
         if (selectedItem.itemResult == "A lot happens.") { // random effect applied to the potion before anything else so that all the effects can be applied after
-          selectedItem.healthRecoverAmount = random(-90, 101); // -90 to +100
-          selectedItem.hungerRecoverAmount = random(-90, 101); // -90 to +100
-          selectedItem.AOEsize = random(0, 11); // 0 to 10
-          selectedItem.AOEdamage = random(-10, 21); // -10 to +20
-          selectedItem.SpeedMultiplier = (random(-20, 21)) / 10.0; // -2.0 to +2.0
+          selectedItem.healthRecoverAmount = (rand() % (101 - (-90)) + (-90)); // -90 to +100
+          selectedItem.hungerRecoverAmount = (rand() % (101 - (-90)) + (-90)); // -90 to +100
+          selectedItem.AOEsize = rand() % 11; // 0 to 10
+          selectedItem.AOEdamage = (rand() % (21 - (-10)) + (-10)); // -10 to +20
+          selectedItem.SpeedMultiplier = (rand() % (41) - 20) / 10.0; // -2.0 to +2.0
         }
 
         // Handle potion drinking
@@ -571,7 +571,7 @@ void renderInventory() {
     display.setCursor(10, 20);
     display.setTextColor(0);
     display.fillRect(0, 19, 128, 9, 15);
-    String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
+    std::string pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
     display.println(pageName.c_str());
     display.setTextColor(15);
 
@@ -642,10 +642,10 @@ void renderInventory() {
 
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    String equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+    std::string equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
     
     // Determine the use text based on item type
-    String useText = "Use";
+    std::string useText = "Use";
     if (selectedItem.item == Scroll) {
       useText = "Read";
     } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
