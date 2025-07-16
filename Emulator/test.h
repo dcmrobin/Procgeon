@@ -1,4 +1,4 @@
 #pragma once
 
-void game_setup();
-void game_loop();
+void testgame_setup();
+void testgame_loop();

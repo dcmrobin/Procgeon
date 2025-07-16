@@ -23,68 +23,68 @@ struct Coord {
 };
 
 Dialogue damselAnnoyingDialogue[] = {
-  {"Why are you even down here, anyway?", 400},
-  {"Don't die.", 400},
-  {"I hate this place!", 300, "annoying"},
-  {"Why do wizards wear that stupid hat?", 400, "annoying"},
-  {"Hurry up, will you?", 300},
-  {"You expect a thanks, don't you? Not gonna happen.", 400, "annoying"},
-  {"Does this place ever end?", 350},
-  {"Just saying, I don't like you.", 400, "annoying"},
-  {"When was the last time you showered?", 400, "annoying"},
-  {"I could probably get out on my own.", 400}
+  Dialogue{std::string("Why are you even down here, anyway?"), 400, std::string("")},
+  Dialogue{std::string("Don't die."), 400, std::string("")},
+  Dialogue{std::string("I hate this place!"), 300, std::string("annoying")},
+  Dialogue{std::string("Why do wizards wear that stupid hat?"), 400, std::string("annoying")},
+  Dialogue{std::string("Hurry up, will you?"), 300, std::string("")},
+  Dialogue{std::string("You expect a thanks, don't you? Not gonna happen."), 400, std::string("annoying")},
+  Dialogue{std::string("Does this place ever end?"), 350, std::string("")},
+  Dialogue{std::string("Just saying, I don't like you."), 400, std::string("annoying")},
+  Dialogue{std::string("When was the last time you showered?"), 400, std::string("annoying")},
+  Dialogue{std::string("I could probably get out on my own."), 400, std::string("")}
 };
 
 Dialogue damselPassiveDialogue[] = {
-  {"Maybe you're not as dumb as I thought.", 400},
-  {"Maybe you know where you're going after all...", 400},
-  {"Sorry if I said anything hurtful.", 400, "alone"},
-  {"Please don't die.", 300, "alone"},
-  {"I probably couldn't get out on my own.", 400},
-  {"Thanks for rescuing me, anyway.", 400, "alone"},
-  {"Well, at least I'm not alone anymore.", 500}
+  Dialogue{std::string("Maybe you're not as dumb as I thought."), 400, std::string("")},
+  Dialogue{std::string("Maybe you know where you're going after all..."), 400, std::string("")},
+  Dialogue{std::string("Sorry if I said anything hurtful."), 400, std::string("alone")},
+  Dialogue{std::string("Please don't die."), 300, std::string("alone")},
+  Dialogue{std::string("I probably couldn't get out on my own."), 400, std::string("")},
+  Dialogue{std::string("Thanks for rescuing me, anyway."), 400, std::string("alone")},
+  Dialogue{std::string("Well, at least I'm not alone anymore."), 500, std::string("")}
 };
 
 Dialogue damselGoodDialogue[] = {
-  {"Actually, I do kind of like you.", 400, "alone"},
-  {"I'm sorry if I was annoying you.", 400},
-  {"Do you mind... carrying me? (Hold B next to me)", 400, "alone"},
-  {"Does that staff ever run out?", 350},
-  {"I'm glad I'm with you.", 300},
-  {"I don't want to die.", 300, "annoying"},
-  {"Do you think we're almost at the end?", 400}
+  Dialogue{std::string("Actually, I do kind of like you."), 400, std::string("alone")},
+  Dialogue{std::string("I'm sorry if I was annoying you."), 400, std::string("")},
+  Dialogue{std::string("Do you mind... carrying me? (Hold B next to me)"), 400, std::string("alone")},
+  Dialogue{std::string("Does that staff ever run out?"), 350, std::string("")},
+  Dialogue{std::string("I'm glad I'm with you."), 300, std::string("")},
+  Dialogue{std::string("I don't want to die."), 300, std::string("annoying")},
+  Dialogue{std::string("Do you think we're almost at the end?"), 400, std::string("")}
 };
 
 Dialogue damselCarryDialogue[] = {
-  {"You're actually kind of strong...", 450},
-  {"Can I stay in your arms for a bit?", 450},
-  {"You can put me down if you want.", 500},
-  {"I kind of like it here...", 300},
-  {"Can we... never mind.", 300},
-  {"I don't want to be in that cell again!", 500},
-  {"Can I stay with you after we escape?", 500}
+  Dialogue{std::string("You're actually kind of strong..."), 450, std::string("")},
+  Dialogue{std::string("Can I stay in your arms for a bit?"), 450, std::string("")},
+  Dialogue{std::string("You can put me down if you want."), 500, std::string("")},
+  Dialogue{std::string("I kind of like it here..."), 300, std::string("")},
+  Dialogue{std::string("Can we... never mind."), 300, std::string("")},
+  Dialogue{std::string("I don't want to be in that cell again!"), 500, std::string("")},
+  Dialogue{std::string("Can I stay with you after we escape?"), 500, std::string("")}
 };
 
 Dialogue ridiculeDialogue[] = {
-  {"Is that the best you can do?", 400},
-  {"I've seen slimes with more brains.", 400},
-  {"Use your brain! Oh wait- you don't have one.", 400},
-  {"Nice move genius.", 400},
-  {"You call that magic?", 400},
-  {"You're not the greatest at this.", 400},
-  {"Wow. Just wow.", 400},
-  {"Maybe potions just aren't your thing.", 400}
+  Dialogue{std::string("Is that the best you can do?"), 400, std::string("")},
+  Dialogue{std::string("I've seen slimes with more brains."), 400, std::string("")},
+  Dialogue{std::string("Use your brain! Oh wait- you don't have one."), 400, std::string("")},
+  Dialogue{std::string("Nice move genius."), 400, std::string("")},
+  Dialogue{std::string("You call that magic?"), 400, std::string("")},
+  Dialogue{std::string("You're not the greatest at this."), 400, std::string("")},
+  Dialogue{std::string("Wow. Just wow."), 400, std::string("")},
+  Dialogue{std::string("Maybe potions just aren't your thing."), 400, std::string("")}
 };
 
 Dialogue glamourDialogue[] = {
-  {"You're looking sharp today!", 400},
-  {"That was some impressive magic!", 400},
-  {"You make this look so easy.", 400},
-  {"Is there anything you can't do?", 400},
-  {"You're a true hero!", 400},
-  {"Many aren't as skilled as you.", 400},
-  {"Your bravery is very inspiring.", 400},
-  {"Keep going, champion!", 400}
+  Dialogue{std::string("You're looking sharp today!"), 400, std::string("")},
+  Dialogue{std::string("That was some impressive magic!"), 400, std::string("")},
+  Dialogue{std::string("You make this look so easy."), 400, std::string("")},
+  Dialogue{std::string("Is there anything you can't do?"), 400, std::string("")},
+  Dialogue{std::string("You're a true hero!"), 400, std::string("")},
+  Dialogue{std::string("Many aren't as skilled as you."), 400, std::string("")},
+  Dialogue{std::string("Your bravery is very inspiring."), 400, std::string("")},
+  Dialogue{std::string("Keep going, champion!"), 400, std::string("")}
 };
 
 bool computePath(int startX, int startY, int goalX, int goalY, PathNode* path, int &pathLength, int maxPathNodes = 32) {

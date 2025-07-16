@@ -1,4 +1,5 @@
 #include "GameAudio.h"
+#include <algorithm>
 #include <SDL.h>
 #include <cstring>
 #include <cstdio>
@@ -79,7 +80,9 @@ void audioCallback(void* userdata, Uint8* stream, int len) {
     // Apply global volume and convert to int16
     for (int i = 0; i < numSamples; i++) {
         float sample = mixBuffer[i] * globalVolume;
-        sample = std::clamp(sample, -32768.0f, 32767.0f);
+        // Clamp sample to int16 range (C++11 compatible)
+        if (sample < -32768.0f) sample = -32768.0f;
+        if (sample > 32767.0f) sample = 32767.0f;
         output[i] = static_cast<int16_t>(sample);
     }
 }
@@ -124,13 +127,11 @@ bool playRawSFX(int sfxIndex) {
     }
 
     if (slot != -1) {
-        activeSFX[slot] = {
-            .data = reinterpret_cast<int16_t*>(sfxData[sfxIndex]),
-            .samplesTotal = sfxLength[sfxIndex] / sizeof(int16_t),
-            .samplesPlayed = 0,
-            .isPlaying = true,
-            .volume = 1.0f
-        };
+        activeSFX[slot].data = reinterpret_cast<int16_t*>(sfxData[sfxIndex]);
+        activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / sizeof(int16_t);
+        activeSFX[slot].samplesPlayed = 0;
+        activeSFX[slot].isPlaying = true;
+        activeSFX[slot].volume = 1.0f;
     }
 
     SDL_UnlockAudio();

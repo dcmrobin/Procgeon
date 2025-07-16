@@ -19,6 +19,14 @@ struct RawSFXPlayback {
     size_t samplesPlayed = 0;
     bool isPlaying = false;
     float volume = 1.0f;
+
+    int index = -1;
+    int position = 0;
+    int length = 0;
+    bool playing = false;
+
+    RawSFXPlayback() : index(-1), position(0), length(0), volume(1.0f), playing(false) {}
+    RawSFXPlayback(int idx, int pos, int len, float vol, bool play) : index(idx), position(pos), length(len), volume(vol), playing(play) {}
 };
 
 extern RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];

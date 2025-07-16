@@ -1,6 +1,9 @@
 #ifndef SPRITES_H
 #define SPRITES_H
 
+#include <string>
+#include <cstdint>
+
 // Stair sprite
 extern const uint8_t stairsSprite[];
 

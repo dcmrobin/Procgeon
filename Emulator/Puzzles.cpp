@@ -1,6 +1,7 @@
 #include "Puzzles.h"
 #include "Sprites.h"
 #include "HelperFunctions.h"
+#include "SDL.h"
 
 bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
 bool picrossPlayerGrid[PICROSS_SIZE][PICROSS_SIZE];
@@ -143,7 +144,7 @@ bool launchPicrossPuzzle() {
     while (!isPicrossSolved()) {
         drawPicrossPuzzle();
         handlePicrossInput();
-        delay(20); // Frame sync
+        SDL_Delay(20); // Frame sync
     }
     // Optionally show a "Solved!" message
     display.clearDisplay();
@@ -152,7 +153,7 @@ bool launchPicrossPuzzle() {
     display.setCursor(20, 50);
     display.print("Solved!");
     display.display();
-    delay(800);
+    SDL_Delay(800);
     currentUIState = UI_NORMAL; // Return to normal UI
     return true;
 }
@@ -250,7 +251,7 @@ bool launchLightsOutPuzzle() {
     while (!isLightsOutSolved()) {
         drawLightsOutPuzzle();
         handleLightsOutInput();
-        delay(20);
+        SDL_Delay(20);
     }
     display.clearDisplay();
     display.setTextSize(2);
@@ -258,7 +259,7 @@ bool launchLightsOutPuzzle() {
     display.setCursor(20, 50);
     display.print("Solved!");
     display.display();
-    delay(800);
+    SDL_Delay(800);
     currentUIState = UI_NORMAL;
     return true;
 }

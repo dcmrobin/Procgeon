@@ -38,9 +38,6 @@ void drawTile(int mapX, int mapY, float screenX, float screenY);
 int computeTileBrightness(int mapX, int mapY);
 
 // Helper functions
-void carveHorizontalCorridor(int x1, int x2, int y);
-void carveVerticalCorridor(int y1, int y2, int x);
-bool isVisible(int viewerX, int viewerY, int targetX, int targetY);
 void drawMinimap();
 void renderDungeon();
 void drawTile(int mapX, int mapY, float screenX, float screenY);

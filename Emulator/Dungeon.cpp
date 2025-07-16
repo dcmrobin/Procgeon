@@ -9,55 +9,6 @@
 TileTypes dungeonMap[mapHeight][mapWidth];
 bool generatedMapItem = false;
 
-// Helper function implementations
-void carveHorizontalCorridor(int x1, int x2, int y) {
-    int start = std::min(x1, x2);
-    int end = std::max(x1, x2);
-    for (int x = start; x <= end; x++) {
-        if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight) {
-            dungeonMap[y][x] = Floor;
-        }
-    }
-}
-
-void carveVerticalCorridor(int y1, int y2, int x) {
-    int start = std::min(y1, y2);
-    int end = std::max(y1, y2);
-    for (int y = start; y <= end; y++) {
-        if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight) {
-            dungeonMap[y][x] = Floor;
-        }
-    }
-}
-
-bool isVisible(int viewerX, int viewerY, int targetX, int targetY) {
-    // Simple line-of-sight check (Bresenham's algorithm)
-    int dx = abs(targetX - viewerX);
-    int dy = -abs(targetY - viewerY);
-    int sx = viewerX < targetX ? 1 : -1;
-    int sy = viewerY < targetY ? 1 : -1;
-    int err = dx + dy;
-    int e2;
-
-    while (true) {
-        if (viewerX == targetX && viewerY == targetY) return true;
-        if (dungeonMap[viewerY][viewerX] == Wall) return false;
-        
-        e2 = 2 * err;
-        if (e2 >= dy) {
-            if (viewerX == targetX) break;
-            err += dy;
-            viewerX += sx;
-        }
-        if (e2 <= dx) {
-            if (viewerY == targetY) break;
-            err += dx;
-            viewerY += sy;
-        }
-    }
-    return true;
-}
-
 // Main function implementations
 void generateDungeon() {
     generatedMapItem = false;

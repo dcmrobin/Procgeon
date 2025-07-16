@@ -23,10 +23,12 @@ struct PathNode {
 };
 
 struct Dialogue {
-  std::string message = "";
+  std::string message;
   int duration;
-  std::string tone = "normal";
-  bool alreadyBeenSaid = false;
+  std::string tone;
+  bool alreadyBeenSaid;
+  Dialogue() : message(""), duration(0), tone("normal"), alreadyBeenSaid(false) {}
+  Dialogue(const std::string& t, int d, const std::string& tg) : message(t), duration(d), tone(tg), alreadyBeenSaid(false) {}
 };
 extern Dialogue damselAnnoyingDialogue[10];
 extern Dialogue damselPassiveDialogue[7];

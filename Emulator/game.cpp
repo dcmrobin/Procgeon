@@ -12,7 +12,7 @@
 // Game state variables
 bool itemResultScreenActive = false;
 unsigned long lastUpdateTime = 0;
-const unsigned long frameDelay = 20; // Update every 100ms
+const unsigned long frameDelay = 10; // Update every 100ms
 int page = 1;
 bool leftDamsel = false;
 

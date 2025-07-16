@@ -1,5 +1,7 @@
+
 #ifndef ITEM_H 
 #define ITEM_H
+#include <string>
 
 
 #define NUM_POTIONS 19
@@ -39,6 +41,45 @@ struct GameItem {
   GameItems item = Null;
   ItemCategory category = PotionCategory;
   std::string name = "Null";
+  GameItem() : item(Null), category(PotionCategory), name("Empty") {}
+  GameItem(GameItems i, ItemCategory c, const std::string& n) : item(i), category(c), name(n) {}
+  GameItem(
+    GameItems i,
+    ItemCategory c,
+    const std::string& n,
+    int hp,
+    int hunger,
+    int mp,
+    int xp,
+    int gold,
+    const std::string& desc,
+    const std::string& displayName,
+    const std::string& useResult,
+    bool cursed = false,
+    EffectType effect = DefaultEffect,
+    int effectValue = 0,
+    bool identified = false,
+    bool equipped = false,
+    int stackSize = 1
+  ) :
+    item(i),
+    category(c),
+    name(n),
+    healthRecoverAmount(hp),
+    hungerRecoverAmount(hunger),
+    AOEsize(mp),
+    AOEdamage(xp),
+    armorValue(gold),
+    description(desc),
+    originalName(displayName),
+    itemResult(useResult),
+    isCursed(cursed),
+    effectType(effect),
+    curseChance(effectValue),
+    isScrollRevealed(identified),
+    isEquipped(equipped),
+    ringEffectIndex(stackSize)
+  {}
   int healthRecoverAmount = 0;
   int hungerRecoverAmount = 0;
   int AOEsize = 0;

@@ -12,6 +12,8 @@ struct InventoryPage {
   ItemCategory category;
   GameItem items[8]; // Each tab holds up to 8 items
   int itemCount = 0; // Track how many items are in this tab
+  InventoryPage() : name(""), category(PotionCategory), itemCount(0) {}
+  InventoryPage(const std::string& n, ItemCategory c) : name(n), category(c), itemCount(0) {}
 };
 
 extern InventoryPage inventoryPages[];

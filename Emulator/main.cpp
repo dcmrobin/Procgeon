@@ -104,7 +104,7 @@ int main() {
         }
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(33); // ~30 FPS
+        SDL_Delay(3); // ~30 FPS
     }
 
     SDL_DestroyRenderer(renderer);

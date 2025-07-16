@@ -17,13 +17,13 @@ const uint8_t sprite[] = {
     0b00111100
 };
 
-void game_setup() {
+void testgame_setup() {
     display.clearDisplay();
     display.fillRect(0, 0, 128, 128, SSD1327_BLACK);
 }
 
 // Draw a bouncing ball
-void game_loop() {
+void testgame_loop() {
     static int x = 64, y = 64;
     static int dx = 2, dy = 3;
     
