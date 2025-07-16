@@ -1,5 +1,6 @@
 #include "game.h"
 #include "Adafruit_SSD1327_emu.h"
+#include "Adafruit_GFX_emu.h"
 #include "Sprites.h"
 #include "Dungeon.h"
 #include "HelperFunctions.h"
@@ -280,6 +281,8 @@ void showStatusScreen() {
     static bool damselKidnapScreen = false; // Tracks if we are showing the kidnap screen
 
     display.clearDisplay();
+
+    display.setFont(Adafruit_GFX::profont10_font);
 
     if (!damselKidnapScreen) {
         if (dungeon > levelOfDamselDeath + 3) {

@@ -63,6 +63,9 @@ public:
     
     // Font support
     void setFont(const uint8_t *f = nullptr);
+    static const uint8_t profont10_font[];
+    // Simple built-in font (5x7)
+    static const uint8_t builtin_font[];
     
 protected:
     int16_t _width, _height;
@@ -71,9 +74,6 @@ protected:
     uint8_t textsize = 1;
     bool wrap = true;
     const uint8_t *font = nullptr;
-    
-    // Simple built-in font (5x7)
-    static const uint8_t builtin_font[];
     
     void charBounds(char c, int16_t *x, int16_t *y, int16_t *minx, int16_t *miny, int16_t *maxx, int16_t *maxy);
 };
