@@ -22,10 +22,13 @@ OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 # Default target
 all: $(EXEC) copy_dll
 
+
 # Build executable
 $(EXEC): $(OBJS)
 	@echo "Linking executable..."
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	@echo "Removing object files..."
+	@find $(BUILD_DIR) -name '*.o' -delete
 
 # Copy necessary DLLs to build directory
 copy_dll:
