@@ -14,5 +14,6 @@ then scroll down
 run the flollowing commands
 ```
 git clone https://github.com/dcmrobin/Procgeon.git
-cd ,.
+cd ./Procgeon
+make
 ```
