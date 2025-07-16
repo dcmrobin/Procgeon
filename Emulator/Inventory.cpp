@@ -569,11 +569,11 @@ void renderInventory() {
     display.println(combiningTwoItems ? "Select second item tocombine..." : identifyingItem ? "Select item to identify..." : "Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
     display.fillRect(0, 19, 128, 9, 15);
     std::string pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
     display.println(pageName.c_str());
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
 
     int yPos = 30;
     InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
@@ -635,10 +635,10 @@ void renderInventory() {
     display.fillRect(50, 40, 65, 12, 15);
 
     // Title
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
     display.setCursor(55, 42);
     display.println("Options:");
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
 
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];

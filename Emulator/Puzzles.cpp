@@ -55,7 +55,7 @@ void getPicrossClues(int clues[PICROSS_SIZE][PICROSS_SIZE], bool isRow) {
 void drawPicrossPuzzle() {
     display.clearDisplay();
     display.setTextSize(1);
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
     // Draw grid
     int cellSize = 16;
     int gridX = 32, gridY = 16;
@@ -149,7 +149,7 @@ bool launchPicrossPuzzle() {
     // Optionally show a "Solved!" message
     display.clearDisplay();
     display.setTextSize(2);
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
     display.setCursor(20, 50);
     display.print("Solved!");
     display.display();
@@ -188,7 +188,7 @@ void generateLightsOutPuzzle() {
 void drawLightsOutPuzzle() {
     display.clearDisplay();
     display.setTextSize(1);
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
     int cellSize = 16;
     int gridX = 32, gridY = 16;
     for (int y = 0; y < LIGHTSOUT_SIZE; y++) {
@@ -255,7 +255,7 @@ bool launchLightsOutPuzzle() {
     }
     display.clearDisplay();
     display.setTextSize(2);
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
     display.setCursor(20, 50);
     display.print("Solved!");
     display.display();

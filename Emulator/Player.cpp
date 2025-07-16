@@ -79,7 +79,7 @@ void renderPlayer() {
     float distanceSquared = dx * dx + dy * dy;
     if (!carryingDamsel && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
       display.setTextSize(1);
-      display.setTextColor(15);
+      display.setTextColor(15, 0);
       // Center the text under the player sprite (estimate 6px per char, 9 chars)
       int textWidth = 9 * 6;
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
@@ -102,7 +102,7 @@ void renderPlayer() {
     }
     if (nearChest) {
       display.setTextSize(1);
-      display.setTextColor(15);
+      display.setTextColor(15, 0);
       int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
@@ -383,7 +383,7 @@ void handlePauseScreen() {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(27, 40);
-  display.setTextColor(15);
+  display.setTextColor(15, 0);
   display.print("PAUSED");
   display.setTextSize(1);
   display.setCursor(24, 65);
@@ -658,7 +658,7 @@ void handleRiddles() {
   
   display.clearDisplay();
   display.setTextSize(1);
-  display.setTextColor(SSD1327_WHITE);
+  display.setTextColor(SSD1327_WHITE, 0);
   
   // Display the riddle prompt.
   display.setCursor(0, 10);

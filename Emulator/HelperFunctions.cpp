@@ -405,13 +405,13 @@ void renderUI() {
   snprintf(HP, sizeof(HP), "%d", playerHP);
   snprintf(FOOD, sizeof(FOOD), "%d", playerFood);
 
-  display.setTextColor(15);
+  display.setTextColor(15, 0);
   display.setTextSize(1);
   display.setCursor(5, 117);
   display.print("HP:");
   display.setCursor(21, 117);
   display.print(HP);
-  display.setTextColor(textColor);
+  display.setTextColor(textColor, 0);
 
   if (starving) {
     blinkTick += 1;
@@ -423,7 +423,7 @@ void renderUI() {
     textColor = 15; // Default color when not starving
   }
 
-  display.setTextColor(textColor);
+  display.setTextColor(textColor, 0);
 
   display.setCursor(46, 117);
   display.print("FOOD:");
