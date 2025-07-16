@@ -5,6 +5,8 @@
 
 class Adafruit_GFX {
 public:
+    int fontWidth;
+    int fontHeight;
     Adafruit_GFX(int16_t w, int16_t h);
     virtual ~Adafruit_GFX() = default;
     
