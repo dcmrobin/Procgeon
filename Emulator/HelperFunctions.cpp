@@ -7,7 +7,7 @@
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
 
 //Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
-U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+//U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
 
@@ -76,7 +76,7 @@ const int sampleFemaleNamesCount = sizeof(sampleFemaleNames) / sizeof(sampleFema
 // Helper function to shuffle an array of integers
 void shuffleArray(int arr[], int n) {
   for (int i = n - 1; i > 0; i--) {
-    int j = random(i + 1);
+    int j = rand() % (i + 1);
     int temp = arr[i];
     arr[i] = arr[j];
     arr[j] = temp;
@@ -85,23 +85,23 @@ void shuffleArray(int arr[], int n) {
 
 void generateRiddleUI() {
   // Pick a random answer from the list as the correct answer.
-  int answerIndex = random(numAnswers);
+  int answerIndex = rand() % numAnswers;
   RiddleAnswer chosen = possibleAnswers[answerIndex];
 
   // Pick two distinct attributes from the chosen answer.
-  int index1 = random(4);
-  int index2 = random(4);
+  int index1 = rand() % 4;
+  int index2 = rand() % 4;
   while (index2 == index1) {
-    index2 = random(4);
+    index2 = rand() % 4;
   }
   const char* attr1 = chosen.attributes[index1];
   const char* attr2 = chosen.attributes[index2];
 
   // Choose a random template and format the riddle string.
-  int templateIndex = random(numTemplates);
+  int templateIndex = rand() % numTemplates;
   char riddleBuffer[128];  // Buffer for the formatted riddle.
   snprintf(riddleBuffer, sizeof(riddleBuffer), templates[templateIndex], attr1, attr2);
-  currentRiddle.riddle = String(riddleBuffer);
+  currentRiddle.riddle = std::string(riddleBuffer);
 
   // Prepare a list of indices for the answer options.
   const int totalOptions = 4;
@@ -109,7 +109,7 @@ void generateRiddleUI() {
   optionIndices[0] = answerIndex;  // The correct answer.
   int count = 1;
   while (count < totalOptions) {
-    int decoy = random(numAnswers);
+    int decoy = rand() % numAnswers;
     bool unique = true;
     if (decoy == answerIndex) {
       unique = false;
@@ -132,7 +132,7 @@ void generateRiddleUI() {
 
   // Fill in the answer options and record the index of the correct answer.
   for (int i = 0; i < totalOptions; i++) {
-    currentRiddle.options[i] = String(possibleAnswers[optionIndices[i]].word);
+    currentRiddle.options[i] = std::string(possibleAnswers[optionIndices[i]].word);
     if (optionIndices[i] == answerIndex) {
       currentRiddle.correctOption = i;
     }
@@ -166,14 +166,14 @@ void trainFemaleMarkov() {
 }
 
 // --- Generate a female name using the Markov chain ---
-String generateFemaleName() {
+std::string generateFemaleName() {
   char name[NAME_BUFFER_SIZE + 1];
   // Start with a random letter (a–z)
-  int startLetter = random(0, MAX_LETTERS);
+  int startLetter = rand() % MAX_LETTERS;
   name[0] = 'a' + startLetter;
   
   // Randomly choose a length between 4 and NAME_BUFFER_SIZE
-  int length = random(4, NAME_BUFFER_SIZE);
+  int length = 4 + rand() % (NAME_BUFFER_SIZE - 3);
   
   for (int i = 1; i < length; i++) {
     int prev = name[i - 1] - 'a';
@@ -185,11 +185,11 @@ String generateFemaleName() {
     }
     
     // Default next letter is random
-    int nextLetter = random(0, MAX_LETTERS);
+    int nextLetter = rand() % MAX_LETTERS;
     
     // If there is training data, select a weighted next letter
     if (total > 0) {
-      int rnd = random(0, total);
+      int rnd = rand() % total;
       int cumulative = 0;
       for (int j = 0; j < MAX_LETTERS; j++) {
         cumulative += femaleTransition[prev][j];
@@ -214,9 +214,9 @@ String generateFemaleName() {
   }
 
   if (!hasBadLetter) {
-    return String(name);
+    return std::string(name);
   } else {
-    return String(sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
+    return std::string(sampleFemaleNames[rand() % (sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
   }
 }
 
@@ -226,22 +226,9 @@ uint32_t generateRandomSeed()
   uint8_t  seedByteValue = 0;
   uint32_t seedWordValue = 0;
 
-  for (uint8_t wordShift = 0; wordShift < 4; wordShift++)     // 4 bytes in a 32 bit word
-  {
-    for (uint8_t byteShift = 0; byteShift < 8; byteShift++)   // 8 bits in a byte
-    {
-      for (uint8_t bitSum = 0; bitSum <= 8; bitSum++)         // 8 samples of analog pin
-      {
-        seedBitValue = seedBitValue + (analogRead(seedPin) & 0x01);                // Flip the coin eight times, adding the results together
-      }
-      delay(1);                                                                    // Delay a single millisecond to allow the pin to fluctuate
-      seedByteValue = seedByteValue | ((seedBitValue & 0x01) << byteShift);        // Build a stack of eight flipped coins
-      seedBitValue = 0;                                                            // Clear out the previous coin value
-    }
-    seedWordValue = seedWordValue | (uint32_t)seedByteValue << (8 * wordShift);    // Build a stack of four sets of 8 coins (shifting right creates a larger number so cast to 32bit)
-    seedByteValue = 0;                                                             // Clear out the previous stack value
-  }
-  return (seedWordValue);
+  // SDL2: Use SDL_GetTicks and rand for seed generation
+  uint32_t seed = static_cast<uint32_t>(SDL_GetTicks()) ^ static_cast<uint32_t>(rand());
+  return seed;
 
 }
 // Carve a horizontal corridor
@@ -322,13 +309,15 @@ void updateButtonStates() {
   buttons.startPressedPrev = buttons.startPressed;
 
   // Read current states
-  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
-  buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
-  buttons.aPressed = !digitalRead(BUTTON_A_PIN);
-  buttons.bPressed = !digitalRead(BUTTON_B_PIN);
-  buttons.leftPressed = !digitalRead(BUTTON_LEFT_PIN);
-  buttons.rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
-  buttons.startPressed = !digitalRead(BUTTON_START_PIN);
+  // SDL2: Replace with SDL2 keyboard state
+  const Uint8* keystate = SDL_GetKeyboardState(NULL);
+  buttons.upPressed = keystate[SDL_SCANCODE_UP];
+  buttons.downPressed = keystate[SDL_SCANCODE_DOWN];
+  buttons.leftPressed = keystate[SDL_SCANCODE_LEFT];
+  buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT];
+  buttons.aPressed = keystate[SDL_SCANCODE_Z]; // Example: Z for A
+  buttons.bPressed = keystate[SDL_SCANCODE_X]; // Example: X for B
+  buttons.startPressed = keystate[SDL_SCANCODE_RETURN]; // Enter for Start
 }
 
 void handleUIStateTransitions() {
@@ -396,7 +385,7 @@ void updateAnimations() {
   }
   
   damselanimcounter += 1;
-  if (damselanimcounter >= random(50, 90)) {
+  if (damselanimcounter >= (50 + rand() % (90 - 50))) {
     damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
     damselanimcounter = 0;
   }
@@ -497,36 +486,37 @@ bool isWalkable(int x, int y) {
           tile == Potion || tile == Map || tile == MushroomTile);
 }
 
-void drawWrappedText(int x, int y, int maxWidth, const String &text) {
-  u8g2_for_adafruit_gfx.setCursor(x, y);
+void drawWrappedText(int x, int y, int maxWidth, const std::string &text) {
+  display.setCursor(x, y);
 
   int lineHeight = 10; // Adjust based on font size
   int cursorX = x;
   int cursorY = y;
-  String currentLine = "";
-  String word = "";
+  std::string currentLine = "";
+  std::string word = "";
+  const int charWidth = 6; // Estimate: 6px per character for default font
 
-  for (unsigned int i = 0; i < text.length(); i++) {
+  for (size_t i = 0; i < text.length(); i++) {
     char c = text[i];
 
     if (c == ' ' || c == '\n') {
-      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width((currentLine + word).c_str());
+      int wordWidth = static_cast<int>((currentLine.length() + word.length()) * charWidth);
 
       if (wordWidth > maxWidth) {
         // Print the current line before adding a new word
-        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-        u8g2_for_adafruit_gfx.print(currentLine);
+        display.setCursor(cursorX, cursorY);
+        display.print(currentLine.c_str());
         cursorY += lineHeight;
-        currentLine = word + ' '; // Move the word to the new line
+        currentLine = word + " ";
       } else {
-        currentLine += word + ' ';
+        currentLine += word + " ";
       }
 
       word = "";
 
-      if (c == '\n') {  // Force a new line on explicit newline characters
-        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-        u8g2_for_adafruit_gfx.print(currentLine);
+      if (c == '\n') {
+        display.setCursor(cursorX, cursorY);
+        display.print(currentLine.c_str());
         cursorY += lineHeight;
         currentLine = "";
       }
@@ -536,16 +526,16 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text) {
   }
 
   // Print the remaining text
-  if (currentLine.length() > 0 || word.length() > 0) {
-    u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-    u8g2_for_adafruit_gfx.print(currentLine + word);
+  if (!currentLine.empty() || !word.empty()) {
+    display.setCursor(cursorX, cursorY);
+    display.print((currentLine + word).c_str());
   }
 }
 
 void updateScreenShake() {
   if (shakeDuration > 0) {
-    offsetX += random(-shakeIntensity, shakeIntensity + 1);
-    offsetY += random(-shakeIntensity, shakeIntensity + 1);
+    offsetX += (rand() % (2 * shakeIntensity + 1)) - shakeIntensity;
+    offsetY += (rand() % (2 * shakeIntensity + 1)) - shakeIntensity;
     shakeDuration--;
   }
 }

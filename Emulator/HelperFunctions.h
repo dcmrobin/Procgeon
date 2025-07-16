@@ -2,8 +2,8 @@
 #define HELPERFUNCTIONS_H
 
 #include "Adafruit_SSD1327_emu.h"
-#include <Adafruit_GFX_emu.h>
-#include <U8g2_for_Adafruit_GFX.h>
+#include "Adafruit_GFX_emu.h"
+//#include <U8g2_for_Adafruit_GFX.h>
 #include "Dungeon.h"
 #include "Entities.h"
 #include "Sprites.h"
@@ -25,7 +25,7 @@
 #define SCREEN_HEIGHT 128
 
 extern Adafruit_SSD1327 display;
-extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+//extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 struct ButtonStates {
   bool upPressed;
@@ -58,8 +58,8 @@ enum UIState {
 };
 
 struct GeneratedRiddle {
-  String riddle;       // The riddle text (with inserted attributes)
-  String options[4];   // Four answer options (one is correct)
+  std::string riddle;       // The riddle text (with inserted attributes)
+  std::string options[4];   // Four answer options (one is correct)
   int correctOption;   // Index (0-3) of the correct answer in options[]
 };
 
@@ -92,7 +92,7 @@ extern const float scrollSpeed;
 
 void generateRiddleUI();
 void trainFemaleMarkov();
-String generateFemaleName();
+std::string generateFemaleName();
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
@@ -109,7 +109,7 @@ void updateAnimations();
 void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 bool isWalkable(int x, int y);
-void drawWrappedText(int x, int y, int maxWidth, const String &text);
+void drawWrappedText(int x, int y, int maxWidth, const std::string &text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
 
