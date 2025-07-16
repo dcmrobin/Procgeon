@@ -540,7 +540,7 @@ void handleDialogue() {
     }
     //display.setFont(Adafruit_GFX::profont10_font);
     display.fillRect(25, 10, 100, 34, 0);
-    drawWrappedText(27, 19, 96, currentDialogue);
+    drawWrappedText(27, 13, 120, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
     if (!isRidiculeDialogue) {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
