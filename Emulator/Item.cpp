@@ -223,7 +223,7 @@ void renderItemResult() {
   display.clearDisplay();
   
   // Message text
-  display.setFont(Adafruit_GFX::profont10_font);
+  //display.setFont(Adafruit_GFX::profont10_font);
   display.setCursor(15, 65);
   display.print(itemResultMessage);
   

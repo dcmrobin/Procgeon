@@ -22,6 +22,7 @@ unsigned int dngnHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 
 void game_setup() {
+    display.setFont(Adafruit_GFX::profont10_font);
     // Initialize game state
     //randomSeed(42); // Use a fixed seed for emulator consistency
     
@@ -282,7 +283,7 @@ void showStatusScreen() {
 
     display.clearDisplay();
 
-    display.setFont(Adafruit_GFX::profont10_font);
+    //display.setFont(Adafruit_GFX::profont10_font);
 
     if (!damselKidnapScreen) {
         if (dungeon > levelOfDamselDeath + 3) {
@@ -292,31 +293,31 @@ void showStatusScreen() {
                 } else {
                     display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
                 }
-                display.setCursor(0, 125);
+                display.setCursor(0, 115);
                 display.print("You rescued the Damsel!");
             } else {
-                display.setCursor(0, 125);
+                display.setCursor(0, 115);
                 display.print("Error.");
             }
         } else if (dungeon == levelOfDamselDeath) {
             if (damsel[0].dead) {
                 display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-                display.setCursor(0, 105);
+                display.setCursor(0, 95);
                 if (!knowsDamselName) {
                     display.print("You killed the Damsel!");
                 } else {
                     std::string msg = "You killed " + damsel[0].name + "!";
                     display.print(msg.c_str());
                 }
-                display.setCursor(0, 115);
+                display.setCursor(0, 105);
                 display.print(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!");
                 if (damsel[0].levelOfLove >= 5) {
-                    display.setCursor(0, 125);
+                    display.setCursor(0, 115);
                     display.print("She loved you!");
                 }
             } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
                 display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-                display.setCursor(0, 125);
+                display.setCursor(0, 115);
                 if (!knowsDamselName) {
                     display.print("You left the Damsel!");
                 } else {
@@ -327,12 +328,12 @@ void showStatusScreen() {
             }
         } else {
             display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-            display.setCursor(0, 125);
+            display.setCursor(0, 115);
             display.print("You progress. Alone.");
         }
     } else {
         display.drawBitmap(0, 0, capturedDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-        display.setCursor(0, 10);
+        display.setCursor(0, 2);
         display.print("The Damsel was captured!");
     }
 
