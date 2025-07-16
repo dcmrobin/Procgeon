@@ -1,72 +1,120 @@
 #include "GameAudio.h"
+#include <SDL.h>
+#include <cstring>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
 
-// Define the audio system objects
-AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
-AudioMixer4         mixer1;
-AudioOutputI2S      audioOutput;
-
-// Create audio connections
-AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
-AudioConnection     patchCord2(queue[1], 0, mixer1, 1);
-AudioConnection     patchCord3(queue[2], 0, mixer1, 2);
-AudioConnection     patchCord4(queue[3], 0, mixer1, 3);
-AudioConnection     patchCord5(mixer1, 0, audioOutput, 0);
-AudioConnection     patchCord6(mixer1, 0, audioOutput, 1);
-AudioControlSGTL5000 sgtl5000_1;
-
-// RAM-loaded sound effect storage
 uint8_t* sfxData[NUM_SFX] = { nullptr };
 size_t sfxLength[NUM_SFX] = { 0 };
+RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
+float globalVolume = 0.125f;  // Default master volume (0.5 * 0.25 from original)
 
 const char* sfxFilenames[NUM_SFX] = {
-  "player_hurt.raw",//        0
-  "player_shoot.raw",//       1
-  "player_use.raw",//         2
-  "player_pickup.raw",//      3
-  "player_footstep.raw",//    4 IMPLEMENT
-  "player_eat.raw",//         5
-  "player_drink.raw",//       6
-  "menu_select.raw",//        7
-  "menu_scroll.raw",//        8
-  "menu_pause.raw",//         9
-  "menu_gameOver.raw",//      10
-  "level_end.raw",//          11
-  "inventory_open.raw",//     12
-  "inventory_close.raw",//    13
-  "enemy_teleport.raw",//     14
-  "damsel_putDown.raw",//     15
-  "damsel_passive.raw",//     16
-  "damsel_hurt.raw",//        17
-  "damsel_good.raw",//        18
-  "damsel_footstep.raw",//    19 IMPLEMENT
-  "damsel_carry.raw",//       20
-  "damsel_annoying.raw",//    21
-  "bullet_impactWall.raw",//  22
-  "bullet_impactEnemy.raw"//  23
+    "player_hurt.raw",//        0
+    "player_shoot.raw",//       1
+    "player_use.raw",//         2
+    "player_pickup.raw",//      3
+    "player_footstep.raw",//    4 IMPLEMENT
+    "player_eat.raw",//         5
+    "player_drink.raw",//       6
+    "menu_select.raw",//        7
+    "menu_scroll.raw",//        8
+    "menu_pause.raw",//         9
+    "menu_gameOver.raw",//      10
+    "level_end.raw",//          11
+    "inventory_open.raw",//     12
+    "inventory_close.raw",//    13
+    "enemy_teleport.raw",//     14
+    "damsel_putDown.raw",//     15
+    "damsel_passive.raw",//     16
+    "damsel_hurt.raw",//        17
+    "damsel_good.raw",//        18
+    "damsel_footstep.raw",//    19 IMPLEMENT
+    "damsel_carry.raw",//       20
+    "damsel_annoying.raw",//    21
+    "bullet_impactWall.raw",//  22
+    "bullet_impactEnemy.raw"//  23
 };
 
-// Array of currently playing sound effects
-RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
+std::vector<float> mixBuffer; // Global mixing buffer
 
-// Initialize the audio system
-void initAudio() {
-    // Enable the audio shield
-    AudioMemory(30);
-    sgtl5000_1.enable();
-    sgtl5000_1.volume(0.5);
+void audioCallback(void* userdata, Uint8* stream, int len) {
+    int16_t* output = reinterpret_cast<int16_t*>(stream);
+    const int numSamples = len / sizeof(int16_t);
     
-    // Set mixer levels for each channel
-    mixer1.gain(0, 0.25);
-    mixer1.gain(1, 0.25);
-    mixer1.gain(2, 0.25);
-    mixer1.gain(3, 0.25);
+    // Clear output buffer
+    std::memset(stream, 0, len);
+
+    // Temporary mixing buffer
+    mixBuffer.resize(numSamples);
+    std::fill(mixBuffer.begin(), mixBuffer.end(), 0.0f);
+    std::fill(mixBuffer.begin(), mixBuffer.end(), 0.0f);
+
+    // Mix active sounds
+    for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
+        if (!activeSFX[i].isPlaying) continue;
+
+        RawSFXPlayback& sfx = activeSFX[i];
+        const int16_t* data = sfx.data;
+        const size_t samplesToMix = std::min(
+            sfx.samplesTotal - sfx.samplesPlayed,
+            static_cast<size_t>(numSamples / 2)  // Mono->stereo conversion
+        );
+
+        // Mix mono to stereo with volume
+        for (size_t j = 0; j < samplesToMix; j++) {
+            const float sample = data[sfx.samplesPlayed + j] * sfx.volume;
+            const int idx = j * 2;  // Stereo position
+            mixBuffer[idx] += sample;
+            mixBuffer[idx + 1] += sample;
+        }
+
+        sfx.samplesPlayed += samplesToMix;
+        if (sfx.samplesPlayed >= sfx.samplesTotal) {
+            sfx.isPlaying = false;
+        }
+    }
+
+    // Apply global volume and convert to int16
+    for (int i = 0; i < numSamples; i++) {
+        float sample = mixBuffer[i] * globalVolume;
+        sample = std::clamp(sample, -32768.0f, 32767.0f);
+        output[i] = static_cast<int16_t>(sample);
+    }
+}
+
+void initAudio() {
+    SDL_InitSubSystem(SDL_INIT_AUDIO);
+
+    SDL_AudioSpec desired, obtained;
+    SDL_zero(desired);
+    
+    desired.freq = 44100;
+    desired.format = AUDIO_S16;
+    desired.channels = 2;  // Stereo
+    desired.samples = 512; // Buffer size
+    desired.callback = audioCallback;
+
+    if (SDL_OpenAudio(&desired, &obtained) < 0) {
+        SDL_Log("Audio init failed: %s", SDL_GetError());
+        return;
+    }
+    SDL_PauseAudio(0);  // Start playback
+}
+
+void closeAudio() {
+    SDL_CloseAudio();
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 bool playRawSFX(int sfxIndex) {
-    if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
-    
-    // Find an available playback slot
+    if (sfxIndex < 0 || sfxIndex >= NUM_SFX || !sfxData[sfxIndex]) 
+        return false;
+
+    SDL_LockAudio();  // Thread-safe access
+
+    // Find free slot
     int slot = -1;
     for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
         if (!activeSFX[i].isPlaying) {
@@ -74,103 +122,53 @@ bool playRawSFX(int sfxIndex) {
             break;
         }
     }
-    
-    // If all slots are in use, return false or optionally replace the oldest sound
-    if (slot == -1) {
-        // Option 1: Fail to play the new sound
-        return false;
-        
-        // Option 2: Replace the sound that's played the most
-        /*
-        int maxPlayedSamples = 0;
-        for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-            if (activeSFX[i].samplesPlayed > maxPlayedSamples) {
-                maxPlayedSamples = activeSFX[i].samplesPlayed;
-                slot = i;
-            }
-        }
-        */
+
+    if (slot != -1) {
+        activeSFX[slot] = {
+            .data = reinterpret_cast<int16_t*>(sfxData[sfxIndex]),
+            .samplesTotal = sfxLength[sfxIndex] / sizeof(int16_t),
+            .samplesPlayed = 0,
+            .isPlaying = true,
+            .volume = 1.0f
+        };
     }
-    
-    // Initialize the sound in the chosen slot
-    activeSFX[slot].data = (const int16_t*)sfxData[sfxIndex];
-    activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / 2;
-    activeSFX[slot].samplesPlayed = 0;
-    activeSFX[slot].isPlaying = true;
-    activeSFX[slot].volume = constrain(1, 0.0f, 1.0f);
-    
-    return true;
-}
 
-void serviceRawSFX() {
-    // Process each active sound effect
-    for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        RawSFXPlayback& sfx = activeSFX[i];
-        
-        if (!sfx.isPlaying) continue;
-        if (!queue[i].available()) continue;
-
-        int16_t* block = queue[i].getBuffer();
-        if (!block) continue;
-
-        size_t remaining = sfx.samplesTotal - sfx.samplesPlayed;
-        size_t samplesToCopy = min(remaining, static_cast<size_t>(AUDIO_BLOCK_SAMPLES));
-
-        // Copy and apply volume
-        if (sfx.volume == 1.0f) {
-            // At full volume, just copy
-            memcpy(block, sfx.data + sfx.samplesPlayed, samplesToCopy * 2);
-        } else {
-            // Apply volume scaling
-            for (size_t j = 0; j < samplesToCopy; j++) {
-                block[j] = sfx.data[sfx.samplesPlayed + j] * sfx.volume;
-            }
-        }
-
-        // Clear the rest of the buffer if needed
-        if (samplesToCopy < AUDIO_BLOCK_SAMPLES) {
-            memset(((uint8_t*)block) + samplesToCopy * 2, 0, (AUDIO_BLOCK_SAMPLES - samplesToCopy) * 2);
-        }
-
-        queue[i].playBuffer();
-        sfx.samplesPlayed += samplesToCopy;
-
-        if (sfx.samplesPlayed >= sfx.samplesTotal) {
-            sfx.isPlaying = false;
-        }
-    }
-}
-
-void freeSFX() {
-    for (int i = 0; i < NUM_SFX; i++) {
-        if (sfxData[i]) {
-            free(sfxData[i]);
-            sfxData[i] = nullptr;
-        }
-    }
+    SDL_UnlockAudio();
+    return slot != -1;
 }
 
 bool loadSFXtoRAM() {
     for (int i = 0; i < NUM_SFX; i++) {
-        File f = SD.open(sfxFilenames[i]);
-        if (!f) {
-            Serial.printf("Failed to open %s\n", sfxFilenames[i]);
+        SDL_RWops* file = SDL_RWFromFile(sfxFilenames[i], "rb");
+        if (!file) {
+            SDL_Log("Failed to open %s: %s", sfxFilenames[i], SDL_GetError());
             return false;
         }
 
-        size_t len = f.size();
-        if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
-
-        sfxData[i] = (uint8_t*)malloc(len);
+        const size_t len = std::min(
+            static_cast<size_t>(SDL_RWsize(file)),
+            static_cast<size_t>(MAX_SFX_SIZE)
+        );
+        
+        sfxData[i] = static_cast<uint8_t*>(malloc(len));
         if (!sfxData[i]) {
-            Serial.printf("Failed to allocate memory for %s\n", sfxFilenames[i]);
-            f.close();
+            SDL_RWclose(file);
             return false;
         }
 
-        f.read(sfxData[i], len);
+        SDL_RWread(file, sfxData[i], len, 1);
         sfxLength[i] = len;
-        f.close();
+        SDL_RWclose(file);
     }
     return true;
+}
+
+void freeSFX() {
+    SDL_LockAudio();
+    for (int i = 0; i < NUM_SFX; i++) {
+        free(sfxData[i]);
+        sfxData[i] = nullptr;
+        sfxLength[i] = 0;
+    }
+    SDL_UnlockAudio();
 }
