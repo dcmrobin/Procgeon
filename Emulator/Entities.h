@@ -1,6 +1,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <string>
+#include <cstdlib>
+
 #define maxEnemies 30
 #define maxProjectiles 30
 
