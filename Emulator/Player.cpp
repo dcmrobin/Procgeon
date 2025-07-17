@@ -348,7 +348,7 @@ void handleInput() {
         int cx = rPx + dx;
         int cy = rPy + dy;
         if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
-          OpenChest(cy, cx, dy);
+          OpenChest(cy, cx, dy, false);
           break;
         }
       }
@@ -666,8 +666,9 @@ void handleRiddles() {
   display.print("Solve this riddle!");
   
   // Display the riddle text below the prompt.
-  display.setCursor(0, 22);
-  display.print(currentRiddle.riddle);
+  //display.setCursor(0, 22);
+  drawWrappedText(0, 22, 128, currentRiddle.riddle);
+  //display.print(currentRiddle.riddle);
 
   // Display the four answer options.
   // We'll assume each option is displayed on its own line.
@@ -703,7 +704,7 @@ void handleRiddles() {
     playRawSFX(7);
     if (selectedRiddleOption == currentRiddle.correctOption) {
       playRawSFX(6);
-      itemResultMessage = "Correct! You are rewarded.";
+      itemResultMessage = "Correct! You are rewarded. (Check inventory)";
       // Give three random items as a reward
       for (int i = 0; i < 3; i++) {
         int category = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom
@@ -754,11 +755,13 @@ void handleRingEffects() {
     }
 }
 
-void OpenChest(int cy, int cx, int dx) {
+void OpenChest(int cy, int cx, int dx, bool solved) {
   // Require solving a random puzzle before opening
-  startRandomPuzzle();
+  if (!solved) {
+    startRandomPuzzle(cy, cx, dx);
+  }
 
-  if (puzzleResult) {
+  if (solved) {
     // Open the chest: remove chest and spawn loot in 3x3 area
     playRawSFX(3); // Play pickup sound
     dungeonMap[cy][cx] = Floor;

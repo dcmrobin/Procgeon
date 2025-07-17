@@ -3,12 +3,16 @@
 #include "HelperFunctions.h"
 #include "SDL.h"
 #include "LoopGuard.h"
+#include "Player.h"
 
 // Use UIState and currentUIState from HelperFunctions.h
-bool puzzleResult; // true if solved, false if failed/cancelled
 
 bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
 bool picrossPlayerGrid[PICROSS_SIZE][PICROSS_SIZE];
+
+int cx = 0;
+int cy = 0;
+int dx = 0;
 
 // Cursor position for navigation
 static int picrossCursorX = 0;
@@ -104,7 +108,7 @@ void drawPicrossPuzzle() {
 }
 
 void handlePicrossInput() {
-    updateButtonStates(); // Ensure button states are current
+    //updateButtonStates(); // Ensure button states are current
     if (buttons.upPressed && !buttons.upPressedPrev) {
         if (picrossCursorY > 0) picrossCursorY--;
     } else if (buttons.downPressed && !buttons.downPressedPrev) {
@@ -147,7 +151,6 @@ bool isPicrossSolved() {
 void startPicrossPuzzle() {
     resetPicrossPuzzle();
     currentUIState = UI_PICROSS_PUZZLE;
-    puzzleResult = false;
 }
 
 // Call this from your main loop when currentUIState == UI_PICROSS_PUZZLE
@@ -155,15 +158,8 @@ void updatePicrossPuzzle() {
     drawPicrossPuzzle();
     handlePicrossInput();
     if (isPicrossSolved()) {
-        display.clearDisplay();
-        display.setTextSize(2);
-        display.setTextColor(15, 0);
-        display.setCursor(20, 50);
-        display.print("Solved!");
-        display.display();
-        SDL_Delay(800);
         currentUIState = UI_NORMAL;
-        puzzleResult = true;
+        OpenChest(cy, cx, dx, true);
     }
 }
 
@@ -225,7 +221,7 @@ void drawLightsOutPuzzle() {
 }
 
 void handleLightsOutInput() {
-    updateButtonStates();
+    //updateButtonStates();
     if (buttons.upPressed && !buttons.upPressedPrev) {
         if (lightsOutCursorY > 0) lightsOutCursorY--;
     } else if (buttons.downPressed && !buttons.downPressedPrev) {
@@ -259,7 +255,6 @@ bool isLightsOutSolved() {
 void startLightsOutPuzzle() {
     resetLightsOutPuzzle();
     currentUIState = UI_LIGHTSOUT_PUZZLE;
-    puzzleResult = false;
 }
 
 // Call this from your main loop when currentUIState == UI_LIGHTSOUT_PUZZLE
@@ -267,19 +262,16 @@ void updateLightsOutPuzzle() {
     drawLightsOutPuzzle();
     handleLightsOutInput();
     if (isLightsOutSolved()) {
-        display.clearDisplay();
-        display.setTextSize(2);
-        display.setTextColor(15, 0);
-        display.setCursor(20, 50);
-        display.print("Solved!");
-        display.display();
-        SDL_Delay(800);
         currentUIState = UI_NORMAL;
-        puzzleResult = true;
+        OpenChest(cy, cx, dx, true);
     }
 }
 
-void startRandomPuzzle() {
+void startRandomPuzzle(int n_cy, int n_cx, int n_dx) {
+    cy = n_cy;
+    cx = n_cx;
+    dx = n_dx;
+
     if (rand() % 2 == 0) {
         startPicrossPuzzle();
     } else {

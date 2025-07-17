@@ -622,8 +622,9 @@ void renderInventory() {
     display.print(inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].description);
   } 
   else if (currentUIState == UI_ITEM_RESULT) {
-    display.setCursor(0, 10);
-    display.println(itemResultMessage);
+    drawWrappedText(0, 10, 128, itemResultMessage);
+    //display.setCursor(0, 10);
+    //display.println(itemResultMessage);
     if (buttons.bPressed && !buttons.bPressedPrev) {
       currentUIState = UI_NORMAL;
     }

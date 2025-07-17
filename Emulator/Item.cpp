@@ -224,8 +224,9 @@ void renderItemResult() {
   
   // Message text
   //display.setFont(Adafruit_GFX::profont10_font);
-  display.setCursor(15, 65);
-  display.print(itemResultMessage);
+  //display.setCursor(15, 65);
+  //display.print(itemResultMessage);
+  drawWrappedText(15, 65, 128, itemResultMessage);
   
   display.display();
 }

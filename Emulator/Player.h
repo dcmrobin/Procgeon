@@ -71,6 +71,6 @@ void handleDialogue();
 void handleRiddles();
 void playDamselSFX(std::string tone);
 void handleRingEffects();
-void OpenChest(int cy, int cx, int dx);
+void OpenChest(int cy, int cx, int dx, bool solved);
 
 #endif
