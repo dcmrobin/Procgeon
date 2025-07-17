@@ -367,6 +367,12 @@ void handleUIStateTransitions() {
       case UI_RIDDLE:
         currentUIState = UI_RIDDLE;
         break;
+      case UI_LIGHTSOUT_PUZZLE:
+        currentUIState = UI_LIGHTSOUT_PUZZLE;
+        break;
+      case UI_PICROSS_PUZZLE:
+        currentUIState = UI_PICROSS_PUZZLE;
+        break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     playRawSFX(9);

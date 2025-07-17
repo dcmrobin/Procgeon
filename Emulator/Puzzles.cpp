@@ -4,6 +4,9 @@
 #include "SDL.h"
 #include "LoopGuard.h"
 
+// Use UIState and currentUIState from HelperFunctions.h
+bool puzzleResult; // true if solved, false if failed/cancelled
+
 bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
 bool picrossPlayerGrid[PICROSS_SIZE][PICROSS_SIZE];
 
@@ -140,25 +143,28 @@ bool isPicrossSolved() {
     return true;
 }
 
-bool launchPicrossPuzzle() {
+
+void startPicrossPuzzle() {
     resetPicrossPuzzle();
-    //LoopGuard guard(1000000, "picrossloop");
-    while (!isPicrossSolved()) {
-        drawPicrossPuzzle();
-        handlePicrossInput();
-        SDL_Delay(20); // Frame sync
-        //guard.tick();
+    currentUIState = UI_PICROSS_PUZZLE;
+    puzzleResult = false;
+}
+
+// Call this from your main loop when currentUIState == UI_PICROSS_PUZZLE
+void updatePicrossPuzzle() {
+    drawPicrossPuzzle();
+    handlePicrossInput();
+    if (isPicrossSolved()) {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(15, 0);
+        display.setCursor(20, 50);
+        display.print("Solved!");
+        display.display();
+        SDL_Delay(800);
+        currentUIState = UI_NORMAL;
+        puzzleResult = true;
     }
-    // Optionally show a "Solved!" message
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(15, 0);
-    display.setCursor(20, 50);
-    display.print("Solved!");
-    display.display();
-    SDL_Delay(800);
-    currentUIState = UI_NORMAL; // Return to normal UI
-    return true;
 }
 
 void resetLightsOutPuzzle() {
@@ -249,30 +255,34 @@ bool isLightsOutSolved() {
     return true;
 }
 
-bool launchLightsOutPuzzle() {
+
+void startLightsOutPuzzle() {
     resetLightsOutPuzzle();
-    //LoopGuard guard(1000000, "lightsoutloop");
-    while (!isLightsOutSolved()) {
-        drawLightsOutPuzzle();
-        handleLightsOutInput();
-        SDL_Delay(20);
-        //guard.tick();
-    }
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(15, 0);
-    display.setCursor(20, 50);
-    display.print("Solved!");
-    display.display();
-    SDL_Delay(800);
-    currentUIState = UI_NORMAL;
-    return true;
+    currentUIState = UI_LIGHTSOUT_PUZZLE;
+    puzzleResult = false;
 }
 
-bool launchRandomPuzzle() {
+// Call this from your main loop when currentUIState == UI_LIGHTSOUT_PUZZLE
+void updateLightsOutPuzzle() {
+    drawLightsOutPuzzle();
+    handleLightsOutInput();
+    if (isLightsOutSolved()) {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(15, 0);
+        display.setCursor(20, 50);
+        display.print("Solved!");
+        display.display();
+        SDL_Delay(800);
+        currentUIState = UI_NORMAL;
+        puzzleResult = true;
+    }
+}
+
+void startRandomPuzzle() {
     if (rand() % 2 == 0) {
-        return launchPicrossPuzzle();
+        startPicrossPuzzle();
     } else {
-        return launchLightsOutPuzzle();
+        startLightsOutPuzzle();
     }
 }

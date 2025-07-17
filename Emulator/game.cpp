@@ -9,6 +9,7 @@
 #include "Inventory.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include "Puzzles.h"
 
 // Game state variables
 bool itemResultScreenActive = false;
@@ -80,6 +81,14 @@ void game_loop() {
 
                     case UI_RIDDLE:
                         handleRiddles();
+                        break;
+                    
+                    case UI_LIGHTSOUT_PUZZLE:
+                        updateLightsOutPuzzle();
+                        break;
+                    
+                    case UI_PICROSS_PUZZLE:
+                        updatePicrossPuzzle();
                         break;
                 }
             } else {

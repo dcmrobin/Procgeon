@@ -8,12 +8,14 @@
 extern bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
 extern bool picrossPlayerGrid[PICROSS_SIZE][PICROSS_SIZE];
 
+extern bool puzzleResult;
+
 void resetPicrossPuzzle();
 void generatePicrossPuzzle();
 void drawPicrossPuzzle();
 void handlePicrossInput();
 bool isPicrossSolved();
-bool launchPicrossPuzzle();
+void updatePicrossPuzzle();
 
 // Lights Out puzzle state
 extern bool lightsOutGrid[LIGHTSOUT_SIZE][LIGHTSOUT_SIZE];
@@ -25,9 +27,9 @@ void generateLightsOutPuzzle();
 void drawLightsOutPuzzle();
 void handleLightsOutInput();
 bool isLightsOutSolved();
-bool launchLightsOutPuzzle();
+void updateLightsOutPuzzle();
 
 // Main puzzle launcher
-bool launchRandomPuzzle();
+void startRandomPuzzle();
 
 #endif // PUZZLES_H

@@ -756,31 +756,32 @@ void handleRingEffects() {
 
 void OpenChest(int cy, int cx, int dx) {
   // Require solving a random puzzle before opening
-  if (!launchRandomPuzzle()) {
-    return; // Player did not solve puzzle, do not open chest
-  }
-  // Open the chest: remove chest and spawn loot in 3x3 area
-  playRawSFX(3); // Play pickup sound
-  dungeonMap[cy][cx] = Floor;
-  for (int ldx = -1; ldx <= 1; ldx++) {
-    for (int ldy = -1; ldy <= 1; ldy++) {
-      int lx = cx + ldx;
-      int ly = cy + ldy;
-      if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-        int lootType = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
-        if (lootType == 0 && rand() % 101 < 60) {
-          dungeonMap[ly][lx] = RiddleStoneTile;
-        } else if (lootType == 1 && rand() % 101 < 80) {
-          dungeonMap[ly][lx] = ArmorTile;
-        } else if (lootType == 2 && rand() % 101 < 80) {
-          dungeonMap[ly][lx] = RingTile;
-        } else if (lootType == 3 && rand() % 101 < 80) {
-          dungeonMap[ly][lx] = ScrollTile;
-        } else if (lootType == 4) {
-          dungeonMap[ly][lx] = Potion;
+  startRandomPuzzle();
+
+  if (puzzleResult) {
+    // Open the chest: remove chest and spawn loot in 3x3 area
+    playRawSFX(3); // Play pickup sound
+    dungeonMap[cy][cx] = Floor;
+    for (int ldx = -1; ldx <= 1; ldx++) {
+      for (int ldy = -1; ldy <= 1; ldy++) {
+        int lx = cx + ldx;
+        int ly = cy + ldy;
+        if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
+          int lootType = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
+          if (lootType == 0 && rand() % 101 < 60) {
+            dungeonMap[ly][lx] = RiddleStoneTile;
+          } else if (lootType == 1 && rand() % 101 < 80) {
+            dungeonMap[ly][lx] = ArmorTile;
+          } else if (lootType == 2 && rand() % 101 < 80) {
+            dungeonMap[ly][lx] = RingTile;
+          } else if (lootType == 3 && rand() % 101 < 80) {
+            dungeonMap[ly][lx] = ScrollTile;
+          } else if (lootType == 4) {
+            dungeonMap[ly][lx] = Potion;
+          }
         }
       }
     }
+    dx = 2; // break outer loop
   }
-  dx = 2; // break outer loop
 }
