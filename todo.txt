@@ -7,8 +7,8 @@ changes to a different tune as you're almost done.
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current dungeon, destroy them, and only then
 could you hurt the boss- and you fail the boss fight if all the boss fight music ends.
 
-Need to scale enemy hp and damage with levels- but also make the player have some way of getting an increase in damage. The way this would be done is the deeper you go,
-the more dangerous monster types there would be.
+Need to scale enemy hp and damage with levels or just introduce more dangerous enemies the further you go- but need a better way of increasing player damage than just scrolls
+and strength potions... weapon upgrades maybe?
 
 Make the see-all potion make the walls all not be dim and the player able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
 normally see without it? Also highlights secret passages and be able to see hidden doors?
