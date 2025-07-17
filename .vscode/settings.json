@@ -48,6 +48,11 @@
         "text_encoding": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "*.tcc": "cpp",
+        "format": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp"
     }
 }
