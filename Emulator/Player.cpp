@@ -342,7 +342,7 @@ void handleInput() {
   }
 
   // --- Open chest only if B is pressed and player is adjacent to a chest ---
-  if (buttons.bPressed) {
+  if (buttons.bPressed && !buttons.bPressedPrev) {
     for (int dx = -1; dx <= 1; dx++) {
       for (int dy = -1; dy <= 1; dy++) {
         int cx = rPx + dx;
