@@ -2,6 +2,7 @@
 #include "Sprites.h"
 #include "HelperFunctions.h"
 #include "SDL.h"
+#include "LoopGuard.h"
 
 bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
 bool picrossPlayerGrid[PICROSS_SIZE][PICROSS_SIZE];
@@ -141,10 +142,12 @@ bool isPicrossSolved() {
 
 bool launchPicrossPuzzle() {
     resetPicrossPuzzle();
+    //LoopGuard guard(1000000, "picrossloop");
     while (!isPicrossSolved()) {
         drawPicrossPuzzle();
         handlePicrossInput();
         SDL_Delay(20); // Frame sync
+        //guard.tick();
     }
     // Optionally show a "Solved!" message
     display.clearDisplay();
@@ -248,10 +251,12 @@ bool isLightsOutSolved() {
 
 bool launchLightsOutPuzzle() {
     resetLightsOutPuzzle();
+    //LoopGuard guard(1000000, "lightsoutloop");
     while (!isLightsOutSolved()) {
         drawLightsOutPuzzle();
         handleLightsOutInput();
         SDL_Delay(20);
+        //guard.tick();
     }
     display.clearDisplay();
     display.setTextSize(2);
