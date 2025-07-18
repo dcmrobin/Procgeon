@@ -394,7 +394,7 @@ void updateAnimations() {
     damselanimcounter = 0;
   }
 
-  // Enemy animation update logic (merged from updateEnemyAnimations)
+  // Enemy animation update logic
   static int frameIndex[30] = {0};
   static int frameTimer[30] = {0};
   for (int i = 0; i < maxEnemies; ++i) {
@@ -407,6 +407,9 @@ void updateAnimations() {
     } else if (e.name == "teleporter") {
       anim = teleporterAnimation;
       animLength = teleporterAnimationLength;
+    } else if (e.name == "batguy") {
+      anim = batguyAnimation;
+      animLength = batguyAnimationLength;
     }
     if (anim) {
       frameTimer[i]++;

@@ -38,6 +38,12 @@ extern const unsigned char blobSpriteFrame2[];
 extern Frame blobAnimation[];
 extern const int blobAnimationLength;
 
+// Batguy sprites
+extern const unsigned char batguySpriteFrame1[];
+extern const unsigned char batguySpriteFrame2[];
+extern Frame batguyAnimation[];
+extern const int batguyAnimationLength;
+
 // Item sprites
 extern const unsigned char potionSprite[];
 extern const unsigned char riddleStoneSprite[];

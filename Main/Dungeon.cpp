@@ -220,12 +220,15 @@ void spawnEnemies() {
       int ex = random(0, mapWidth);
       int ey = random(0, mapHeight);
       if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
-        if (random(0, 30) <= 24) {
+        if (random(0, 4) == 1) {
           enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 5, false, 0, 0 };
           enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
-        } else {
+        } else if (random(0, 3) == 2) {
           enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0 };
           enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
+        } else {
+          enemies[i] = { (float)ex, (float)ey, 10, false, 0.8, "batguy", 20, 2, false, 0, 0 };
+          enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
         }
         break;
       }

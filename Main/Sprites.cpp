@@ -171,6 +171,36 @@ Frame blobAnimation[] = {
 
 const int blobAnimationLength = 2;
 
+// Blob sprites
+const unsigned char PROGMEM batguySpriteFrame1[] = {
+  0b00000000,
+  0b00001000,
+  0b00010000,
+  0b00011000,
+  0b00111100,
+  0b11011011,
+  0b00010100,
+  0b00000000
+};
+
+const unsigned char PROGMEM batguySpriteFrame2[] = {
+  0b00000000,
+  0b00010000,
+  0b00001000,
+  0b11011011,
+  0b00111100,
+  0b00011000,
+  0b00101000,
+  0b00000000
+};
+
+Frame batguyAnimation[] = {
+  {batguySpriteFrame1, 15},
+  {batguySpriteFrame2, 15}
+};
+
+const int batguyAnimationLength = 2;
+
 // Item sprites
 const unsigned char PROGMEM potionSprite[] = {
   0b00000000,
