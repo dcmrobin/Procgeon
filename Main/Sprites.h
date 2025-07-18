@@ -3,6 +3,11 @@
 
 #include <avr/pgmspace.h> // For PROGMEM
 
+struct Frame {
+  const unsigned char* frame;
+  int length;
+};
+
 // Stair sprite
 extern const unsigned char stairsSprite[];
 
@@ -30,7 +35,8 @@ extern const unsigned char* damselSprite;
 // Blob sprites
 extern const unsigned char blobSpriteFrame1[];
 extern const unsigned char blobSpriteFrame2[];
-extern const unsigned char* blobSprite;
+extern Frame blobAnimation[];
+extern const int blobAnimationLength;
 
 // Item sprites
 extern const unsigned char potionSprite[];
@@ -50,7 +56,8 @@ extern const unsigned char teleporterSpriteF1[];
 extern const unsigned char teleporterSpriteF2[];
 extern const unsigned char teleporterSpriteF3[];
 extern const unsigned char teleporterSpriteF4[];
-extern const unsigned char* teleporterSprite;
+extern Frame teleporterAnimation[];
+extern const int teleporterAnimationLength;
 
 // Portraits
 extern const unsigned char damselPortraitNormal[];

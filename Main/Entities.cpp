@@ -664,7 +664,8 @@ void renderEnemies() {
         float screenX = (enemies[i].x - offsetX) * tileSize;
         float screenY = (enemies[i].y - offsetY) * tileSize;
         if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-          display.drawBitmap(screenX, screenY, enemies[i].name == "blob" ? blobSprite : enemies[i].name == "teleporter" ? teleporterSprite : wallSprite, 8, 8, 15);
+          Enemy& e = enemies[i];
+          display.drawBitmap(screenX, screenY, e.sprite, 8, 8, 15);
         }
       }
     }

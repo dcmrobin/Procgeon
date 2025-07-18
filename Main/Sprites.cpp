@@ -164,7 +164,12 @@ const unsigned char PROGMEM blobSpriteFrame2[] = {
   0b11111111
 };
 
-const unsigned char* blobSprite = blobSpriteFrame1;
+Frame blobAnimation[] = {
+  {blobSpriteFrame1, 15},
+  {blobSpriteFrame2, 30}
+};
+
+const int blobAnimationLength = 2;
 
 // Item sprites
 const unsigned char PROGMEM potionSprite[] = {
@@ -333,7 +338,14 @@ const unsigned char PROGMEM teleporterSpriteF4[] = {
   0b01111010
 };
 
-const unsigned char* teleporterSprite = teleporterSpriteF1;
+Frame teleporterAnimation[] = {
+  {teleporterSpriteF1, 5},
+  {teleporterSpriteF2, 5},
+  {teleporterSpriteF3, 5},
+  {teleporterSpriteF4, 5}
+};
+
+const int teleporterAnimationLength = 4;
 
 const unsigned char damselPortraitNormal [] PROGMEM = {
 	0x07, 0xc0, 0x0b, 0xe0, 0x17, 0xf0, 0x2f, 0xf0, 0x5f, 0xe0, 0x28, 0x00, 0x57, 0xc0, 0xbb, 0xc0, 

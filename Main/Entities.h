@@ -2,6 +2,7 @@
 #define ENTITIES_H
 
 #include <Arduino.h>
+#include "Sprites.h"
 
 #define maxEnemies 30
 #define maxProjectiles 30
@@ -46,6 +47,7 @@ struct Enemy {
   int pathLength;
   int currentPathIndex;
   PathNode wanderPath[32];  // maximum length for a wandering route
+  const unsigned char* sprite; // Pointer to current sprite bitmap
 };
 extern Enemy enemies[maxEnemies];
 

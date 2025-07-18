@@ -385,15 +385,8 @@ void handleUIStateTransitions() {
   }
 }
 
-int blobanimcounter = 0;
 int damselanimcounter = 0;
-int teleporteranimcounter = 0;
 void updateAnimations() {
-  blobanimcounter += 1;
-  if (blobanimcounter >= 20) {
-    blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
-    blobanimcounter = 0;
-  }
   
   damselanimcounter += 1;
   if (damselanimcounter >= random(50, 90)) {
@@ -401,10 +394,28 @@ void updateAnimations() {
     damselanimcounter = 0;
   }
 
-  teleporteranimcounter += 1;
-  if (teleporteranimcounter >= 5) {
-    teleporterSprite = teleporterSprite == teleporterSpriteF1 ? teleporterSpriteF2 : teleporterSprite == teleporterSpriteF2 ? teleporterSpriteF3 : teleporterSprite == teleporterSpriteF3 ? teleporterSpriteF4 : teleporterSprite == teleporterSpriteF4 ? teleporterSpriteF1 : teleporterSprite;
-    teleporteranimcounter = 0;
+  // Enemy animation update logic (merged from updateEnemyAnimations)
+  static int frameIndex[30] = {0};
+  static int frameTimer[30] = {0};
+  for (int i = 0; i < maxEnemies; ++i) {
+    Enemy& e = enemies[i];
+    int animLength = 1;
+    const Frame* anim = nullptr;
+    if (e.name == "blob") {
+      anim = blobAnimation;
+      animLength = blobAnimationLength;
+    } else if (e.name == "teleporter") {
+      anim = teleporterAnimation;
+      animLength = teleporterAnimationLength;
+    }
+    if (anim) {
+      frameTimer[i]++;
+      if (frameTimer[i] >= anim[frameIndex[i]].length) {
+        frameTimer[i] = 0;
+        frameIndex[i] = (frameIndex[i] + 1) % animLength;
+        e.sprite = anim[frameIndex[i]].frame;
+      }
+    }
   }
 }
 
