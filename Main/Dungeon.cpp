@@ -227,7 +227,7 @@ void spawnEnemies() {
           enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0 };
           enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
         } else {
-          enemies[i] = { (float)ex, (float)ey, 10, false, 0.8, "batguy", 20, 2, false, 0, 0 };
+          enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 2, false, 0, 0 };
           enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
         }
         break;
