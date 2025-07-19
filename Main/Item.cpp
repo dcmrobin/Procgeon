@@ -38,10 +38,11 @@ GameItem itemList[] = {
   { Null, PotionCategory, String("Null"), 0, 0, 0, 0, 0, String(""), String("Null"), String(""), false }
 };
 
-String scrollNames[] = {
-  "null",
-  "null",
-  "null"
+String scrollNames[NUM_SCROLLS] = {
+    "Protect scroll",
+    "Identify scroll",
+    "Enchant scroll",
+    "Uncurse scroll"
 };
 
 // Possible effect pool
@@ -67,10 +68,11 @@ PotionEffect potionEffects[] = {// do not change any of the effectresult strings
   { 0,  0,  0, 0, String("Paralysis Potion"), String("Paralyzes you for a time."), String("You can't move!"), ParalysisEffect},
 };
 
-ScrollEffect scrollEffects[] = {
-  {String("Protect scroll"), String("Protects your armor from rusting and raises its damage reduction."), String("Your armor is covered by a shimmering gold shield!"), ScrollProtectionEffect},
-  {String("Identify scroll"), String("Reveals the true name of an item and sees if it is cursed."), String("Select an item to identify."), ScrollIdentifyEffect},
-  {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant."), ScrollEnchantEffect}
+ScrollEffect scrollEffects[NUM_SCROLLS] = {
+    {String("Protect scroll"), String("Protects your armor from rusting and raises its damage reduction."), String("Your armor is covered by a shimmering gold shield!"), ScrollProtectionEffect},
+    {String("Identify scroll"), String("Reveals the true name of an item and sees if it is cursed."), String("Select an item to identify."), ScrollIdentifyEffect},
+    {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant."), ScrollEnchantEffect},
+    {String("Uncurse scroll"), String("Removes curses from all equipped items."), String("You feel as if someone is watching over you."), ScrollUncurseEffect}
 };
 
 // Define all possible item combinations (generalized from potions)

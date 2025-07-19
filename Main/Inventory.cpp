@@ -301,6 +301,22 @@ void handleItemActionMenu() {
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
           currentUIState = UI_ITEM_RESULT;
+        } else if (selectedItem.effectType == ScrollUncurseEffect) {
+            // Uncurse all equipped items
+            for (int p = 0; p < numInventoryPages; p++) {
+                for (int i = 0; i < inventorySize; i++) {
+                    GameItem &item = inventoryPages[p].items[i];
+                    if (item.isEquipped && item.isCursed) {
+                        item.isCursed = false;
+                        int pos = item.description.indexOf(" (Cursed)");
+                        if (pos != -1) {
+                            item.description.remove(pos, 9);
+                        }
+                    }
+                }
+            }
+            itemResultMessage = "You feel as if someone is watching over you.";
+            currentUIState = UI_ITEM_RESULT;
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)
