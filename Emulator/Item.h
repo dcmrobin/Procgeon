@@ -5,7 +5,7 @@
 
 
 #define NUM_POTIONS 19
-#define NUM_SCROLLS 3
+#define NUM_SCROLLS 4
 #define NUM_RINGS 5
 
 enum GameItems { RedPotion, GreenPotion, BluePotion, BlackPotion, WhitePotion, YellowPotion, OrangePotion, PurplePotion, CyanPotion, MaroonPotion, DarkGreenPotion, LimePotion, GreyPotion, OlivePotion, CreamPotion, NavyPotion, AzurePotion, MintPotion, SalmonPotion, Mushroom, EmptyBottle, RiddleStone, Scroll, WetScroll, Ring, LeatherArmor, IronArmor, MagicRobe, Cloak, Null };
@@ -34,7 +34,8 @@ enum EffectType {
   ArmorEffect,
   ScrollProtectionEffect,
   ScrollIdentifyEffect,
-  ScrollEnchantEffect
+  ScrollEnchantEffect,
+  ScrollUncurseEffect
 };
 
 struct GameItem {

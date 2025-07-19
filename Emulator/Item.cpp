@@ -40,10 +40,11 @@ GameItem itemList[] = {
   { Null, PotionCategory, std::string("Null"), 0, 0, 0, 0, 0, std::string(""), std::string("Null"), std::string(""), false }
 };
 
-std::string scrollNames[] = {
-  "null",
-  "null",
-  "null"
+std::string scrollNames[NUM_SCROLLS] = {
+    "Scroll of Protection",
+    "Scroll of Identification",
+    "Scroll of Enchantment",
+    "Scroll of Uncursing"
 };
 
 // Possible effect pool
@@ -69,10 +70,11 @@ PotionEffect potionEffects[] = {// do not change any of the effectresult strings
   { 0,  0,  0, 0, std::string("Paralysis Potion"), std::string("Paralyzes you for a time."), std::string("You can't move!"), ParalysisEffect},
 };
 
-ScrollEffect scrollEffects[] = {
-  {std::string("Protect scroll"), std::string("Protects your armor from rusting and raises its damage reduction."), std::string("Your armor is covered by a shimmering gold shield!"), ScrollProtectionEffect},
-  {std::string("Identify scroll"), std::string("Reveals the true name of an item and sees if it is cursed."), std::string("Select an item to identify."), ScrollIdentifyEffect},
-  {std::string("Enchant scroll"), std::string("Makes an item better than it used to be."), std::string("Select an item to enchant."), ScrollEnchantEffect}
+ScrollEffect scrollEffects[NUM_SCROLLS] = {
+    {"Scroll of Protection", "Protects your armor.", "Your armor is covered by a shimmering gold shield!", ScrollProtectionEffect},
+    {"Scroll of Identification", "Reveals the true name of a scroll.", "You identify a scroll!", ScrollIdentifyEffect},
+    {"Scroll of Enchantment", "Increases your attack damage.", "You feel more powerful!", ScrollEnchantEffect},
+    {"Scroll of Uncurse", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect}
 };
 
 // Define all possible item combinations (generalized from potions)
