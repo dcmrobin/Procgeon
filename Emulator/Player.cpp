@@ -562,16 +562,10 @@ void handleDialogue() {
             unsaidIndices[unsaidCount++] = i;
           }
         }
-        // If all dialogues have been used, reset them.
-        //if (unsaidCount == 0) {
-        //  for (int i = 0; i < length; i++) {
-        //    dialogueSet[i].alreadyBeenSaid = false;
-        //    unsaidIndices[i] = i;
-        //  }
-        //  unsaidCount = length;
-        //}
-        // Choose a random index from the unsaid list.
-        int chosenIndex = unsaidIndices[rand() % (unsaidCount + 1)];
+        if (unsaidCount == 0) {
+          return -1; // No more dialogue left
+        }
+        int chosenIndex = unsaidIndices[rand() % unsaidCount];
         return chosenIndex;
       };
 
@@ -579,6 +573,11 @@ void handleDialogue() {
       if (carryingDamsel) {
         int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
         int index = pickDialogue(damselCarryDialogue, length);
+        if (index == -1) {
+          showDialogue = false;
+          timeTillNextDialogue = 1000000;
+          return;
+        }
         currentDamselPortrait = damselPortraitCarrying;
         dialogueTimeLength = damselCarryDialogue[index].duration;
         isRidiculeDialogue = false;
@@ -592,6 +591,11 @@ void handleDialogue() {
         if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
           int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
           int index = pickDialogue(damselAnnoyingDialogue, length);
+          if (index == -1) {
+            showDialogue = false;
+            timeTillNextDialogue = 1000000;
+            return;
+          }
           if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
             playDamselSFX(damselAnnoyingDialogue[index].tone);
           }
@@ -607,6 +611,11 @@ void handleDialogue() {
         } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
           int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
           int index = pickDialogue(damselPassiveDialogue, length);
+          if (index == -1) {
+            showDialogue = false;
+            timeTillNextDialogue = 1000000;
+            return;
+          }
           if (!damselPassiveDialogue[index].alreadyBeenSaid) {
             playDamselSFX(damselPassiveDialogue[index].tone);
           }
@@ -630,6 +639,11 @@ void handleDialogue() {
           } else {
             int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
             int index = pickDialogue(damselGoodDialogue, length);
+            if (index == -1) {
+              showDialogue = false;
+              timeTillNextDialogue = 1000000;
+              return;
+            }
             if (!damselGoodDialogue[index].alreadyBeenSaid) {
               playDamselSFX(damselGoodDialogue[index].tone);
             }
