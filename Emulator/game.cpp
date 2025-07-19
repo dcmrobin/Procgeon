@@ -116,7 +116,8 @@ void resetGame() {
     // Reset inventory
     for (int i = 0; i < inventorySize; i++) {
         for (int j = 0; j < numInventoryPages; j++) {
-            inventoryPages[j].items[i] = { Null, PotionCategory, "Empty"};
+            GameItem emptyItem = { Null, PotionCategory, "Empty" };
+            inventoryPages[j].items[i] = emptyItem;
             inventoryPages[j].itemCount = 0;
         }
     }
