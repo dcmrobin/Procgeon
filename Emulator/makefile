@@ -1,6 +1,6 @@
 # Compiler settings
 CXX := g++
-CXXFLAGS := -Wall -std=c++17 -O0 -g -I. -I./SDL2/include
+CXXFLAGS := -Wall -std=c++17 -O2 -I. -I./SDL2/include
 LDFLAGS := -L./SDL2/lib
 LDLIBS := -lSDL2
 
