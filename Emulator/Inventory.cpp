@@ -235,6 +235,16 @@ void handleInventoryItemUsage() {
 }
 
 void handleItemActionMenu() {
+  InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
+  if (currentPage.itemCount == 0 || currentPage.items[selectedInventoryIndex].item == Null) {
+    // Optionally play an error sound or show a message
+    //playRawSFX(13);
+    //itemResultMessage = "No item here!";
+    currentUIState = UI_INVENTORY;
+    //buttons.bPressedPrev = true;
+    return;
+  }
+
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     playRawSFX(8);
