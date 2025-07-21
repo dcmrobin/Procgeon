@@ -97,6 +97,7 @@ String generateFemaleName();
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
+void getEdgeTowards(const Room& from, const Room& to, int& outX, int& outY);
 void swap(int &a, int &b);
 int countWalls(int x, int y);
 int predictXtile(float x);
@@ -113,5 +114,6 @@ bool isWalkable(int x, int y);
 void drawWrappedText(int x, int y, int maxWidth, const String &text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
+bool nearTile(TileTypes tile);
 
 #endif

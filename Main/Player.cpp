@@ -88,26 +88,17 @@ void renderPlayer() {
       display.print("Carry [B]");
     }
     // --- Show 'Open Chest [B]' prompt if player is adjacent to a chest ---
-    int rPx = round(playerX);
-    int rPy = round(playerY);
-    bool nearChest = false;
-    for (int dx = -1; dx <= 1 && !nearChest; dx++) {
-      for (int dy = -1; dy <= 1 && !nearChest; dy++) {
-        int cx = rPx + dx;
-        int cy = rPy + dy;
-        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
-          nearChest = true;
-        }
-      }
-    }
-    if (nearChest) {
+    bool nearChest = nearTile(ChestTile);
+    bool nearClosedDoor = nearTile(DoorClosed);
+    bool nearOpenDoor = nearTile(DoorOpen);
+    if (nearChest || nearClosedDoor || nearOpenDoor) {
       display.setTextSize(1);
       display.setTextColor(15);
       int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
-      display.print("Open Chest [B]");
+      display.print(nearChest ? "Open Chest [B]" : nearClosedDoor ? "Open Door [B]" : nearOpenDoor ? "Close Door [B]" : "Error");
     }
   }
 
@@ -285,7 +276,7 @@ void handleInput() {
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == DoorOpen) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
@@ -342,14 +333,27 @@ void handleInput() {
   }
 
   // --- Open chest only if B is pressed and player is adjacent to a chest ---
-  if (buttons.bPressed) {
+  if (buttons.bPressed && !buttons.bPressedPrev) {
     for (int dx = -1; dx <= 1; dx++) {
       for (int dy = -1; dy <= 1; dy++) {
         int cx = rPx + dx;
         int cy = rPy + dy;
-        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
-          OpenChest(cy, cx, dy);
-          break;
+        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight) {
+          if (dungeonMap[cy][cx] == ChestTile) {
+            playRawSFX(12);
+            OpenChest(cy, cx, dy);
+            break;
+          } else if (dungeonMap[cy][cx] == DoorClosed) {
+            // Open the door if it's closed
+            dungeonMap[cy][cx] = DoorOpen;
+            playRawSFX(12);
+            break;
+          } else if (dungeonMap[cy][cx] == DoorOpen) {
+            // Close the door if it's open
+            dungeonMap[cy][cx] = DoorClosed;
+            playRawSFX(13);
+            break;
+          }
         }
       }
     }

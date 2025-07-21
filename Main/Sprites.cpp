@@ -36,6 +36,30 @@ const unsigned char PROGMEM barsSprite[] = {
   0b11111111
 };
 
+// Door closed sprite
+const unsigned char PROGMEM doorClosedSprite[] = {
+  0b01111110,
+  0b11111111,
+  0b11111111,
+  0b11111111,
+  0b10011111,
+  0b11111111,
+  0b11111111,
+  0b11111111
+};
+
+// Door open sprite
+const unsigned char PROGMEM doorOpenSprite[] = {
+  0b01111110,
+  0b10000001,
+  0b10000001,
+  0b10000001,
+  0b10000001,
+  0b10000001,
+  0b10000001,
+  0b10000001
+};
+
 // Player sprites
 const unsigned char PROGMEM playerSpriteRight[] = {
   0b00110000,

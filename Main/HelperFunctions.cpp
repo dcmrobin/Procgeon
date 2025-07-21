@@ -251,11 +251,37 @@ void carveHorizontalCorridor(int x1, int x2, int y) {
     dungeonMap[y][x] = Floor;
   }
 }
-// Carve a vertical corridor
+
 void carveVerticalCorridor(int y1, int y2, int x) {
   if (y1 > y2) swap(y1, y2);
   for (int y = y1; y <= y2; y++) {
     dungeonMap[y][x] = Floor;
+  }
+}
+void getEdgeTowards(const Room& from, const Room& to, int& outX, int& outY) {
+  int dx = (to.x + to.width / 2) - (from.x + from.width / 2);
+  int dy = (to.y + to.height / 2) - (from.y + from.height / 2);
+
+  if (abs(dx) > abs(dy)) {
+    // Horizontal edge
+    outY = from.y + random(1, from.height - 2);
+    if (dx > 0) {
+      // Exit right
+      outX = from.x + from.width - 1;
+    } else {
+      // Exit left
+      outX = from.x;
+    }
+  } else {
+    // Vertical edge
+    outX = from.x + random(1, from.width - 2);
+    if (dy > 0) {
+      // Exit bottom
+      outY = from.y + from.height - 1;
+    } else {
+      // Exit top
+      outY = from.y;
+    }
   }
 }
 // Utility function to swap values
@@ -508,7 +534,8 @@ bool isWalkable(int x, int y) {
   TileTypes tile = dungeonMap[y][x];
   // Walkable if floor or items/stairs/exits (adjust as needed)
   return (tile == Floor || tile == StartStairs || tile == Exit ||
-          tile == Potion || tile == Map || tile == MushroomTile);
+          tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
+          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen);
 }
 
 void drawWrappedText(int x, int y, int maxWidth, const String &text) {
@@ -567,4 +594,20 @@ void updateScreenShake() {
 void triggerScreenShake(int duration, int intensity) {
   shakeDuration = duration;
   shakeIntensity = intensity;
+}
+
+bool nearTile(TileTypes tile) {
+  int rPx = round(playerX);
+  int rPy = round(playerY);
+  bool isNear = false;
+  for (int dx = -1; dx <= 1 && !isNear; dx++) {
+    for (int dy = -1; dy <= 1 && !isNear; dy++) {
+      int cx = rPx + dx;
+      int cy = rPy + dy;
+      if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == tile) {
+        isNear = true;
+      }
+    }
+  }
+  return isNear;
 }

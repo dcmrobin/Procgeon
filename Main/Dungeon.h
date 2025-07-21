@@ -13,6 +13,8 @@ enum TileTypes {
   Floor,
   Wall,
   Bars,
+  DoorClosed,
+  DoorOpen,
   Exit,
   Potion,
   Map,
@@ -25,6 +27,10 @@ enum TileTypes {
 };
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];
+
+struct Room {
+  int x, y, width, height;
+};
 
 void generateDungeon();
 void spawnEnemies();

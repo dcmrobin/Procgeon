@@ -17,6 +17,10 @@ extern const unsigned char wallSprite[];
 // Bars sprite
 extern const unsigned char barsSprite[];
 
+// Door sprites
+extern const unsigned char doorClosedSprite[];
+extern const unsigned char doorOpenSprite[];
+
 // Player sprites
 extern const unsigned char playerSpriteRight[];
 extern const unsigned char playerSpriteLeft[];

@@ -23,10 +23,6 @@ void generateDungeon() {
   const int minRoomSize = 4;            // Minimum room size (tiles)
   const int maxRoomSize = 8;            // Maximum room size (tiles)
 
-  struct Room {
-    int x, y, width, height;
-  };
-
   Room rooms[maxRooms];
   int roomCount = 0;
 
@@ -101,13 +97,11 @@ void generateDungeon() {
 
   // Connect rooms with corridors
   for (int i = 1; i < roomCount; i++) {
-    // Get the center of the current room and the previous room
-    int x1 = rooms[i - 1].x + rooms[i - 1].width / 2;
-    int y1 = rooms[i - 1].y + rooms[i - 1].height / 2;
-    int x2 = rooms[i].x + rooms[i].width / 2;
-    int y2 = rooms[i].y + rooms[i].height / 2;
+    int x1, y1, x2, y2;
 
-    // Randomly decide corridor order (horizontal-first or vertical-first)
+    getEdgeTowards(rooms[i - 1], rooms[i], x1, y1);
+    getEdgeTowards(rooms[i], rooms[i - 1], x2, y2);
+
     if (random(0, 2) == 0) {
       carveHorizontalCorridor(x1, x2, y1);
       carveVerticalCorridor(y1, y2, x2);
@@ -326,6 +320,20 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
 
       int brightness = computeTileBrightness(mapX, mapY);
       display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, brightness);
+      break;
+    }
+    case DoorClosed: {
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      
+      int brightness = computeTileBrightness(mapX, mapY);
+      display.drawBitmap(screenX, screenY, doorClosedSprite, tileSize, tileSize, brightness);
+      break;
+    }
+    case DoorOpen: {
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      int brightness = computeTileBrightness(mapX, mapY);
+      display.drawBitmap(screenX, screenY, doorOpenSprite, tileSize, tileSize, brightness);
       break;
     }
     case StartStairs:
