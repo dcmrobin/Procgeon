@@ -512,7 +512,7 @@ bool isVisible(int x0, int y0, int x1, int y1) {
 
     // Now check for obstruction
     TileTypes tile = dungeonMap[y0][x0];
-    if (tile == Wall)
+    if (tile == Wall || tile == DoorClosed)
       return false;
 
     // Move to the next tile along the line

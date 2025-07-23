@@ -33,6 +33,7 @@ struct Room {
 };
 
 void generateDungeon();
+void placeTjunctionDoors();
 void spawnEnemies();
 void setTile(int tileX, int tileY, TileTypes tileType);
 void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);

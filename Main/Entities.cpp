@@ -592,7 +592,7 @@ void updateProjectiles() {
       int projectileTileY = predictYtile(projectiles[i].y);
 
       // Check for collisions with walls or out-of-bounds
-      if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
+      if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || dungeonMap[projectileTileY][projectileTileX] == DoorClosed || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
         projectiles[i].active = false; // Deactivate the bullet
         playRawSFX(22);
       }
