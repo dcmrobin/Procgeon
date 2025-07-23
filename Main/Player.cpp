@@ -89,16 +89,29 @@ void renderPlayer() {
     }
     // --- Show 'Open Chest [B]' prompt if player is adjacent to a chest ---
     bool nearChest = nearTile(ChestTile);
-    bool nearClosedDoor = nearTile(DoorClosed);
-    bool nearOpenDoor = nearTile(DoorOpen);
-    if (nearChest || nearClosedDoor || nearOpenDoor) {
+    // For doors, only show prompt if facing a door
+    int facingX = round(playerX) + playerDX;
+    int facingY = round(playerY) + playerDY;
+    bool facingClosedDoor = false;
+    bool facingOpenDoor = false;
+    if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
+      facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
+      facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
+    }
+    if (nearChest || facingClosedDoor || facingOpenDoor) {
       display.setTextSize(1);
       display.setTextColor(15);
       int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
-      display.print(nearChest ? "Open Chest [B]" : nearClosedDoor ? "Open Door [B]" : nearOpenDoor ? "Close Door [B]" : "Error");
+      if (nearChest) {
+        display.print("Open Chest [B]");
+      } else if (facingClosedDoor) {
+        display.print("Open Door [B]");
+      } else if (facingOpenDoor) {
+        display.print("Close Door [B]");
+      }
     }
   }
 
@@ -332,28 +345,40 @@ void handleInput() {
     statusScreen = true;
   }
 
-  // --- Open chest only if B is pressed and player is adjacent to a chest ---
+  // --- Open/close door only in the direction the player is facing ---
   if (buttons.bPressed && !buttons.bPressedPrev) {
-    for (int dx = -1; dx <= 1; dx++) {
-      for (int dy = -1; dy <= 1; dy++) {
-        int cx = rPx + dx;
-        int cy = rPy + dy;
-        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight) {
-          if (dungeonMap[cy][cx] == ChestTile) {
-            playRawSFX(12);
-            OpenChest(cy, cx, dy);
-            break;
-          } else if (dungeonMap[cy][cx] == DoorClosed) {
-            // Open the door if it's closed
-            dungeonMap[cy][cx] = DoorOpen;
-            playRawSFX(12);
-            break;
-          } else if (dungeonMap[cy][cx] == DoorOpen) {
-            // Close the door if it's open
-            dungeonMap[cy][cx] = DoorClosed;
-            playRawSFX(13);
-            break;
+    int targetDX = playerDX;
+    int targetDY = playerDY;
+    // If playerDX and playerDY are both zero (no movement yet), fallback to old logic for chests only
+    if (targetDX == 0 && targetDY == 0) {
+      for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+          int cx = rPx + dx;
+          int cy = rPy + dy;
+          if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight) {
+            if (dungeonMap[cy][cx] == ChestTile) {
+              playRawSFX(12);
+              OpenChest(cy, cx, dy);
+              return;
+            }
           }
+        }
+      }
+    } else {
+      int tx = rPx + targetDX;
+      int ty = rPy + targetDY;
+      if (tx >= 0 && tx < mapWidth && ty >= 0 && ty < mapHeight) {
+        if (dungeonMap[ty][tx] == DoorClosed) {
+          // Open the door if it's closed
+          dungeonMap[ty][tx] = DoorOpen;
+          playRawSFX(12);
+        } else if (dungeonMap[ty][tx] == DoorOpen) {
+          // Close the door if it's open
+          dungeonMap[ty][tx] = DoorClosed;
+          playRawSFX(13);
+        } else if (dungeonMap[ty][tx] == ChestTile) {
+          playRawSFX(12);
+          OpenChest(ty, tx, targetDY);
         }
       }
     }
