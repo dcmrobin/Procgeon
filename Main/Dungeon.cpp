@@ -212,7 +212,59 @@ void generateDungeon() {
     }
   }
 
-  placeTjunctionDoors();
+  placeRoomEntranceDoors();
+}
+
+// --- Place doors at corridor-to-room transitions (room mouths) ---
+void placeRoomEntranceDoors() {
+  // Directions: N, S, E, W
+  const int dx[4] = {0, 0, 1, -1};
+  const int dy[4] = {-1, 1, 0, 0};
+  // Perpendicular pairs for corridor check
+  const int perp[4][2][2] = {
+    {{1, 0}, {-1, 0}}, // N/S: check E/W
+    {{1, 0}, {-1, 0}}, // S/N: check E/W
+    {{0, -1}, {0, 1}}, // E/W: check N/S
+    {{0, -1}, {0, 1}}  // W/E: check N/S
+  };
+  for (int y = 2; y < mapHeight - 2; y++) {
+    for (int x = 2; x < mapWidth - 2; x++) {
+      if (dungeonMap[y][x] != Floor) continue;
+      // For each direction, check if this is a corridor mouth
+      for (int d = 0; d < 4; d++) {
+        int bx = x - dx[d];
+        int by = y - dy[d];
+        int fx = x + dx[d];
+        int fy = y + dy[d];
+        // Check that behind is corridor (walls on both sides)
+        int px1 = x + perp[d][0][0];
+        int py1 = y + perp[d][0][1];
+        int px2 = x + perp[d][1][0];
+        int py2 = y + perp[d][1][1];
+        bool corridorBehind = (dungeonMap[by][bx] == Floor || dungeonMap[by][bx] == DoorOpen) &&
+                             dungeonMap[py1][px1] == Wall && dungeonMap[py2][px2] == Wall;
+        // Ahead is open (room): at least 2 open neighbors not including the corridor
+        int openCount = 0;
+        for (int pd = 0; pd < 4; pd++) {
+          if (pd == (d ^ 1)) continue; // skip the direction we came from
+          int nx = fx + dx[pd];
+          int ny = fy + dy[pd];
+          if (dungeonMap[ny][nx] == Floor || dungeonMap[ny][nx] == DoorOpen || dungeonMap[ny][nx] == DoorClosed) openCount++;
+        }
+        bool roomAhead = (dungeonMap[fy][fx] == Floor || dungeonMap[fy][fx] == DoorOpen) && openCount >= 2;
+        // Only place door if not already a door
+        if (corridorBehind && roomAhead && dungeonMap[y][x] == Floor) {
+          if (random(0, 6) == 1 || random(0, 6) == 2 || random(0, 6) == 3) {
+            dungeonMap[y][x] = DoorClosed;
+          } else if (random(0, 6) == 4) {
+            dungeonMap[y][x] = DoorOpen;
+          } else {
+            dungeonMap[y][x] = Floor;
+          }
+        }
+      }
+    }
+  }
 }
 
 void spawnEnemies() {
@@ -450,69 +502,3 @@ int computeTileBrightness(int mapX, int mapY) {
 
   return brightness;
 }
-
-void placeTjunctionDoors() {
-  // Directions: N, S, E, W
-  const int dx[4] = {0, 0, 1, -1};
-  const int dy[4] = {-1, 1, 0, 0};
-  // Perpendicular pairs for corridor check
-  const int perp[4][2][2] = {
-    {{1, 0}, {-1, 0}}, // N/S: check E/W
-    {{1, 0}, {-1, 0}}, // S/N: check E/W
-    {{0, -1}, {0, 1}}, // E/W: check N/S
-    {{0, -1}, {0, 1}}  // W/E: check N/S
-  };
-
-  for (int y = 2; y < mapHeight - 2; y++) {
-    for (int x = 2; x < mapWidth - 2; x++) {
-      if (dungeonMap[y][x] != Floor) continue;
-      int walkableDirs[4] = {0, 0, 0, 0};
-      int count = 0;
-      // Count walkable neighbors in cardinal directions
-      for (int d = 0; d < 4; d++) {
-        int nx = x + dx[d];
-        int ny = y + dy[d];
-        if (dungeonMap[ny][nx] == Floor || dungeonMap[ny][nx] == DoorOpen || dungeonMap[ny][nx] == DoorClosed) {
-          walkableDirs[d] = 1;
-          count++;
-        }
-      }
-      if (count != 3) continue; // Not a T-junction
-
-      // No need for strict corridor length; just check the minor arm's first tile is a corridor (walls on both sides)
-      int minLen = 99, minDir = -1;
-      for (int d = 0; d < 4; d++) {
-        if (!walkableDirs[d]) continue;
-        int nx = x + dx[d];
-        int ny = y + dy[d];
-        // Count length for minor arm selection
-        int len = 0;
-        while (nx >= 1 && nx < mapWidth - 1 && ny >= 1 && ny < mapHeight - 1 &&
-               (dungeonMap[ny][nx] == Floor || dungeonMap[ny][nx] == DoorOpen || dungeonMap[ny][nx] == DoorClosed)) {
-          len++;
-          nx += dx[d];
-          ny += dy[d];
-        }
-        if (len < minLen) {
-          minLen = len;
-          minDir = d;
-        }
-      }
-      if (minDir == -1 || minLen < 1) continue;
-      // Place a door at the first tile in the minor arm (direct neighbor)
-      int doorX = x + dx[minDir];
-      int doorY = y + dy[minDir];
-      int px1 = doorX + perp[minDir][0][0];
-      int py1 = doorY + perp[minDir][0][1];
-      int px2 = doorX + perp[minDir][1][0];
-      int py2 = doorY + perp[minDir][1][1];
-      // Only place door if this tile is a corridor (walls on both sides)
-      if (dungeonMap[doorY][doorX] == Floor &&
-          dungeonMap[py1][px1] == Wall && dungeonMap[py2][px2] == Wall) {
-        dungeonMap[doorY][doorX] = DoorClosed;
-      }
-
-    }
-  }
-}
-

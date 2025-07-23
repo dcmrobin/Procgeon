@@ -36,9 +36,6 @@ Kind of like a second life. (haven't quite implimented this, but almost- as I ha
 There could be a secret passage out of the map that transports you to another dungeon, but this time without any enemies and with weird items. Then it corrupts slowly after
 time and keeps corrupting.
 
-Sometimes doors at the ends of corridors that block you seeing the room behind them until you open them by walking through them. They could sometimes be locked? Also walls
-could sometimes be disguised doors and that would mean the exit is sometimes concealed.
-
 For when you try to mix a potion that isn't one of the primary colors (which are red green blue yellow white and black), instead of it saying you can't combine them, it
 just creates a brown potion.
 
