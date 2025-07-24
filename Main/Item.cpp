@@ -25,6 +25,7 @@ GameItem itemList[] = {
   { AzurePotion, PotionCategory, String("Azure Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Azure Potion"), String("Nothing happens.")},
   { MintPotion, PotionCategory, String("Mint Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Mint Potion"), String("Nothing happens.")},
   { SalmonPotion, PotionCategory, String("Salmon Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Salmon Potion"), String("Nothing happens.")},
+  { BrownPotion, PotionCategory, String("Brown Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Brown Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry.")},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), false},
   { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), true, DefaultEffect, 0, false, false, 2},
@@ -48,7 +49,7 @@ String scrollNames[NUM_SCROLLS] = {
 // Possible effect pool
 PotionEffect potionEffects[] = {// do not change any of the effectresult strings, as they are used for comparing effects
   { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP."), String("You feel better."), HealingEffect },
-  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink. Unless your guilty of something..."), String("You lose 20 HP."), PoisonEffect },
+  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink."), String("You feel a bit sick."), PoisonEffect },
   { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you."), String("The enemies around you lose 40 HP."), ExplosionEffect },
   { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you."), String("You feel better, but so do the enemies close to you."), BuffingEffect },
   { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better."), MegaHealEffect },
@@ -66,6 +67,7 @@ PotionEffect potionEffects[] = {// do not change any of the effectresult strings
   { 0,  0,  0, 0, String("Strength Potion"), String("Makes you do more damage."), String("You feel stronger."), StrengthEffect},
   { 0,  0,  0, 0, String("Restore Potion"), String("Cures all your ailments."), String("You feel restored!"), RestoreEffect},
   { 0,  0,  0, 0, String("Paralysis Potion"), String("Paralyzes you for a time."), String("You can't move!"), ParalysisEffect},
+  { -40, 0, 0, 0, String("Poison"), String("Deducts 40 of your HP."), String("You feel very sick."), VeryPoisonEffect },
 };
 
 ScrollEffect scrollEffects[NUM_SCROLLS] = {
@@ -245,6 +247,23 @@ bool areItemsEqual(GameItem item1, GameItem item2) {
 
 // Generalized combination function
 GameItem combineItems(GameItem item1, GameItem item2) {
+    // Define primary potion items
+    GameItems primaryPotions[] = { RedPotion, GreenPotion, BluePotion, YellowPotion, WhitePotion, BlackPotion };
+    auto isPrimaryPotion = [&](GameItems item) {
+        for (int i = 0; i < 6; i++) {
+            if (item == primaryPotions[i]) return true;
+        }
+        return false;
+    };
+    // If both are potions
+    if (item1.category == PotionCategory && item2.category == PotionCategory) {
+        bool item1Primary = isPrimaryPotion(item1.item);
+        bool item2Primary = isPrimaryPotion(item2.item);
+        // If either is non-primary, return BrownPotion
+        if (!item1Primary || !item2Primary) {
+            return getItem(BrownPotion);
+        }
+    }
     // Try to find a matching combination
     for (int i = 0; i < NUM_ITEM_COMBINATIONS; i++) {
         const ItemCombination& combo = itemCombinations[i];
