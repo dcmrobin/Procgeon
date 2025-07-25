@@ -50,6 +50,7 @@ struct GameItem {
   String description = "";
   String originalName = "";
   String itemResult = "";
+  int rarity = 4;
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
   int armorValue = 0;  // Damage reduction when equipped
