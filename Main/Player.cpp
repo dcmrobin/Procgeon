@@ -65,6 +65,9 @@ int blindnessTimer = 0;
 bool paralyzed = false;
 int paralysisTimer = 0;
 
+int shootDelay = 0;
+bool reloading;
+
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
   float screenY = (playerY - offsetY) * tileSize;
@@ -87,25 +90,29 @@ void renderPlayer() {
       display.setCursor(textX, textY);
       display.print("Carry [B]");
     }
-    // --- Show 'Open Chest [B]' prompt if player is adjacent to a chest ---
-    bool nearChest = nearTile(ChestTile);
-    // For doors, only show prompt if facing a door
+    // --- Show 'Open Chest [B]' prompt only if player is facing a chest ---
     int facingX = round(playerX) + playerDX;
     int facingY = round(playerY) + playerDY;
+    bool facingChest = false;
     bool facingClosedDoor = false;
     bool facingOpenDoor = false;
     if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
+      facingChest = (dungeonMap[facingY][facingX] == ChestTile);
       facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
       facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
     }
-    if (nearChest || facingClosedDoor || facingOpenDoor) {
+    if (facingChest || facingClosedDoor || facingOpenDoor) {
+      // Prevent player from shooting while opening chest or door
+      reloading = true;
+      shootDelay = 0;
+
       display.setTextSize(1);
       display.setTextColor(15);
       int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
-      if (nearChest) {
+      if (facingChest) {
         display.print("Open Chest [B]");
       } else if (facingClosedDoor) {
         display.print("Open Door [B]");
@@ -122,8 +129,6 @@ void renderPlayer() {
   if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
 }
 
-int shootDelay = 0;
-bool reloading;
 int damselHealDelay = 0;
 int carryingDelay = 0;
 float baseSpeed = 0.1;
@@ -797,17 +802,10 @@ void OpenChest(int cy, int cx, int dx) {
       int lx = cx + ldx;
       int ly = cy + ldy;
       if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-        int lootType = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
-        if (lootType == 0 && random(0, 100) < 60) {
-          dungeonMap[ly][lx] = RiddleStoneTile;
-        } else if (lootType == 1 && random(0, 100) < 80) {
-          dungeonMap[ly][lx] = ArmorTile;
-        } else if (lootType == 2 && random(0, 100) < 80) {
-          dungeonMap[ly][lx] = RingTile;
-        } else if (lootType == 3 && random(0, 100) < 80) {
-          dungeonMap[ly][lx] = ScrollTile;
-        } else if (lootType == 4) {
-          dungeonMap[ly][lx] = Potion;
+        // Use rarity-based loot spawning - chests can contain items up to rarity 4
+        // This allows for better loot from chests compared to random dungeon spawns
+        if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
+          dungeonMap[ly][lx] = getRandomLootTile(4); // Max rarity 4 for chest loot
         }
       }
     }

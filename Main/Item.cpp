@@ -28,7 +28,7 @@ GameItem itemList[] = {
   { BrownPotion, PotionCategory, String("Brown Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Brown Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry."), 5},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), 2, false},
-  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 2, true, DefaultEffect, 0, false, false, 2},
+  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 1, true, DefaultEffect, 0, false, false, 2},
   { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens."), 2},
   { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), 4, false},
   { Ring, EquipmentCategory, String("Ring"), 0,  0,  0, 0, 0, String("Put it on to find out."), String("Ring"), String("You equip the ring."), 3, false},
@@ -380,5 +380,114 @@ void updateRingName(GameItem &ring) {
         ring.isRingIdentified = true;
         ringIdentified[ring.ringEffectIndex] = true; // Mark globally as identified
         ring.isCursed = ringCursed[ring.ringEffectIndex];
+    }
+}
+
+// Rarity-based item selection functions
+GameItems getRandomItemByRarity(ItemCategory category, int maxRarity) {
+    // Create a weighted list based on rarity (lower rarity = higher weight)
+    GameItems candidates[50]; // Max possible items
+    int weights[50];
+    int candidateCount = 0;
+    
+    // Find all items in the category within the rarity limit
+    for (size_t i = 0; i < sizeof(itemList) / sizeof(itemList[0]); i++) {
+        GameItem item = itemList[i];
+        if (item.category == category && item.rarity <= maxRarity && item.item != Null) {
+            candidates[candidateCount] = item.item;
+            // Higher weight for lower rarity (rarity 1 = weight 5, rarity 2 = weight 4, etc.)
+            weights[candidateCount] = max(1, 6 - item.rarity);
+            candidateCount++;
+        }
+    }
+    
+    if (candidateCount == 0) {
+        return Null; // No valid items found
+    }
+    
+    // Calculate total weight
+    int totalWeight = 0;
+    for (int i = 0; i < candidateCount; i++) {
+        totalWeight += weights[i];
+    }
+    
+    // Select random item based on weight
+    int randomValue = random(0, totalWeight);
+    int currentWeight = 0;
+    
+    for (int i = 0; i < candidateCount; i++) {
+        currentWeight += weights[i];
+        if (randomValue < currentWeight) {
+            return candidates[i];
+        }
+    }
+    
+    // Fallback to first candidate
+    return candidates[0];
+}
+
+GameItems getRandomItemByRarityAnyCategory(int maxRarity) {
+    // Create a weighted list based on rarity (lower rarity = higher weight)
+    GameItems candidates[50]; // Max possible items
+    int weights[50];
+    int candidateCount = 0;
+    
+    // Find all items within the rarity limit
+    for (size_t i = 0; i < sizeof(itemList) / sizeof(itemList[0]); i++) {
+        GameItem item = itemList[i];
+        if (item.rarity <= maxRarity && item.item != Null && item.item != WetScroll) {
+            candidates[candidateCount] = item.item;
+            // Higher weight for lower rarity (rarity 1 = weight 5, rarity 2 = weight 4, etc.)
+            weights[candidateCount] = max(1, 6 - item.rarity);
+            candidateCount++;
+        }
+    }
+    
+    if (candidateCount == 0) {
+        return Null; // No valid items found
+    }
+    
+    // Calculate total weight
+    int totalWeight = 0;
+    for (int i = 0; i < candidateCount; i++) {
+        totalWeight += weights[i];
+    }
+    
+    // Select random item based on weight
+    int randomValue = random(0, totalWeight);
+    int currentWeight = 0;
+    
+    for (int i = 0; i < candidateCount; i++) {
+        currentWeight += weights[i];
+        if (randomValue < currentWeight) {
+            return candidates[i];
+        }
+    }
+    
+    // Fallback to first candidate
+    return candidates[0];
+}
+
+TileTypes getRandomLootTile(int maxRarity) {
+    GameItems randomItem = getRandomItemByRarityAnyCategory(maxRarity);
+    
+    // Convert GameItems to TileTypes
+    switch (getItem(randomItem).category) {
+        case PotionCategory:
+            return Potion;
+        case ScrollsCategory:
+            return ScrollTile;
+        case EquipmentCategory:
+            if (randomItem == Ring) {
+                return RingTile;
+            } else if (randomItem == RiddleStone) {
+                return RiddleStoneTile;
+            } else {
+                return ArmorTile; // For armor items
+            }
+        case FoodCategory:
+            return MushroomTile;
+        default:
+            return Potion; // Default fallback
     }
 }

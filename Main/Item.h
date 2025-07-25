@@ -2,6 +2,7 @@
 #define ITEM_H
 
 #include <Arduino.h>
+#include "Dungeon.h"
 
 #define NUM_POTIONS 20
 #define NUM_SCROLLS 4
@@ -50,7 +51,7 @@ struct GameItem {
   String description = "";
   String originalName = "";
   String itemResult = "";
-  int rarity = 4;
+  int rarity = 5;
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
   int armorValue = 0;  // Damage reduction when equipped
@@ -116,5 +117,10 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2);
 GameItem combineItems(GameItem item1, GameItem item2);
 void randomizeRingEffects();
 void updateRingName(GameItem &ring);
+
+// Rarity-based item selection functions
+GameItems getRandomItemByRarity(ItemCategory category, int maxRarity);
+GameItems getRandomItemByRarityAnyCategory(int maxRarity);
+TileTypes getRandomLootTile(int maxRarity);
 
 #endif // ITEM_H

@@ -4,6 +4,7 @@
 #include "HelperFunctions.h"
 #include "Entities.h"
 #include "Player.h"
+#include "Item.h"
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
@@ -63,15 +64,9 @@ void generateDungeon() {
         for (int x = roomX; x < roomX + roomWidth; x++) {
           dungeonMap[y][x] = Floor;
           if (random(0, 50) > 47) {
-            if (random(0, 70) >= 30) {
-              dungeonMap[y][x] = MushroomTile;
-            } else if (random(0, 70) > 50) {
-              dungeonMap[y][x] = Potion;
-            } else if (random(0, 70) > 55) {
-              dungeonMap[y][x] = ScrollTile;
-            } else if (random(0, 70) > 65) {
-              dungeonMap[y][x] = RiddleStoneTile;
-            }
+            // Use rarity-based loot spawning - lower dungeon floors have lower max rarity (3)
+            // This makes chest loot more valuable than random floor loot
+            dungeonMap[y][x] = getRandomLootTile(1 + dungeon); // The further the player goes, the better the loot
           }
           if (!generatedMapItem && x > roomX + 1 && y > roomY + 1) {
             dungeonMap[y][x] = Map;
