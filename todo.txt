@@ -36,8 +36,6 @@ Kind of like a second life. (haven't quite implimented this, but almost- as I ha
 There could be a secret passage out of the map that transports you to another dungeon, but this time without any enemies and with weird items. Then it corrupts slowly after
 time and keeps corrupting.
 
-Cursed items, (equippables will have a chance to be cursed when picked up) when equipped, cannot be unequpped unless you read a scroll of uncurse.
-
 Need a trap that you can't see at first but when you step on it you fall through to the next dungeon no matter if you wanted to or not.
 
 Add a sound level mechanic where depending on the sound effect played, the sound level integer will be increased, and that sound level integer is always added to every
