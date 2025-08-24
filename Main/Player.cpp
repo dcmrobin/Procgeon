@@ -441,10 +441,7 @@ void handleHungerAndEffects() {
     starving = playerFood <= 0 ? true : false;
   }
 
-  if (playerHP <= 0) {
-    playRawSFX(10);
-    deathCause = "hunger";
-  }
+  checkIfDeadFrom("hunger");
 
   // Update confusion timer
   if (confused) {
@@ -765,10 +762,7 @@ void handleRiddles() {
       playRawSFX(13);
       itemResultMessage = "Wrong answer! You suffer.";
       playerHP -= 10;
-      if (playerHP <= 0) {
-        playRawSFX(10);
-        deathCause = "stupidity";
-      }
+      checkIfDeadFrom("stupidity");
     }
     currentUIState = UI_ITEM_RESULT;
     // Reset riddle so a new one can be generated next time.

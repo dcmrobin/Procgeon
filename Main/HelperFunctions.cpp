@@ -611,3 +611,11 @@ bool nearTile(TileTypes tile) {
   }
   return isNear;
 }
+
+void checkIfDeadFrom(const String &cause) {
+  if (playerHP <= 0) {
+    playRawSFX(10);
+    deathCause = cause;
+    buttons.bPressedPrev = true;
+  }
+}

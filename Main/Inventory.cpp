@@ -352,11 +352,7 @@ void handleItemActionMenu() {
           currentSpeedMultiplier += selectedItem.SpeedMultiplier;
         }
 
-        if (playerHP <= 0) {
-          playRawSFX(10);
-          deathCause = "poison";
-          buttons.bPressedPrev = true;
-        }
+        checkIfDeadFrom("poison");
         
         if (selectedItem.AOEsize > 0) {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);

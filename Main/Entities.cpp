@@ -573,10 +573,7 @@ void updateEnemies() {
           playRawSFX(0);
           atkDelayCounter = 0;
         }
-        if (playerHP <= 0) {
-          playRawSFX(10);
-          deathCause = enemies[i].name;
-        }
+        checkIfDeadFrom(enemies[i].name);
       }
     }
   }

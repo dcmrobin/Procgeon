@@ -115,5 +115,6 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
 bool nearTile(TileTypes tile);
+void checkIfDeadFrom(const String &cause);
 
 #endif
