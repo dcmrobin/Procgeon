@@ -19,7 +19,7 @@ extern InventoryPage inventoryPages[];
 extern int selectedInventoryIndex; // Currently selected inventory item
 extern String itemResultMessage;
 
-extern InventoryPage inventoryPages[];
+//extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;
 extern int numInventoryPages;
 

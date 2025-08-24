@@ -735,7 +735,14 @@ void handleRiddles() {
     playRawSFX(7);
     if (selectedRiddleOption == currentRiddle.correctOption) {
       playRawSFX(6);
-      itemResultMessage = "Correct! You are rewarded.";
+      display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
+      if (playerHP > 0) {
+        itemResultMessage = "Correct! You are rewarded.";
+      } else {
+        itemResultMessage = "Correct! You are revived.";
+        playerHP = (int)(playerMaxHP / 2);
+        return;
+      }
       // Give three random items as a reward
       for (int i = 0; i < 3; i++) {
         int category = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom

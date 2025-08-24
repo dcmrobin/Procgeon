@@ -614,8 +614,19 @@ bool nearTile(TileTypes tile) {
 
 void checkIfDeadFrom(const String &cause) {
   if (playerHP <= 0) {
-    playRawSFX(10);
-    deathCause = cause;
-    buttons.bPressedPrev = true;
+    if (!equippedRiddleStone) {
+      playRawSFX(10);
+      deathCause = cause;
+      buttons.bPressedPrev = true;
+    } else {
+      currentUIState = UI_RIDDLE;
+      equippedRiddleStone = false;
+      for (int i = 0; i < inventorySize; i++) {
+        if (inventoryPages[2].items[i].itemResult == "Solve this riddle!") {
+          removeItemFromInventory(2, i);
+          break;
+        }
+      }
+    }
   }
 }
