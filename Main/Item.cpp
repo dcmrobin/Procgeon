@@ -26,17 +26,17 @@ GameItem itemList[] = {
   { MintPotion, PotionCategory, String("Mint Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Mint Potion"), String("Nothing happens.")},
   { SalmonPotion, PotionCategory, String("Salmon Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Salmon Potion"), String("Nothing happens.")},
   { BrownPotion, PotionCategory, String("Brown Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Brown Potion"), String("Nothing happens.")},
-  { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry."), 5},
-  { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), 2, false},
-  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 1, true, DefaultEffect, 0, false, false, 2},
-  { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens."), 2},
-  { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), 4, false},
+  { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry."), 1},
+  { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), 4, false},
+  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 5, true, DefaultEffect, 0, false, false, 2},
+  { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens."), 4},
+  { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), 3, false},
   { Ring, EquipmentCategory, String("Ring"), 0,  0,  0, 0, 0, String("Put it on to find out."), String("Ring"), String("You equip the ring."), 3, false},
-  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), 2, false, ArmorEffect, 2, false, false, 2},
-  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), 2, false, ArmorEffect, 3, false, false, 2},
-  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 2, false, ArmorEffect, 1, false, false, 2},
-  { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), 2, false, ArmorEffect, 0, false, false, 2},
-  { Null, PotionCategory, String("Null"), 0, 0, 0, 0, 0, String(""), String("Null"), String(""), 4, false }
+  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), 3, false, ArmorEffect, 2, false, false, 2},
+  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), 4, false, ArmorEffect, 3, false, false, 2},
+  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 4, false, ArmorEffect, 1, false, false, 2},
+  { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), 4, false, ArmorEffect, 0, false, false, 2},
+  { Null, PotionCategory, String("Null"), 0, 0, 0, 0, 0, String(""), String("Null"), String(""), 5, false }
 };
 
 String scrollNames[NUM_SCROLLS] = {
