@@ -227,7 +227,7 @@ void handleInventoryItemUsage() {
           selectedInventoryIndex = 0;
         }
         currentUIState = UI_ITEM_RESULT;
-        itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
+        itemResultMessage = resultItem.name == "Null" ? ((combiningItem1.item == Mushroom && combiningItem2.item == EmptyBottle) || (combiningItem2.item == Mushroom && combiningItem1.item == EmptyBottle) ? "The mushroom doesn't fit in the bottle." : "These two items cannot be combined.") : "Combined two items! The result was: " + resultItem.name;
         combiningTwoItems = false;
       }
     }
