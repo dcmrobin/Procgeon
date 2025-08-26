@@ -806,7 +806,7 @@ void OpenChest(int cy, int cx, int dx) {
         // Use rarity-based loot spawning - chests can contain items up to rarity 4
         // This allows for better loot from chests compared to random dungeon spawns
         if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
-          dungeonMap[ly][lx] = getRandomLootTile(4); // Max rarity 4 for chest loot
+          dungeonMap[ly][lx] = getRandomLootTile(5); // Max rarity 5 for chest loot
         }
       }
     }
