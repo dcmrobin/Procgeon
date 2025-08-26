@@ -259,6 +259,16 @@ GameItem combineItems(GameItem item1, GameItem item2) {
     if (item1.category == PotionCategory && item2.category == PotionCategory) {
         bool item1Primary = isPrimaryPotion(item1.item);
         bool item2Primary = isPrimaryPotion(item2.item);
+        bool item1Empty = (item1.item == EmptyBottle);
+        bool item2Empty = (item2.item == EmptyBottle);
+        // If one of them is an empty bottle, return potion
+        if (item1Empty && !item2Empty) {
+            return getItem(item2.item);
+        } else if (!item1Empty && item2Empty) {
+            return getItem(item1.item);
+        } else if (item1Empty && item2Empty) {
+            return getItem(EmptyBottle);
+        }
         // If either is non-primary, return BrownPotion
         if (!item1Primary || !item2Primary) {
             return getItem(BrownPotion);
