@@ -28,14 +28,14 @@ GameItem itemList[] = {
   { BrownPotion, PotionCategory, String("Brown Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Brown Potion"), String("Nothing happens.")},
   { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry."), 1},
   { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), 4, false},
-  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 5, true, DefaultEffect, 0, false, false, 2},
+  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 5, true, DefaultEffect, 0, false, false, 2, false},
   { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens."), 4},
   { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), 3, false},
   { Ring, EquipmentCategory, String("Ring"), 0,  0,  0, 0, 0, String("Put it on to find out."), String("Ring"), String("You equip the ring."), 3, false},
-  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), 3, false, ArmorEffect, 2, false, false, 2},
-  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), 4, false, ArmorEffect, 3, false, false, 2},
-  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 4, false, ArmorEffect, 1, false, false, 2},
-  { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), 4, false, ArmorEffect, 0, false, false, 2},
+  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), 3, false, ArmorEffect, 2, false, false, 2, false},
+  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), 4, false, ArmorEffect, 3, false, false, 2, true},
+  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 4, false, ArmorEffect, 1, false, false, 2, false},
+  { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), 4, false, ArmorEffect, 0, false, false, 2, false},
   { Null, PotionCategory, String("Null"), 0, 0, 0, 0, 0, String(""), String("Null"), String(""), 5, false }
 };
 
@@ -99,7 +99,7 @@ ItemCombination itemCombinations[] = {
 
 const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinations[0]);
 
-String ringTypes[NUM_RINGS] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Iron Ring" };
+String ringTypes[NUM_RINGS] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring" };
 String ringEffects[NUM_RINGS] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration" };
 bool ringCursed[NUM_RINGS] = { false, false, true, true, false };
 bool ringIdentified[NUM_RINGS] = { false, false, false, false, false };
@@ -273,6 +273,56 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         if (!item1Primary || !item2Primary) {
             return getItem(BrownPotion);
         }
+    } else if ((item1.category == PotionCategory && item2.category == EquipmentCategory) || (item1.category == EquipmentCategory && item2.category == PotionCategory)) {
+      if (item1.item == EmptyBottle || item2.item == EmptyBottle) {
+        GameItem item = item1.item == EmptyBottle ? item2 : item1;
+        item.itemResult = "The " + item.name + " cannot fit inside the bottle.";
+        return item;
+      } else if (item1.category == EquipmentCategory ? item1.canRust : item2.canRust) {
+        GameItem item = item1.category == EquipmentCategory ? item1 : item2;
+        bool cursed = random(0, 10) < 3 ? true : false;
+        GameItem rustedItem = {
+          item.item,
+          item.category,
+          item.AOEdamage != 123 ? "Rusty " + item.name : item.name,
+          item.healthRecoverAmount,
+          item.hungerRecoverAmount,
+          item.AOEsize,
+          123,// This is to make sure "rusty"s don't get added more than necessary to the name
+          item.SpeedMultiplier,
+          "A " + item.name + ". It looks degraded" + (cursed ? ", and you feel a sense of unease around it." : "."),
+          item.originalName,
+          "You pour the " + (item1.category == PotionCategory ? item1.name : item2.name) + " over the " + item.name + ". It rusts" + (cursed ? ", becomes less durable, and shimmers slightly red for a moment." : " and becomes less durable."),
+          item.rarity,
+          item.oneTimeUse,
+          item.effectType,
+          item.armorValue - (item.armorValue < 0 ? 0 : 1),
+          item.isEquipped,
+          cursed,
+          item.curseChance,
+          true
+        };
+        if (item.isEquipped) {
+          equippedArmorValue = item.armorValue;
+        }
+        return rustedItem;
+      } else if (item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) {
+        GameItem item = item1.category == EquipmentCategory ? item1 : item2;
+        GameItem unrustedItem = {
+          item.item,
+          item.category,
+          item.name,
+          item.healthRecoverAmount,
+          item.hungerRecoverAmount,
+          item.AOEsize,
+          item.AOEdamage,
+          item.SpeedMultiplier,
+          item.name,
+          item.originalName,
+          "You pour the " + (item1.category == PotionCategory ? item1.name : item2.name) + " over the " + item.name + ", but nothing happens."
+        };
+        return unrustedItem;
+      }
     }
     // Try to find a matching combination
     for (int i = 0; i < NUM_ITEM_COMBINATIONS; i++) {

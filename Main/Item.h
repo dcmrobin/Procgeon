@@ -90,6 +90,7 @@ struct GameItem {
   bool isEquipped = false;  // Whether this item is currently equipped
   bool isCursed = false;
   int curseChance = 0;
+  bool canRust = false;
   bool isScrollRevealed = false;  // Whether the scroll's true name has been revealed
   int scrollEffectIndex = -1;  // Index of the assigned scroll effect
   // --- Ring support ---

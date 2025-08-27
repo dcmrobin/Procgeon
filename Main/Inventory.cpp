@@ -227,7 +227,11 @@ void handleInventoryItemUsage() {
           selectedInventoryIndex = 0;
         }
         currentUIState = UI_ITEM_RESULT;
-        itemResultMessage = resultItem.name == "Null" ? ((combiningItem1.item == Mushroom && combiningItem2.item == EmptyBottle) || (combiningItem2.item == Mushroom && combiningItem1.item == EmptyBottle) ? "The mushroom doesn't fit in the bottle." : "These two items cannot be combined.") : "Combined two items! The result was: " + resultItem.name;
+        if (resultItem.category != EquipmentCategory) {
+          itemResultMessage = resultItem.name == "Null" ? ((combiningItem1.item == Mushroom && combiningItem2.item == EmptyBottle) || (combiningItem2.item == Mushroom && combiningItem1.item == EmptyBottle) ? "The mushroom doesn't fit in the bottle." : "These two items cannot be combined.") : "Combined two items! The result was: " + resultItem.name;
+        } else {
+          itemResultMessage = resultItem.itemResult;
+        }
         combiningTwoItems = false;
       }
     }
@@ -550,7 +554,7 @@ void handleItemActionMenu() {
               }
             }
             playRawSFX(2);
-            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : selectedItem.itemResult; // override riddle stone text
+            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : "You equip the " + selectedItem.name + "."; // override riddle stone text
             equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
             currentUIState = UI_ITEM_RESULT;
           }
