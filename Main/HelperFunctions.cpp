@@ -436,6 +436,9 @@ void updateAnimations() {
     } else if (e.name == "batguy") {
       anim = batguyAnimation;
       animLength = batguyAnimationLength;
+    } else if (e.name == "shooter") {
+      anim = shooterAnimation;
+      animLength = shooterAnimationLength;
     }
     if (anim) {
       frameTimer[i]++;

@@ -48,6 +48,12 @@ extern const unsigned char batguySpriteFrame2[];
 extern Frame batguyAnimation[];
 extern const int batguyAnimationLength;
 
+// Shooter sprites
+extern const unsigned char shooterSpriteFrame1[];
+extern const unsigned char shooterSpriteFrame2[];
+extern Frame shooterAnimation[];
+extern const int shooterAnimationLength;
+
 // Item sprites
 extern const unsigned char potionSprite[];
 extern const unsigned char riddleStoneSprite[];

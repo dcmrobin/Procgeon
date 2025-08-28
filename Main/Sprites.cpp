@@ -195,7 +195,7 @@ Frame blobAnimation[] = {
 
 const int blobAnimationLength = 2;
 
-// Blob sprites
+// Batguy sprites
 const unsigned char PROGMEM batguySpriteFrame1[] = {
   0b00000000,
   0b00001000,
@@ -224,6 +224,36 @@ Frame batguyAnimation[] = {
 };
 
 const int batguyAnimationLength = 2;
+
+// Shooter sprites
+const unsigned char PROGMEM shooterSpriteFrame1[] = {
+  0b00111100,
+  0b01100110,
+  0b01000010,
+  0b01100110,
+  0b00111100,
+  0b01111110,
+  0b10111101,
+  0b00000100
+};
+
+const unsigned char PROGMEM shooterSpriteFrame2[] = {
+  0b00111100,
+  0b01100110,
+  0b01000010,
+  0b01100110,
+  0b00111100,
+  0b01111110,
+  0b10111101,
+  0b00100000
+};
+
+Frame shooterAnimation[] = {
+  {shooterSpriteFrame1, 15},
+  {shooterSpriteFrame2, 15}
+};
+
+const int shooterAnimationLength = 2;
 
 // Item sprites
 const unsigned char PROGMEM potionSprite[] = {
