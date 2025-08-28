@@ -574,7 +574,7 @@ void handleDialogue() {
     u8g2_for_adafruit_gfx.setCursor(27, 19);
     drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
-    if (!isRidiculeDialogue) {
+    if (!isRidiculeDialogue || currentDialogue == "Hey! Wait up!") {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
       display.drawRect(8, 10, 18, 34, 15);
     }
