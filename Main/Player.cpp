@@ -249,7 +249,7 @@ void handleInput() {
 
   if (buttons.bPressed) {
     if (!reloading && !carryingDamsel && distanceSquared > 0.3) {
-      shootProjectile(playerDX, playerDY); // Shoot in current direction
+      shootProjectile(playerX, playerY, playerDX, playerDY, true); // Shoot in current direction
       playRawSFX(1);
       reloading = true;
       playerActed = true;  // Player has taken an action

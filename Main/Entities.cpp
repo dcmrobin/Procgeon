@@ -623,6 +623,17 @@ void updateProjectiles() {
           projectiles[i].active = false;
         }
       }
+
+      // Also check for collision with player:
+      if (projectiles[i].shotByPlayer == false && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, playerX, playerY)) {
+        int damage = projectiles[i].damage - equippedArmorValue;
+        if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
+        playerHP -= damage;
+        triggerScreenShake(2, 1);
+        playRawSFX(0);
+        checkIfDeadFrom("projectile");
+        projectiles[i].active = false; // Deactivate the bullet
+      }
     }
   }
 }
@@ -632,17 +643,18 @@ void moveDamselToPos(float posX, float posY) {
   damsel[0].y = posY;
 }
 
-void shootProjectile(float xDir, float yDir) {
+void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer) {
 
   for (int i = 0; i < maxProjectiles; i++) {
     if (!projectiles[i].active) {
-      projectiles[i].x = playerX;
-      projectiles[i].y = playerY;
+      projectiles[i].x = x;
+      projectiles[i].y = y;
       projectiles[i].dx = xDir;  // Set direction based on player's facing direction
       projectiles[i].dy = yDir;
-      projectiles[i].damage = playerAttackDamage;
-      projectiles[i].speed = 0.5;
+      projectiles[i].damage = shotByPlayer ? playerAttackDamage : (int)(playerAttackDamage / 2);
+      projectiles[i].speed = shotByPlayer? 0.5 : 0.25;
       projectiles[i].active = true;
+      projectiles[i].shotByPlayer = shotByPlayer;
       break;
     }
   }
