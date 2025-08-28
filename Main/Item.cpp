@@ -323,6 +323,21 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         };
         return unrustedItem;
       }
+    } else if ((item1.category == PotionCategory && item2.category == FoodCategory) || (item2.category == PotionCategory && item1.category == FoodCategory)) {
+      if (item1.item == EmptyBottle || item2.item == EmptyBottle) {
+        GameItem item = item1.item == EmptyBottle ? item2 : item1;
+        item.itemResult = "The " + item.name + " cannot fit inside the bottle.";
+        return item;
+      }
+      GameItem potion = item1.category == PotionCategory ? item1 : item2;
+      GameItem food = item1.category == FoodCategory ? item1 : item2;
+      food.healthRecoverAmount = potion.healthRecoverAmount;
+      food.hungerRecoverAmount = potion.hungerRecoverAmount;
+      food.AOEsize = potion.AOEsize;
+      food.AOEdamage = potion.AOEdamage;
+      food.SpeedMultiplier = potion.SpeedMultiplier;
+      food.name = "Odd " + (item1.category == FoodCategory ? item1.name : item2.name);
+      return food;
     }
     // Try to find a matching combination
     for (int i = 0; i < NUM_ITEM_COMBINATIONS; i++) {

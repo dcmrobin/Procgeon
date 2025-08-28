@@ -464,7 +464,7 @@ void updateEnemies() {
       if (enemies[i].chasingPlayer) {
         giveUpTimer++;
       }
-      if (giveUpTimer >= 700) {
+      if (giveUpTimer >= 600) {
         enemies[i].chasingPlayer = false;
         giveUpTimer = 0;
       }

@@ -228,7 +228,7 @@ void handleInventoryItemUsage() {
         }
         currentUIState = UI_ITEM_RESULT;
         if (resultItem.category != EquipmentCategory) {
-          itemResultMessage = resultItem.name == "Null" ? ((combiningItem1.item == Mushroom && combiningItem2.item == EmptyBottle) || (combiningItem2.item == Mushroom && combiningItem1.item == EmptyBottle) ? "The mushroom doesn't fit in the bottle." : "These two items cannot be combined.") : "Combined two items! The result was: " + resultItem.name;
+          itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
         } else {
           itemResultMessage = resultItem.itemResult;
         }
@@ -332,7 +332,7 @@ void handleItemActionMenu() {
           currentUIState = UI_ITEM_RESULT;
         }
         buttons.bPressedPrev = true;
-      } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
+      } else if ((selectedItem.category == PotionCategory || selectedItem.category == FoodCategory) && selectedItem.item != EmptyBottle) {
         if (selectedItem.itemResult == "A lot happens.") { // random effect applied to the potion before anything else so that all the effects can be applied after
           selectedItem.healthRecoverAmount = random(-90, 101); // -90 to +100
           selectedItem.hungerRecoverAmount = random(-90, 101); // -90 to +100
@@ -342,7 +342,9 @@ void handleItemActionMenu() {
         }
 
         // Handle potion drinking
-        playRawSFX(6);
+        playRawSFX(selectedItem.category == PotionCategory ? 6 : 5);
+        playerFood += selectedItem.hungerRecoverAmount;
+        playerFood = playerFood > 100 ? 100 : playerFood;
         playerHP += selectedItem.healthRecoverAmount;
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
 
@@ -441,20 +443,6 @@ void handleItemActionMenu() {
           }
         }
 
-        buttons.bPressedPrev = true;
-      } else if (selectedItem.category == FoodCategory) {
-        playRawSFX(5);
-        playerFood += selectedItem.hungerRecoverAmount;
-        playerFood = playerFood > 100 ? 100 : playerFood;
-        
-        itemResultMessage = selectedItem.itemResult;
-        currentUIState = UI_ITEM_RESULT;
-        
-        if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
-          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
-          inventoryPages[currentInventoryPageIndex].itemCount--;
-        }
-        
         buttons.bPressedPrev = true;
       } else if (selectedItem.effectType == ArmorEffect || selectedItem.item == Ring) {
         itemResultMessage = "You can't use this, try equipping it.";
