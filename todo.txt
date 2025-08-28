@@ -27,8 +27,6 @@ button on the wall next to it. The cellular automaton would be the Game of Life 
 You might be able to mix any potion with any food item and it would make the food item have a healing/damaging
 or slowing/speeding effect based on the potion in addition to recovering hunger.
 
-The enemies need to not instantly give up on chasing the player when the player is out of their view radius.
-
 There could be a secret passage out of the map that transports you to another dungeon, but this time without any enemies and with weird items. Then it corrupts slowly after
 time and keeps corrupting.
 

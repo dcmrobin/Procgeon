@@ -354,6 +354,7 @@ void updateDamsel() {
 }
 
 int atkDelayCounter = 0;
+int giveUpTimer = 0;
 void updateEnemies() {
   atkDelayCounter += 1;
   for (int i = 0; i < maxEnemies; i++) {
@@ -460,7 +461,13 @@ void updateEnemies() {
     if (gridDistanceSquared <= 25) {
       enemies[i].chasingPlayer = true;
     } else {
-      enemies[i].chasingPlayer = false;
+      if (enemies[i].chasingPlayer) {
+        giveUpTimer++;
+      }
+      if (giveUpTimer >= 700) {
+        enemies[i].chasingPlayer = false;
+        giveUpTimer = 0;
+      }
     }
     
     if (enemies[i].chasingPlayer) {
