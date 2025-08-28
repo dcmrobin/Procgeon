@@ -544,7 +544,17 @@ GameItems getRandomItemByRarityAnyCategory(int maxRarity) {
 }
 
 TileTypes getRandomLootTile(int maxRarity) {
-    GameItems randomItem = getRandomItemByRarityAnyCategory(maxRarity);
+    // First, select a category with equal probability
+    ItemCategory categories[] = {PotionCategory, FoodCategory, ScrollsCategory, EquipmentCategory};
+    int randomCategoryIndex = random(0, 4); // Random between 0-3
+    
+    // Get a random item from the selected category
+    GameItems randomItem = getRandomItemByRarity(categories[randomCategoryIndex], maxRarity);
+    
+    // If no item found in this category, try any category as fallback
+    if (randomItem == Null) {
+        randomItem = getRandomItemByRarityAnyCategory(maxRarity);
+    }
     
     // Convert GameItems to TileTypes
     switch (getItem(randomItem).category) {
