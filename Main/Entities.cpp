@@ -560,6 +560,32 @@ void updateEnemies() {
       }
     }
 
+    // Shooter enemies shoot projectiles when chasing the player
+    if (enemies[i].name == "shooter" && enemies[i].chasingPlayer) {
+      // Add a cooldown to prevent constant shooting
+      static int shooterCooldown[maxEnemies] = {0};
+      if (shooterCooldown[i] <= 0) {
+        // Calculate direction to player
+        float dirX = playerX - enemies[i].x;
+        float dirY = playerY - enemies[i].y;
+        float distance = sqrt(dirX * dirX + dirY * dirY);
+        
+        if (distance > 0) {
+          // Normalize direction
+          dirX /= distance;
+          dirY /= distance;
+          
+          // Shoot projectile from enemy position towards player
+          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+          
+          // Set cooldown (adjust timing as needed)
+          shooterCooldown[i] = 120; // 2 seconds at 60 FPS
+        }
+      } else {
+        shooterCooldown[i]--;
+      }
+    }
+
     // Existing collision with player logic remains unchanged:
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
       if (enemies[i].name == "teleporter") {
@@ -603,7 +629,7 @@ void updateProjectiles() {
 
       // Check for collisions with enemies
       for (int j = 0; j < maxEnemies; j++) {
-        if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && enemies[j].hp > 0) {
+        if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && projectiles[i].shotByPlayer && enemies[j].hp > 0) {
           enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
           playRawSFX(23);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {

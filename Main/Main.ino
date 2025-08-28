@@ -73,6 +73,7 @@ void resetGame() {
   glamoured = false;
   blinded = false;
   showDialogue = false;
+  paralyzed = false;
   
   // Reset damsel state
   damselWasFollowing = false;
