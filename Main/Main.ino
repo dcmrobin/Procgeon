@@ -291,9 +291,29 @@ void gameOver() {
 
   if (page == 1) {
     display.setCursor(12, 44);
-    display.print("Slain by:");
-    display.setCursor(66, 44);
-    display.print(deathCause.c_str());
+    if (dungeon == 1) {
+      display.print("get out lil bro");
+    } else if (dungeon == 2) {
+      display.print("lol noob xD");
+    } else if (dungeon == 3) {
+      display.print("lame :/");
+    } else if (dungeon == 4) {
+      display.print("meh :(");
+    } else if (dungeon == 5) {
+      display.print("not bad.");
+    } else if (dungeon == 6) {
+      display.print("pretty good.");
+    } else if (dungeon == 7) {
+      display.print("unlucky bro");
+    } else if (dungeon == 8) {
+      display.print("aw man.");
+    } else if (dungeon == 9) {
+      display.print("so close!");
+    } else if (dungeon == 10) {
+      display.print("heck yeah.");
+    } else if (dungeon > 10) {
+      display.print("how...?");
+    }
 
     display.setCursor(12, 56);
     display.print("On dungeon:");
