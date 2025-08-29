@@ -431,7 +431,7 @@ Frame teleporterAnimation[] = {
 
 const int teleporterAnimationLength = 4;
 
-const unsigned char PROGMEM maybeANymphOrSuccubus[] = {
+const unsigned char PROGMEM succubusIdleSprite[] = {
   0b00011000,
   0b00111100,
   0b01111000,
