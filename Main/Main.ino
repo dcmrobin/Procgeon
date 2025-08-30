@@ -250,6 +250,22 @@ void renderGame() {
 
 int page = 1;
 void gameOver() {
+  if (showDeathScreen) {
+    display.clearDisplay();
+    u8g2_for_adafruit_gfx.setCursor(0, 125);
+    if (deathCause == "blob") {
+      display.drawBitmap(0, -10, wizardDeath_blob, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.print(F("You were slain by a blob!"));
+    } else {
+      u8g2_for_adafruit_gfx.print(F("Yeah, idk what killed you."));
+    }
+    display.display();
+    if ((buttons.bPressed && !buttons.bPressedPrev) || (buttons.aPressed && !buttons.aPressedPrev)) {
+      showDeathScreen = false;
+    }
+    return;
+  }
+
   if (buttons.aPressed && !buttons.aPressedPrev) {
     playRawSFX(8);
     page++;
