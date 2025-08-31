@@ -265,6 +265,9 @@ void gameOver() {
     } else if (deathCause == "shooter") {
       display.drawBitmap(-10, 0, wizardDeath_shooter, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a shooter!"));
+    } else if (deathCause == "hunger") {
+      display.drawBitmap(0, 0, wizardDeath_hunger, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.print(F("You starved!"));
     } else {
       u8g2_for_adafruit_gfx.print(F("Yeah, idk what killed you."));
     }
