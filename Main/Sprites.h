@@ -92,5 +92,6 @@ extern const unsigned char capturedDamselScreen[];
 extern const unsigned char carryDamselScreen [];
 extern const unsigned char wizardDeath_blob [];
 extern const unsigned char wizardDeath_batguy [];
+extern const unsigned char wizardDeath_shooter [];
 
 #endif // SPRITES_H
