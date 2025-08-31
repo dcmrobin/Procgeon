@@ -263,7 +263,7 @@ void gameOver() {
       display.drawBitmap(0, 0, wizardDeath_batguy, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a batguy!"));
     } else if (deathCause == "shooter") {
-      display.drawBitmap(0, 0, wizardDeath_shooter, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      display.drawBitmap(-10, 0, wizardDeath_shooter, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a shooter!"));
     } else {
       u8g2_for_adafruit_gfx.print(F("Yeah, idk what killed you."));
