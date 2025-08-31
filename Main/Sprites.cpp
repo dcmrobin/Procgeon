@@ -234,7 +234,7 @@ const unsigned char PROGMEM shooterSpriteFrame1[] = {
   0b00111100,
   0b01111110,
   0b10111101,
-  0b00000100
+  0b00111110
 };
 
 const unsigned char PROGMEM shooterSpriteFrame2[] = {
@@ -245,7 +245,7 @@ const unsigned char PROGMEM shooterSpriteFrame2[] = {
   0b00111100,
   0b01111110,
   0b10111101,
-  0b00100000
+  0b01111100
 };
 
 Frame shooterAnimation[] = {
