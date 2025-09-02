@@ -94,5 +94,6 @@ extern const unsigned char wizardDeath_blob [];
 extern const unsigned char wizardDeath_batguy [];
 extern const unsigned char wizardDeath_shooter [];
 extern const unsigned char wizardDeath_hunger [];
+extern const unsigned char wizardDeath_stupidity [];
 
 #endif // SPRITES_H

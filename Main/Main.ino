@@ -268,6 +268,9 @@ void gameOver() {
     } else if (deathCause == "hunger") {
       display.drawBitmap(0, 0, wizardDeath_hunger, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("You starved!"));
+    } else if (deathCause == "stupidity") {
+      display.drawBitmap(0, 0, wizardDeath_stupidity, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.print(F("You died of pure stupidity."));
     } else {
       u8g2_for_adafruit_gfx.print(F("Yeah, idk what killed you."));
     }
