@@ -4,15 +4,19 @@
 // Define the audio system objects
 AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
 AudioMixer4         mixer1;
+AudioMixer4         musicMixer; // New mixer for music
 AudioOutputI2S      audioOutput;
+AudioPlaySdWav      playWav1;
 
 // Create audio connections
 AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
 AudioConnection     patchCord2(queue[1], 0, mixer1, 1);
 AudioConnection     patchCord3(queue[2], 0, mixer1, 2);
 AudioConnection     patchCord4(queue[3], 0, mixer1, 3);
-AudioConnection     patchCord5(mixer1, 0, audioOutput, 0);
-AudioConnection     patchCord6(mixer1, 0, audioOutput, 1);
+AudioConnection     patchCord5(mixer1, 0, musicMixer, 0); // SFX to musicMixer
+AudioConnection     patchCord6(playWav1, 0, musicMixer, 1); // WAV to musicMixer
+AudioConnection     patchCord7(musicMixer, 0, audioOutput, 0);
+AudioConnection     patchCord8(musicMixer, 0, audioOutput, 1);
 AudioControlSGTL5000 sgtl5000_1;
 
 // RAM-loaded sound effect storage
@@ -55,12 +59,15 @@ void initAudio() {
     AudioMemory(30);
     sgtl5000_1.enable();
     sgtl5000_1.volume(0.5);
-    
     // Set mixer levels for each channel
-    mixer1.gain(0, 0.25);
-    mixer1.gain(1, 0.25);
-    mixer1.gain(2, 0.25);
-    mixer1.gain(3, 0.25);
+    mixer1.gain(0, 0.5);
+    mixer1.gain(1, 0.5);
+    mixer1.gain(2, 0.5);
+    mixer1.gain(3, 0.5);
+    musicMixer.gain(0, 1.0); // SFX
+    musicMixer.gain(1, 0.2); // WAV music
+    musicMixer.gain(2, 0.0);
+    musicMixer.gain(3, 0.0);
 }
 
 bool playRawSFX(int sfxIndex) {

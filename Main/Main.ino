@@ -129,11 +129,23 @@ void setup() {
   Serial.println("type 1: make tile player is on into a ring");
 
   // Play a WAV file
-  /*if (!playWav1.play("bossfight.wav")) {
-    Serial.println("Failed to play bossfight.wav");
+  /*if (playWav1.play("bossfight.wav")) {
+    Serial.println("bossfight.wav played successfully");
   } else {
-    Serial.println("Playing bossfight.wav...");
+    Serial.println("bossfight.wav failed to play");
+  }
+
+  if (!playWav1.isPlaying()) {
+      Serial.println("bossfight.wav is not playing");
+  } else {
+      Serial.println("bossfight.wav is playing");
   }*/
+
+  //if (SD.exists("bossfight.wav")) {
+  //  Serial.println("bossfight.wav does exist");
+  //} else {
+  //  Serial.println("bossfight.wav does not exist");
+  //}
 
   randomSeed(generateRandomSeed());
 

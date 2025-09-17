@@ -11,7 +11,9 @@
 // Declare audio objects (defined in .cpp)
 extern AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
 extern AudioMixer4         mixer1;
+extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
+extern AudioPlaySdWav      playWav1;
 
 // Audio connections will be defined in the cpp file
 
