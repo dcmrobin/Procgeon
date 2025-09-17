@@ -353,10 +353,8 @@ void updateDamsel() {
   }
 }
 
-int atkDelayCounter = 0;
 int giveUpTimer = 0;
 void updateEnemies() {
-  atkDelayCounter += 1;
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
 
@@ -600,7 +598,6 @@ void updateEnemies() {
         playerY = newY;
       } else {
         // Each enemy attacks independently
-        enemies[i].attackDelayCounter++;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
           int damage = enemies[i].damage - equippedArmorValue;
           if (damage < 0) damage = 0;
@@ -610,9 +607,10 @@ void updateEnemies() {
           enemies[i].attackDelayCounter = 0;
         }
         checkIfDeadFrom(enemies[i].name);
+        enemies[i].attackDelayCounter++;
       }
     } else {
-      enemies[i].attackDelayCounter = 0; // Reset if not in contact
+      enemies[i].attackDelayCounter = enemies[i].attackDelay; // Reset if not in contact
     }
     // Repel enemies from each other to reduce stacking
     for (int j = 0; j < maxEnemies; j++) {
@@ -697,7 +695,7 @@ void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer
       projectiles[i].y = y;
       projectiles[i].dx = xDir;  // Set direction based on player's facing direction
       projectiles[i].dy = yDir;
-      projectiles[i].damage = shotByPlayer ? playerAttackDamage : (int)(playerAttackDamage / 2);
+      projectiles[i].damage = shotByPlayer ? playerAttackDamage : 4; // Player projectiles do playerAttackDamage, enemies do 4 damage
       projectiles[i].speed = shotByPlayer? 0.5 : 0.25;
       projectiles[i].active = true;
       projectiles[i].shotByPlayer = shotByPlayer;

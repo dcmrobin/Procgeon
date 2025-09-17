@@ -90,18 +90,21 @@ void renderPlayer() {
       display.setCursor(textX, textY);
       display.print("Carry [B]");
     }
+
     // --- Show 'Open Chest [B]' prompt only if player is facing a chest ---
     int facingX = round(playerX) + playerDX;
     int facingY = round(playerY) + playerDY;
     bool facingChest = false;
     bool facingClosedDoor = false;
     bool facingOpenDoor = false;
+    bool facingOpenExit = false;
     if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
       facingChest = (dungeonMap[facingY][facingX] == ChestTile);
       facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
       facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
+      facingOpenExit = (dungeonMap[facingY][facingX] == Exit);
     }
-    if (facingChest || facingClosedDoor || facingOpenDoor) {
+    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit) {
       // Prevent player from shooting while opening chest or door
       reloading = true;
       shootDelay = 0;
@@ -118,6 +121,8 @@ void renderPlayer() {
         display.print("Open Door [B]");
       } else if (facingOpenDoor) {
         display.print("Close Door [B]");
+      } else if (facingOpenExit) {
+        display.print("Descend [B]");
       }
     }
   }
@@ -337,18 +342,9 @@ void handleInput() {
     }
   }
 
+
   int rPx = round(playerX);
   int rPy = round(playerY);
-
-  // Check if the player reached the exit
-  if (dungeonMap[rPy][rPx] == Exit) {
-    playRawSFX(11);
-    if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
-      levelOfDamselDeath = dungeon;
-      damsel[0].active = false;
-    }
-    statusScreen = true;
-  }
 
   // --- Open/close door only in the direction the player is facing ---
   if (buttons.bPressed && !buttons.bPressedPrev) {
@@ -384,6 +380,13 @@ void handleInput() {
         } else if (dungeonMap[ty][tx] == ChestTile) {
           playRawSFX(12);
           OpenChest(ty, tx, targetDY);
+        } else if (dungeonMap[ty][tx] == Exit) {
+          playRawSFX(11);
+          if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
+            levelOfDamselDeath = dungeon;
+            damsel[0].active = false;
+          }
+          statusScreen = true;
         }
       }
     }

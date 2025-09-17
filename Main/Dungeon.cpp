@@ -269,7 +269,7 @@ void spawnEnemies() {
       int ey = random(0, mapHeight);
       if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
         if (random(0, 5) == 1 && dungeon > 1) {
-          enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 5, false, 0, 0 };
+          enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0 };
           enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
         } else if (random(0, 4) == 2 && dungeon > 2) {
           enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0 };
@@ -278,7 +278,7 @@ void spawnEnemies() {
           enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
           enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
         } else {
-          enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 2, false, 0, 0 };
+          enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
           enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
         }
         break;
