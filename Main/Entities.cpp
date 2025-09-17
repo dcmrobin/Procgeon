@@ -367,7 +367,8 @@ void updateEnemies() {
     float distance = sqrt(distanceSquared);
     
     // Only consider enemies within a certain range (e.g. within 8 tiles)
-    if (distance > 0 && distanceSquared < 64) { // 64 = 8^2
+    if (distance > 0 && distanceSquared < 64) // 64 = 8^2
+      {
       // Assuming playerDX and playerDY are normalized (or nearly so),
       // compute the cosine of the angle between the player's facing and the enemy's direction.
       float dot = diffX * playerDX + diffY * playerDY;
@@ -405,7 +406,7 @@ void updateEnemies() {
         
         if (!inCorridor) {
           // Calculate a perpendicular (sideways) vector relative to the player's facing direction.
-          // For example, if the player's direction is (playerDX, playerDY),
+          // For example, if the player's direction is (playerDX,playerDY),
           // then one perpendicular is (-playerDY, playerDX).
           float avoidX = -playerDY;
           float avoidY = playerDX;
@@ -598,16 +599,20 @@ void updateEnemies() {
         playerX = newX;
         playerY = newY;
       } else {
-        if (atkDelayCounter >= enemies[i].attackDelay) {
+        // Each enemy attacks independently
+        enemies[i].attackDelayCounter++;
+        if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
           int damage = enemies[i].damage - equippedArmorValue;
-          if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
+          if (damage < 0) damage = 0;
           playerHP -= damage;
           triggerScreenShake(2, 1);
           playRawSFX(0);
-          atkDelayCounter = 0;
+          enemies[i].attackDelayCounter = 0;
         }
         checkIfDeadFrom(enemies[i].name);
       }
+    } else {
+      enemies[i].attackDelayCounter = 0; // Reset if not in contact
     }
     // Repel enemies from each other to reduce stacking
     for (int j = 0; j < maxEnemies; j++) {
