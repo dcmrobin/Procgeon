@@ -102,6 +102,10 @@ void resetGame() {
 
 void setup() {
   Serial.begin(9600);
+  while (!Serial && millis() < 4000); // Wait for Serial Monitor
+  if (CrashReport) {
+    Serial.print(CrashReport);
+  }
 
   initAudio();
 
