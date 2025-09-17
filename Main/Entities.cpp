@@ -609,6 +609,19 @@ void updateEnemies() {
         checkIfDeadFrom(enemies[i].name);
       }
     }
+    // Repel enemies from each other to reduce stacking
+    for (int j = 0; j < maxEnemies; j++) {
+      if (i != j && enemies[j].hp > 0) {
+        float dist = sqrt((enemies[i].x - enemies[j].x)*(enemies[i].x - enemies[j].x) + (enemies[i].y - enemies[j].y)*(enemies[i].y - enemies[j].y));
+        if (dist < 0.5) {
+          float dx = enemies[i].x - enemies[j].x;
+          float dy = enemies[i].y - enemies[j].y;
+          float mag = sqrt(dx*dx + dy*dy) + 0.01;
+          enemies[i].x += (dx/mag) * 0.05;
+          enemies[i].y += (dy/mag) * 0.05;
+        }
+      }
+    }
   }
 }
 
@@ -636,6 +649,7 @@ void updateProjectiles() {
             kills += 1;
           }
           projectiles[i].active = false; // Deactivate the bullet
+          break;
         } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
           playRawSFX(23);
           playRawSFX(17);
@@ -647,6 +661,7 @@ void updateProjectiles() {
           currentDialogue = "Ugh-!";
           damsel[0].active = false;
           projectiles[i].active = false;
+          break;
         }
       }
 
