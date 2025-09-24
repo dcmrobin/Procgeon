@@ -369,6 +369,8 @@ void handleItemActionMenu() {
         } else if (selectedItem.itemResult == "You can now see that which was unseen for a limited time.") {
           seeAll = true;
           seeAllTimer = 1000;
+          blinded = false;
+          blindnessTimer = 0;
         } else if (selectedItem.itemResult == "What is going on?") {
           confused = true;
           confusionTimer = 1000;

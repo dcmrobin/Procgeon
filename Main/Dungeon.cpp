@@ -369,91 +369,91 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
   switch (tileType) {
     case Wall: {
       int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, wallSprite, tileSize, tileSize, brightness);
+      display.drawBitmap(screenX, screenY, wallSprite, tileSize, tileSize, seeAll ? 15 : brightness);
       break;
     }
     case Bars: {
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, brightness);
+      display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, seeAll ? 15 : brightness);
       break;
     }
     case DoorClosed: {
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
       
       int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, doorClosedSprite, tileSize, tileSize, brightness);
+      display.drawBitmap(screenX, screenY, doorClosedSprite, tileSize, tileSize, seeAll ? 15 : brightness);
       break;
     }
     case DoorOpen: {
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, doorOpenSprite, tileSize, tileSize, brightness);
+      display.drawBitmap(screenX, screenY, doorOpenSprite, tileSize, tileSize, seeAll ? 15 : brightness);
       break;
     }
     case StartStairs:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case Exit:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case Potion:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case Map:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case MushroomTile:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, mushroomSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, mushroomSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case RiddleStoneTile:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, riddleStoneSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, riddleStoneSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case ArmorTile:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, armorSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, armorSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case ScrollTile:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, scrollSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, scrollSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case RingTile:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, ringSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, ringSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case Floor:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      display.fillRect(screenX, screenY, tileSize, tileSize, seeAll ? 2 : floorbrightness);
       break;
     case ChestTile:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, chestSprite, tileSize, tileSize, floorbrightness+10);
+        display.drawBitmap(screenX, screenY, chestSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
   }
 }

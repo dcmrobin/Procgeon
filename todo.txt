@@ -4,9 +4,6 @@ changes to a different tune as you're almost done.
 For the boss fight, it could be that you have to find a bunch of shield generators or something in each room of the current dungeon, destroy them, and only then
 could you hurt the boss- and you fail the boss fight if all the boss fight music ends.
 
-Make the see-all potion make the walls all not be dim and the player able to see enemies etc through walls. Maybe there would be a NPC that you couldn't
-normally see without it? Also highlights secret passages and be able to see hidden doors?
-
 There could be secret doors- walls you could walk through to another room that might be full of loot.
 
 There could be an enemy type that has a randomly generated sprite.
@@ -23,3 +20,6 @@ time and keeps corrupting.
 
 Add a sound level mechanic where depending on the sound effect played, the sound level integer will be increased, and that sound level integer is always added to every
 enemy's detection radius. This will lead to enemies being able to detect the player from further away depending on how much noise is happening at the current time.
+
+There needs to be a high-level enemy that is an hourglass constantly flipping moving around, and always moves whether time is moving or not. Time is always unpaused close
+to it.

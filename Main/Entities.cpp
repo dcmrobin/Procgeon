@@ -720,7 +720,7 @@ void renderEnemies() {
       if (distSq > 200) continue;
 
       // Line-of-sight check
-      if (isVisible(playerTileX, playerTileY, enemyTileX, enemyTileY)) {
+      if (seeAll || isVisible(playerTileX, playerTileY, enemyTileX, enemyTileY)) {
         float screenX = (enemies[i].x - offsetX) * tileSize;
         float screenY = (enemies[i].y - offsetY) * tileSize;
         if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
