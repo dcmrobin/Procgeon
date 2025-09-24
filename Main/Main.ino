@@ -160,6 +160,7 @@ void setup() {
 
   display.begin();
   u8g2_for_adafruit_gfx.begin(display);
+  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
   u8g2_for_adafruit_gfx.setForegroundColor(15);
   display.setContrast(100);
 
@@ -266,6 +267,7 @@ void renderGame() {
 
 int page = 1;
 void gameOver() {
+  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
   if (showDeathScreen) {
     display.clearDisplay();
     u8g2_for_adafruit_gfx.setCursor(0, 125);
