@@ -277,6 +277,9 @@ void spawnEnemies() {
         } else if (random(0, 6) == 4 && dungeon > 4) {
           enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
           enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
+        } else if (random(0, 10) == 5 && dungeon > 6) {
+          enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0 };
+          enemies[i].sprite = succubusIdleSprite;
         } else {
           enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
           enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;

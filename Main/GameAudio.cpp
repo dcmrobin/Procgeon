@@ -47,7 +47,8 @@ const char* sfxFilenames[NUM_SFX] = {
   "damsel_carry.raw",//       20
   "damsel_annoying.raw",//    21
   "bullet_impactWall.raw",//  22
-  "bullet_impactEnemy.raw"//  23
+  "bullet_impactEnemy.raw",// 23
+  "succubus_hey.raw"//        24
 };
 
 // Array of currently playing sound effects

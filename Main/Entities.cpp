@@ -501,6 +501,10 @@ void updateEnemies() {
         }
       }
     } else {
+      if (enemies[i].name == "succubus") {
+        continue; // Succubi do not wander when not chasing
+      }
+
       // When not chasing, follow a precomputed wander path
       if (!enemies[i].hasWanderPath) {
         // Compute a new wander path: choose a random destination near the enemy
@@ -725,7 +729,11 @@ void renderEnemies() {
         float screenY = (enemies[i].y - offsetY) * tileSize;
         if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
           Enemy& e = enemies[i];
-          display.drawBitmap(screenX, screenY, e.sprite, 8, 8, 15);
+          if (e.name == "succubus") {
+            display.drawBitmap(screenX, screenY, playerX > e.x ? e.sprite : playerX < e.x ? succubusIdleSpriteFlipped : e.sprite, 8, 8, 15);
+          } else {
+            display.drawBitmap(screenX, screenY, e.sprite, 8, 8, 15);
+          }
         }
       }
     }

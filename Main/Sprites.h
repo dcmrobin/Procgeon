@@ -75,6 +75,9 @@ extern const unsigned char teleporterSpriteF4[];
 extern Frame teleporterAnimation[];
 extern const int teleporterAnimationLength;
 
+extern const unsigned char succubusIdleSprite[];
+extern const unsigned char succubusIdleSpriteFlipped[];
+
 // Portraits
 extern const unsigned char damselPortraitNormal[];
 extern const unsigned char damselPortraitAlone[];
@@ -82,6 +85,7 @@ extern const unsigned char damselPortraitScared[];
 extern const unsigned char damselPortraitDying [];
 extern const unsigned char damselPortraitCarrying[];
 extern const unsigned char* currentDamselPortrait;
+extern const unsigned char succubusPortrait[];
 
 // Screens
 extern const unsigned char rescueDamselScreen[];

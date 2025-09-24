@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Audio.h>
 
-#define NUM_SFX 24
+#define NUM_SFX 25
 #define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
 #define MAX_SIMULTANEOUS_SFX 4  // Number of sounds that can play at once
 
