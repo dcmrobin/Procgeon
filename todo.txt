@@ -23,3 +23,5 @@ enemy's detection radius. This will lead to enemies being able to detect the pla
 
 There needs to be a high-level enemy that is an hourglass constantly flipping moving around, and always moves whether time is moving or not. Time is always unpaused close
 to it.
+
+What if you could lead a succubus through multiple levels and... tame her? Idk, just a thought.
