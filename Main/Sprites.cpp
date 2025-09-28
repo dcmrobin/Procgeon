@@ -431,7 +431,7 @@ Frame teleporterAnimation[] = {
 
 const int teleporterAnimationLength = 4;
 
-
+// Succubus sprites
 const unsigned char PROGMEM succubusIdleSprite[] = {
 	0b00011000,
 	0b00111100,
@@ -443,7 +443,6 @@ const unsigned char PROGMEM succubusIdleSprite[] = {
 	0b01001000
 };
 
-// Horizontally flipped version
 const unsigned char PROGMEM succubusIdleSpriteFlipped[] = {
 	0b00011000,
 	0b00111100,
@@ -454,6 +453,108 @@ const unsigned char PROGMEM succubusIdleSpriteFlipped[] = {
 	0b00010100,
 	0b00010010
 };
+
+// Clock sprites
+const unsigned char PROGMEM clockSpriteF1[] = {
+	0b01111110,
+	0b11001011,
+	0b10101001,
+	0b10011001,
+	0b10000001,
+	0b10000001,
+	0b11000011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF2[] = {
+	0b01111110,
+	0b11000011,
+	0b10100001,
+	0b10010001,
+	0b10001111,
+	0b10000001,
+	0b11000011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF3[] = {
+	0b01111110,
+	0b11000011,
+	0b10000101,
+	0b10001001,
+	0b10010001,
+	0b10010001,
+	0b11010011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF4[] = {
+	0b01111110,
+	0b11000011,
+	0b10000101,
+	0b11111001,
+	0b10000001,
+	0b10000001,
+	0b11000011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF5[] = {
+	0b01111110,
+	0b11001011,
+	0b10001001,
+	0b10001001,
+	0b10001001,
+	0b10000101,
+	0b11000011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF6[] = {
+	0b01111110,
+	0b11000011,
+	0b10000001,
+	0b10000001,
+	0b10001111,
+	0b10000101,
+	0b11000011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF7[] = {
+	0b01111110,
+	0b11000011,
+	0b10000001,
+	0b10000001,
+	0b10010001,
+	0b10110001,
+	0b11010011,
+	0b01111110
+};
+
+const unsigned char PROGMEM clockSpriteF8[] = {
+	0b01111110,
+	0b11000011,
+	0b10000001,
+	0b11110001,
+	0b10010001,
+	0b10100001,
+	0b11000011,
+	0b01111110
+};
+
+Frame clockAnimation[] = {
+  {clockSpriteF1, 5},
+  {clockSpriteF2, 5},
+  {clockSpriteF3, 5},
+  {clockSpriteF4, 5},
+  {clockSpriteF5, 5},
+  {clockSpriteF6, 5},
+  {clockSpriteF7, 5},
+  {clockSpriteF8, 5}
+};
+
+const int clockAnimationLength = 8;
 
 const unsigned char damselPortraitNormal [] PROGMEM = {
 	0x07, 0xc0, 0x0b, 0xe0, 0x17, 0xf0, 0x2f, 0xf0, 0x5f, 0xe0, 0x28, 0x00, 0x57, 0xc0, 0xbb, 0xc0, 

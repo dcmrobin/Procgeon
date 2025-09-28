@@ -78,6 +78,18 @@ extern const int teleporterAnimationLength;
 extern const unsigned char succubusIdleSprite[];
 extern const unsigned char succubusIdleSpriteFlipped[];
 
+// Clock sprites
+extern const unsigned char clockSpriteF1[];
+extern const unsigned char clockSpriteF2[];
+extern const unsigned char clockSpriteF3[];
+extern const unsigned char clockSpriteF4[];
+extern const unsigned char clockSpriteF5[];
+extern const unsigned char clockSpriteF6[];
+extern const unsigned char clockSpriteF7[];
+extern const unsigned char clockSpriteF8[];
+extern Frame clockAnimation[];
+extern const int clockAnimationLength;
+
 // Portraits
 extern const unsigned char damselPortraitNormal[];
 extern const unsigned char damselPortraitAlone[];
