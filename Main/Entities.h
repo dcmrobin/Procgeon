@@ -49,6 +49,7 @@ struct Enemy {
   PathNode wanderPath[32];  // maximum length for a wandering route
   const unsigned char* sprite; // Pointer to current sprite bitmap
   int attackDelayCounter = attackDelay; // Each enemy tracks its own attack delay
+  bool nearClock = false;
 };
 extern Enemy enemies[maxEnemies];
 
@@ -63,6 +64,8 @@ struct Projectile {
 extern Projectile projectiles[maxProjectiles];
 
 extern int levelOfDamselDeath;
+extern float clockX;
+extern float clockY;
 
 void updateEnemies();
 void updateDamsel();

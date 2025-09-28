@@ -28,6 +28,8 @@ enum TileTypes {
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];
 
+extern bool generatedClockEnemy;
+
 struct Room {
   int x, y, width, height;
 };

@@ -62,6 +62,7 @@ extern bool blinded;
 extern int blindnessTimer;
 extern bool paralyzed;
 extern int paralysisTimer;
+extern bool playerNearClockEnemy;
 
 void renderPlayer();
 void handleInput();

@@ -440,6 +440,9 @@ void updateAnimations() {
     } else if (e.name == "shooter") {
       anim = shooterAnimation;
       animLength = shooterAnimationLength;
+    } else if (e.name == "clock") {
+      anim = clockAnimation;
+      animLength = clockAnimationLength;
     }
     if (anim) {
       frameTimer[i]++;

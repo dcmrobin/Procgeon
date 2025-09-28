@@ -17,6 +17,8 @@ Damsel damsel[1];
 Enemy enemies[maxEnemies];
 Projectile projectiles[maxProjectiles];
 int levelOfDamselDeath = -4;
+float clockX = -10000;
+float clockY = -10000;
 
 struct Coord {
   int x, y;
@@ -355,15 +357,50 @@ void updateDamsel() {
 
 int giveUpTimer = 0;
 void updateEnemies() {
+  // --- First pass: find the clock enemy and set clockX/clockY ---
+  for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp > 0 && enemies[i].name == "clock") {
+      clockX = enemies[i].x;
+      clockY = enemies[i].y;
+      break; // Only one clock enemy assumed
+    }
+  }
+
+  // --- Second pass: set nearClock for all non-clock enemies ---
+  for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp > 0 && enemies[i].name != "clock") {
+      float clockDiffX = enemies[i].x - clockX;
+      float clockDiffY = enemies[i].y - clockY;
+      float clockDistanceSquared = clockDiffX * clockDiffX + clockDiffY * clockDiffY;
+      float clockDistance = sqrt(clockDistanceSquared);
+      if (clockDistance <= 5) {
+        enemies[i].nearClock = true;
+      } else {
+        enemies[i].nearClock = false;
+      }
+    }
+  }
+
+  // --- Third pass: main update logic ---
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
+    if (!playerActed && !enemies[i].nearClock && enemies[i].name != "clock") { continue; }
 
     // Calculate the vector from the player to the enemy.
     float diffX = enemies[i].x - playerX;
     float diffY = enemies[i].y - playerY;
     int distanceSquared = diffX * diffX + diffY * diffY;
     float distance = sqrt(distanceSquared);
-    
+
+    if (enemies[i].name == "clock") {
+      // clockX/clockY already set above
+      if (distance <= 5) {
+        playerNearClockEnemy = true;
+      } else {
+        playerNearClockEnemy = false;
+      }
+    }
+
     // Only consider enemies within a certain range (e.g. within 8 tiles)
     if (distance > 0 && distanceSquared < 64) // 64 = 8^2
       {
@@ -601,16 +638,21 @@ void updateEnemies() {
         playerX = newX;
         playerY = newY;
       } else {
+        int damage = 0;
         // Each enemy attacks independently
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
-          int damage = enemies[i].damage - equippedArmorValue;
+          damage = enemies[i].damage - equippedArmorValue;
           if (damage < 0) damage = 0;
           playerHP -= damage;
-          triggerScreenShake(2, 1);
+          if (damage > 0) {
+            triggerScreenShake(2, 1);
+          }
           playRawSFX(0);
           enemies[i].attackDelayCounter = 0;
         }
-        checkIfDeadFrom(enemies[i].name);
+        if (damage > 0) {
+          checkIfDeadFrom(enemies[i].name);
+        }
         enemies[i].attackDelayCounter++;
       }
     } else {

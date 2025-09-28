@@ -9,6 +9,7 @@
 TileTypes dungeonMap[mapHeight][mapWidth];
 
 bool generatedMapItem;
+bool generatedClockEnemy = false;
 void generateDungeon() {
   generatedMapItem = false;
 
@@ -263,6 +264,10 @@ void placeRoomEntranceDoors() {
 }
 
 void spawnEnemies() {
+  generatedClockEnemy = false;
+  clockX = -10000;
+  clockY = -10000;
+
   for (int i = 0; i < maxEnemies; i++) {
     while (true) {
       int ex = random(0, mapWidth);
@@ -280,6 +285,12 @@ void spawnEnemies() {
         } else if (random(0, 10) == 5 && dungeon > 6) {
           enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0 };
           enemies[i].sprite = succubusIdleSprite;
+        } else if (random(0, 12) == 8 && dungeon > 6) {
+          if (!generatedClockEnemy) {
+            enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0 };
+            enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
+            generatedClockEnemy = true;
+          }
         } else {
           enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
           enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;

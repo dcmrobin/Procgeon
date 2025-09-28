@@ -64,7 +64,7 @@ bool blinded = false;
 int blindnessTimer = 0;
 bool paralyzed = false;
 int paralysisTimer = 0;
-
+bool playerNearClockEnemy = false;
 int shootDelay = 0;
 bool reloading;
 

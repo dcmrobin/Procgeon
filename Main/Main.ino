@@ -239,13 +239,13 @@ void updateGame() {
   handleInput();
   
   // Only update game state if the player has taken an action
-  if (playerActed) {
+  if (playerActed || playerNearClockEnemy) {
     handleHungerAndEffects();
     updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
     updateDamsel();
-    updateEnemies();
     updateProjectiles();
   }
+  updateEnemies();
 }
 
 void renderGame() {
@@ -259,7 +259,7 @@ void renderGame() {
   renderPlayer();
   renderUI();
   handleDialogue();
-  if (playerActed) {
+  if (playerActed || playerNearClockEnemy) {
     updateAnimations();
   }
   display.display();
