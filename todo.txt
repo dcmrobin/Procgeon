@@ -21,9 +21,6 @@ time and keeps corrupting.
 Add a sound level mechanic where depending on the sound effect played, the sound level integer will be increased, and that sound level integer is always added to every
 enemy's detection radius. This will lead to enemies being able to detect the player from further away depending on how much noise is happening at the current time.
 
-There needs to be a high-level enemy that is an hourglass constantly flipping moving around, and always moves whether time is moving or not. Time is always unpaused close
-to it.
-
 Have an extremely tanky enemy that does a ton of damage.
 
 What if you could lead a succubus through multiple levels and... befriend her? Idk, just a thought.
