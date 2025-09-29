@@ -62,7 +62,7 @@ Dialogue damselCarryDialogue[] = {
   {"Can I stay in your arms for a bit?", 450},
   {"You can put me down if you want.", 500},
   {"I kind of like it here...", 300},
-  {"hm...", 300},
+  {"Hm...", 300},
   {"I don't want to be in that cell again!", 500},
   {"Can I stay with you after we escape?", 500}
 };
