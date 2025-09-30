@@ -90,6 +90,26 @@ extern const unsigned char clockSpriteF8[];
 extern Frame clockAnimation[];
 extern const int clockAnimationLength;
 
+// Boss sprites
+extern const unsigned char bossIdleSpriteF0[];
+extern const unsigned char bossIdleSpriteF1[];
+extern const unsigned char bossIdleSpriteF2[];
+extern const unsigned char bossIdleSpriteF3[];
+extern Frame bossIdleAnimation[];
+extern const unsigned char bossIdleSpriteFlippedF0[];
+extern const unsigned char bossIdleSpriteFlippedF1[];
+extern const unsigned char bossIdleSpriteFlippedF2[];
+extern const unsigned char bossIdleSpriteFlippedF3[];
+extern Frame bossIdleAnimationFlipped[];
+extern const int bossIdleAnimationLength;
+extern const unsigned char bossFightSpriteFlippedF0[];
+extern const unsigned char bossFightSpriteFlippedF1[];
+extern const unsigned char bossFightSpriteFlippedF2[];
+extern const unsigned char bossFightSpriteFlippedF3[];
+extern Frame bossFightAnimation[];
+extern const int bossFightAnimationLength;
+
+
 // Portraits
 extern const unsigned char damselPortraitNormal[];
 extern const unsigned char damselPortraitAlone[];
