@@ -108,6 +108,13 @@ extern const unsigned char bossFightSpriteFlippedF2[];
 extern const unsigned char bossFightSpriteFlippedF3[];
 extern Frame bossFightAnimation[];
 extern const int bossFightAnimationLength;
+extern const unsigned char bossBeatenSpriteF0[];
+extern const unsigned char bossBeatenSpriteF1[];
+extern const unsigned char bossBeatenSpriteF2[];
+extern const unsigned char bossBeatenSpriteF3[];
+extern const unsigned char bossBeatenSpriteF4[];
+extern Frame bossBeatenAnimation[];
+extern const int bossBeatenAnimationLength;
 
 
 // Portraits
@@ -118,6 +125,7 @@ extern const unsigned char damselPortraitDying [];
 extern const unsigned char damselPortraitCarrying[];
 extern const unsigned char* currentDamselPortrait;
 extern const unsigned char succubusPortrait[];
+extern const unsigned char bossPortraitIdle[];
 
 // Screens
 extern const unsigned char rescueDamselScreen[];

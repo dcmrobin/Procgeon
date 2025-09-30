@@ -315,7 +315,13 @@ void spawnEnemies(bool isBossfight) {
     }
 
     enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 200, false, 0.04, "boss", 30, 50, false, 0, 0 };
-    // need to assign a sprite
+    if (bossState == Idle || bossState == Shooting) {
+      enemies[0].sprite = bossIdleAnimation[random(0, bossIdleAnimationLength)].frame;
+    } else if (bossState == Floating || bossState == Summoning || bossState == Enraged) {
+      enemies[0].sprite = bossFightAnimation[random(0, bossFightAnimationLength)].frame;
+    } else if (bossState == Beaten) {
+      enemies[0].sprite = bossBeatenAnimation[0].frame;
+    }
   }
 }
 

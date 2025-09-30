@@ -24,6 +24,8 @@ struct Coord {
   int x, y;
 };
 
+BossStates bossState = Idle;
+
 Dialogue damselAnnoyingDialogue[] = {
   {"Why are you even down here, anyway?", 400},
   {"Don't die.", 400},

@@ -443,13 +443,42 @@ void updateAnimations() {
     } else if (e.name == "clock") {
       anim = clockAnimation;
       animLength = clockAnimationLength;
+    } else if (e.name == "boss") {
+      if (bossState == Idle) {
+        anim = bossIdleAnimation;
+        animLength = bossIdleAnimationLength;
+      } else if (bossState == Floating) {
+        anim = bossFightAnimation;
+        animLength = bossFightAnimationLength;
+      } else if (bossState == Shooting) {
+        anim = bossIdleAnimation;
+        animLength = bossIdleAnimationLength;
+      } else if (bossState == Summoning) {
+        anim = bossFightAnimation;
+        animLength = bossFightAnimationLength;
+      } else if (bossState == Enraged) {
+        anim = bossFightAnimation;
+        animLength = bossFightAnimationLength;
+      } else if (bossState == Beaten) {
+        anim = bossBeatenAnimation;
+        animLength = bossBeatenAnimationLength;
+      }
     }
     if (anim) {
       frameTimer[i]++;
       if (frameTimer[i] >= anim[frameIndex[i]].length) {
-        frameTimer[i] = 0;
-        frameIndex[i] = (frameIndex[i] + 1) % animLength;
-        e.sprite = anim[frameIndex[i]].frame;
+        if (anim != bossBeatenAnimation) {
+          frameTimer[i] = 0;
+          frameIndex[i] = (frameIndex[i] + 1) % animLength;
+          e.sprite = anim[frameIndex[i]].frame;
+        } else {
+          // Boss beaten animation does not loop
+          if (frameIndex[i] < animLength - 1) {
+            frameTimer[i] = 0;
+            frameIndex[i]++;
+            e.sprite = anim[frameIndex[i]].frame;
+          }
+        }
       }
     }
   }

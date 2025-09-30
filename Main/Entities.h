@@ -35,6 +35,15 @@ extern Dialogue damselCarryDialogue[7];
 extern Dialogue ridiculeDialogue[8];
 extern Dialogue glamourDialogue[8];
 
+enum BossStates {
+  Idle,
+  Floating,
+  Shooting,
+  Summoning,
+  Enraged,
+  Beaten
+};
+
 struct Enemy {
   float x, y;
   int hp;
@@ -66,6 +75,9 @@ extern Projectile projectiles[maxProjectiles];
 extern int levelOfDamselDeath;
 extern float clockX;
 extern float clockY;
+
+extern BossStates bossState;
+extern int bossStateTimer;
 
 void updateEnemies();
 void updateDamsel();
