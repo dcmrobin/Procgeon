@@ -30,13 +30,15 @@ extern TileTypes dungeonMap[mapHeight][mapWidth];
 
 extern bool generatedClockEnemy;
 
+extern int bossfightLevel;
+
 struct Room {
   int x, y, width, height;
 };
 
-void generateDungeon();
+void generateDungeon(bool isBossfight);
 void placeRoomEntranceDoors();
-void spawnEnemies();
+void spawnEnemies(bool isBossfight);
 void setTile(int tileX, int tileY, TileTypes tileType);
 void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);
 void drawMinimap();

@@ -8,16 +8,25 @@
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
+int bossfightLevel = 10;
 bool generatedMapItem;
 bool generatedClockEnemy = false;
-void generateDungeon() {
+void generateDungeon(bool isBossfight) {
   generatedMapItem = false;
 
   // Initialize map with walls
   for (int y = 0; y < mapHeight; y++) {
     for (int x = 0; x < mapWidth; x++) {
-      dungeonMap[y][x] = Wall;
+      if (!isBossfight) {
+        dungeonMap[y][x] = Wall;
+      } else {
+        dungeonMap[y][x] = (y > 30 || y < mapHeight - 30) && (x > 30 || x < mapWidth - 30) ? Floor : Wall; // Boss fight is an large area
+      }
     }
+  }
+
+  if (isBossfight) {
+    return; // Skip room generation because bossfight room has already generated
   }
 
   // Room generation parameters
@@ -263,41 +272,50 @@ void placeRoomEntranceDoors() {
   }
 }
 
-void spawnEnemies() {
+void spawnEnemies(bool isBossfight) {
   generatedClockEnemy = false;
   clockX = -10000;
   clockY = -10000;
 
-  for (int i = 0; i < maxEnemies; i++) {
-    while (true) {
-      int ex = random(0, mapWidth);
-      int ey = random(0, mapHeight);
-      if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
-        if (random(0, 5) == 1 && dungeon > 1) {
-          enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0 };
-          enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
-        } else if (random(0, 4) == 2 && dungeon > 2) {
-          enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0 };
-          enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
-        } else if (random(0, 6) == 4 && dungeon > 4) {
-          enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
-          enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
-        } else if (random(0, 10) == 5 && dungeon > 6) {
-          enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0 };
-          enemies[i].sprite = succubusIdleSprite;
-        } else if (random(0, 12) == 8 && dungeon > 6) {
-          if (!generatedClockEnemy) {
-            enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0 };
-            enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
-            generatedClockEnemy = true;
+  if (!isBossfight) {
+    for (int i = 0; i < maxEnemies; i++) {
+      while (true) {
+        int ex = random(0, mapWidth);
+        int ey = random(0, mapHeight);
+        if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
+          if (random(0, 5) == 1 && dungeon > 1) {
+            enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0 };
+            enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
+          } else if (random(0, 4) == 2 && dungeon > 2) {
+            enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0 };
+            enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
+          } else if (random(0, 6) == 4 && dungeon > 4) {
+            enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
+            enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
+          } else if (random(0, 10) == 5 && dungeon > 6) {
+            enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0 };
+            enemies[i].sprite = succubusIdleSprite;
+          } else if (random(0, 12) == 8 && dungeon > 6) {
+            if (!generatedClockEnemy) {
+              enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0 };
+              enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
+              generatedClockEnemy = true;
+            }
+          } else {
+            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+            enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
           }
-        } else {
-          enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
-          enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+          break;
         }
-        break;
       }
     }
+  } else {
+    for (int i = 0; i < maxEnemies; i++) {
+      enemies[i].hp = -1; // Clear all enemies
+    }
+
+    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 200, false, 0.04, "boss", 30, 50, false, 0, 0 };
+    // need to assign a sprite
   }
 }
 

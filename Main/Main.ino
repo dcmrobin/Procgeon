@@ -96,8 +96,8 @@ void resetGame() {
   playerAttackDamage = 10;
 
   // Generate new dungeon and spawn enemies
-  generateDungeon();
-  spawnEnemies();
+  generateDungeon(false);
+  spawnEnemies(false);
 }
 
 void setup() {
@@ -476,12 +476,12 @@ void showStatusScreen() {
       playerDX = 0;
       playerDY = 1;
       statusScreen = false;
-      generateDungeon(); // Generate a new dungeon
+      generateDungeon(dungeon == bossfightLevel - 1 ? true : false); // Generate a new dungeon
       showDialogue = false;
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;
       }
-      spawnEnemies();
+      spawnEnemies(dungeon == bossfightLevel - 1 ? true : false);
 
       hasMap = false;
 
