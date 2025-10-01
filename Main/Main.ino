@@ -388,7 +388,7 @@ void gameOver() {
     display.print(KHighscore);
 
     display.setCursor(22, 102);
-    display.print("[A] next page");
+    //display.print("[A] next page");
   } else if (page == 2) {
     display.setCursor(12, 42);
     display.print("next page");
@@ -519,13 +519,12 @@ void showStatusScreen() {
 }
 
 void updateBossfight() {
-  static float bossCurrentAngle = 0;
-  static float bossLastX = enemies[0].x;
-  static float bossLastY = enemies[0].y;
   static float bossTargetX = enemies[0].x;
   static float bossTargetY = enemies[0].y;
   static float bossVelocityX = 0;
   static float bossVelocityY = 0;
+  static float bossChargeSpeed = 0;
+  static bool bossIsCharging = false;
 
   if (bossState != Beaten) {
     bossStateTimer++;
@@ -637,35 +636,54 @@ void updateBossfight() {
       dialogueTimeLength = 1000;
       currentDialogue = "AAGH! DIE, PEST!";
       
-      // Update velocity towards player with slow turning
       float targetDirX = playerX - enemies[0].x;
       float targetDirY = playerY - enemies[0].y;
       float targetDistance = sqrt(targetDirX * targetDirX + targetDirY * targetDirY);
       
-      if (targetDistance > 0) {
-        targetDirX /= targetDistance;
-        targetDirY /= targetDistance;
-        
-        // Gradually adjust velocity (slow turning)
-        float turnSpeed = 0.05;
-        bossVelocityX += (targetDirX - bossVelocityX) * turnSpeed;
-        bossVelocityY += (targetDirY - bossVelocityY) * turnSpeed;
-        
-        // Normalize velocity to maintain constant speed
-        float currentSpeed = sqrt(bossVelocityX * bossVelocityX + bossVelocityY * bossVelocityY);
-        if (currentSpeed > 0) {
-          bossVelocityX = (bossVelocityX / currentSpeed) * enemies[0].moveAmount;
-          bossVelocityY = (bossVelocityY / currentSpeed) * enemies[0].moveAmount;
+      // State machine for charging behavior
+      if (!bossIsCharging) {
+        // Prepare to charge - aim at player
+        if (targetDistance > 0) {
+          targetDirX /= targetDistance;
+          targetDirY /= targetDistance;
+          
+          // Gradually turn towards player while preparing to charge
+          float turnSpeed = 0.03;
+          bossVelocityX += (targetDirX - bossVelocityX) * turnSpeed;
+          bossVelocityY += (targetDirY - bossVelocityY) * turnSpeed;
+          
+          // Start charging when mostly aimed at player
+          float alignmentDot = (bossVelocityX * targetDirX + bossVelocityY * targetDirY);
+          if (alignmentDot > 0.9) {
+            bossIsCharging = true;
+            bossChargeSpeed = enemies[0].moveAmount * 2.5; // Charge faster than normal movement
+          }
         }
-        
-        // Apply movement
-        enemies[0].x += bossVelocityX;
-        enemies[0].y += bossVelocityY;
+      } else {
+        // Currently charging - maintain direction but gradually slow down if hit wall or missed player
+        if (targetDistance < 1.0 || checkSpriteCollisionWithTileX(enemies[0].x + bossVelocityX, enemies[0].x, enemies[0].y) ||
+            checkSpriteCollisionWithTileY(enemies[0].y + bossVelocityY, enemies[0].y, enemies[0].x)) {
+          bossChargeSpeed *= 0.8; // Rapid slowdown when hitting something
+          if (bossChargeSpeed < 0.02) {
+            bossIsCharging = false;
+            bossChargeSpeed = 0;
+          }
+        }
       }
       
-      // Shoot more frequently when enraged
-      if (bossStateTimer % 10 == 0) {
-        shootProjectile(enemies[0].x, enemies[0].y, bossVelocityX, bossVelocityY, false);
+      // Apply movement with current charge speed
+      float currentSpeed = sqrt(bossVelocityX * bossVelocityX + bossVelocityY * bossVelocityY);
+      if (currentSpeed > 0) {
+        float moveSpeed = bossIsCharging ? bossChargeSpeed : enemies[0].moveAmount;
+        float normalizedVelX = bossVelocityX / currentSpeed;
+        float normalizedVelY = bossVelocityY / currentSpeed;
+        enemies[0].x += normalizedVelX * moveSpeed;
+        enemies[0].y += normalizedVelY * moveSpeed;
+      }
+      
+      // Shoot more frequently when enraged, in direction of movement
+      if (bossStateTimer % 10 == 0 && currentSpeed > 0) {
+        shootProjectile(enemies[0].x, enemies[0].y, bossVelocityX/currentSpeed, bossVelocityY/currentSpeed, false);
       }
       break;
     }
