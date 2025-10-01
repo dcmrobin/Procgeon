@@ -20,7 +20,7 @@ void generateDungeon(bool isBossfight) {
       if (!isBossfight) {
         dungeonMap[y][x] = Wall;
       } else {
-        dungeonMap[y][x] = (y > 10 && y < mapHeight - 10) && (x > 10 && x < mapWidth - 10) ? Floor : Wall; // Boss fight is an large area
+        dungeonMap[y][x] = (y > 15 && y < mapHeight - 15) && (x > 15 && x < mapWidth - 15) ? Floor : Wall; // Boss fight is an large area
       }
     }
   }

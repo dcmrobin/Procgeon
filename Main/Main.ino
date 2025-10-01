@@ -27,6 +27,7 @@ const unsigned long frameDelay = 20; // Update every 100ms
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  playWav1.stop();// Stop any currently playing music
   // Reset player stats
   playerHP = 100;
   playerFood = 100;
@@ -531,25 +532,30 @@ void updateBossfight() {
   }
   if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
     bossState = Enraged;
+    if (enemies[0].hp == 100) {
+      playWav1.play("alternateBossfight.wav");
+      enemies[0].hp -= enemies[0].hp == 100 ? 1 : 0; // Prevent replaying sound
+    }
   } else if (enemies[0].hp <= 0) {
+    playWav1.stop();
     bossState = Beaten;
   }
 
   // State transitions for non-enraged boss
   if (bossState != Beaten && bossState != Enraged) {
-    if (bossStateTimer == 600) {
+    if (bossStateTimer == 200) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
+    } else if (bossStateTimer == 1000) {
+      bossState = Shooting;
+      enemies[0].moveAmount = 0;
+    } else if (bossStateTimer == 1500) {
+      bossState = Summoning;
+      enemies[0].moveAmount = 0;
     } else if (bossStateTimer == 2000) {
       bossState = Shooting;
       enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 3000) {
-      bossState = Summoning;
-      enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 4000) {
-      bossState = Shooting;
-      enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 5000) {
+    } else if (bossStateTimer == 2300) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
       bossStateTimer = 0; // Reset timer to loop pattern
@@ -574,6 +580,10 @@ void updateBossfight() {
       break;
 
     case Floating: {
+      if (!playWav1.isPlaying()) {
+        playWav1.play("bossfight.wav");
+      }
+
       showDialogue = false;
       dialogueTimeLength = 0;
       
@@ -612,7 +622,11 @@ void updateBossfight() {
     }
 
     case Shooting: {
-      if (bossStateTimer % 50 == 0) {
+      if (!playWav1.isPlaying()) {
+        playWav1.play("bossfight.wav");
+      }
+
+      if (bossStateTimer % 20 == 0) {
         // Calculate direction to player
         float dirX = playerX - enemies[0].x;
         float dirY = playerY - enemies[0].y;
@@ -631,6 +645,9 @@ void updateBossfight() {
     }
 
     case Enraged: {
+      if (!playWav1.isPlaying()) {
+        playWav1.play("alternateBossfight.wav");
+      }
       if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
         showDialogue = true;
         currentDamselPortrait = bossPortraitEnraged;
@@ -700,6 +717,10 @@ void updateBossfight() {
     }
 
     case Summoning: {
+      if (!playWav1.isPlaying()) {
+        playWav1.play("bossfight.wav");
+      }
+
       // Boss summons minions
       break;
     }
