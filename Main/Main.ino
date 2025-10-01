@@ -526,7 +526,7 @@ void updateBossfight() {
   if (bossState != Beaten) {
     bossStateTimer++;
   }
-  if (enemies[0].hp <= 40 && enemies[0].hp > 0) {
+  if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
     bossState = Enraged;
   } else if (enemies[0].hp <= 0) {
     bossState = Beaten;
@@ -534,7 +534,7 @@ void updateBossfight() {
 
   // State transitions for non-enraged boss
   if (bossState != Beaten && bossState != Enraged) {
-    if (bossStateTimer == 1000) {
+    if (bossStateTimer == 600) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
     } else if (bossStateTimer == 20000) {
@@ -564,11 +564,15 @@ void updateBossfight() {
   // Boss AI
   switch (bossState) {
     case Idle:
-      // Boss is idle, do nothing
+      showDialogue = true;
+      currentDamselPortrait = bossPortraitIdle;
+      dialogueTimeLength = 3000;
+      currentDialogue = "You've amused me, little wizard. Time to die!";
       break;
 
     case Floating: {
-      // Update direction periodically
+      showDialogue = false;
+      dialogueTimeLength = 0;
       break;
     }
 
@@ -578,6 +582,10 @@ void updateBossfight() {
     }
 
     case Enraged: {
+      showDialogue = true;
+      currentDamselPortrait = bossPortraitIdle;
+      dialogueTimeLength = 1000;
+      currentDialogue = "Agh! Die, pest!";
       break;
     }
 
