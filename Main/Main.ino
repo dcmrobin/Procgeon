@@ -480,7 +480,7 @@ void showStatusScreen() {
       playerDX = 0;
       playerDY = 1;
       statusScreen = false;
-      generateDungeon(dungeon == bossfightLevel - 1 ? true : false); // Generate a new dungeon
+      generateDungeon(dungeon == bossfightLevel ? true : false); // Generate a new dungeon
       showDialogue = false;
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;
