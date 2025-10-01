@@ -311,6 +311,7 @@ void spawnEnemies(bool isBossfight) {
     }
   } else {
     for (int i = 0; i < maxEnemies; i++) {
+      enemies[i].name = "null";
       enemies[i].hp = -1; // Clear all enemies
     }
 

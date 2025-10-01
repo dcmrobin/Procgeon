@@ -370,6 +370,9 @@ void updateEnemies() {
 
   // --- Second pass: set nearClock for all non-clock enemies ---
   for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].name == "boss") {
+      return; // Boss AI handled in Main.ino in updateBossfight()
+    }
     if (enemies[i].hp > 0 && enemies[i].name != "clock") {
       float clockDiffX = enemies[i].x - clockX;
       float clockDiffY = enemies[i].y - clockY;
