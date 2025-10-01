@@ -534,7 +534,7 @@ void updateBossfight() {
 
   // State transitions for non-enraged boss
   if (bossState != Beaten && bossState != Enraged) {
-    if (bossStateTimer == 10000) {
+    if (bossStateTimer == 1000) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
     } else if (bossStateTimer == 20000) {
@@ -555,7 +555,7 @@ void updateBossfight() {
     enemies[0].moveAmount = 0.1; // Faster movement in enraged state
   } else if (bossState == Beaten) {
     enemies[0].moveAmount = 0;
-    bossStateTimer -= bossStateTimer >= 0 ? 1000 : 0;
+    bossStateTimer -= (bossStateTimer >= 0 ? 1000 : 0);
     if (bossStateTimer < 0) {
       // Handle game ending here
     }

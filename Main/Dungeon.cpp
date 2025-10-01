@@ -302,8 +302,7 @@ void spawnEnemies(bool isBossfight) {
               generatedClockEnemy = true;
             }
           } else {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
-            enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+            
           }
           break;
         }
@@ -311,8 +310,8 @@ void spawnEnemies(bool isBossfight) {
     }
   } else {
     for (int i = 0; i < maxEnemies; i++) {
-      enemies[i].name = "null";
-      enemies[i].hp = -1; // Clear all enemies
+      enemies[i] = { (float)0, (float)0, 0, false, 0, "null", 0, 0, false, 0, 0 };
+      enemies[i].sprite = batguyAnimation[0].frame;
     }
 
     enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 50, false, 0, 0 };
