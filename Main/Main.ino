@@ -244,12 +244,11 @@ void updateGame() {
     updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
     updateDamsel();
     updateProjectiles();
+    if (dungeon == bossfightLevel) {
+      updateBossfight();
+    }
   }
   updateEnemies();
-
-  if (dungeon == bossfightLevel) {
-    updateBossfight();
-  }
 }
 
 void renderGame() {
@@ -570,117 +569,20 @@ void updateBossfight() {
 
     case Floating: {
       // Update direction periodically
-      if (bossStateTimer % 50 == 0) {
-        bossCurrentAngle = random(0, 360) * (3.14159 / 180.0);
-      }
-      
-      // Move based on current angle
-      float moveX = cos(bossCurrentAngle) * enemies[0].moveAmount;
-      float moveY = sin(bossCurrentAngle) * enemies[0].moveAmount;
-      enemies[0].x += moveX;
-      enemies[0].y += moveY;
-
-      // Keep boss within bounds and bounce
-      if (enemies[0].x < 1) { 
-        enemies[0].x = 1;
-        bossCurrentAngle = PI - bossCurrentAngle;
-      }
-      if (enemies[0].x > mapWidth - 2) {
-        enemies[0].x = mapWidth - 2;
-        bossCurrentAngle = PI - bossCurrentAngle;
-      }
-      if (enemies[0].y < 1) {
-        enemies[0].y = 1;
-        bossCurrentAngle = -bossCurrentAngle;
-      }
-      if (enemies[0].y > mapHeight - 2) {
-        enemies[0].y = mapHeight - 2;
-        bossCurrentAngle = -bossCurrentAngle;
-      }
-
-      // Occasionally shoot at player
-      if (bossStateTimer % 150 == 0) {
-        float angleToPlayer = atan2(playerY - enemies[0].y, playerX - enemies[0].x);
-        shootProjectile(enemies[0].x, enemies[0].y, cos(angleToPlayer) * 0.2, sin(angleToPlayer) * 0.2, false);
-        playRawSFX(12);
-      }
       break;
     }
 
     case Shooting: {
       // Boss stays in place and rapidly shoots projectiles
-      if (bossStateTimer % 60 == 0) {
-        float angleToPlayer = atan2(playerY - enemies[0].y, playerX - enemies[0].x);
-        shootProjectile(enemies[0].x, enemies[0].y, cos(angleToPlayer) * 0.2, sin(angleToPlayer) * 0.2, false);
-        playRawSFX(12);
-      }
       break;
     }
 
     case Enraged: {
-      float targetAngle = atan2(playerY - enemies[0].y, playerX - enemies[0].x);
-      
-      // Gradually turn towards player (slow turning)
-      float angleDiff = targetAngle - bossCurrentAngle;
-      while (angleDiff > PI) angleDiff -= 2 * PI;
-      while (angleDiff < -PI) angleDiff += 2 * PI;
-      bossCurrentAngle += angleDiff * 0.05;
-      
-      // Store current position for momentum
-      float oldX = enemies[0].x;
-      float oldY = enemies[0].y;
-      
-      // Move with momentum
-      enemies[0].x = oldX + (oldX - bossLastX) * 0.8 + cos(bossCurrentAngle) * enemies[0].moveAmount;
-      enemies[0].y = oldY + (oldY - bossLastY) * 0.8 + sin(bossCurrentAngle) * enemies[0].moveAmount;
-      
-      // Update last position
-      bossLastX = oldX;
-      bossLastY = oldY;
-      
-      // Bounce off walls
-      if (enemies[0].x < 1) {
-        enemies[0].x = 1;
-        bossCurrentAngle = PI - bossCurrentAngle;
-        bossLastX = enemies[0].x + 1;
-      }
-      if (enemies[0].x > mapWidth - 2) {
-        enemies[0].x = mapWidth - 2;
-        bossCurrentAngle = PI - bossCurrentAngle;
-        bossLastX = enemies[0].x - 1;
-      }
-      if (enemies[0].y < 1) {
-        enemies[0].y = 1;
-        bossCurrentAngle = -bossCurrentAngle;
-        bossLastY = enemies[0].y + 1;
-      }
-      if (enemies[0].y > mapHeight - 2) {
-        enemies[0].y = mapHeight - 2;
-        bossCurrentAngle = -bossCurrentAngle;
-        bossLastY = enemies[0].y - 1;
-      }
       break;
     }
 
     case Summoning: {
       // Boss summons minions
-      if (bossStateTimer % 200 == 0) {
-        for (int i = 1; i < maxEnemies; i++) {
-          if (enemies[i].hp <= 0) {
-            while (true) {
-              int ex = random(0, mapWidth);
-              int ey = random(0, mapHeight);
-              if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
-                enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
-                enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
-                playRawSFX(13);
-                break;
-              }
-            }
-            break; // Summon only one minion at a time
-          }
-        }
-      }
       break;
     }
 
