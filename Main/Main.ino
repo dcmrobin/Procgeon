@@ -631,10 +631,12 @@ void updateBossfight() {
     }
 
     case Enraged: {
-      showDialogue = true;
-      currentDamselPortrait = bossPortraitEnraged;
-      dialogueTimeLength = 1000;
-      currentDialogue = "AAGH! DIE, PEST!";
+      if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
+        showDialogue = true;
+        currentDamselPortrait = bossPortraitEnraged;
+        dialogueTimeLength = 300;
+        currentDialogue = "AAGH! DIE, PEST!";
+      }
       
       float targetDirX = playerX - enemies[0].x;
       float targetDirY = playerY - enemies[0].y;
@@ -660,10 +662,19 @@ void updateBossfight() {
           }
         }
       } else {
-        // Currently charging - maintain direction but gradually slow down if hit wall or missed player
-        if (targetDistance < 1.0 || checkSpriteCollisionWithTileX(enemies[0].x + bossVelocityX, enemies[0].x, enemies[0].y) ||
-            checkSpriteCollisionWithTileY(enemies[0].y + bossVelocityY, enemies[0].y, enemies[0].x)) {
-          bossChargeSpeed *= 0.8; // Rapid slowdown when hitting something
+        // Currently charging - check if we've missed the player
+        float dotProduct = (targetDirX * bossVelocityX + targetDirY * bossVelocityY) / 
+                         sqrt(bossVelocityX * bossVelocityX + bossVelocityY * bossVelocityY);
+        
+        bool missedTarget = dotProduct < 0; // We've passed the player if dot product is negative
+        bool hitWall = checkSpriteCollisionWithTileX(enemies[0].x + bossVelocityX, enemies[0].x, enemies[0].y) ||
+                      checkSpriteCollisionWithTileY(enemies[0].y + bossVelocityY, enemies[0].y, enemies[0].x);
+        
+        if (targetDistance < 1.0 || hitWall || missedTarget) {
+          // Apply stronger slowdown when hitting a wall, lighter when just missing
+          float slowdownRate = hitWall ? 0.7 : 0.9;
+          bossChargeSpeed *= slowdownRate;
+          
           if (bossChargeSpeed < 0.02) {
             bossIsCharging = false;
             bossChargeSpeed = 0;
