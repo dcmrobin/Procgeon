@@ -485,7 +485,7 @@ void showStatusScreen() {
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;
       }
-      spawnEnemies(dungeon == bossfightLevel - 1 ? true : false);
+      spawnEnemies(dungeon == bossfightLevel ? true : false);
 
       hasMap = false;
 
