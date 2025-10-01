@@ -573,19 +573,63 @@ void updateBossfight() {
     case Floating: {
       showDialogue = false;
       dialogueTimeLength = 0;
+      if (bossStateTimer % 100 == 0) {
+        // Calculate direction to player
+        float dirX = playerX - enemies[i].x;
+        float dirY = playerY - enemies[i].y;
+        float distance = sqrt(dirX * dirX + dirY * dirY);
+        
+        if (distance > 0) {
+          // Normalize direction
+          dirX /= distance;
+          dirY /= distance;
+          
+          // Shoot projectile from enemy position towards player
+          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+        }
+      }
       break;
     }
 
     case Shooting: {
-      // Boss stays in place and rapidly shoots projectiles
+      if (bossStateTimer % 50 == 0) {
+        // Calculate direction to player
+        float dirX = playerX - enemies[i].x;
+        float dirY = playerY - enemies[i].y;
+        float distance = sqrt(dirX * dirX + dirY * dirY);
+        
+        if (distance > 0) {
+          // Normalize direction
+          dirX /= distance;
+          dirY /= distance;
+          
+          // Shoot projectile from enemy position towards player
+          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+        }
+      }
       break;
     }
 
     case Enraged: {
       showDialogue = true;
-      currentDamselPortrait = bossPortraitIdle;
+      currentDamselPortrait = bossPortraitEnraged;
       dialogueTimeLength = 1000;
-      currentDialogue = "Agh! Die, pest!";
+      currentDialogue = "AAGH! DIE, PEST!";
+      if (bossStateTimer % 10 == 0) {
+        // Calculate direction to player
+        float dirX = playerX - enemies[i].x;
+        float dirY = playerY - enemies[i].y;
+        float distance = sqrt(dirX * dirX + dirY * dirY);
+        
+        if (distance > 0) {
+          // Normalize direction
+          dirX /= distance;
+          dirY /= distance;
+          
+          // Shoot projectile from enemy position towards player
+          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+        }
+      }
       break;
     }
 
