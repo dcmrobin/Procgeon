@@ -302,7 +302,8 @@ void spawnEnemies(bool isBossfight) {
               generatedClockEnemy = true;
             }
           } else {
-            
+            enemies[i] = { (float)ex, (float)ey, 15, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+            enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
           }
           break;
         }

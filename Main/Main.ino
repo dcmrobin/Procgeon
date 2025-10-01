@@ -302,13 +302,13 @@ void gameOver() {
     return;
   }
 
-  if (buttons.aPressed && !buttons.aPressedPrev) {
+  /*if (buttons.aPressed && !buttons.aPressedPrev) {
     playRawSFX(8);
     page++;
     if (page == 3) {
       page = 1;
     }
-  }
+  }*/ // Only if there is more data to show
 
   char Dngn[7];
   snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
@@ -522,6 +522,10 @@ void updateBossfight() {
   static float bossCurrentAngle = 0;
   static float bossLastX = enemies[0].x;
   static float bossLastY = enemies[0].y;
+  static float bossTargetX = enemies[0].x;
+  static float bossTargetY = enemies[0].y;
+  static float bossVelocityX = 0;
+  static float bossVelocityY = 0;
 
   if (bossState != Beaten) {
     bossStateTimer++;
@@ -537,16 +541,16 @@ void updateBossfight() {
     if (bossStateTimer == 600) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
-    } else if (bossStateTimer == 20000) {
+    } else if (bossStateTimer == 2000) {
       bossState = Shooting;
       enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 30000) {
+    } else if (bossStateTimer == 3000) {
       bossState = Summoning;
       enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 40000) {
+    } else if (bossStateTimer == 4000) {
       bossState = Shooting;
       enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 50000) {
+    } else if (bossStateTimer == 5000) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
       bossStateTimer = 0; // Reset timer to loop pattern
@@ -573,19 +577,36 @@ void updateBossfight() {
     case Floating: {
       showDialogue = false;
       dialogueTimeLength = 0;
+      
+      // Generate new random target position every few seconds
       if (bossStateTimer % 100 == 0) {
-        // Calculate direction to player
-        float dirX = playerX - enemies[i].x;
-        float dirY = playerY - enemies[i].y;
-        float distance = sqrt(dirX * dirX + dirY * dirY);
+        bossTargetX = random(5, mapWidth - 5);
+        bossTargetY = random(5, mapHeight - 5);
+      }
+      
+      // Smooth movement towards target
+      float dirX = bossTargetX - enemies[0].x;
+      float dirY = bossTargetY - enemies[0].y;
+      float distance = sqrt(dirX * dirX + dirY * dirY);
+      
+      if (distance > 0.1) {
+        // Normalize direction and apply smooth movement
+        dirX /= distance;
+        dirY /= distance;
+        enemies[0].x += dirX * enemies[0].moveAmount;
+        enemies[0].y += dirY * enemies[0].moveAmount;
+      }
+      
+      // Shoot at player occasionally
+      if (bossStateTimer % 100 == 0) {
+        float shootDirX = playerX - enemies[0].x;
+        float shootDirY = playerY - enemies[0].y;
+        float shootDistance = sqrt(shootDirX * shootDirX + shootDirY * shootDirY);
         
-        if (distance > 0) {
-          // Normalize direction
-          dirX /= distance;
-          dirY /= distance;
-          
-          // Shoot projectile from enemy position towards player
-          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+        if (shootDistance > 0) {
+          shootDirX /= shootDistance;
+          shootDirY /= shootDistance;
+          shootProjectile(enemies[0].x, enemies[0].y, shootDirX, shootDirY, false);
         }
       }
       break;
@@ -594,8 +615,8 @@ void updateBossfight() {
     case Shooting: {
       if (bossStateTimer % 50 == 0) {
         // Calculate direction to player
-        float dirX = playerX - enemies[i].x;
-        float dirY = playerY - enemies[i].y;
+        float dirX = playerX - enemies[0].x;
+        float dirY = playerY - enemies[0].y;
         float distance = sqrt(dirX * dirX + dirY * dirY);
         
         if (distance > 0) {
@@ -604,7 +625,7 @@ void updateBossfight() {
           dirY /= distance;
           
           // Shoot projectile from enemy position towards player
-          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+          shootProjectile(enemies[0].x, enemies[0].y, dirX, dirY, false);
         }
       }
       break;
@@ -615,20 +636,36 @@ void updateBossfight() {
       currentDamselPortrait = bossPortraitEnraged;
       dialogueTimeLength = 1000;
       currentDialogue = "AAGH! DIE, PEST!";
-      if (bossStateTimer % 10 == 0) {
-        // Calculate direction to player
-        float dirX = playerX - enemies[i].x;
-        float dirY = playerY - enemies[i].y;
-        float distance = sqrt(dirX * dirX + dirY * dirY);
+      
+      // Update velocity towards player with slow turning
+      float targetDirX = playerX - enemies[0].x;
+      float targetDirY = playerY - enemies[0].y;
+      float targetDistance = sqrt(targetDirX * targetDirX + targetDirY * targetDirY);
+      
+      if (targetDistance > 0) {
+        targetDirX /= targetDistance;
+        targetDirY /= targetDistance;
         
-        if (distance > 0) {
-          // Normalize direction
-          dirX /= distance;
-          dirY /= distance;
-          
-          // Shoot projectile from enemy position towards player
-          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+        // Gradually adjust velocity (slow turning)
+        float turnSpeed = 0.05;
+        bossVelocityX += (targetDirX - bossVelocityX) * turnSpeed;
+        bossVelocityY += (targetDirY - bossVelocityY) * turnSpeed;
+        
+        // Normalize velocity to maintain constant speed
+        float currentSpeed = sqrt(bossVelocityX * bossVelocityX + bossVelocityY * bossVelocityY);
+        if (currentSpeed > 0) {
+          bossVelocityX = (bossVelocityX / currentSpeed) * enemies[0].moveAmount;
+          bossVelocityY = (bossVelocityY / currentSpeed) * enemies[0].moveAmount;
         }
+        
+        // Apply movement
+        enemies[0].x += bossVelocityX;
+        enemies[0].y += bossVelocityY;
+      }
+      
+      // Shoot more frequently when enraged
+      if (bossStateTimer % 10 == 0) {
+        shootProjectile(enemies[0].x, enemies[0].y, bossVelocityX, bossVelocityY, false);
       }
       break;
     }
