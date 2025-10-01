@@ -697,7 +697,19 @@ void updateProjectiles() {
 
       // Check for collisions with enemies
       for (int j = 0; j < maxEnemies; j++) {
-        if (checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) && projectiles[i].shotByPlayer && enemies[j].hp > 0) {
+        bool collision;
+        if (enemies[j].name == "boss") {
+          // For boss, check collision with full 16x16 sprite using 4 points
+          collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) ||
+                     checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x + 1, enemies[j].y) ||
+                     checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y + 1) ||
+                     checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x + 1, enemies[j].y + 1);
+        } else {
+          // For regular enemies, use normal 8x8 collision
+          collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y);
+        }
+        
+        if (collision && projectiles[i].shotByPlayer && enemies[j].hp > 0) {
           enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
           playRawSFX(23);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
