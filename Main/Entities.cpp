@@ -25,6 +25,7 @@ struct Coord {
 };
 
 BossStates bossState = Idle;
+int bossStateTimer = 0;
 
 Dialogue damselAnnoyingDialogue[] = {
   {"Why are you even down here, anyway?", 400},
@@ -779,7 +780,7 @@ void renderEnemies() {
           if (e.name == "succubus") {
             display.drawBitmap(screenX, screenY, playerX > e.x ? e.sprite : playerX < e.x ? succubusIdleSpriteFlipped : e.sprite, 8, 8, 15);
           } else {
-            display.drawBitmap(screenX, screenY, e.sprite, 8, 8, 15);
+            display.drawBitmap(screenX, screenY, e.sprite, e.name == "boss" ? 16 : 8, e.name == "boss" ? 16 : 8, 15);
           }
         }
       }

@@ -8,7 +8,7 @@
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
-int bossfightLevel = 10;
+int bossfightLevel = 2;
 bool generatedMapItem;
 bool generatedClockEnemy = false;
 void generateDungeon(bool isBossfight) {
@@ -315,7 +315,7 @@ void spawnEnemies(bool isBossfight) {
       enemies[i].hp = -1; // Clear all enemies
     }
 
-    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 200, false, 0.04, "boss", 30, 50, false, 0, 0 };
+    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 50, false, 0, 0 };
     if (bossState == Idle || bossState == Shooting) {
       enemies[0].sprite = bossIdleAnimation[random(0, bossIdleAnimationLength)].frame;
     } else if (bossState == Floating || bossState == Summoning || bossState == Enraged) {

@@ -520,6 +520,10 @@ void showStatusScreen() {
 }
 
 void updateBossfight() {
+  static float bossCurrentAngle = 0;
+  static float bossLastX = enemies[0].x;
+  static float bossLastY = enemies[0].y;
+
   if (bossState != Beaten) {
     bossStateTimer++;
   }
@@ -528,31 +532,163 @@ void updateBossfight() {
   } else if (enemies[0].hp <= 0) {
     bossState = Beaten;
   }
-  if (bossState != Beaten) {
-    if (bossState != Enraged) {
-      if (bossStateTimer == 10000) {
-        bossState = Floating;
-        enemies[0].moveAmount = 0.05;
-      } else if (bossStateTimer == 20000) {
-        bossState = Shooting;
-        enemies[0].moveAmount = 0;
-      } else if (bossStateTimer == 30000) {
-        bossState = Summoning;
-      } else if (bossStateTimer == 40000) {
-        bossState = Shooting;
-      } else if (bossStateTimer == 50000) {
-        bossState = Floating;
-        enemies[0].moveAmount = 0.05;
-      }
-    } else {
-      // Fly around endlessly very fast- targeting the player kinda like a charging bull. If miss the player, continue onwards slowing down a bit and turn back to the player
-      enemies[0].moveAmount = 0.1;
+
+  // State transitions for non-enraged boss
+  if (bossState != Beaten && bossState != Enraged) {
+    if (bossStateTimer == 10000) {
+      bossState = Floating;
+      enemies[0].moveAmount = 0.05;
+    } else if (bossStateTimer == 20000) {
+      bossState = Shooting;
+      enemies[0].moveAmount = 0;
+    } else if (bossStateTimer == 30000) {
+      bossState = Summoning;
+      enemies[0].moveAmount = 0;
+    } else if (bossStateTimer == 40000) {
+      bossState = Shooting;
+      enemies[0].moveAmount = 0;
+    } else if (bossStateTimer == 50000) {
+      bossState = Floating;
+      enemies[0].moveAmount = 0.05;
+      bossStateTimer = 0; // Reset timer to loop pattern
     }
-  } else {
+  } else if (bossState == Enraged) {
+    enemies[0].moveAmount = 0.1; // Faster movement in enraged state
+  } else if (bossState == Beaten) {
     enemies[0].moveAmount = 0;
     bossStateTimer -= bossStateTimer >= 0 ? 1000 : 0;
     if (bossStateTimer < 0) {
       // Handle game ending here
     }
+  }
+
+  // Boss AI
+  switch (bossState) {
+    case Idle:
+      // Boss is idle, do nothing
+      break;
+
+    case Floating: {
+      // Update direction periodically
+      if (bossStateTimer % 50 == 0) {
+        bossCurrentAngle = random(0, 360) * (3.14159 / 180.0);
+      }
+      
+      // Move based on current angle
+      float moveX = cos(bossCurrentAngle) * enemies[0].moveAmount;
+      float moveY = sin(bossCurrentAngle) * enemies[0].moveAmount;
+      enemies[0].x += moveX;
+      enemies[0].y += moveY;
+
+      // Keep boss within bounds and bounce
+      if (enemies[0].x < 1) { 
+        enemies[0].x = 1;
+        bossCurrentAngle = PI - bossCurrentAngle;
+      }
+      if (enemies[0].x > mapWidth - 2) {
+        enemies[0].x = mapWidth - 2;
+        bossCurrentAngle = PI - bossCurrentAngle;
+      }
+      if (enemies[0].y < 1) {
+        enemies[0].y = 1;
+        bossCurrentAngle = -bossCurrentAngle;
+      }
+      if (enemies[0].y > mapHeight - 2) {
+        enemies[0].y = mapHeight - 2;
+        bossCurrentAngle = -bossCurrentAngle;
+      }
+
+      // Occasionally shoot at player
+      if (bossStateTimer % 150 == 0) {
+        float angleToPlayer = atan2(playerY - enemies[0].y, playerX - enemies[0].x);
+        shootProjectile(enemies[0].x, enemies[0].y, cos(angleToPlayer) * 0.2, sin(angleToPlayer) * 0.2, false);
+        playRawSFX(12);
+      }
+      break;
+    }
+
+    case Shooting: {
+      // Boss stays in place and rapidly shoots projectiles
+      if (bossStateTimer % 60 == 0) {
+        float angleToPlayer = atan2(playerY - enemies[0].y, playerX - enemies[0].x);
+        shootProjectile(enemies[0].x, enemies[0].y, cos(angleToPlayer) * 0.2, sin(angleToPlayer) * 0.2, false);
+        playRawSFX(12);
+      }
+      break;
+    }
+
+    case Enraged: {
+      float targetAngle = atan2(playerY - enemies[0].y, playerX - enemies[0].x);
+      
+      // Gradually turn towards player (slow turning)
+      float angleDiff = targetAngle - bossCurrentAngle;
+      while (angleDiff > PI) angleDiff -= 2 * PI;
+      while (angleDiff < -PI) angleDiff += 2 * PI;
+      bossCurrentAngle += angleDiff * 0.05;
+      
+      // Store current position for momentum
+      float oldX = enemies[0].x;
+      float oldY = enemies[0].y;
+      
+      // Move with momentum
+      enemies[0].x = oldX + (oldX - bossLastX) * 0.8 + cos(bossCurrentAngle) * enemies[0].moveAmount;
+      enemies[0].y = oldY + (oldY - bossLastY) * 0.8 + sin(bossCurrentAngle) * enemies[0].moveAmount;
+      
+      // Update last position
+      bossLastX = oldX;
+      bossLastY = oldY;
+      
+      // Bounce off walls
+      if (enemies[0].x < 1) {
+        enemies[0].x = 1;
+        bossCurrentAngle = PI - bossCurrentAngle;
+        bossLastX = enemies[0].x + 1;
+      }
+      if (enemies[0].x > mapWidth - 2) {
+        enemies[0].x = mapWidth - 2;
+        bossCurrentAngle = PI - bossCurrentAngle;
+        bossLastX = enemies[0].x - 1;
+      }
+      if (enemies[0].y < 1) {
+        enemies[0].y = 1;
+        bossCurrentAngle = -bossCurrentAngle;
+        bossLastY = enemies[0].y + 1;
+      }
+      if (enemies[0].y > mapHeight - 2) {
+        enemies[0].y = mapHeight - 2;
+        bossCurrentAngle = -bossCurrentAngle;
+        bossLastY = enemies[0].y - 1;
+      }
+      break;
+    }
+
+    case Summoning: {
+      // Boss summons minions
+      if (bossStateTimer % 200 == 0) {
+        for (int i = 1; i < maxEnemies; i++) {
+          if (enemies[i].hp <= 0) {
+            while (true) {
+              int ex = random(0, mapWidth);
+              int ey = random(0, mapHeight);
+              if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
+                enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+                enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+                playRawSFX(13);
+                break;
+              }
+            }
+            break; // Summon only one minion at a time
+          }
+        }
+      }
+      break;
+    }
+
+    case Beaten:
+      // Boss is defeated, just stay in place
+      break;
+
+    default:
+      break;
   }
 }
