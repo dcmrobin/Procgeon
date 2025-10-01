@@ -757,7 +757,7 @@ void renderEnemies() {
   int playerTileY = predictYtile(playerY);
 
   for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0) {
+    if (enemies[0].name != "boss" ? enemies[i].hp > 0 : true) {
       int enemyTileX = predictXtile(enemies[i].x);
       int enemyTileY = predictYtile(enemies[i].y);
 

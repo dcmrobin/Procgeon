@@ -246,6 +246,10 @@ void updateGame() {
     updateProjectiles();
   }
   updateEnemies();
+
+  if (dungeon == bossfightLevel) {
+    updateBossfight();
+  }
 }
 
 void renderGame() {
@@ -511,6 +515,44 @@ void showStatusScreen() {
         damsel[0].x = playerX;
         damsel[0].y = playerY - 1;
       }
+    }
+  }
+}
+
+void updateBossfight() {
+  if (bossState != Beaten) {
+    bossStateTimer++;
+  }
+  if (enemies[0].hp <= 40 && enemies[0].hp > 0) {
+    bossState = Enraged;
+  } else if (enemies[0].hp <= 0) {
+    bossState = Beaten;
+  }
+  if (bossState != Beaten) {
+    if (bossState != Enraged) {
+      if (bossStateTimer == 10000) {
+        bossState = Floating;
+        enemies[0].moveAmount = 0.05;
+      } else if (bossStateTimer == 20000) {
+        bossState = Shooting;
+        enemies[0].moveAmount = 0;
+      } else if (bossStateTimer == 30000) {
+        bossState = Summoning;
+      } else if (bossStateTimer == 40000) {
+        bossState = Shooting;
+      } else if (bossStateTimer == 50000) {
+        bossState = Floating;
+        enemies[0].moveAmount = 0.05;
+      }
+    } else {
+      // Fly around endlessly very fast- targeting the player kinda like a charging bull. If miss the player, continue onwards slowing down a bit and turn back to the player
+      enemies[0].moveAmount = 0.1;
+    }
+  } else {
+    enemies[0].moveAmount = 0;
+    bossStateTimer -= bossStateTimer >= 0 ? 1000 : 0;
+    if (bossStateTimer < 0) {
+      // Handle game ending here
     }
   }
 }

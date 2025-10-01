@@ -445,14 +445,24 @@ void updateAnimations() {
       animLength = clockAnimationLength;
     } else if (e.name == "boss") {
       if (bossState == Idle) {
-        anim = bossIdleAnimation;
-        animLength = bossIdleAnimationLength;
+        if (playerX < enemies[0].x) {
+          anim = bossIdleFlippedAnimation;
+          animLength = bossIdleFlippedAnimationLength;
+        } else if (playerX >= enemies[0].x) {
+          anim = bossIdleAnimation;
+          animLength = bossIdleAnimationLength;
+        }
       } else if (bossState == Floating) {
         anim = bossFightAnimation;
         animLength = bossFightAnimationLength;
       } else if (bossState == Shooting) {
-        anim = bossIdleAnimation;
-        animLength = bossIdleAnimationLength;
+        if (playerX < enemies[0].x) {
+          anim = bossIdleFlippedAnimation;
+          animLength = bossIdleFlippedAnimationLength;
+        } else if (playerX >= enemies[0].x) {
+          anim = bossIdleAnimation;
+          animLength = bossIdleAnimationLength;
+        }
       } else if (bossState == Summoning) {
         anim = bossFightAnimation;
         animLength = bossFightAnimationLength;
