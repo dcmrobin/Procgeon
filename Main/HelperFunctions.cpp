@@ -363,8 +363,12 @@ void handleUIStateTransitions() {
     switch (currentUIState) {
       case UI_NORMAL: 
         if (!statusScreen) {
-          currentUIState = UI_INVENTORY;
-          playRawSFX(12);
+          if (!showDialogue) {
+            currentUIState = UI_INVENTORY;
+            playRawSFX(12);
+          } else {
+            showDialogue = false;
+          }
         }
         break;
       case UI_INVENTORY: 

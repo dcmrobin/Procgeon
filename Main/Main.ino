@@ -541,6 +541,19 @@ void updateBossfight() {
     bossState = Beaten;
   }
 
+  if (enemies[0].hp > 0) {
+    // Contact damage to player
+    if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[0].x, enemies[0].y) ||
+                     checkSpriteCollisionWithSprite(playerX, playerY, enemies[0].x + 1, enemies[0].y) ||
+                     checkSpriteCollisionWithSprite(playerX, playerY, enemies[0].x, enemies[0].y + 1) ||
+                     checkSpriteCollisionWithSprite(playerX, playerY, enemies[0].x + 1, enemies[0].y + 1)) {
+      if (bossStateTimer % 20 == 0) {
+        playerHP -= enemies[0].damage;
+        checkIfDeadFrom(enemies[0].name);
+      }
+    }
+  }
+
   // State transitions for non-enraged boss
   if (bossState != Beaten && bossState != Enraged) {
     if (bossStateTimer == 200) {
@@ -549,7 +562,7 @@ void updateBossfight() {
     } else if (bossStateTimer == 1000) {
       bossState = Shooting;
       enemies[0].moveAmount = 0;
-    } else if (bossStateTimer == 1500) {
+    } else if (bossStateTimer == 1700) {
       bossState = Summoning;
       enemies[0].moveAmount = 0;
     } else if (bossStateTimer == 2000) {
@@ -565,21 +578,25 @@ void updateBossfight() {
   } else if (bossState == Beaten) {
     enemies[0].moveAmount = 0;
     bossStateTimer -= (bossStateTimer >= 0 ? 1000 : 0);
-    if (bossStateTimer < 0) {
-      // Handle game ending here
+    if (bossStateTimer < -1000) {
+                                                                                            // <-- Handle game ending here
     }
   }
 
   // Boss AI
   switch (bossState) {
     case Idle:
-      showDialogue = true;
-      currentDamselPortrait = bossPortraitIdle;
-      dialogueTimeLength = 3000;
-      currentDialogue = "You've amused me, little wizard. Time to die!";
+      enemies[0].damage = 20;
+      if (currentDialogue != "You've amused me, little wizard. Time to die!") {
+        showDialogue = true;
+        currentDamselPortrait = bossPortraitIdle;
+        dialogueTimeLength = 3000;
+        currentDialogue = "You've amused me, little wizard. Time to die!";
+      }
       break;
 
     case Floating: {
+      enemies[0].damage = 20;
       if (!playWav1.isPlaying()) {
         playWav1.play("bossfight.wav");
       }
@@ -622,6 +639,7 @@ void updateBossfight() {
     }
 
     case Shooting: {
+      enemies[0].damage = 0;
       if (!playWav1.isPlaying()) {
         playWav1.play("bossfight.wav");
       }
@@ -645,10 +663,11 @@ void updateBossfight() {
     }
 
     case Enraged: {
+      enemies[0].damage = 40;
       if (!playWav1.isPlaying()) {
         playWav1.play("alternateBossfight.wav");
       }
-      if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
+      if (currentDialogue != "AAGH! DIE, PEST!") {
         showDialogue = true;
         currentDamselPortrait = bossPortraitEnraged;
         dialogueTimeLength = 300;
@@ -717,16 +736,75 @@ void updateBossfight() {
     }
 
     case Summoning: {
+      enemies[0].damage = 0;
       if (!playWav1.isPlaying()) {
         playWav1.play("bossfight.wav");
       }
 
-      // Boss summons minions
+      // Summon minions every 60 frames (about once per second)
+      if (bossStateTimer % 60 == 0) {
+        // Find an empty enemy slot
+        for (int j = 1; j < maxEnemies; j++) { // Start from 1 to skip boss
+          if (enemies[j].hp <= 0) {
+            // Random position around the boss in a 5-tile radius
+            float angle = random(0, 628) / 100.0; // Random angle in radians (0 to 2π)
+            float radius = random(2, 5); // Random distance between 2 and 5 tiles
+            float spawnX = enemies[0].x + cos(angle) * radius;
+            float spawnY = enemies[0].y + sin(angle) * radius;
+            
+            // Make sure spawn position is valid
+            int tileX = round(spawnX);
+            int tileY = round(spawnY);
+            if (tileX >= 0 && tileX < mapWidth && tileY >= 0 && tileY < mapHeight && 
+                dungeonMap[tileY][tileX] == Floor) {
+              
+              // Pick a random enemy type
+              int enemyType = random(0, 9);
+              String enemyName;
+              switch (enemyType) {
+                case 0: enemyName = "blob"; break;
+                case 1: enemyName = "blob"; break;
+                case 2: enemyName = "blob"; break;
+                case 3: enemyName = "blob"; break;
+                case 4: enemyName = "batguy"; break;
+                case 5: enemyName = "batguy"; break;
+                case 6: enemyName = "shooter"; break;
+                case 7: enemyName = "shooter"; break;
+                case 8: enemyName = "shooter"; break;
+              }
+              
+              if (enemyName == "blob") {
+                enemies[j] = { (float)tileX, (float)tileY, 20, false, 0.05, "blob", 20, 2, false, 0, 0 };
+                enemies[j].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
+              } else if (enemyName == "shooter") {
+                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
+                enemies[j].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
+              } else if (enemyName == "batguy") {
+                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+                enemies[j].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+              }
+              
+              // Play teleport sound for each spawn
+              playRawSFX(14);
+              break;
+            }
+          }
+        }
+      }
       break;
     }
 
     case Beaten:
       // Boss is defeated, just stay in place
+      if (damsel[0].active && !damsel[0].dead) {
+        if (currentDialogue != "You did it! You killed him!") {
+          showDialogue = true;
+          currentDamselPortrait = damselPortraitNormal;
+          dialogueTimeLength = 300;
+          playRawSFX(18);
+          currentDialogue = "You did it! You killed him!";
+        }
+      }
       break;
 
     default:

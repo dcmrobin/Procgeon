@@ -372,7 +372,7 @@ void updateEnemies() {
   // --- Second pass: set nearClock for all non-clock enemies ---
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].name == "boss") {
-      return; // Boss AI handled in Main.ino in updateBossfight()
+      continue; // Skip boss, its AI is handled in Main.ino in updateBossfight()
     }
     if (enemies[i].hp > 0 && enemies[i].name != "clock") {
       float clockDiffX = enemies[i].x - clockX;
@@ -389,6 +389,9 @@ void updateEnemies() {
 
   // --- Third pass: main update logic ---
   for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].name == "boss") {
+      continue; // Skip boss, its AI is handled in Main.ino in updateBossfight()
+    }
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
     if (!playerActed && !enemies[i].nearClock && enemies[i].name != "clock") { continue; }
 
@@ -773,7 +776,8 @@ void renderEnemies() {
   int playerTileY = predictYtile(playerY);
 
   for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[0].name != "boss" ? enemies[i].hp > 0 : true) {
+    // Always show boss even if dead, hide other enemies when dead
+    if (enemies[i].name == "boss" || enemies[i].hp > 0) {
       int enemyTileX = predictXtile(enemies[i].x);
       int enemyTileY = predictYtile(enemies[i].y);
 

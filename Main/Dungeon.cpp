@@ -315,7 +315,7 @@ void spawnEnemies(bool isBossfight) {
       enemies[i].sprite = batguyAnimation[0].frame;
     }
 
-    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 50, false, 0, 0 };
+    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0 };
     if (bossState == Idle || bossState == Shooting) {
       enemies[0].sprite = bossIdleAnimation[random(0, bossIdleAnimationLength)].frame;
     } else if (bossState == Floating || bossState == Summoning || bossState == Enraged) {
