@@ -26,6 +26,8 @@ void generateDungeon(bool isBossfight) {
   }
 
   if (isBossfight) {
+    playerX = mapWidth / 2;
+    playerY = mapHeight / 2;
     return; // Skip room generation because bossfight room has already generated
   }
 
@@ -302,7 +304,7 @@ void spawnEnemies(bool isBossfight) {
               generatedClockEnemy = true;
             }
           } else {
-            enemies[i] = { (float)ex, (float)ey, 15, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
             enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
           }
           break;

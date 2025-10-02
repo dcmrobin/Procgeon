@@ -69,6 +69,7 @@ struct Projectile {
   float damage;
   bool active;
   bool shotByPlayer;
+  int shooterId;
 };
 extern Projectile projectiles[maxProjectiles];
 
@@ -83,7 +84,7 @@ void updateEnemies();
 void updateDamsel();
 void updateProjectiles();
 void moveDamselToPos(float posX, float posY);
-void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer);
+void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId);
 void renderEnemies();
 void renderDamsel();
 void renderProjectiles();

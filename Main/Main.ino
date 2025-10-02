@@ -556,7 +556,7 @@ void updateBossfight() {
 
   // State transitions for non-enraged boss
   if (bossState != Beaten && bossState != Enraged) {
-    if (bossStateTimer == 200) {
+    if (bossStateTimer == 150) {
       bossState = Floating;
       enemies[0].moveAmount = 0.05;
     } else if (bossStateTimer == 1000) {
@@ -632,7 +632,7 @@ void updateBossfight() {
         if (shootDistance > 0) {
           shootDirX /= shootDistance;
           shootDirY /= shootDistance;
-          shootProjectile(enemies[0].x, enemies[0].y, shootDirX, shootDirY, false);
+          shootProjectile(enemies[0].x, enemies[0].y, shootDirX, shootDirY, false, 0);
         }
       }
       break;
@@ -656,7 +656,7 @@ void updateBossfight() {
           dirY /= distance;
           
           // Shoot projectile from enemy position towards player
-          shootProjectile(enemies[0].x, enemies[0].y, dirX, dirY, false);
+          shootProjectile(enemies[0].x, enemies[0].y, dirX, dirY, false, 0);
         }
       }
       break;
@@ -730,7 +730,7 @@ void updateBossfight() {
       
       // Shoot more frequently when enraged, in direction of movement
       if (bossStateTimer % 10 == 0 && currentSpeed > 0) {
-        shootProjectile(enemies[0].x, enemies[0].y, bossVelocityX/currentSpeed, bossVelocityY/currentSpeed, false);
+        shootProjectile(enemies[0].x, enemies[0].y, bossVelocityX/currentSpeed, bossVelocityY/currentSpeed, false, 0);
       }
       break;
     }
@@ -780,7 +780,7 @@ void updateBossfight() {
                 enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
                 enemies[j].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
               } else if (enemyName == "batguy") {
-                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+                enemies[j] = { (float)tileX, (float)tileY, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
                 enemies[j].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
               }
               

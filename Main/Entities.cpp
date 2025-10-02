@@ -625,7 +625,7 @@ void updateEnemies() {
           dirY /= distance;
           
           // Shoot projectile from enemy position towards player
-          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false);
+          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false, i);
           
           // Set cooldown (adjust timing as needed)
           shooterCooldown[i] = 120; // 2 seconds at 60 FPS
@@ -700,6 +700,11 @@ void updateProjectiles() {
 
       // Check for collisions with enemies
       for (int j = 0; j < maxEnemies; j++) {
+        // Skip collision check if this is the enemy that shot the projectile
+        if (!projectiles[i].shotByPlayer && j == projectiles[i].shooterId) {
+          continue;
+        }
+
         bool collision;
         if (enemies[j].name == "boss") {
           // For boss, check collision with full 16x16 sprite using 4 points
@@ -712,7 +717,8 @@ void updateProjectiles() {
           collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y);
         }
         
-        if (collision && projectiles[i].shotByPlayer && enemies[j].hp > 0) {
+        if (collision && enemies[j].hp > 0) {
+          // Hit by player's projectile or another enemy's projectile
           enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
           playRawSFX(23);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
@@ -754,7 +760,7 @@ void moveDamselToPos(float posX, float posY) {
   damsel[0].y = posY;
 }
 
-void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer) {
+void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId) {
 
   for (int i = 0; i < maxProjectiles; i++) {
     if (!projectiles[i].active) {
@@ -766,6 +772,7 @@ void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer
       projectiles[i].speed = shotByPlayer? 0.5 : 0.25;
       projectiles[i].active = true;
       projectiles[i].shotByPlayer = shotByPlayer;
+      projectiles[i].shooterId = shooterId; // Track which enemy shot this projectile
       break;
     }
   }
