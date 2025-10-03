@@ -344,29 +344,87 @@ void gameOver() {
 
   if (page == 1) {
     display.setCursor(12, 44);
-    if (dungeon == 1) {
-      display.print("get out lil bro");
-    } else if (dungeon == 2) {
-      display.print("lol noob xD");
-    } else if (dungeon == 3) {
-      display.print("lame :/");
-    } else if (dungeon == 4) {
-      display.print("meh :(");
-    } else if (dungeon == 5) {
-      display.print("not bad.");
-    } else if (dungeon == 6) {
-      display.print("pretty good.");
-    } else if (dungeon == 7) {
-      display.print("unlucky bro");
-    } else if (dungeon == 8) {
-      display.print("aw man.");
-    } else if (dungeon == 9) {
-      display.print("so close!");
-    } else if (dungeon == 10) {
-      display.print("heck yeah.");
-    } else if (dungeon > 10) {
-      display.print("how...?");
+    const char* message;
+    switch(dungeon) {
+      case 1:
+        switch(random(0, 3)) {
+          case 0: message = "get out lil bro"; break;
+          case 1: message = "r u even trying"; break;
+          case 2: message = "bruh"; break;
+        }
+        break;
+      case 2:
+        switch(random(0, 3)) {
+          case 0: message = "lol noob xD"; break;
+          case 1: message = "nah -_-"; break;
+          case 2: message = "L bozo"; break;
+        }
+        break;
+      case 3:
+        switch(random(0, 3)) {
+          case 0: message = "lame :/"; break;
+          case 1: message = "get good bro"; break;
+          case 2: message = "not even close"; break;
+        }
+        break;
+      case 4:
+        switch(random(0, 3)) {
+          case 0: message = "meh :("; break;
+          case 1: message = "cringe"; break;
+          case 2: message = "dumb death tbh"; break;
+        }
+        break;
+      case 5:
+        switch(random(0, 3)) {
+          case 0: message = "not bad."; break;
+          case 1: message = "oof"; break;
+          case 2: message = "man"; break;
+        }
+        break;
+      case 6:
+        switch(random(0, 3)) {
+          case 0: message = "pretty good."; break;
+          case 1: message = "take a break."; break;
+          case 2: message = "long way to go"; break;
+        }
+        break;
+      case 7:
+        switch(random(0, 3)) {
+          case 0: message = "unlucky bro"; break;
+          case 1: message = "skill issue"; break;
+          case 2: message = "crazy"; break;
+        }
+        break;
+      case 8:
+        switch(random(0, 3)) {
+          case 0: message = "aw man."; break;
+          case 1: message = "aww, did u die?"; break;
+          case 2: message = "splat"; break;
+        }
+        break;
+      case 9:
+        switch(random(0, 3)) {
+          case 0: message = "good run"; break;
+          case 1: message = "but why..."; break;
+          case 2: message = "aw."; break;
+        }
+        break;
+      case 10:
+        switch(random(0, 3)) {
+          case 0: message = "noooo"; break;
+          case 1: message = "*sigh*"; break;
+          case 2: message = "ur pretty good"; break;
+        }
+        break;
+      default:
+        switch(random(0, 3)) {
+          case 0: message = "very nice."; break;
+          case 1: message = "good job."; break;
+          case 2: message = "*salute*"; break;
+        }
+        break;
     }
+    display.print(message);
 
     display.setCursor(12, 56);
     display.print("On dungeon:");
