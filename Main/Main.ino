@@ -34,6 +34,7 @@ void resetGame() {
   dungeon = 1;
   levelOfDamselDeath = -4;
   kills = 0;
+  finalStatusScreen = false;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
@@ -521,6 +522,27 @@ void showStatusScreen() {
     u8g2_for_adafruit_gfx.setCursor(0, 10);
     u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
   }
+  if (finalStatusScreen) {
+    if (!damsel[0].dead || damsel[0].active) {
+      display.drawBitmap(0, 0, endScreenDamsel, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 115);
+      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("And rescued the damsel!"));
+    } else if (damsel[0].dead || !damsel[0].active) {
+      display.drawBitmap(0, 0, endScreenAlone, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 115);
+      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("But are still alone."));
+    } /*else if (succubusIsFriend) {
+      display.drawBitmap(0, 0, endScreenSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 115);
+      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("Have fun... ;)"));
+    }*/
+  }
 
   display.display();
 
@@ -565,7 +587,7 @@ void showStatusScreen() {
         leftDamsel = false;
       }
 
-      if (rescued && randomChance == 3 && !carryingDamsel) {
+      if (rescued && randomChance == 3 && !carryingDamsel && dungeon < bossfightLevel) {
         damselKidnapScreen = true; // Switch to the kidnap screen
         statusScreen = true;       // Keep status screen active
         damselGotTaken = true;
@@ -573,6 +595,8 @@ void showStatusScreen() {
         damsel[0].x = playerX;
         damsel[0].y = playerY - 1;
       }
+    } else if (finalStatusScreen) {
+      //                                                                                              ROLL CREDITS
     }
   }
 }
@@ -637,7 +661,8 @@ void updateBossfight() {
     enemies[0].moveAmount = 0;
     bossStateTimer -= (bossStateTimer >= 0 ? 1000 : 0);
     if (bossStateTimer < -1000) {
-                                                                                            // <-- Handle game ending here
+      finalStatusScreen = true;
+      bossStateTimer = -1001;
     }
   }
 

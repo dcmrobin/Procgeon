@@ -17,6 +17,7 @@ int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 UIState currentUIState = UI_NORMAL; // Current UI state
 
 bool statusScreen = false;
+bool finalStatusScreen = false;
 bool showDeathScreen = false;
 
 const int viewportWidth = SCREEN_WIDTH / tileSize;
