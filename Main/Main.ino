@@ -36,6 +36,8 @@ void resetGame() {
   kills = 0;
   finalStatusScreen = false;
   credits = false;
+  bossState = Idle;
+  bossStateTimer = 0;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
@@ -272,8 +274,14 @@ void renderGame() {
 }
 
 int page = 1;
+static const char* chosenMessage = nullptr;
 void gameOver() {
   u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+  
+  // Reset chosen message when death screen is dismissed
+  if (showDeathScreen && ((buttons.bPressed && !buttons.bPressedPrev) || (buttons.aPressed && !buttons.aPressedPrev))) {
+    chosenMessage = nullptr;
+  }
   if (showDeathScreen) {
     display.clearDisplay();
     u8g2_for_adafruit_gfx.setCursor(0, 125);
@@ -289,9 +297,9 @@ void gameOver() {
     } else if (deathCause == "shooter") {
       display.drawBitmap(-10, 0, wizardDeath_shooter, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a shooter!"));
-    } else if (deathCause == "hunger") {
+    } else if (deathCause == "hunger" || deathCause == "poison") {
       display.drawBitmap(0, 0, wizardDeath_hunger, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("You starved!"));
+      u8g2_for_adafruit_gfx.print(F(deathCause == "poison" ? "You died from poison!" : "You starved!"));
     } else if (deathCause == "stupidity") {
       display.drawBitmap(0, 0, wizardDeath_stupidity, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("You died of pure stupidity."));
@@ -346,87 +354,88 @@ void gameOver() {
 
   if (page == 1) {
     display.setCursor(12, 44);
-    const char* message;
-    switch(dungeon) {
+    if (chosenMessage == nullptr) {
+      switch(dungeon) {
       case 1:
         switch(random(0, 3)) {
-          case 0: message = "get out lil bro"; break;
-          case 1: message = "r u even trying"; break;
-          case 2: message = "bruh"; break;
+          case 0: chosenMessage = "get out lil bro"; break;
+          case 1: chosenMessage = "r u even trying"; break;
+          case 2: chosenMessage = "bruh"; break;
         }
         break;
       case 2:
         switch(random(0, 3)) {
-          case 0: message = "lol noob xD"; break;
-          case 1: message = "nah -_-"; break;
-          case 2: message = "L bozo"; break;
+          case 0: chosenMessage = "lol noob xD"; break;
+          case 1: chosenMessage = "nah -_-"; break;
+          case 2: chosenMessage = "L bozo"; break;
         }
         break;
       case 3:
         switch(random(0, 3)) {
-          case 0: message = "lame :/"; break;
-          case 1: message = "get good bro"; break;
-          case 2: message = "not even close"; break;
+          case 0: chosenMessage = "lame :/"; break;
+          case 1: chosenMessage = "get good bro"; break;
+          case 2: chosenMessage = "not even close"; break;
         }
         break;
       case 4:
         switch(random(0, 3)) {
-          case 0: message = "meh :("; break;
-          case 1: message = "cringe"; break;
-          case 2: message = "dumb death tbh"; break;
+          case 0: chosenMessage = "meh :("; break;
+          case 1: chosenMessage = "cringe"; break;
+          case 2: chosenMessage = "dumb death tbh"; break;
         }
         break;
       case 5:
         switch(random(0, 3)) {
-          case 0: message = "not bad."; break;
-          case 1: message = "oof"; break;
-          case 2: message = "man"; break;
+          case 0: chosenMessage = "not bad."; break;
+          case 1: chosenMessage = "oof"; break;
+          case 2: chosenMessage = "man"; break;
         }
         break;
       case 6:
         switch(random(0, 3)) {
-          case 0: message = "pretty good."; break;
-          case 1: message = "take a break."; break;
-          case 2: message = "long way to go"; break;
+          case 0: chosenMessage = "pretty good."; break;
+          case 1: chosenMessage = "take a break."; break;
+          case 2: chosenMessage = "long way to go"; break;
         }
         break;
       case 7:
         switch(random(0, 3)) {
-          case 0: message = "unlucky bro"; break;
-          case 1: message = "skill issue"; break;
-          case 2: message = "crazy"; break;
+          case 0: chosenMessage = "unlucky bro"; break;
+          case 1: chosenMessage = "skill issue"; break;
+          case 2: chosenMessage = "crazy"; break;
         }
         break;
       case 8:
         switch(random(0, 3)) {
-          case 0: message = "aw man."; break;
-          case 1: message = "aww, did u die?"; break;
-          case 2: message = "splat"; break;
+          case 0: chosenMessage = "aw man."; break;
+          case 1: chosenMessage = "aww, did u die?"; break;
+          case 2: chosenMessage = "splat"; break;
         }
         break;
       case 9:
         switch(random(0, 3)) {
-          case 0: message = "good run"; break;
-          case 1: message = "but why..."; break;
-          case 2: message = "aw."; break;
+          case 0: chosenMessage = "good run"; break;
+          case 1: chosenMessage = "but why..."; break;
+          case 2: chosenMessage = "aw."; break;
         }
         break;
       case 10:
         switch(random(0, 3)) {
-          case 0: message = "noooo"; break;
-          case 1: message = "*sigh*"; break;
-          case 2: message = "ur pretty good"; break;
+          case 0: chosenMessage = "noooo"; break;
+          case 1: chosenMessage = "*sigh*"; break;
+          case 2: chosenMessage = "ur pretty good"; break;
         }
         break;
       default:
         switch(random(0, 3)) {
-          case 0: message = "very nice."; break;
-          case 1: message = "good job."; break;
-          case 2: message = "*salute*"; break;
+          case 0: chosenMessage = "very nice."; break;
+          case 1: chosenMessage = "good job."; break;
+          case 2: chosenMessage = "*salute*"; break;
         }
         break;
     }
-    display.print(message);
+    }
+    display.print(chosenMessage);
 
     display.setCursor(12, 56);
     display.print("On dungeon:");
@@ -592,7 +601,7 @@ void showStatusScreen() {
         damselKidnapScreen = true; // Switch to the kidnap screen
         statusScreen = true;       // Keep status screen active
         damselGotTaken = true;
-      } else if (rescued) {
+      } else if (rescued && dungeon < bossfightLevel) {
         damsel[0].x = playerX;
         damsel[0].y = playerY - 1;
       }
@@ -634,6 +643,7 @@ void updateBossfight() {
                      checkSpriteCollisionWithSprite(playerX, playerY, enemies[0].x + 1, enemies[0].y + 1)) {
       if (bossStateTimer % 20 == 0) {
         playerHP -= enemies[0].damage;
+        triggerScreenShake(2, 2);
         checkIfDeadFrom(enemies[0].name);
       }
     }
@@ -662,10 +672,12 @@ void updateBossfight() {
     enemies[0].moveAmount = 0.1; // Faster movement in enraged state
   } else if (bossState == Beaten) {
     enemies[0].moveAmount = 0;
-    bossStateTimer -= (bossStateTimer >= 0 ? 1000 : 0);
-    if (bossStateTimer < -1000) {
-      finalStatusScreen = true;
-      bossStateTimer = -1001;
+    if (!finalStatusScreen) {
+      bossStateTimer -= 10;
+      if (bossStateTimer < -2000) {
+        statusScreen = true;
+        finalStatusScreen = true;
+      }
     }
   }
 
@@ -684,7 +696,13 @@ void updateBossfight() {
     case Floating: {
       enemies[0].damage = 20;
       if (!playWav1.isPlaying()) {
-        playWav1.play("bossfight.wav");
+        if (SD.exists("bossfight.wav")) {
+          if (!playWav1.play("bossfight.wav")) {
+            Serial.println("Failed to play bossfight.wav");
+          }
+        } else {
+          Serial.println("bossfight.wav not found");
+        }
       }
 
       showDialogue = false;
@@ -751,7 +769,13 @@ void updateBossfight() {
     case Enraged: {
       enemies[0].damage = 40;
       if (!playWav1.isPlaying()) {
-        playWav1.play("alternateBossfight.wav");
+        if (SD.exists("alternateBossfight.wav")) {
+          if (!playWav1.play("alternateBossfight.wav")) {
+            Serial.println("Failed to play alternateBossfight.wav");
+          }
+        } else {
+          Serial.println("alternateBossfight.wav not found");
+        }
       }
       if (currentDialogue != "AAGH! DIE, PEST!") {
         showDialogue = true;

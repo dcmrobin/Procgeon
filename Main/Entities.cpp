@@ -251,7 +251,7 @@ void updateDamsel() {
   }
 
   // Check if damsel just stopped following and say "Hey! Wait up!"
-  if (damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken) {
+  if (!damsel[0].completelyRescued && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken) {
     showDialogue = true;
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;

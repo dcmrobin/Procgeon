@@ -28,7 +28,41 @@ void generateDungeon(bool isBossfight) {
   if (isBossfight) {
     playerX = mapWidth / 2;
     playerY = mapHeight / 2;
-    return; // Skip room generation because bossfight room has already generated
+
+    // Only create the damsel's cell if she was following the player
+    if (damsel[0].followingPlayer && !damsel[0].dead) {
+      // Create a small cell in the top-right corner of the boss room
+      int cellX = playerX;
+      int cellY = playerY - 10;
+      int cellWidth = 5;
+      int cellHeight = 5;
+
+      // Create the cell walls
+      for (int y = cellY; y < cellY + cellHeight; y++) {
+        for (int x = cellX; x < cellX + cellWidth; x++) {
+          // Set the cell interior to floor
+          dungeonMap[y][x] = Floor;
+          // Set walls around the perimeter
+          if (x == cellX || x == cellX + cellWidth - 1 || 
+              y == cellY || y == cellY + cellHeight - 1) {
+            dungeonMap[y][x] = Wall;
+          }
+        }
+      }
+
+      // Add bars in the middle of north and south walls
+      int barX = cellX + (cellWidth / 2);
+      dungeonMap[cellY][barX] = Bars;              // North wall bars
+      dungeonMap[cellY + cellHeight - 1][barX] = Bars;  // South wall bars
+
+      // Place the damsel in the cell
+      damsel[0].x = cellX + (cellWidth / 2);
+      damsel[0].y = cellY + (cellHeight / 2);
+      damsel[0].followingPlayer = false; // She's trapped now
+      damsel[0].completelyRescued = true;
+    }
+    
+    return; // Skip regular room generation
   }
 
   // Room generation parameters
@@ -185,10 +219,12 @@ void generateDungeon(bool isBossfight) {
     damsel[0].followingPlayer = false;
     damsel[0].dead = false;
     damsel[0].active = true;
+    damsel[0].completelyRescued = false;
   } else {
     damsel[0].x = 3000;
     damsel[0].y = 3000;
     damsel[0].active = false;
+    damsel[0].completelyRescued = false;
   }
 
   dungeonMap[startRoomX + (startRoomWidth / 2)][startRoomY + (startRoomHeight / 2) + 1] = StartStairs;

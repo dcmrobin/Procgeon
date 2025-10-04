@@ -559,10 +559,12 @@ void playDamselSFX(String tone) {
 
 int dialogueTimer = 0;
 void handleDialogue() {
+  static int dialogueDelayTimer = 0;
+  
   // Glamour dialogue system
   if (glamoured) {
     static int lastGlamourIndex = -1;
-    if (!showDialogue) {
+    if (!showDialogue && dialogueDelayTimer <= 0) {
       int length = sizeof(glamourDialogue) / sizeof(glamourDialogue[0]);
       if (length <= 0) return; // Defensive: don't proceed if array is empty
       int index = random(0, length);
@@ -574,12 +576,13 @@ void handleDialogue() {
       currentDialogue = glamourDialogue[index].message;
       showDialogue = true;
       isRidiculeDialogue = true; // Reuse this to hide portrait
+      dialogueDelayTimer = 50; // Add delay before next dialogue
     }
   }
 
   // Ridicule dialogue system
   if (ridiculed) {
-    if (!showDialogue) {
+    if (!showDialogue && dialogueDelayTimer <= 0) {
       int length = sizeof(ridiculeDialogue) / sizeof(ridiculeDialogue[0]);
       if (length <= 0) return; // Defensive: don't proceed if array is empty
       int index = random(0, length);
@@ -591,7 +594,13 @@ void handleDialogue() {
       currentDialogue = ridiculeDialogue[index].message;
       showDialogue = true;
       isRidiculeDialogue = true;
+      dialogueDelayTimer = 50; // Add delay before next dialogue
     }
+  }
+  
+  // Update dialogue delay timer
+  if (dialogueDelayTimer > 0) {
+    dialogueDelayTimer--;
   }
 
   // Drawing code (always runs if showDialogue is true)
@@ -643,72 +652,74 @@ void handleDialogue() {
       };
 
       // Carrying damsel dialogue branch.
-      if (carryingDamsel) {
-        int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
-        int index = pickDialogue(damselCarryDialogue, length);
-        currentDamselPortrait = damselPortraitCarrying;
-        dialogueTimeLength = damselCarryDialogue[index].duration;
-        isRidiculeDialogue = false;
-        currentDialogue = damselCarryDialogue[index].message;
-        if (!damselCarryDialogue[index].alreadyBeenSaid) {
-          playRawSFX(18);
-        }
-        damselCarryDialogue[index].alreadyBeenSaid = true;
-      } else {
-        // Choose dialogue based on levelOfLove.
-        if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
-          int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
-          int index = pickDialogue(damselAnnoyingDialogue, length);
-          if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
-            playDamselSFX(damselAnnoyingDialogue[index].tone);
-          }
-          currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
-                                  damselPortraitScared : 
-                                  (damselAnnoyingDialogue[index].tone == "alone") ? 
-                                  damselPortraitAlone : 
-                                  damselPortraitNormal;
-          dialogueTimeLength = damselAnnoyingDialogue[index].duration;
+      if (!damsel[0].completelyRescued) {
+        if (carryingDamsel) {
+          int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
+          int index = pickDialogue(damselCarryDialogue, length);
+          currentDamselPortrait = damselPortraitCarrying;
+          dialogueTimeLength = damselCarryDialogue[index].duration;
           isRidiculeDialogue = false;
-          currentDialogue = damselAnnoyingDialogue[index].message;
-          damselAnnoyingDialogue[index].alreadyBeenSaid = true;
-        } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
-          int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
-          int index = pickDialogue(damselPassiveDialogue, length);
-          if (!damselPassiveDialogue[index].alreadyBeenSaid) {
-            playDamselSFX(damselPassiveDialogue[index].tone);
+          currentDialogue = damselCarryDialogue[index].message;
+          if (!damselCarryDialogue[index].alreadyBeenSaid) {
+            playRawSFX(18);
           }
-          currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
-                                  damselPortraitScared : 
-                                  (damselPassiveDialogue[index].tone == "alone") ? 
-                                  damselPortraitAlone : 
-                                  damselPortraitNormal;
-          dialogueTimeLength = damselPassiveDialogue[index].duration;
-          isRidiculeDialogue = false;
-          currentDialogue = damselPassiveDialogue[index].message;
-          damselPassiveDialogue[index].alreadyBeenSaid = true;
-        } else if (damsel[0].levelOfLove >= 6) {
-          if (!knowsDamselName) {
-            dialogueTimeLength = 500;
-            if (!knowsDamselName) {
-              playDamselSFX("normal");
+          damselCarryDialogue[index].alreadyBeenSaid = true;
+        } else {
+          // Choose dialogue based on levelOfLove.
+          if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
+            int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
+            int index = pickDialogue(damselAnnoyingDialogue, length);
+            if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
+              playDamselSFX(damselAnnoyingDialogue[index].tone);
             }
-            currentDialogue = "By the way, my name is " + damsel[0].name + "...";
-            knowsDamselName = true;
-          } else {
-            int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
-            int index = pickDialogue(damselGoodDialogue, length);
-            if (!damselGoodDialogue[index].alreadyBeenSaid) {
-              playDamselSFX(damselGoodDialogue[index].tone);
-            }
-            currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+            currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
                                     damselPortraitScared : 
-                                    (damselGoodDialogue[index].tone == "alone") ? 
+                                    (damselAnnoyingDialogue[index].tone == "alone") ? 
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
-            dialogueTimeLength = damselGoodDialogue[index].duration;
+            dialogueTimeLength = damselAnnoyingDialogue[index].duration;
             isRidiculeDialogue = false;
-            currentDialogue = damselGoodDialogue[index].message;
-            damselGoodDialogue[index].alreadyBeenSaid = true;
+            currentDialogue = damselAnnoyingDialogue[index].message;
+            damselAnnoyingDialogue[index].alreadyBeenSaid = true;
+          } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
+            int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
+            int index = pickDialogue(damselPassiveDialogue, length);
+            if (!damselPassiveDialogue[index].alreadyBeenSaid) {
+              playDamselSFX(damselPassiveDialogue[index].tone);
+            }
+            currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
+                                    damselPortraitScared : 
+                                    (damselPassiveDialogue[index].tone == "alone") ? 
+                                    damselPortraitAlone : 
+                                    damselPortraitNormal;
+            dialogueTimeLength = damselPassiveDialogue[index].duration;
+            isRidiculeDialogue = false;
+            currentDialogue = damselPassiveDialogue[index].message;
+            damselPassiveDialogue[index].alreadyBeenSaid = true;
+          } else if (damsel[0].levelOfLove >= 6) {
+            if (!knowsDamselName) {
+              dialogueTimeLength = 500;
+              if (!knowsDamselName) {
+                playDamselSFX("normal");
+              }
+              currentDialogue = "By the way, my name is " + damsel[0].name + "...";
+              knowsDamselName = true;
+            } else {
+              int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
+              int index = pickDialogue(damselGoodDialogue, length);
+              if (!damselGoodDialogue[index].alreadyBeenSaid) {
+                playDamselSFX(damselGoodDialogue[index].tone);
+              }
+              currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+                                      damselPortraitScared : 
+                                      (damselGoodDialogue[index].tone == "alone") ? 
+                                      damselPortraitAlone : 
+                                      damselPortraitNormal;
+              dialogueTimeLength = damselGoodDialogue[index].duration;
+              isRidiculeDialogue = false;
+              currentDialogue = damselGoodDialogue[index].message;
+              damselGoodDialogue[index].alreadyBeenSaid = true;
+            }
           }
         }
       }

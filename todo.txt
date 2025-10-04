@@ -26,3 +26,5 @@ Have an extremely tanky enemy that does a ton of damage.
 What if you could lead a succubus through multiple levels and... befriend her? Idk, just a thought.
 
 There could be enemies which look just like a random other enemy, but have one thing off about them and they are very strong.
+
+Need a death screen for when killed by the boss.
