@@ -79,7 +79,7 @@ extern int selectedActionIndex; // 0 = Use, 1 = Drop, 2 = Info
 extern UIState currentUIState; // Current UI state
 
 extern bool statusScreen;
-extern bool finalStatusScreen
+extern bool finalStatusScreen;
 extern bool showDeathScreen;
 extern bool credits;
 
