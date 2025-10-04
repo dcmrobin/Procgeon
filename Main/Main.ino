@@ -531,7 +531,7 @@ void showStatusScreen() {
       u8g2_for_adafruit_gfx.setCursor(0, 125);
       u8g2_for_adafruit_gfx.print(F("And rescued the damsel!"));
     } else if (damsel[0].dead || !damsel[0].active) {
-      display.drawBitmap(0, 0, endScreenAlone, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.setCursor(0, 115);
       u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
       u8g2_for_adafruit_gfx.setCursor(0, 125);
