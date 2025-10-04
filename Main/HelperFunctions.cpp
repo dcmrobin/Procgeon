@@ -19,6 +19,7 @@ UIState currentUIState = UI_NORMAL; // Current UI state
 bool statusScreen = false;
 bool finalStatusScreen = false;
 bool showDeathScreen = false;
+bool credits = false;
 
 const int viewportWidth = SCREEN_WIDTH / tileSize;
 const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;

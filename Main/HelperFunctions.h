@@ -81,6 +81,7 @@ extern UIState currentUIState; // Current UI state
 extern bool statusScreen;
 extern bool finalStatusScreen
 extern bool showDeathScreen;
+extern bool credits;
 
 extern const int viewportWidth;
 extern const int viewportHeight;

@@ -35,6 +35,7 @@ void resetGame() {
   levelOfDamselDeath = -4;
   kills = 0;
   finalStatusScreen = false;
+  credits = false;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
@@ -595,7 +596,9 @@ void showStatusScreen() {
         damsel[0].x = playerX;
         damsel[0].y = playerY - 1;
       }
-    } else if (finalStatusScreen) {
+    } else if (finalStatusScreen && !credits) {
+      credits = true;
+      playWav1.play("endCredits.wav");
       //                                                                                              ROLL CREDITS
     }
   }
