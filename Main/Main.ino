@@ -18,6 +18,7 @@ bool itemResultScreenActive = false;
 
 unsigned int dngnHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
+int creditsBrightness = 15;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
@@ -38,6 +39,7 @@ void resetGame() {
   credits = false;
   bossState = Idle;
   bossStateTimer = 0;
+  creditsBrightness = 15;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
@@ -190,51 +192,55 @@ void loop() {
   if (currentTime - lastUpdateTime >= frameDelay) {
     lastUpdateTime = currentTime;
     updateButtonStates();
-    if (playerHP > 0) {
-      handleUIStateTransitions();
-      if (!statusScreen) {
-        switch (currentUIState) {
-          case UI_NORMAL:
-            renderGame();
-            updateGame();
-            break;
+    if (!credits) {
+      if (playerHP > 0) {
+        handleUIStateTransitions();
+        if (!statusScreen) {
+          switch (currentUIState) {
+            case UI_NORMAL:
+              renderGame();
+              updateGame();
+              break;
 
-          case UI_INVENTORY:
-            renderInventory();
-            handleInventoryNavigation();
-            handleInventoryItemUsage();
-            break;
+            case UI_INVENTORY:
+              renderInventory();
+              handleInventoryNavigation();
+              handleInventoryItemUsage();
+              break;
 
-          case UI_MINIMAP:
-            drawMinimap();
-            break;
+            case UI_MINIMAP:
+              drawMinimap();
+              break;
 
-          case UI_ITEM_ACTION:
-            handleItemActionMenu();
-            renderInventory();
-            break;
+            case UI_ITEM_ACTION:
+              handleItemActionMenu();
+              renderInventory();
+              break;
 
-          case UI_ITEM_INFO:
-            renderInventory();
-            break;
+            case UI_ITEM_INFO:
+              renderInventory();
+              break;
 
-          case UI_ITEM_RESULT:
-            renderInventory();
-            break;
+            case UI_ITEM_RESULT:
+              renderInventory();
+              break;
 
-          case UI_PAUSE:
-            handlePauseScreen();
-            break;
+            case UI_PAUSE:
+              handlePauseScreen();
+              break;
 
-          case UI_RIDDLE:
-            handleRiddles();
-            break;
+            case UI_RIDDLE:
+              handleRiddles();
+              break;
+          }
+        } else {
+          showStatusScreen();
         }
       } else {
-        showStatusScreen();
+        gameOver();
       }
     } else {
-      gameOver();
+      renderCredits();
     }
   }
 }
@@ -269,6 +275,32 @@ void renderGame() {
   handleDialogue();
   if (playerActed || playerNearClockEnemy) {
     updateAnimations();
+  }
+  display.display();
+}
+
+void renderCredits() {
+  if (!playWav1.isPlaying()) {
+    creditsBrightness -= (creditsBrightness == 0 ? 0 : 1);
+  }
+  display.clearDisplay();
+  if (creditsBrightness > 0) {
+    if (!damsel[0].dead || damsel[0].active) {
+      display.drawBitmap(0, 0, creditsDamselSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
+    } else if (damsel[0].dead || !damsel[0].active) {
+      display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
+    } /*else if (succubusIsFriend) {
+      display.drawBitmap(0, 0, creditsSuccubusFriend, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
+    }*/
+  }
+  if (creditsBrightness == 0) {
+    if (bossStateTimer < 15) {
+      bossStateTimer ++;
+    }
+    display.setTextSize(2);
+    display.setCursor(22, 50);
+    display.setTextColor(bossStateTimer);
+    display.print("The End");
   }
   display.display();
 }
@@ -607,13 +639,14 @@ void showStatusScreen() {
       }
     } else if (finalStatusScreen && !credits) {
       credits = true;
+      bossStateTimer = 0;
       playWav1.play("endCredits.wav");
-      //                                                                                              ROLL CREDITS
     }
   }
 }
 
 void updateBossfight() {
+  if (credits) {return;}
   static float bossTargetX = enemies[0].x;
   static float bossTargetY = enemies[0].y;
   static float bossVelocityX = 0;
