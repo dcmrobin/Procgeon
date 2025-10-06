@@ -27,6 +27,7 @@ int timeTillNextDialogue = 1000;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
+bool nearSuccubus = false;
 bool carryingDamsel = false;
 bool damselGotTaken = false;
 bool damselSayThanksForRescue = false;
@@ -525,6 +526,7 @@ void handleHungerAndEffects() {
         float sdy = enemies[i].y - playerY;
         float succubusDistanceSquared = sdx * sdx + sdy * sdy;
         if (succubusDistanceSquared < 40.0) {
+          nearSuccubus = true;
           // While pulling, dialogue pops up
           showDialogue = true;
           currentDamselPortrait = succubusPortrait;
@@ -543,6 +545,8 @@ void handleHungerAndEffects() {
             playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
             playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
           }
+        } else {
+          nearSuccubus = false;
         }
       }
     }

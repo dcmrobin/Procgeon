@@ -230,6 +230,12 @@ void updateDamsel() {
   destinationX = playerDX == 1 ? playerX - 1 : playerDX == -1 ? playerX + 1 : playerX;
   destinationY = playerDY == 1 ? playerY - 1 : playerDY == -1 ? playerY + 1 : playerY;
 
+  if (nearSuccubus) {
+    damsel[0].followingPlayer = false;
+    destinationX = damsel[0].x;
+    destinationY = damsel[0].y;// Damsel is frozen in fear
+  }
+
   // Calculate distance to player
   int dx = round(destinationX) - round(damsel[0].x);
   int dy = round(destinationY) - round(damsel[0].y);
@@ -251,7 +257,7 @@ void updateDamsel() {
   }
 
   // Check if damsel just stopped following and say "Hey! Wait up!"
-  if (!damsel[0].completelyRescued && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken) {
+  if (!damsel[0].completelyRescued && !nearSuccubus && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken) {
     showDialogue = true;
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;

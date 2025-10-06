@@ -41,6 +41,7 @@ extern GameItem combiningItem2;
 extern bool playerActed;
 extern bool confused;
 extern int confusionTimer;
+extern bool nearSuccubus;
 extern bool damselWasFollowing;
 extern int damselWaitUpTimer;
 extern bool damselSaidWaitUp;

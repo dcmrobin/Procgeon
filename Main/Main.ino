@@ -40,6 +40,7 @@ void resetGame() {
   bossState = Idle;
   bossStateTimer = 0;
   creditsBrightness = 15;
+  nearSuccubus = false;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
