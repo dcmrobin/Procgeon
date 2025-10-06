@@ -518,29 +518,31 @@ void handleHungerAndEffects() {
   }
 
   // If the player is close to a succubus, she slowly draws the player towards herself.
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
-      float sdx = enemies[i].x - playerX;
-      float sdy = enemies[i].y - playerY;
-      float succubusDistanceSquared = sdx * sdx + sdy * sdy;
-      if (succubusDistanceSquared < 40.0) {
-        // While pulling, dialogue pops up
-        showDialogue = true;
-        currentDamselPortrait = succubusPortrait;
-        currentDialogue = "Hey there, handsome...";
-        if (dialogueTimeLength != 373) {
-          playRawSFX(24);
-        }
-        dialogueTimeLength = 373;
-        float pullStrength = 0.05; // Adjust this value to change pull strength
-        playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
-        playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
-        // Ensure the player doesn't move into walls due to the pull
-        int rPullX = round(playerX);
-        int rPullY = round(playerY);
-        if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
-          playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
-          playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+  if (!carryingDamsel) {
+    for (int i = 0; i < maxEnemies; i++) {
+      if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
+        float sdx = enemies[i].x - playerX;
+        float sdy = enemies[i].y - playerY;
+        float succubusDistanceSquared = sdx * sdx + sdy * sdy;
+        if (succubusDistanceSquared < 40.0) {
+          // While pulling, dialogue pops up
+          showDialogue = true;
+          currentDamselPortrait = succubusPortrait;
+          currentDialogue = "Hey there, handsome...";
+          if (dialogueTimeLength != 373) {
+            playRawSFX(24);
+          }
+          dialogueTimeLength = 373;
+          float pullStrength = 0.05; // Adjust this value to change pull strength
+          playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+          playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+          // Ensure the player doesn't move into walls due to the pull
+          int rPullX = round(playerX);
+          int rPullY = round(playerY);
+          if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
+            playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+            playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+          }
         }
       }
     }
