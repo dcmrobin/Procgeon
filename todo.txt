@@ -28,3 +28,7 @@ What if you could lead a succubus through multiple levels and... befriend her? I
 There could be enemies which look just like a random other enemy, but have one thing off about them and they are very strong.
 
 Need a death screen for when killed by the boss.
+
+When carrying the damsel, succubi wouldn't follow or attract you.
+
+When not carrying the damsel but she is following you and you meet a succubus, the damsel will run away in terror or something like that.
