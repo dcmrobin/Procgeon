@@ -141,6 +141,7 @@ extern const unsigned char wizardDeath_shooter [];
 extern const unsigned char wizardDeath_hunger [];
 extern const unsigned char wizardDeath_stupidity [];
 extern const unsigned char wizardDeath_succubus [];
+extern const unsigned char succubusFollowScreen [];
 extern const unsigned char endScreenDamsel [];
 extern const unsigned char creditsDamselSaved [];
 extern const unsigned char creditsDamselNotSaved [];
