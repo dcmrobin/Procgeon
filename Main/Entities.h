@@ -60,6 +60,7 @@ struct Enemy {
   const unsigned char* sprite; // Pointer to current sprite bitmap
   int attackDelayCounter = attackDelay; // Each enemy tracks its own attack delay
   bool nearClock = false;
+  bool isFriend = false;
 };
 extern Enemy enemies[maxEnemies];
 
