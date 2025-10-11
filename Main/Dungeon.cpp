@@ -62,6 +62,10 @@ void generateDungeon(bool isBossfight) {
       damsel[0].followingPlayer = false; // She's trapped now
       damsel[0].completelyRescued = true;
     }
+
+    if (succubusIsFriend) {
+      enemies[1] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, true };
+    }
     
     return; // Skip regular room generation
   }
@@ -335,7 +339,11 @@ void spawnEnemies(bool isBossfight) {
           } else if (random(0, 10) == 5 && dungeon > 6) {
             if (succubusIsFriend && !generatedSuccubusFriend) {
               generatedSuccubusFriend = true;
-              enemies[i] = { (float)playerX, (float)playerY - 1, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, true };
+              showDialogue = true;
+              dialogueTimeLength = 300;
+              currentDamselPortrait = succubusPortrait;
+              currentDialogue = "You didn't try to kill me. I'll return the favour.";
+              enemies[i] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, true };
             } else {
               enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false };
             }

@@ -511,7 +511,7 @@ void updateEnemies() {
     // Different behavior for friendly vs hostile enemies
     if (enemies[i].isFriend) {
       // Friendly enemies try to stay near the player
-      if (gridDistanceSquared > 16) { // If more than 4 tiles away
+      if (gridDistanceSquared > 4) { // If more than 2 tiles away
         enemies[i].chasingPlayer = true;
       } else {
         enemies[i].chasingPlayer = false;

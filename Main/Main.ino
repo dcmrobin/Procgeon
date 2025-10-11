@@ -964,6 +964,11 @@ void updateBossfight() {
           playRawSFX(18);
           currentDialogue = "You did it! You killed him!";
         }
+      } else if (succubusIsFriend) {
+        showDialogue = true;
+        dialogueTimeLength = 300;
+        currentDamselPortrait = succubusPortrait;
+        currentDialogue = "Heh... that was exhilarating. Well done.";
       }
       break;
 
