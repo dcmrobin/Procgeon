@@ -8,7 +8,7 @@
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
-int bossfightLevel = 2;
+int bossfightLevel = 5;
 bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;

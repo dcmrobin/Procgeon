@@ -515,7 +515,7 @@ void showStatusScreen() {
 
   u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
 
-  if (nearSuccubus) {
+  if (!nearSuccubus) {
     if (!damselKidnapScreen) {
       if (dungeon > levelOfDamselDeath + 3) {
         if (!damsel[0].dead && damsel[0].followingPlayer) {
@@ -934,13 +934,13 @@ void updateBossfight() {
               }
               
               if (enemyName == "blob") {
-                enemies[j] = { (float)tileX, (float)tileY, 20, false, 0.05, "blob", 20, 2, false, 0, 0 };
+                enemies[j] = { (float)tileX, (float)tileY, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false };
                 enemies[j].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
               } else if (enemyName == "shooter") {
-                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0 };
+                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false };
                 enemies[j].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
               } else if (enemyName == "batguy") {
-                enemies[j] = { (float)tileX, (float)tileY, 10, false, 0.08, "batguy", 20, 1, false, 0, 0 };
+                enemies[j] = { (float)tileX, (float)tileY, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false };
                 enemies[j].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
               }
               

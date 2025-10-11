@@ -508,16 +508,41 @@ void updateEnemies() {
     int dy = playerGridY - enemyGridY;
     int gridDistanceSquared = dx * dx + dy * dy;
     
-    // Determine if the enemy should chase (within 5 tiles)
-    if (gridDistanceSquared <= 25) {
-      enemies[i].chasingPlayer = true;
-    } else {
-      if (enemies[i].chasingPlayer) {
-        giveUpTimer++;
-      }
-      if (giveUpTimer >= 600) {
+    // Different behavior for friendly vs hostile enemies
+    if (enemies[i].isFriend) {
+      // Friendly enemies try to stay near the player
+      if (gridDistanceSquared > 16) { // If more than 4 tiles away
+        enemies[i].chasingPlayer = true;
+      } else {
         enemies[i].chasingPlayer = false;
-        giveUpTimer = 0;
+        // Look for nearby hostile enemies to attack
+        for (int j = 0; j < maxEnemies; j++) {
+          if (j != i && enemies[j].hp > 0 && !enemies[j].isFriend) {
+            int targetDx = round(enemies[j].x) - enemyGridX;
+            int targetDy = round(enemies[j].y) - enemyGridY;
+            int targetDistSq = targetDx * targetDx + targetDy * targetDy;
+            if (targetDistSq <= 25) { // Within 5 tiles
+              enemies[i].chasingPlayer = true;
+              // Override player position with enemy position for chasing
+              playerGridX = round(enemies[j].x);
+              playerGridY = round(enemies[j].y);
+              break;
+            }
+          }
+        }
+      }
+    } else {
+      // Regular hostile enemy behavior
+      if (gridDistanceSquared <= 25) {
+        enemies[i].chasingPlayer = true;
+      } else {
+        if (enemies[i].chasingPlayer) {
+          giveUpTimer++;
+        }
+        if (giveUpTimer >= 600) {
+          enemies[i].chasingPlayer = false;
+          giveUpTimer = 0;
+        }
       }
     }
     
@@ -641,7 +666,10 @@ void updateEnemies() {
       }
     }
 
-    // Existing collision with player logic remains unchanged:
+    bool isAttacking = false;
+    bool hasAttacked = false;
+    
+    // Handle collisions differently for friendly and hostile enemies
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
       if (enemies[i].name == "teleporter") {
         playRawSFX(14);
@@ -652,28 +680,23 @@ void updateEnemies() {
         } while (dungeonMap[newY][newX] != Floor);
         playerX = newX;
         playerY = newY;
-      } else {
-        int damage = 0;
-        // Each enemy attacks independently
+      } else if (!enemies[i].isFriend) { // Only hostile enemies damage the player
+        isAttacking = true;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
-          damage = enemies[i].damage - equippedArmorValue;
+          int damage = enemies[i].damage - equippedArmorValue;
           if (damage < 0) damage = 0;
-          playerHP -= damage;
           if (damage > 0) {
+            playerHP -= damage;
             triggerScreenShake(2, 1);
+            playRawSFX(0);
+            checkIfDeadFrom(enemies[i].name);
+            hasAttacked = true;
           }
-          playRawSFX(0);
-          enemies[i].attackDelayCounter = 0;
         }
-        if (damage > 0) {
-          checkIfDeadFrom(enemies[i].name);
-        }
-        enemies[i].attackDelayCounter++;
       }
-    } else {
-      enemies[i].attackDelayCounter = enemies[i].attackDelay; // Reset if not in contact
     }
-    // Repel enemies from each other to reduce stacking
+    
+    // Repel enemies from each other and handle combat between friendly and hostile enemies
     for (int j = 0; j < maxEnemies; j++) {
       if (i != j && enemies[j].hp > 0) {
         float dist = sqrt((enemies[i].x - enemies[j].x)*(enemies[i].x - enemies[j].x) + (enemies[i].y - enemies[j].y)*(enemies[i].y - enemies[j].y));
@@ -683,8 +706,32 @@ void updateEnemies() {
           float mag = sqrt(dx*dx + dy*dy) + 0.01;
           enemies[i].x += (dx/mag) * 0.05;
           enemies[i].y += (dy/mag) * 0.05;
+          
+          // Handle combat between friendly and hostile enemies
+          if (enemies[i].isFriend && !enemies[j].isFriend) {
+            isAttacking = true;
+            if (enemies[i].attackDelayCounter >= enemies[i].attackDelay && !hasAttacked) {
+              enemies[j].hp -= enemies[i].damage;
+              if (enemies[j].hp <= 0) {
+                kills += 1;
+              }
+              playRawSFX(23); // Play hit sound
+              hasAttacked = true;
+            }
+          }
         }
       }
+    }
+    
+    // Handle attack delay counter
+    if (hasAttacked) {
+      enemies[i].attackDelayCounter = 0;
+    } else if (isAttacking) {
+      if (enemies[i].attackDelayCounter < enemies[i].attackDelay) {
+        enemies[i].attackDelayCounter++;
+      }
+    } else {
+      enemies[i].attackDelayCounter = enemies[i].attackDelay; // Reset when not attacking anything
     }
   }
 }
