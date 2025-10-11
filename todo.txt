@@ -8,10 +8,6 @@ There could be secret doors- walls you could walk through to another room that m
 
 There could be an enemy type that has a randomly generated sprite.
 
-Since people will probably think it's sexist to have a wizard carrying a damsel, on the title screen or boot up, you'll be given two options: male or female. This will make
-it so that instead of you controlling a male wizard and saving a female damsel, you'll control a female witch and you would find a male damsel/prince. The prince would
-complain a lot while following you at first, making you want to shoot him. The main bad guy would be a female instead of a male when you're a witch.
-
 As an easter egg, maybe in a very secret room, there would be a pool that has some cellular automata living in it that you can watch and randomize by going and pressing a
 button on the wall next to it. The cellular automaton would be the Game of Life I think.
 
