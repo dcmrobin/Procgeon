@@ -586,13 +586,13 @@ void showStatusScreen() {
       u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
       u8g2_for_adafruit_gfx.setCursor(0, 125);
       u8g2_for_adafruit_gfx.print(F("But are still alone."));
-    } /*else if (succubusIsFriend) {
+    } else if (succubusIsFriend) {
       display.drawBitmap(0, 0, endScreenSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.setCursor(0, 115);
       u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
       u8g2_for_adafruit_gfx.setCursor(0, 125);
       u8g2_for_adafruit_gfx.print(F("Have fun... ;)"));
-    }*/
+    }
   }
 
   display.display();
