@@ -8,7 +8,7 @@
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
-int bossfightLevel = 5;
+int bossfightLevel = 3;// TESTING
 bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;
@@ -30,8 +30,8 @@ void generateDungeon(bool isBossfight) {
     playerX = mapWidth / 2;
     playerY = mapHeight / 2;
 
-    // Only create the damsel's cell if she was following the player
-    if (damsel[0].followingPlayer && !damsel[0].dead) {
+    // Only create the damsel's cell if she was following the player and we don't have a friendly succubus
+    if (damsel[0].followingPlayer && !damsel[0].dead && !succubusIsFriend) {
       // Create a small cell in the top-right corner of the boss room
       int cellX = playerX;
       int cellY = playerY - 10;
@@ -61,10 +61,6 @@ void generateDungeon(bool isBossfight) {
       damsel[0].y = cellY + (cellHeight / 2);
       damsel[0].followingPlayer = false; // She's trapped now
       damsel[0].completelyRescued = true;
-    }
-
-    if (succubusIsFriend) {
-      enemies[1] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, true };
     }
     
     return; // Skip regular room generation
@@ -328,13 +324,13 @@ void spawnEnemies(bool isBossfight) {
         int ey = random(0, mapHeight);
         if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
           if (random(0, 5) == 1 && dungeon > 1) {
-            enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false };
+            enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false, false };
             enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
           } else if (random(0, 4) == 2 && dungeon > 2) {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0, false };
+            enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0, false, false };
             enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
           } else if (random(0, 6) == 4 && dungeon > 4) {
-            enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false };
+            enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false, false };
             enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
           } else if (random(0, 10) == 5 && dungeon > 6) {
             if (succubusIsFriend && !generatedSuccubusFriend) {
@@ -343,20 +339,22 @@ void spawnEnemies(bool isBossfight) {
               dialogueTimeLength = 300;
               currentDamselPortrait = succubusPortrait;
               currentDialogue = "You didn't try to kill me. I'll return the favour.";
-              enemies[i] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, true };
+              enemies[i] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
             } else {
-              enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false };
+              enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
             }
             enemies[i].sprite = succubusIdleSprite;
           } else if (random(0, 12) == 8 && dungeon > 6) {
             if (!generatedClockEnemy) {
-              enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0, false };
+              enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0, false, false };
               enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
               generatedClockEnemy = true;
             }
           } else {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false };
-            enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+            //enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false, false };
+            enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
+            //enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+            enemies[i].sprite = succubusIdleSprite;
           }
           break;
         }
@@ -364,11 +362,21 @@ void spawnEnemies(bool isBossfight) {
     }
   } else {
     for (int i = 0; i < maxEnemies; i++) {
-      enemies[i] = { (float)0, (float)0, 0, false, 0, "null", 0, 0, false, 0, 0 };
+      enemies[i] = { (float)0, (float)0, 0, false, 0, "null", 0, 0, false, 0, 0, false, false };
       enemies[i].sprite = batguyAnimation[0].frame;
     }
 
-    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0 };
+    // Spawn the boss
+    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0, false, false };
+    
+    // If we have a friendly succubus, spawn her near the player
+    if (succubusIsFriend) {
+      enemies[1] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
+      enemies[1].isFriend = true;
+      enemies[1].sprite = succubusIdleSprite;
+    }
+
+    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0, false, false };
     if (bossState == Idle || bossState == Shooting) {
       enemies[0].sprite = bossIdleAnimation[random(0, bossIdleAnimationLength)].frame;
     } else if (bossState == Floating || bossState == Summoning || bossState == Enraged) {

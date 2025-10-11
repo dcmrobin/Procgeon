@@ -23,5 +23,4 @@ There could be enemies which look just like a random other enemy, but have one t
 
 Need a death screen for when killed by the boss.
 
-What if you could lead a succubus through multiple levels and... befriend her? Idk, just a thought. Well, right now you need to make it so that if the succubusfollowscreen
-has just been shown, the succubus is spawned right next to the player in a passive state. She could help fight enemies..?
+Need credits screen for if you have succubus as friend.

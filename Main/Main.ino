@@ -41,6 +41,7 @@ void resetGame() {
   bossStateTimer = 0;
   creditsBrightness = 15;
   nearSuccubus = false;
+  succubusIsFriend = false;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
@@ -82,7 +83,6 @@ void resetGame() {
   blinded = false;
   showDialogue = false;
   paralyzed = false;
-  succubusIsFriend = false;
   
   // Reset damsel state
   damselWasFollowing = false;
@@ -140,6 +140,7 @@ void setup() {
   Serial.println("type 3: make tile player is on into an armor");
   Serial.println("type 2: make tile player is on into a scroll");
   Serial.println("type 1: make tile player is on into a ring");
+  Serial.println("type 0: spawn succubus near player + exit");
 
   // Play a WAV file
   /*if (playWav1.play("bossfight.wav")) {
@@ -515,7 +516,7 @@ void showStatusScreen() {
 
   u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
 
-  if (!nearSuccubus) {
+  if (!succubusIsFriend && !nearSuccubus) {
     if (!damselKidnapScreen) {
       if (dungeon > levelOfDamselDeath + 3) {
         if (!damsel[0].dead && damsel[0].followingPlayer) {
@@ -567,19 +568,20 @@ void showStatusScreen() {
       u8g2_for_adafruit_gfx.setCursor(0, 10);
       u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
     }
-  } else {
+  }
+  if (nearSuccubus) {
     if (!succubusIsFriend) {
       display.drawBitmap(0, 0, succubusFollowScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.setCursor(0, 115);
       u8g2_for_adafruit_gfx.print(F("Why didn't you kill her?"));
       u8g2_for_adafruit_gfx.setCursor(0, 125);
       u8g2_for_adafruit_gfx.print(F("She tried to kill you..."));
+      succubusIsFriend = true;
     } else {
       display.drawBitmap(0, 0, succubusFollowScreen2, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.setCursor(0, 120);
       u8g2_for_adafruit_gfx.print(F("The succubus follows."));
     }
-    succubusIsFriend = true;
   }
   if (finalStatusScreen) {
     if (!damsel[0].dead || damsel[0].active) {
@@ -904,7 +906,7 @@ void updateBossfight() {
       // Summon minions every 60 frames (about once per second)
       if (bossStateTimer % 60 == 0) {
         // Find an empty enemy slot
-        for (int j = 1; j < maxEnemies; j++) { // Start from 1 to skip boss
+        for (int j = (succubusIsFriend ? 2 : 1); j < maxEnemies; j++) { // Start from 2 to skip boss and succubus
           if (enemies[j].hp <= 0) {
             // Random position around the boss in a 5-tile radius
             float angle = random(0, 628) / 100.0; // Random angle in radians (0 to 2π)
@@ -934,13 +936,13 @@ void updateBossfight() {
               }
               
               if (enemyName == "blob") {
-                enemies[j] = { (float)tileX, (float)tileY, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false };
+                enemies[j] = { (float)tileX, (float)tileY, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false, false };
                 enemies[j].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
               } else if (enemyName == "shooter") {
-                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false };
+                enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false, false };
                 enemies[j].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
               } else if (enemyName == "batguy") {
-                enemies[j] = { (float)tileX, (float)tileY, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false };
+                enemies[j] = { (float)tileX, (float)tileY, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false, false };
                 enemies[j].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
               }
               

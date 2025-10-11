@@ -59,8 +59,8 @@ struct Enemy {
   PathNode wanderPath[32];  // maximum length for a wandering route
   const unsigned char* sprite; // Pointer to current sprite bitmap
   int attackDelayCounter = attackDelay; // Each enemy tracks its own attack delay
-  bool nearClock = false;
-  bool isFriend = false;
+  bool nearClock;
+  bool isFriend;
 };
 extern Enemy enemies[maxEnemies];
 
