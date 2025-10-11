@@ -28,6 +28,7 @@ bool speeding = false;
 bool hasMap = false;
 bool paused = false;
 bool nearSuccubus = false;
+bool succubusIsFriend = false;
 bool carryingDamsel = false;
 bool damselGotTaken = false;
 bool damselSayThanksForRescue = false;

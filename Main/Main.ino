@@ -82,6 +82,7 @@ void resetGame() {
   blinded = false;
   showDialogue = false;
   paralyzed = false;
+  succubusIsFriend = false;
   
   // Reset damsel state
   damselWasFollowing = false;
@@ -567,11 +568,18 @@ void showStatusScreen() {
       u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
     }
   } else {
-    display.drawBitmap(0, 0, succubusFollowScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-    u8g2_for_adafruit_gfx.setCursor(0, 115);
-    u8g2_for_adafruit_gfx.print(F("Why didn't you kill her?"));
-    u8g2_for_adafruit_gfx.setCursor(0, 125);
-    u8g2_for_adafruit_gfx.print(F("She tried to kill you..."));
+    if (!succubusIsFriend) {
+      display.drawBitmap(0, 0, succubusFollowScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 115);
+      u8g2_for_adafruit_gfx.print(F("Why didn't you kill her?"));
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("She tried to kill you..."));
+    } else {
+      display.drawBitmap(0, 0, succubusFollowScreen2, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 120);
+      u8g2_for_adafruit_gfx.print(F("The succubus follows."));
+    }
+    succubusIsFriend = true;
   }
   if (finalStatusScreen) {
     if (!damsel[0].dead || damsel[0].active) {
