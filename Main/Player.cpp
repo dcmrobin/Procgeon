@@ -520,7 +520,7 @@ void handleHungerAndEffects() {
   }
 
   // If the player is close to a succubus, she slowly draws the player towards herself.
-  if (!carryingDamsel) {
+  if (!carryingDamsel && !succubusIsFriend) {
     for (int i = 0; i < maxEnemies; i++) {
       if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
         float sdx = enemies[i].x - playerX;
