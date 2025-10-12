@@ -292,7 +292,7 @@ void renderCredits() {
     } else if (damsel[0].dead || !damsel[0].active && !succubusIsFriend) {
       display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     } else if (succubusIsFriend) {
-      display.drawBitmap(0, 0, creditsSuccubusFriend, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
+      display.drawBitmap(0, 0, creditsSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     }
   }
   if (creditsBrightness == 0) {
