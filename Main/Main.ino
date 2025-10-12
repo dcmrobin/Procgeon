@@ -583,24 +583,24 @@ void showStatusScreen() {
     }
   }
   if (finalStatusScreen) {
-    if (!damsel[0].dead || damsel[0].active) {
-      display.drawBitmap(0, 0, endScreenDamsel, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 115);
-      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
-      u8g2_for_adafruit_gfx.setCursor(0, 125);
-      u8g2_for_adafruit_gfx.print(F("And rescued the damsel!"));
-    } else if (damsel[0].dead || !damsel[0].active) {
-      display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 115);
-      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
-      u8g2_for_adafruit_gfx.setCursor(0, 125);
-      u8g2_for_adafruit_gfx.print(F("But are still alone."));
-    } else if (succubusIsFriend) {
+    if (succubusIsFriend) {
       display.drawBitmap(0, 0, endScreenSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.setCursor(0, 115);
       u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
       u8g2_for_adafruit_gfx.setCursor(0, 125);
       u8g2_for_adafruit_gfx.print(F("Have fun... ;)"));
+    } else if (!damsel[0].dead && damsel[0].active) {
+      display.drawBitmap(0, 0, endScreenDamsel, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 115);
+      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("And rescued the damsel!"));
+    } else {
+      display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      u8g2_for_adafruit_gfx.setCursor(0, 115);
+      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
+      u8g2_for_adafruit_gfx.setCursor(0, 125);
+      u8g2_for_adafruit_gfx.print(F("But are still alone."));
     }
   }
 
@@ -615,6 +615,8 @@ void showStatusScreen() {
       damselSayThanksForRescue = true;
     } else if (statusScreen) {
       bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
+      // If we have a succubus friend but no damsel rescue, we still need to handle the succubus
+      bool succubusRescue = nearSuccubus && !rescued;
       if (nearSuccubus) {
         succubusIsFriend = true;
       }
@@ -959,7 +961,12 @@ void updateBossfight() {
 
     case Beaten:
       // Boss is defeated, just stay in place
-      if (damsel[0].active && !damsel[0].dead) {
+      if (succubusIsFriend) {
+        showDialogue = true;
+        dialogueTimeLength = 300;
+        currentDamselPortrait = succubusPortrait;
+        currentDialogue = "Heh... that was exhilarating.";
+      } else if (damsel[0].active && !damsel[0].dead) {
         if (currentDialogue != "You did it! You killed him!") {
           showDialogue = true;
           currentDamselPortrait = damselPortraitNormal;
@@ -967,11 +974,6 @@ void updateBossfight() {
           playRawSFX(18);
           currentDialogue = "You did it! You killed him!";
         }
-      } else if (succubusIsFriend) {
-        showDialogue = true;
-        dialogueTimeLength = 300;
-        currentDamselPortrait = succubusPortrait;
-        currentDialogue = "Heh... that was exhilarating. Well done.";
       }
       break;
 

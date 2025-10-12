@@ -257,7 +257,8 @@ void updateDamsel() {
   }
 
   // Check if damsel just stopped following and say "Hey! Wait up!"
-  if (!damsel[0].completelyRescued && !nearSuccubus && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken) {
+  // Only show this dialogue if the damsel is actually following the player and not in a cell
+  if (!damsel[0].completelyRescued && !nearSuccubus && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken && damsel[0].active) {
     showDialogue = true;
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;
@@ -307,7 +308,7 @@ void updateDamsel() {
       currentDialogue = "Hey! I shall follow you, please get me out of here.";
       damsel[0].levelOfLove = 1;
     }
-    if (damselGotTaken && damselSayThanksForRescue) {
+    if (damselGotTaken && damselSayThanksForRescue && !succubusIsFriend) {
       playRawSFX(17);
       showDialogue = true;
       currentDamselPortrait = damselPortraitAlone;
@@ -396,7 +397,29 @@ void updateEnemies() {
   // --- Third pass: main update logic ---
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].name == "boss") {
-      continue; // Skip boss, its AI is handled in Main.ino in updateBossfight()
+      // Skip boss AI but allow friendly enemies to attack it
+      if (enemies[i].hp > 0) {
+        // Check if any friendly enemies are near the boss and can attack it
+        for (int j = 0; j < maxEnemies; j++) {
+          if (j != i && enemies[j].hp > 0 && enemies[j].isFriend) {
+            float dist = sqrt((enemies[i].x - enemies[j].x)*(enemies[i].x - enemies[j].x) + (enemies[i].y - enemies[j].y)*(enemies[i].y - enemies[j].y));
+            if (dist < 0.5) {
+              // Friendly enemy is touching boss, allow attack
+              if (enemies[j].attackDelayCounter >= enemies[j].attackDelay) {
+                enemies[i].hp -= enemies[j].damage;
+                if (enemies[i].hp <= 0) {
+                  kills += 1;
+                }
+                playRawSFX(23); // Play hit sound
+                enemies[j].attackDelayCounter = 0;
+              } else {
+                enemies[j].attackDelayCounter++;
+              }
+            }
+          }
+        }
+      }
+      continue; // Skip boss AI, it's handled in Main.ino in updateBossfight()
     }
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
     if (!playerActed && !enemies[i].nearClock && enemies[i].name != "clock") { continue; }
