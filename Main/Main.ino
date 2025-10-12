@@ -287,13 +287,13 @@ void renderCredits() {
   }
   display.clearDisplay();
   if (creditsBrightness > 0) {
-    if (!damsel[0].dead || damsel[0].active) {
+    if (!damsel[0].dead || damsel[0].active && !succubusIsFriend) {
       display.drawBitmap(0, 0, creditsDamselSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else if (damsel[0].dead || !damsel[0].active) {
+    } else if (damsel[0].dead || !damsel[0].active && !succubusIsFriend) {
       display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } /*else if (succubusIsFriend) {
+    } else if (succubusIsFriend) {
       display.drawBitmap(0, 0, creditsSuccubusFriend, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    }*/
+    }
   }
   if (creditsBrightness == 0) {
     if (bossStateTimer < 15) {
@@ -659,7 +659,8 @@ void showStatusScreen() {
         damsel[0].x = playerX;
         damsel[0].y = playerY - 1;
       }
-    } else if (finalStatusScreen && !credits) {
+    }
+    if (finalStatusScreen && !credits) {
       credits = true;
       bossStateTimer = 0;
       playWav1.play("endCredits.wav");
