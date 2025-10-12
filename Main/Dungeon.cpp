@@ -31,7 +31,7 @@ void generateDungeon(bool isBossfight) {
     playerY = mapHeight / 2;
 
     // Only create the damsel's cell if she was following the player and we don't have a friendly succubus
-    if (damsel[0].followingPlayer && !damsel[0].dead && !succubusIsFriend) {
+    if (damsel[0].followingPlayer && !damsel[0].dead && !succubusIsFriend && damsel[0].active) {
       // Create a small cell in the top-right corner of the boss room
       int cellX = playerX;
       int cellY = playerY - 10;
@@ -175,7 +175,7 @@ void generateDungeon(bool isBossfight) {
     }
   }
 
-  if (dungeon > levelOfDamselDeath + 3) {
+  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend) {
     // Generate the damsel's cell
     int damselRoomWidth = 7;
     int damselRoomHeight = 5;
@@ -222,6 +222,7 @@ void generateDungeon(bool isBossfight) {
     damsel[0].active = true;
     damsel[0].completelyRescued = false;
   } else {
+    // Deactivate damsel if succubus is friend or damsel is dead
     damsel[0].x = 3000;
     damsel[0].y = 3000;
     damsel[0].active = false;

@@ -732,6 +732,8 @@ void updateBossfight() {
       if (bossStateTimer < -2000) {
         statusScreen = true;
         finalStatusScreen = true;
+        // Clear succubus flags when showing final status screen
+        nearSuccubus = false;
       }
     }
   }

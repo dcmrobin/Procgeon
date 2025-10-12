@@ -258,7 +258,16 @@ void updateDamsel() {
 
   // Check if damsel just stopped following and say "Hey! Wait up!"
   // Only show this dialogue if the damsel is actually following the player and not in a cell
-  if (!damsel[0].completelyRescued && !nearSuccubus && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken && damsel[0].active) {
+  // Also ensure no succubus is currently chasing the player
+  bool succubusChasing = false;
+  for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer && !enemies[i].isFriend) {
+      succubusChasing = true;
+      break;
+    }
+  }
+  
+  if (!damsel[0].completelyRescued && !nearSuccubus && !succubusChasing && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken && damsel[0].active) {
     showDialogue = true;
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;
