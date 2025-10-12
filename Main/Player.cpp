@@ -280,7 +280,11 @@ void handleInput() {
     } else if (input == '8') {
       moveDamselToPos(playerX, playerY);
       if (!damsel[0].active) {
-        Serial.println("The damsel is not active.");
+        if (succubusIsFriend) {
+          Serial.println("The damsel is deactivated because succubus is friend.");
+        } else {
+          Serial.println("The damsel is not active.");
+        }
       }
     } else if (input == '6') {
       addToInventory(getItem(getRandomPotion(random(0, NUM_POTIONS), false)), false);
@@ -631,7 +635,7 @@ void handleDialogue() {
     }
   }
 
-  if (damsel[0].followingPlayer && !damsel[0].dead) {
+  if (damsel[0].followingPlayer && !damsel[0].dead && !succubusIsFriend) {
     timeTillNextDialogue--;
     if (timeTillNextDialogue <= 0) {
       // Helper lambda to pick a random unsaid dialogue from a given set.
