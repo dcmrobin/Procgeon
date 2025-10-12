@@ -615,8 +615,6 @@ void showStatusScreen() {
       damselSayThanksForRescue = true;
     } else if (statusScreen) {
       bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
-      // If we have a succubus friend but no damsel rescue, we still need to handle the succubus
-      bool succubusRescue = nearSuccubus && !rescued;
       if (nearSuccubus) {
         succubusIsFriend = true;
       }
