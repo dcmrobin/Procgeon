@@ -403,10 +403,10 @@ void startCarryingDamsel() {
     carryingDamsel = !carryingDamsel;
 
     if (carryingDamsel) {
-      showDialogue = true;
       currentDamselPortrait = damselPortraitCarrying;
       dialogueTimeLength = 300;
       currentDialogue = "Oh! Thanks...";
+      showDialogue = true;
       playRawSFX(20);
       playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
     } else {
@@ -529,9 +529,9 @@ void handleHungerAndEffects() {
         if (succubusDistanceSquared < 40.0) {
           nearSuccubus = true;
           // While pulling, dialogue pops up
-          showDialogue = true;
-          currentDamselPortrait = succubusPortrait;
           currentDialogue = "Hey there, handsome...";
+          currentDamselPortrait = succubusPortrait;
+          showDialogue = true;
           if (dialogueTimeLength != 373) {
             playRawSFX(24);
           }
@@ -634,8 +634,6 @@ void handleDialogue() {
   if (damsel[0].followingPlayer && !damsel[0].dead) {
     timeTillNextDialogue--;
     if (timeTillNextDialogue <= 0) {
-      showDialogue = true;
-
       // Helper lambda to pick a random unsaid dialogue from a given set.
       auto pickDialogue = [](Dialogue dialogueSet[], int length) -> int {
         int unsaidCount = 0;
@@ -730,6 +728,7 @@ void handleDialogue() {
           }
         }
       }
+      showDialogue = true;
 
       timeTillNextDialogue = random(1000, 2000);
     }

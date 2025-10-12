@@ -268,11 +268,11 @@ void updateDamsel() {
   }
   
   if (!damsel[0].completelyRescued && !nearSuccubus && !succubusChasing && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken && damsel[0].active) {
-    showDialogue = true;
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;
     playRawSFX(17);
     currentDialogue = "Hey! Wait up!";
+    showDialogue = true;
     damselSaidWaitUp = true;
     damselWaitUpTimer = 200; // Prevent spam for 200 frames
   }
@@ -310,19 +310,19 @@ void updateDamsel() {
     }
   } else {
     if (damsel[0].levelOfLove == 0) {
-      showDialogue = true;
       currentDamselPortrait = damselPortraitNormal;
       dialogueTimeLength = 400;
       playRawSFX(16);
       currentDialogue = "Hey! I shall follow you, please get me out of here.";
+      showDialogue = true;
       damsel[0].levelOfLove = 1;
     }
     if (damselGotTaken && damselSayThanksForRescue && !succubusIsFriend) {
       playRawSFX(17);
-      showDialogue = true;
       currentDamselPortrait = damselPortraitAlone;
       dialogueTimeLength = 400;
       currentDialogue = "He- wasn't gentle...";
+      showDialogue = true;
       damselSayThanksForRescue = false;
     }
 
@@ -816,10 +816,10 @@ void updateProjectiles() {
           playRawSFX(17);
           levelOfDamselDeath = dungeon;
           damsel[0].dead = true;
-          showDialogue = true;
           currentDamselPortrait = damselPortraitDying;
           dialogueTimeLength = 200;
           currentDialogue = "Ugh-!";
+          showDialogue = true;
           damsel[0].active = false;
           projectiles[i].active = false;
           break;

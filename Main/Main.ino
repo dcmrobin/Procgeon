@@ -741,10 +741,10 @@ void updateBossfight() {
     case Idle:
       enemies[0].damage = 20;
       if (currentDialogue != "You've amused me, little wizard. Time to die!") {
-        showDialogue = true;
         currentDamselPortrait = bossPortraitIdle;
         dialogueTimeLength = 3000;
         currentDialogue = "You've amused me, little wizard. Time to die!";
+        showDialogue = true;
       }
       break;
 
@@ -833,10 +833,10 @@ void updateBossfight() {
         }
       }
       if (currentDialogue != "AAGH! DIE, PEST!") {
-        showDialogue = true;
         currentDamselPortrait = bossPortraitEnraged;
         dialogueTimeLength = 300;
         currentDialogue = "AAGH! DIE, PEST!";
+        showDialogue = true;
       }
       
       float targetDirX = playerX - enemies[0].x;
@@ -962,17 +962,17 @@ void updateBossfight() {
     case Beaten:
       // Boss is defeated, just stay in place
       if (succubusIsFriend) {
-        showDialogue = true;
         dialogueTimeLength = 300;
         currentDamselPortrait = succubusPortrait;
         currentDialogue = "Heh... that was quite exhilarating.";
+        showDialogue = true;
       } else if (damsel[0].active && !damsel[0].dead) {
         if (currentDialogue != "You did it! You killed him!") {
-          showDialogue = true;
           currentDamselPortrait = damselPortraitNormal;
           dialogueTimeLength = 300;
           playRawSFX(18);
           currentDialogue = "You did it! You killed him!";
+          showDialogue = true;
         }
       }
       break;

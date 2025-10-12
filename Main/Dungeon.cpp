@@ -322,10 +322,10 @@ void spawnEnemies(bool isBossfight) {
     // First, spawn the friendly succubus if we have one
     if (succubusIsFriend && !generatedSuccubusFriend) {
       generatedSuccubusFriend = true;
-      showDialogue = true;
-      dialogueTimeLength = 600;
       currentDamselPortrait = succubusPortrait;
       currentDialogue = "You didn't try to kill me. I'll return the favour.";
+      showDialogue = true;
+      dialogueTimeLength = 600;
       enemies[0] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
       enemies[0].sprite = succubusIdleSprite;
       enemies[0].isFriend = true;
