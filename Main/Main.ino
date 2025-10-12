@@ -967,7 +967,7 @@ void updateBossfight() {
         showDialogue = true;
         dialogueTimeLength = 300;
         currentDamselPortrait = succubusPortrait;
-        currentDialogue = "Heh... that was exhilarating.";
+        currentDialogue = "Heh... that was quite exhilarating.";
       } else if (damsel[0].active && !damsel[0].dead) {
         if (currentDialogue != "You did it! You killed him!") {
           showDialogue = true;

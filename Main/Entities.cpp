@@ -898,6 +898,9 @@ void renderEnemies() {
 
 void renderDamsel() {
   if (carryingDamsel) return;
+  
+  // Don't render if damsel is deactivated (succubus is friend)
+  if (!damsel[0].active) return;
 
   int playerTileX = predictXtile(playerX);
   int playerTileY = predictYtile(playerY);

@@ -319,7 +319,20 @@ void spawnEnemies(bool isBossfight) {
   clockY = -10000;
 
   if (!isBossfight) {
-    for (int i = 0; i < maxEnemies; i++) {
+    // First, spawn the friendly succubus if we have one
+    if (succubusIsFriend && !generatedSuccubusFriend) {
+      generatedSuccubusFriend = true;
+      showDialogue = true;
+      dialogueTimeLength = 600;
+      currentDamselPortrait = succubusPortrait;
+      currentDialogue = "You didn't try to kill me. I'll return the favour.";
+      enemies[0] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
+      enemies[0].sprite = succubusIdleSprite;
+      enemies[0].isFriend = true;
+    }
+    
+    // Then spawn other enemies
+    for (int i = (succubusIsFriend ? 1 : 0); i < maxEnemies; i++) {
       while (true) {
         int ex = random(0, mapWidth);
         int ey = random(0, mapHeight);
@@ -334,16 +347,7 @@ void spawnEnemies(bool isBossfight) {
             enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false, false };
             enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
           } else if (random(0, 10) == 5 && dungeon > 6) {
-            if (succubusIsFriend && !generatedSuccubusFriend) {
-              generatedSuccubusFriend = true;
-              showDialogue = true;
-              dialogueTimeLength = 300;
-              currentDamselPortrait = succubusPortrait;
-              currentDialogue = "You didn't try to kill me. I'll return the favour.";
-              enemies[i] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
-            } else {
-              enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
-            }
+            enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
             enemies[i].sprite = succubusIdleSprite;
           } else if (random(0, 12) == 8 && dungeon > 6) {
             if (!generatedClockEnemy) {
