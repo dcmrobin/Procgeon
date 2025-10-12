@@ -576,7 +576,6 @@ void showStatusScreen() {
       u8g2_for_adafruit_gfx.print(F("Why didn't you kill her?"));
       u8g2_for_adafruit_gfx.setCursor(0, 125);
       u8g2_for_adafruit_gfx.print(F("She tried to kill you..."));
-      succubusIsFriend = true;
     } else {
       display.drawBitmap(0, 0, succubusFollowScreen2, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.setCursor(0, 120);
@@ -616,7 +615,9 @@ void showStatusScreen() {
       damselSayThanksForRescue = true;
     } else if (statusScreen) {
       bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
-
+      if (nearSuccubus) {
+        succubusIsFriend = true;
+      }
       dungeon += 1;
       playerDX = 0;
       playerDY = 1;
