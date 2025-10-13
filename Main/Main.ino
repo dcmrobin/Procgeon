@@ -299,9 +299,9 @@ void renderCredits() {
   }
   display.clearDisplay();
   if (creditsBrightness > 0) {
-    if (!damsel[0].dead || damsel[0].active && !succubusIsFriend) {
+    if ((!damsel[0].dead || damsel[0].active) && !succubusIsFriend) {
       display.drawBitmap(0, 0, creditsDamselSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else if (damsel[0].dead || !damsel[0].active && !succubusIsFriend) {
+    } else if ((damsel[0].dead || !damsel[0].active) && !succubusIsFriend) {
       display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     } else if (succubusIsFriend) {
       display.drawBitmap(0, 0, creditsSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
