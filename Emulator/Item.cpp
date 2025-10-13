@@ -2,6 +2,7 @@
 #include "Inventory.h"
 #include "HelperFunctions.h"
 #include "Player.h"
+#include "Translation.h"
 
 extern int numInventoryPages;
 
@@ -443,8 +444,8 @@ void updateScrollName(GameItem &scroll) {
 void randomizeRingEffects() {
     for (int i = NUM_RINGS - 1; i > 0; i--) {
         int j = random(i + 1);
-        std::swap(ringEffects[i], ringEffects[j]);
-        std::swap(ringCursed[i], ringCursed[j]);
+        swap(ringEffects[i], ringEffects[j]);
+        swap(ringCursed[i], ringCursed[j]);
     }
 }
 

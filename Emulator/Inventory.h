@@ -4,6 +4,7 @@
 #include "Item.h"
 #include "HelperFunctions.h"
 #include "Entities.h"
+#include "Translation.h"
 
 #define inventorySize 8
 

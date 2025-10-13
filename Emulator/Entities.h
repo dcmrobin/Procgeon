@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include "Sprites.h"
+#include "Translation.h"
 
 #define maxEnemies 30
 #define maxProjectiles 30

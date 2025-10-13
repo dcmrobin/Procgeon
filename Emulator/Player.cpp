@@ -6,6 +6,7 @@
 #include "GameAudio.h"
 #include "Item.h"
 #include "Puzzles.h"
+#include "Translation.h"
 
 String deathCause = "";
 String currentDialogue = "";

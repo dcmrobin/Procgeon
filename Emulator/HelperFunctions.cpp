@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Inventory.h"
+#include "Translation.h"
 
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names

@@ -1,6 +1,7 @@
 #include "Inventory.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include "Translation.h"
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
 String itemResultMessage = "";

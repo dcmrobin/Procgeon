@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include <vector>
+#include "Translation.h"
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
@@ -71,7 +73,8 @@ void generateDungeon(bool isBossfight) {
   const int minRoomSize = 4;            // Minimum room size (tiles)
   const int maxRoomSize = 8;            // Maximum room size (tiles)
 
-  Room rooms[maxRooms];
+  std::vector<Room> rooms(maxRooms);
+  //Room rooms[maxRooms];
   int roomCount = 0;
 
   // Guarantee a starting room at the center of the map

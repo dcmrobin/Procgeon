@@ -3,6 +3,7 @@
 
 #include "Item.h"
 #include "Puzzles.h"
+#include "Translation.h"
 
 #define RIDICULE_DURATION 1000
 

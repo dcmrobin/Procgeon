@@ -7,6 +7,7 @@
 #include "Dungeon.h"
 #include "Entities.h"
 #include "Sprites.h"
+#include "Translation.h"
 
 #define OLED_MOSI 11
 #define OLED_CLK 13

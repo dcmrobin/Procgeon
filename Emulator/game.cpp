@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Puzzles.h"
+#include "Translation.h"
 
 bool itemResultScreenActive = false;
 

@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Dungeon.h"
+#include "Translation.h"
 
 #define NUM_POTIONS 20
 #define NUM_SCROLLS 4

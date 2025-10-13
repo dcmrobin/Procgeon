@@ -4,6 +4,7 @@
 #include "Dungeon.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include "Translation.h"
 
 #include <cmath>
 
