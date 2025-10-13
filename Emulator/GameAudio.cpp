@@ -132,7 +132,7 @@ void serviceRawSFX() {
         if (!block) continue;
 
         size_t remaining = sfx.samplesTotal - sfx.samplesPlayed;
-        size_t samplesToCopy = min(remaining, static_cast<size_t>(AUDIO_BLOCK_SAMPLES));
+        size_t samplesToCopy = std::min(remaining, static_cast<size_t>(AUDIO_BLOCK_SAMPLES));
 
         // Copy and apply volume
         if (sfx.volume == 1.0f) {
