@@ -19,6 +19,8 @@ AudioConnection     patchCord7(musicMixer, 0, audioOutput, 0);
 AudioConnection     patchCord8(musicMixer, 0, audioOutput, 1);
 AudioControlSGTL5000 sgtl5000_1;
 
+int ambientNoiseLevel = 0;
+
 // RAM-loaded sound effect storage
 uint8_t* sfxData[NUM_SFX] = { nullptr };
 size_t sfxLength[NUM_SFX] = { 0 };
@@ -72,6 +74,7 @@ void initAudio() {
 }
 
 bool playRawSFX(int sfxIndex) {
+    ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
     if (!sfxData[sfxIndex]) return false;
     

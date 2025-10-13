@@ -565,7 +565,7 @@ void updateEnemies() {
       }
     } else {
       // Regular hostile enemy behavior
-      if (gridDistanceSquared <= 25) {
+      if (gridDistanceSquared <= (25 + (ambientNoiseLevel * 4))) { // Chase if within 5 tiles + noise factor
         enemies[i].chasingPlayer = true;
       } else {
         if (enemies[i].chasingPlayer) {

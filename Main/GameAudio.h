@@ -15,6 +15,8 @@ extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
 extern AudioPlaySdWav      playWav1;
 
+extern int ambientNoiseLevel;
+
 // Audio connections will be defined in the cpp file
 
 extern AudioControlSGTL5000 sgtl5000_1;

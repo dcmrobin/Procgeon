@@ -19,6 +19,7 @@ bool itemResultScreenActive = false;
 unsigned int dngnHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 int creditsBrightness = 15;
+int noiseLevelDiffuseTimer = 0;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
@@ -253,6 +254,7 @@ void updateGame() {
   
   // Only update game state if the player has taken an action
   if (playerActed || playerNearClockEnemy) {
+    handleAmbientNoiseLevel();
     handleHungerAndEffects();
     updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
     updateDamsel();
@@ -262,6 +264,16 @@ void updateGame() {
     }
   }
   updateEnemies();
+}
+
+void handleAmbientNoiseLevel() {
+  if (ambientNoiseLevel > 0) {
+    noiseLevelDiffuseTimer++;
+  }
+  if (noiseLevelDiffuseTimer >= 30) {
+    ambientNoiseLevel--;
+    noiseLevelDiffuseTimer = 0;
+  }
 }
 
 void renderGame() {
