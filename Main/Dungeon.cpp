@@ -8,7 +8,7 @@
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
-int bossfightLevel = 3;// TESTING
+int bossfightLevel = 10;
 bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;
@@ -349,17 +349,19 @@ void spawnEnemies(bool isBossfight) {
           } else if (random(0, 10) == 5 && dungeon > 6) {
             enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
             enemies[i].sprite = succubusIdleSprite;
-          } else if (random(0, 12) == 8 && dungeon > 6) {
+          } else if (random(0, 12) == 11 && dungeon > 6) {
             if (!generatedClockEnemy) {
               enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0, false, false };
               enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
               generatedClockEnemy = true;
             }
           } else {
-            //enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false, false };
-            enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
-            //enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
-            enemies[i].sprite = succubusIdleSprite;
+            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false, false };
+            enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+          }
+
+          if (random(0, 30) > 27) {
+            enemies[i] = { (float)ex, (float)ey, 50, false, 0.05, "brute", 50, 50, false, 0, 0, false, false };
           }
           break;
         }
