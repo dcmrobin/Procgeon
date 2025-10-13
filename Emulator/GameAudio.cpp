@@ -1,6 +1,7 @@
 #include "GameAudio.h"
 #include <algorithm>
 #include <SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <cstring>
 #include <cstdio>
 #include <vector>
@@ -169,7 +170,7 @@ void freeSFX() {
 
 bool loadSFXtoRAM() {
     for (int i = 0; i < NUM_SFX; i++) {
-        File f = SD.open(sfxFilenames[i]);
+        File f = SD::open(sfxFilenames[i]);
         if (!f) {
             Serial.printf("Failed to open %s\n", sfxFilenames[i]);
             return false;

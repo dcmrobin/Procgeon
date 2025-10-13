@@ -23,8 +23,6 @@ int noiseLevelDiffuseTimer = 0;
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
 
-// SD card chip select pin for Teensy Audio Board
-const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
   playWav1.stop();// Stop any currently playing music
@@ -110,15 +108,15 @@ void resetGame() {
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial && millis() < 4000); // Wait for Serial Monitor
+  /*while (!Serial && millis() < 4000); // Wait for Serial Monitor
   if (CrashReport) {
     Serial.print(CrashReport);
-  }
+  }*/
 
   initAudio();
 
   // Initialize SD card
-  if (!SD.begin(SD_CS)) {
+  if (!SD::begin(SD_CS)) {
     Serial.println("SD initialization failed!");
     while (1);  // Stop execution
   }
@@ -153,7 +151,7 @@ void setup() {
       Serial.println("bossfight.wav is playing");
   }*/
 
-  //if (SD.exists("bossfight.wav")) {
+  //if (SD::exists("bossfight.wav")) {
   //  Serial.println("bossfight.wav does exist");
   //} else {
   //  Serial.println("bossfight.wav does not exist");
@@ -770,7 +768,7 @@ void updateBossfight() {
     case Floating: {
       enemies[0].damage = 20;
       if (!playWav1.isPlaying()) {
-        if (SD.exists("bossfight.wav")) {
+        if (SD::exists("bossfight.wav")) {
           if (!playWav1.play("bossfight.wav")) {
             Serial.println("Failed to play bossfight.wav");
           }
@@ -843,7 +841,7 @@ void updateBossfight() {
     case Enraged: {
       enemies[0].damage = 40;
       if (!playWav1.isPlaying()) {
-        if (SD.exists("alternateBossfight.wav")) {
+        if (SD::exists("alternateBossfight.wav")) {
           if (!playWav1.play("alternateBossfight.wav")) {
             Serial.println("Failed to play alternateBossfight.wav");
           }

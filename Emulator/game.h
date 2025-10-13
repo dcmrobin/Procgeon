@@ -20,5 +20,8 @@ void updateGame();
 void renderGame();
 void gameOver();
 void showStatusScreen();
+void renderCredits();
+void handleAmbientNoiseLevel();
+void updateBossfight();
 
 #endif
