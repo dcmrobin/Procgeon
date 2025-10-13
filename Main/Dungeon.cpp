@@ -8,7 +8,7 @@
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
-int bossfightLevel = 10;
+int bossfightLevel = 12;
 bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;
@@ -361,7 +361,7 @@ void spawnEnemies(bool isBossfight) {
           }
 
           if (random(0, 30) > 27) {
-            enemies[i] = { (float)ex, (float)ey, 50, false, 0.05, "brute", 50, 50, false, 0, 0, false, false };
+            enemies[i] = { (float)ex, (float)ey, 50, false, 0.04, "brute", 50, 50, false, 0, 0, false, false };
           }
           break;
         }
