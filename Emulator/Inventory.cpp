@@ -3,7 +3,7 @@
 #include "GameAudio.h"
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
-std::string itemResultMessage = "";
+String itemResultMessage = "";
 
 InventoryPage inventoryPages[] = {
   {"Potions", PotionCategory},
@@ -30,14 +30,14 @@ void identifyItem(GameItem &item) {
   }
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
-  if (item.isCursed && item.description.find("(Cursed)") == std::string::npos) {
+  if (item.isCursed && item.description.indexOf("(Cursed)") == -1) {
     item.description += " (Cursed)";
   }
 }
 
 bool addToInventory(GameItem item, bool canBeCursed) {
   // Chance to curse the item if cursable
-  if (canBeCursed && rand() % (11 + 1) < item.curseChance) {
+  if (canBeCursed && random(0, 11) < item.curseChance) {
     item.isCursed = true;
   }
   
@@ -227,7 +227,11 @@ void handleInventoryItemUsage() {
           selectedInventoryIndex = 0;
         }
         currentUIState = UI_ITEM_RESULT;
-        itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
+        if (resultItem.category != EquipmentCategory) {
+          itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
+        } else {
+          itemResultMessage = resultItem.itemResult;
+        }
         combiningTwoItems = false;
       }
     }
@@ -235,16 +239,6 @@ void handleInventoryItemUsage() {
 }
 
 void handleItemActionMenu() {
-  InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
-  if (currentPage.itemCount == 0 || currentPage.items[selectedInventoryIndex].item == Null) {
-    // Optionally play an error sound or show a message
-    //playRawSFX(13);
-    //itemResultMessage = "No item here!";
-    currentUIState = UI_INVENTORY;
-    //buttons.bPressedPrev = true;
-    return;
-  }
-
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     playRawSFX(8);
@@ -318,9 +312,9 @@ void handleItemActionMenu() {
                     GameItem &item = inventoryPages[p].items[i];
                     if (item.isEquipped && item.isCursed) {
                         item.isCursed = false;
-                        size_t pos = item.description.find(" (Cursed)");
-                        if (pos != std::string::npos) {
-                            item.description.erase(pos, 9);
+                        int pos = item.description.indexOf(" (Cursed)");
+                        if (pos != -1) {
+                            item.description.remove(pos, 9);
                         }
                     }
                 }
@@ -338,17 +332,19 @@ void handleItemActionMenu() {
           currentUIState = UI_ITEM_RESULT;
         }
         buttons.bPressedPrev = true;
-      } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
+      } else if ((selectedItem.category == PotionCategory || selectedItem.category == FoodCategory) && selectedItem.item != EmptyBottle) {
         if (selectedItem.itemResult == "A lot happens.") { // random effect applied to the potion before anything else so that all the effects can be applied after
-          selectedItem.healthRecoverAmount = (rand() % (101 - (-90)) + (-90)); // -90 to +100
-          selectedItem.hungerRecoverAmount = (rand() % (101 - (-90)) + (-90)); // -90 to +100
-          selectedItem.AOEsize = rand() % 11; // 0 to 10
-          selectedItem.AOEdamage = (rand() % (21 - (-10)) + (-10)); // -10 to +20
-          selectedItem.SpeedMultiplier = (rand() % (41) - 20) / 10.0; // -2.0 to +2.0
+          selectedItem.healthRecoverAmount = random(-90, 101); // -90 to +100
+          selectedItem.hungerRecoverAmount = random(-90, 101); // -90 to +100
+          selectedItem.AOEsize = random(0, 11); // 0 to 10
+          selectedItem.AOEdamage = random(-10, 21); // -10 to +20
+          selectedItem.SpeedMultiplier = (random(-20, 21)) / 10.0; // -2.0 to +2.0
         }
 
         // Handle potion drinking
-        playRawSFX(6);
+        playRawSFX(selectedItem.category == PotionCategory ? 6 : 5);
+        playerFood += selectedItem.hungerRecoverAmount;
+        playerFood = playerFood > 100 ? 100 : playerFood;
         playerHP += selectedItem.healthRecoverAmount;
         playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
 
@@ -362,11 +358,7 @@ void handleItemActionMenu() {
           currentSpeedMultiplier += selectedItem.SpeedMultiplier;
         }
 
-        if (playerHP <= 0) {
-          playRawSFX(10);
-          deathCause = "poison";
-          buttons.bPressedPrev = true;
-        }
+        checkIfDeadFrom("poison");
         
         if (selectedItem.AOEsize > 0) {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
@@ -377,6 +369,8 @@ void handleItemActionMenu() {
         } else if (selectedItem.itemResult == "You can now see that which was unseen for a limited time.") {
           seeAll = true;
           seeAllTimer = 1000;
+          blinded = false;
+          blindnessTimer = 0;
         } else if (selectedItem.itemResult == "What is going on?") {
           confused = true;
           confusionTimer = 1000;
@@ -451,20 +445,6 @@ void handleItemActionMenu() {
           }
         }
 
-        buttons.bPressedPrev = true;
-      } else if (selectedItem.category == FoodCategory) {
-        playRawSFX(5);
-        playerFood += selectedItem.hungerRecoverAmount;
-        playerFood = playerFood > 100 ? 100 : playerFood;
-        
-        itemResultMessage = selectedItem.itemResult;
-        currentUIState = UI_ITEM_RESULT;
-        
-        if (inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
-          inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
-          inventoryPages[currentInventoryPageIndex].itemCount--;
-        }
-        
         buttons.bPressedPrev = true;
       } else if (selectedItem.effectType == ArmorEffect || selectedItem.item == Ring) {
         itemResultMessage = "You can't use this, try equipping it.";
@@ -564,7 +544,7 @@ void handleItemActionMenu() {
               }
             }
             playRawSFX(2);
-            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : selectedItem.itemResult; // override riddle stone text
+            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : "You equip the " + selectedItem.name + "."; // override riddle stone text
             equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
             currentUIState = UI_ITEM_RESULT;
           }
@@ -595,11 +575,11 @@ void renderInventory() {
     display.println(combiningTwoItems ? "Select second item tocombine..." : identifyingItem ? "Select item to identify..." : "Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
-    display.setTextColor(0, 15);
+    display.setTextColor(0);
     display.fillRect(0, 19, 128, 9, 15);
-    std::string pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
+    String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
     display.println(pageName.c_str());
-    display.setTextColor(15, 0);
+    display.setTextColor(15);
 
     int yPos = 30;
     InventoryPage &currentPage = inventoryPages[currentInventoryPageIndex];
@@ -648,9 +628,8 @@ void renderInventory() {
     display.print(inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].description);
   } 
   else if (currentUIState == UI_ITEM_RESULT) {
-    drawWrappedText(0, 10, 128, itemResultMessage);
-    //display.setCursor(0, 10);
-    //display.println(itemResultMessage);
+    display.setCursor(0, 10);
+    display.println(itemResultMessage);
     if (buttons.bPressed && !buttons.bPressedPrev) {
       currentUIState = UI_NORMAL;
     }
@@ -662,17 +641,17 @@ void renderInventory() {
     display.fillRect(50, 40, 65, 12, 15);
 
     // Title
-    display.setTextColor(0, 15);
+    display.setTextColor(0);
     display.setCursor(55, 42);
     display.println("Options:");
-    display.setTextColor(15, 0);
+    display.setTextColor(15);
 
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    std::string equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+    String equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
     
     // Determine the use text based on item type
-    std::string useText = "Use";
+    String useText = "Use";
     if (selectedItem.item == Scroll) {
       useText = "Read";
     } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {

@@ -6,8 +6,8 @@
 
 #define RIDICULE_DURATION 1000
 
-extern std::string deathCause;
-extern std::string currentDialogue;
+extern String deathCause;
+extern String currentDialogue;
 extern float playerX;
 extern float playerY;
 extern float currentSpeedMultiplier;
@@ -40,6 +40,8 @@ extern GameItem combiningItem2;
 extern bool playerActed;
 extern bool confused;
 extern int confusionTimer;
+extern bool succubusIsFriend;
+extern bool nearSuccubus;
 extern bool damselWasFollowing;
 extern int damselWaitUpTimer;
 extern bool damselSaidWaitUp;
@@ -61,6 +63,7 @@ extern bool blinded;
 extern int blindnessTimer;
 extern bool paralyzed;
 extern int paralysisTimer;
+extern bool playerNearClockEnemy;
 
 void renderPlayer();
 void handleInput();
@@ -69,8 +72,8 @@ void handlePauseScreen();
 void handleHungerAndEffects();
 void handleDialogue();
 void handleRiddles();
-void playDamselSFX(std::string tone);
+void playDamselSFX(String tone);
 void handleRingEffects();
-void OpenChest(int cy, int cx, int dx, bool solved);
+void OpenChest(int cy, int cx, int dx);
 
 #endif

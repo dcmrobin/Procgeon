@@ -4,11 +4,23 @@
 #include <cstdint>
 #include <SDL.h>
 
-#define NUM_SFX 24
-#define MAX_SFX_SIZE 30000
-#define MAX_SIMULTANEOUS_SFX 4
+#define NUM_SFX 25
+#define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
+#define MAX_SIMULTANEOUS_SFX 4  // Number of sounds that can play at once
 
-// Remove Teensy audio objects
+// Declare audio objects (defined in .cpp)
+extern AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
+extern AudioMixer4         mixer1;
+extern AudioMixer4         musicMixer;
+extern AudioOutputI2S      audioOutput;
+extern AudioPlaySdWav      playWav1;
+
+extern int ambientNoiseLevel;
+
+// Audio connections will be defined in the cpp file
+
+extern AudioControlSGTL5000 sgtl5000_1;
+
 extern uint8_t* sfxData[NUM_SFX];
 extern size_t sfxLength[NUM_SFX];
 extern const char* sfxFilenames[NUM_SFX];
@@ -18,29 +30,26 @@ struct RawSFXPlayback {
     size_t samplesTotal = 0;
     size_t samplesPlayed = 0;
     bool isPlaying = false;
-    float volume = 1.0f;
-
-    int index = -1;
-    int position = 0;
-    int length = 0;
-    bool playing = false;
-
-    RawSFXPlayback() : index(-1), position(0), length(0), volume(1.0f), playing(false) {}
-    RawSFXPlayback(int idx, int pos, int len, float vol, bool play) : index(idx), position(pos), length(len), volume(vol), playing(play) {}
+    float volume = 1.0f;  // Volume for this sound (0.0 to 1.0)
 };
 
+// Array of currently playing sound effects
 extern RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
-extern float globalVolume;  // Master volume control
 
+// Play a sound effect
 bool playRawSFX(int sfxIndex);
+
+// Call this every frame to service the audio system
+void serviceRawSFX();
+
 void initAudio();
-void closeAudio();  // New cleanup function
 void freeSFX();
 bool loadSFXtoRAM();
 
-// Utility functions
-inline bool playSFX_PlayerHurt()     { return playRawSFX(0); }
-inline bool playSFX_PlayerShoot()    { return playRawSFX(1); }
-inline bool playSFX_PlayerUse()      { return playRawSFX(2); }
+// Utility function to play specific sound effects by name
+//inline bool playSFX_PlayerHurt()     { return playRawSFX(0); }
+//inline bool playSFX_PlayerShoot()    { return playRawSFX(1); }
+//inline bool playSFX_PlayerUse()      { return playRawSFX(2); }
+// Add more convenience functions as needed...
 
 #endif

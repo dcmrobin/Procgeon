@@ -25,7 +25,7 @@
 #define SCREEN_HEIGHT 128
 
 extern Adafruit_SSD1327 display;
-//extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 struct ButtonStates {
   bool upPressed;
@@ -54,15 +54,12 @@ enum UIState {
   UI_ITEM_INFO,   // Item info screen
   UI_ITEM_RESULT, // Item result screen
   UI_PAUSE,       // Pause screen
-  UI_RIDDLE,      // Riddle screen
-  UI_PICROSS_PUZZLE,
-  UI_LIGHTSOUT_PUZZLE,
-
+  UI_RIDDLE       // Riddle screen
 };
 
 struct GeneratedRiddle {
-  std::string riddle;       // The riddle text (with inserted attributes)
-  std::string options[4];   // Four answer options (one is correct)
+  String riddle;       // The riddle text (with inserted attributes)
+  String options[4];   // Four answer options (one is correct)
   int correctOption;   // Index (0-3) of the correct answer in options[]
 };
 
@@ -81,6 +78,9 @@ extern int selectedActionIndex; // 0 = Use, 1 = Drop, 2 = Info
 extern UIState currentUIState; // Current UI state
 
 extern bool statusScreen;
+extern bool finalStatusScreen;
+extern bool showDeathScreen;
+extern bool credits;
 
 extern const int viewportWidth;
 extern const int viewportHeight;
@@ -95,10 +95,11 @@ extern const float scrollSpeed;
 
 void generateRiddleUI();
 void trainFemaleMarkov();
-std::string generateFemaleName();
+String generateFemaleName();
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
+void getEdgeTowards(const Room& from, const Room& to, int& outX, int& outY);
 void swap(int &a, int &b);
 int countWalls(int x, int y);
 int predictXtile(float x);
@@ -112,8 +113,10 @@ void updateAnimations();
 void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 bool isWalkable(int x, int y);
-void drawWrappedText(int x, int y, int maxWidth, const std::string &text);
+void drawWrappedText(int x, int y, int maxWidth, const String &text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
+bool nearTile(TileTypes tile);
+void checkIfDeadFrom(const String &cause);
 
 #endif

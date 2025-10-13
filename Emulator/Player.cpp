@@ -7,8 +7,8 @@
 #include "Item.h"
 #include "Puzzles.h"
 
-std::string deathCause = "";
-std::string currentDialogue = "";
+String deathCause = "";
+String currentDialogue = "";
 float playerX = 0;
 float playerY = 0;
 float currentSpeedMultiplier = 1;
@@ -27,6 +27,8 @@ int timeTillNextDialogue = 1000;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
+bool nearSuccubus = false;
+bool succubusIsFriend = false;
 bool carryingDamsel = false;
 bool damselGotTaken = false;
 bool damselSayThanksForRescue = false;
@@ -64,6 +66,9 @@ bool blinded = false;
 int blindnessTimer = 0;
 bool paralyzed = false;
 int paralysisTimer = 0;
+bool playerNearClockEnemy = false;
+int shootDelay = 0;
+bool reloading;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -79,7 +84,7 @@ void renderPlayer() {
     float distanceSquared = dx * dx + dy * dy;
     if (!carryingDamsel && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
       display.setTextSize(1);
-      display.setTextColor(15, 0);
+      display.setTextColor(15);
       // Center the text under the player sprite (estimate 6px per char, 9 chars)
       int textWidth = 9 * 6;
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
@@ -87,27 +92,40 @@ void renderPlayer() {
       display.setCursor(textX, textY);
       display.print("Carry [B]");
     }
-    // --- Show 'Open Chest [B]' prompt if player is adjacent to a chest ---
-    int rPx = round(playerX);
-    int rPy = round(playerY);
-    bool nearChest = false;
-    for (int dx = -1; dx <= 1 && !nearChest; dx++) {
-      for (int dy = -1; dy <= 1 && !nearChest; dy++) {
-        int cx = rPx + dx;
-        int cy = rPy + dy;
-        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
-          nearChest = true;
-        }
-      }
+
+    // --- Show 'Open Chest [B]' prompt only if player is facing a chest ---
+    int facingX = round(playerX) + playerDX;
+    int facingY = round(playerY) + playerDY;
+    bool facingChest = false;
+    bool facingClosedDoor = false;
+    bool facingOpenDoor = false;
+    bool facingOpenExit = false;
+    if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
+      facingChest = (dungeonMap[facingY][facingX] == ChestTile);
+      facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
+      facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
+      facingOpenExit = (dungeonMap[facingY][facingX] == Exit);
     }
-    if (nearChest) {
+    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit) {
+      // Prevent player from shooting while opening chest or door
+      reloading = true;
+      shootDelay = 0;
+
       display.setTextSize(1);
-      display.setTextColor(15, 0);
+      display.setTextColor(15);
       int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
-      display.print("Open Chest [B]");
+      if (facingChest) {
+        display.print("Open Chest [B]");
+      } else if (facingClosedDoor) {
+        display.print("Open Door [B]");
+      } else if (facingOpenDoor) {
+        display.print("Close Door [B]");
+      } else if (facingOpenExit) {
+        display.print("Descend [B]");
+      }
     }
   }
 
@@ -118,8 +136,6 @@ void renderPlayer() {
   if (playerY - offsetY > viewportHeight - 3 && offsetY < mapHeight - viewportHeight) offsetY += scrollSpeed;
 }
 
-int shootDelay = 0;
-bool reloading;
 int damselHealDelay = 0;
 int carryingDelay = 0;
 float baseSpeed = 0.1;
@@ -240,7 +256,7 @@ void handleInput() {
 
   if (buttons.bPressed) {
     if (!reloading && !carryingDamsel && distanceSquared > 0.3) {
-      shootProjectile(playerDX, playerDY); // Shoot in current direction
+      shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
       playRawSFX(1);
       reloading = true;
       playerActed = true;  // Player has taken an action
@@ -257,17 +273,21 @@ void handleInput() {
     }
   }
 
-  /*if (Serial.available() > 0) {// for debug purposes
+  if (Serial.available() > 0) {// for debug purposes
     char input = Serial.read();
     if (input == '7') {
       setTile((int)playerX, (int)playerY, Exit);
     } else if (input == '8') {
       moveDamselToPos(playerX, playerY);
       if (!damsel[0].active) {
-        Serial.println("The damsel is not active.");
+        if (succubusIsFriend) {
+          Serial.println("The damsel is deactivated because succubus is friend.");
+        } else {
+          Serial.println("The damsel is not active.");
+        }
       }
     } else if (input == '6') {
-      addToInventory(getItem(getRandomPotion(rand() % (NUM_POTIONS + 1), false)), false);
+      addToInventory(getItem(getRandomPotion(random(0, NUM_POTIONS), false)), false);
     } else if (input == '5') {
       setTile((int)playerX, (int)playerY, RiddleStoneTile);
     } else if (input == '4') {
@@ -279,17 +299,17 @@ void handleInput() {
     } else if (input == '1') {
       setTile((int)playerX, (int)playerY, RingTile);
     }
-  }*/
+  }
 
   int rNewX = round(newX);
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == DoorOpen) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
-    if (addToInventory(getItem(getRandomPotion(rand() % 7, true)), false)) {
+    if (addToInventory(getItem(getRandomPotion(random(6), true)), false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -310,8 +330,7 @@ void handleInput() {
   } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
     // Randomly choose an armor type
     GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
-    int numArmorTypes = sizeof(armorTypes) / sizeof(armorTypes[0]);
-    GameItems randomArmor = armorTypes[rand() % numArmorTypes];
+    GameItems randomArmor = armorTypes[random(0, 4)];
     
     if (addToInventory(getItem(randomArmor), true)) {
       playRawSFX(3);
@@ -329,28 +348,51 @@ void handleInput() {
     }
   }
 
+
   int rPx = round(playerX);
   int rPy = round(playerY);
 
-  // Check if the player reached the exit
-  if (dungeonMap[rPy][rPx] == Exit) {
-    playRawSFX(11);
-    if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
-      levelOfDamselDeath = dungeon;
-      damsel[0].active = false;
-    }
-    statusScreen = true;
-  }
-
-  // --- Open chest only if B is pressed and player is adjacent to a chest ---
+  // --- Open/close door only in the direction the player is facing ---
   if (buttons.bPressed && !buttons.bPressedPrev) {
-    for (int dx = -1; dx <= 1; dx++) {
-      for (int dy = -1; dy <= 1; dy++) {
-        int cx = rPx + dx;
-        int cy = rPy + dy;
-        if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == ChestTile) {
-          OpenChest(cy, cx, dy, false);
-          break;
+    int targetDX = playerDX;
+    int targetDY = playerDY;
+    // If playerDX and playerDY are both zero (no movement yet), fallback to old logic for chests only
+    if (targetDX == 0 && targetDY == 0) {
+      for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+          int cx = rPx + dx;
+          int cy = rPy + dy;
+          if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight) {
+            if (dungeonMap[cy][cx] == ChestTile) {
+              playRawSFX(12);
+              OpenChest(cy, cx, dy);
+              return;
+            }
+          }
+        }
+      }
+    } else {
+      int tx = rPx + targetDX;
+      int ty = rPy + targetDY;
+      if (tx >= 0 && tx < mapWidth && ty >= 0 && ty < mapHeight) {
+        if (dungeonMap[ty][tx] == DoorClosed) {
+          // Open the door if it's closed
+          dungeonMap[ty][tx] = DoorOpen;
+          playRawSFX(12);
+        } else if (dungeonMap[ty][tx] == DoorOpen) {
+          // Close the door if it's open
+          dungeonMap[ty][tx] = DoorClosed;
+          playRawSFX(13);
+        } else if (dungeonMap[ty][tx] == ChestTile) {
+          playRawSFX(12);
+          OpenChest(ty, tx, targetDY);
+        } else if (dungeonMap[ty][tx] == Exit) {
+          playRawSFX(11);
+          if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
+            levelOfDamselDeath = dungeon;
+            damsel[0].active = false;
+          }
+          statusScreen = true;
         }
       }
     }
@@ -365,10 +407,10 @@ void startCarryingDamsel() {
     carryingDamsel = !carryingDamsel;
 
     if (carryingDamsel) {
-      showDialogue = true;
       currentDamselPortrait = damselPortraitCarrying;
       dialogueTimeLength = 300;
       currentDialogue = "Oh! Thanks...";
+      showDialogue = true;
       playRawSFX(20);
       playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
     } else {
@@ -384,7 +426,7 @@ void handlePauseScreen() {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(27, 40);
-  display.setTextColor(15, 0);
+  display.setTextColor(15);
   display.print("PAUSED");
   display.setTextSize(1);
   display.setCursor(24, 65);
@@ -408,10 +450,7 @@ void handleHungerAndEffects() {
     starving = playerFood <= 0 ? true : false;
   }
 
-  if (playerHP <= 0) {
-    playRawSFX(10);
-    deathCause = "hunger";
-  }
+  checkIfDeadFrom("hunger");
 
   // Update confusion timer
   if (confused) {
@@ -483,9 +522,43 @@ void handleHungerAndEffects() {
       paralyzed = false;
     }
   }
+
+  // If the player is close to a succubus, she slowly draws the player towards herself.
+  if (!carryingDamsel && !succubusIsFriend) {
+    for (int i = 0; i < maxEnemies; i++) {
+      if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
+        float sdx = enemies[i].x - playerX;
+        float sdy = enemies[i].y - playerY;
+        float succubusDistanceSquared = sdx * sdx + sdy * sdy;
+        if (succubusDistanceSquared < 40.0) {
+          nearSuccubus = true;
+          // While pulling, dialogue pops up
+          currentDialogue = "Hey there, handsome...";
+          currentDamselPortrait = succubusPortrait;
+          showDialogue = true;
+          if (dialogueTimeLength != 373) {
+            playRawSFX(24);
+          }
+          dialogueTimeLength = 373;
+          float pullStrength = 0.05; // Adjust this value to change pull strength
+          playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+          playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+          // Ensure the player doesn't move into walls due to the pull
+          int rPullX = round(playerX);
+          int rPullY = round(playerY);
+          if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
+            playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+            playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+          }
+        } else {
+          nearSuccubus = false;
+        }
+      }
+    }
+  }
 }
 
-void playDamselSFX(std::string tone) {
+void playDamselSFX(String tone) {
   if (tone == "normal") {
     playRawSFX(16);
   } else if (tone == "annoying") {
@@ -497,13 +570,15 @@ void playDamselSFX(std::string tone) {
 
 int dialogueTimer = 0;
 void handleDialogue() {
+  static int dialogueDelayTimer = 0;
+  
   // Glamour dialogue system
   if (glamoured) {
     static int lastGlamourIndex = -1;
-    if (!showDialogue) {
+    if (!showDialogue && dialogueDelayTimer <= 0) {
       int length = sizeof(glamourDialogue) / sizeof(glamourDialogue[0]);
       if (length <= 0) return; // Defensive: don't proceed if array is empty
-      int index = rand() % (length + 1);
+      int index = random(0, length);
       if (index == lastGlamourIndex && length > 1) {
         index = (index + 1) % length;
       }
@@ -512,15 +587,16 @@ void handleDialogue() {
       currentDialogue = glamourDialogue[index].message;
       showDialogue = true;
       isRidiculeDialogue = true; // Reuse this to hide portrait
+      dialogueDelayTimer = 50; // Add delay before next dialogue
     }
   }
 
   // Ridicule dialogue system
   if (ridiculed) {
-    if (!showDialogue) {
+    if (!showDialogue && dialogueDelayTimer <= 0) {
       int length = sizeof(ridiculeDialogue) / sizeof(ridiculeDialogue[0]);
       if (length <= 0) return; // Defensive: don't proceed if array is empty
-      int index = rand() % (length + 1);
+      int index = random(0, length);
       if (index == lastRidiculeIndex && length > 1) {
         index = (index + 1) % length;
       }
@@ -529,7 +605,13 @@ void handleDialogue() {
       currentDialogue = ridiculeDialogue[index].message;
       showDialogue = true;
       isRidiculeDialogue = true;
+      dialogueDelayTimer = 50; // Add delay before next dialogue
     }
+  }
+  
+  // Update dialogue delay timer
+  if (dialogueDelayTimer > 0) {
+    dialogueDelayTimer--;
   }
 
   // Drawing code (always runs if showDialogue is true)
@@ -537,23 +619,25 @@ void handleDialogue() {
     dialogueTimer++;
     if (dialogueTimer >= dialogueTimeLength) {
       dialogueTimer = 0;
+      if (dialogueTimeLength == 373) {
+        dialogueTimeLength = 0;
+      }
       showDialogue = false;
     }
-    //display.setFont(Adafruit_GFX::profont10_font);
+    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
-    drawWrappedText(27, 13, 120, currentDialogue);
+    u8g2_for_adafruit_gfx.setCursor(27, 19);
+    drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
-    if (!isRidiculeDialogue) {
+    if (!isRidiculeDialogue || currentDialogue == "Hey! Wait up!") {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
       display.drawRect(8, 10, 18, 34, 15);
     }
   }
 
-  if (damsel[0].followingPlayer && !damsel[0].dead) {
+  if (damsel[0].followingPlayer && !damsel[0].dead && !succubusIsFriend) {
     timeTillNextDialogue--;
     if (timeTillNextDialogue <= 0) {
-      showDialogue = true;
-
       // Helper lambda to pick a random unsaid dialogue from a given set.
       auto pickDialogue = [](Dialogue dialogueSet[], int length) -> int {
         int unsaidCount = 0;
@@ -563,105 +647,94 @@ void handleDialogue() {
             unsaidIndices[unsaidCount++] = i;
           }
         }
-        if (unsaidCount == 0) {
-          return -1; // No more dialogue left
-        }
-        int chosenIndex = unsaidIndices[rand() % unsaidCount];
+        // If all dialogues have been used, reset them.
+        //if (unsaidCount == 0) {
+        //  for (int i = 0; i < length; i++) {
+        //    dialogueSet[i].alreadyBeenSaid = false;
+        //    unsaidIndices[i] = i;
+        //  }
+        //  unsaidCount = length;
+        //}
+        // Choose a random index from the unsaid list.
+        int chosenIndex = unsaidIndices[random(0, unsaidCount)];
         return chosenIndex;
       };
 
       // Carrying damsel dialogue branch.
-      if (carryingDamsel) {
-        int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
-        int index = pickDialogue(damselCarryDialogue, length);
-        if (index == -1) {
-          showDialogue = false;
-          timeTillNextDialogue = 1000000;
-          return;
-        }
-        currentDamselPortrait = damselPortraitCarrying;
-        dialogueTimeLength = damselCarryDialogue[index].duration;
-        isRidiculeDialogue = false;
-        currentDialogue = damselCarryDialogue[index].message;
-        if (!damselCarryDialogue[index].alreadyBeenSaid) {
-          playRawSFX(18);
-        }
-        damselCarryDialogue[index].alreadyBeenSaid = true;
-      } else {
-        // Choose dialogue based on levelOfLove.
-        if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
-          int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
-          int index = pickDialogue(damselAnnoyingDialogue, length);
-          if (index == -1) {
-            showDialogue = false;
-            timeTillNextDialogue = 1000000;
-            return;
-          }
-          if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
-            playDamselSFX(damselAnnoyingDialogue[index].tone);
-          }
-          currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
-                                  damselPortraitScared : 
-                                  (damselAnnoyingDialogue[index].tone == "alone") ? 
-                                  damselPortraitAlone : 
-                                  damselPortraitNormal;
-          dialogueTimeLength = damselAnnoyingDialogue[index].duration;
+      if (!damsel[0].completelyRescued) {
+        if (carryingDamsel) {
+          int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
+          int index = pickDialogue(damselCarryDialogue, length);
+          currentDamselPortrait = damselPortraitCarrying;
+          dialogueTimeLength = damselCarryDialogue[index].duration;
           isRidiculeDialogue = false;
-          currentDialogue = damselAnnoyingDialogue[index].message;
-          damselAnnoyingDialogue[index].alreadyBeenSaid = true;
-        } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
-          int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
-          int index = pickDialogue(damselPassiveDialogue, length);
-          if (index == -1) {
-            showDialogue = false;
-            timeTillNextDialogue = 1000000;
-            return;
+          currentDialogue = damselCarryDialogue[index].message;
+          if (!damselCarryDialogue[index].alreadyBeenSaid) {
+            playRawSFX(18);
           }
-          if (!damselPassiveDialogue[index].alreadyBeenSaid) {
-            playDamselSFX(damselPassiveDialogue[index].tone);
-          }
-          currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
-                                  damselPortraitScared : 
-                                  (damselPassiveDialogue[index].tone == "alone") ? 
-                                  damselPortraitAlone : 
-                                  damselPortraitNormal;
-          dialogueTimeLength = damselPassiveDialogue[index].duration;
-          isRidiculeDialogue = false;
-          currentDialogue = damselPassiveDialogue[index].message;
-          damselPassiveDialogue[index].alreadyBeenSaid = true;
-        } else if (damsel[0].levelOfLove >= 6) {
-          if (!knowsDamselName) {
-            dialogueTimeLength = 500;
-            if (!knowsDamselName) {
-              playDamselSFX("normal");
+          damselCarryDialogue[index].alreadyBeenSaid = true;
+        } else {
+          // Choose dialogue based on levelOfLove.
+          if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
+            int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
+            int index = pickDialogue(damselAnnoyingDialogue, length);
+            if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
+              playDamselSFX(damselAnnoyingDialogue[index].tone);
             }
-            currentDialogue = "By the way, my name is " + damsel[0].name + "...";
-            knowsDamselName = true;
-          } else {
-            int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
-            int index = pickDialogue(damselGoodDialogue, length);
-            if (index == -1) {
-              showDialogue = false;
-              timeTillNextDialogue = 1000000;
-              return;
-            }
-            if (!damselGoodDialogue[index].alreadyBeenSaid) {
-              playDamselSFX(damselGoodDialogue[index].tone);
-            }
-            currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+            currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
                                     damselPortraitScared : 
-                                    (damselGoodDialogue[index].tone == "alone") ? 
+                                    (damselAnnoyingDialogue[index].tone == "alone") ? 
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
-            dialogueTimeLength = damselGoodDialogue[index].duration;
+            dialogueTimeLength = damselAnnoyingDialogue[index].duration;
             isRidiculeDialogue = false;
-            currentDialogue = damselGoodDialogue[index].message;
-            damselGoodDialogue[index].alreadyBeenSaid = true;
+            currentDialogue = damselAnnoyingDialogue[index].message;
+            damselAnnoyingDialogue[index].alreadyBeenSaid = true;
+          } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
+            int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
+            int index = pickDialogue(damselPassiveDialogue, length);
+            if (!damselPassiveDialogue[index].alreadyBeenSaid) {
+              playDamselSFX(damselPassiveDialogue[index].tone);
+            }
+            currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
+                                    damselPortraitScared : 
+                                    (damselPassiveDialogue[index].tone == "alone") ? 
+                                    damselPortraitAlone : 
+                                    damselPortraitNormal;
+            dialogueTimeLength = damselPassiveDialogue[index].duration;
+            isRidiculeDialogue = false;
+            currentDialogue = damselPassiveDialogue[index].message;
+            damselPassiveDialogue[index].alreadyBeenSaid = true;
+          } else if (damsel[0].levelOfLove >= 6) {
+            if (!knowsDamselName) {
+              dialogueTimeLength = 500;
+              if (!knowsDamselName) {
+                playDamselSFX("normal");
+              }
+              currentDialogue = "By the way, my name is " + damsel[0].name + "...";
+              knowsDamselName = true;
+            } else {
+              int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
+              int index = pickDialogue(damselGoodDialogue, length);
+              if (!damselGoodDialogue[index].alreadyBeenSaid) {
+                playDamselSFX(damselGoodDialogue[index].tone);
+              }
+              currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+                                      damselPortraitScared : 
+                                      (damselGoodDialogue[index].tone == "alone") ? 
+                                      damselPortraitAlone : 
+                                      damselPortraitNormal;
+              dialogueTimeLength = damselGoodDialogue[index].duration;
+              isRidiculeDialogue = false;
+              currentDialogue = damselGoodDialogue[index].message;
+              damselGoodDialogue[index].alreadyBeenSaid = true;
+            }
           }
         }
       }
+      showDialogue = true;
 
-      timeTillNextDialogue = rand() % 1000 + 2000;
+      timeTillNextDialogue = random(1000, 2000);
     }
   }
 }
@@ -674,16 +747,15 @@ void handleRiddles() {
   
   display.clearDisplay();
   display.setTextSize(1);
-  display.setTextColor(SSD1327_WHITE, 0);
+  display.setTextColor(SSD1327_WHITE);
   
   // Display the riddle prompt.
   display.setCursor(0, 10);
   display.print("Solve this riddle!");
   
   // Display the riddle text below the prompt.
-  //display.setCursor(0, 22);
-  drawWrappedText(0, 22, 128, currentRiddle.riddle);
-  //display.print(currentRiddle.riddle);
+  display.setCursor(0, 22);
+  display.print(currentRiddle.riddle);
 
   // Display the four answer options.
   // We'll assume each option is displayed on its own line.
@@ -719,13 +791,20 @@ void handleRiddles() {
     playRawSFX(7);
     if (selectedRiddleOption == currentRiddle.correctOption) {
       playRawSFX(6);
-      itemResultMessage = "Correct! You are rewarded. (Check inventory)";
+      display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
+      if (playerHP > 0) {
+        itemResultMessage = "Correct! You are rewarded.";
+      } else {
+        itemResultMessage = "Correct! You are revived.";
+        playerHP = (int)(playerMaxHP / 2);
+        return;
+      }
       // Give three random items as a reward
       for (int i = 0; i < 3; i++) {
-        int category = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom
+        int category = random(0, 5); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: mushroom
         GameItem reward;
         if (category == 0) {
-          reward = getItem(getRandomPotion(rand() % (NUM_POTIONS+1), false));
+          reward = getItem(getRandomPotion(random(0, NUM_POTIONS), false));
           addToInventory(reward, false);
         } else if (category == 1) {
           reward = getItem(Scroll);
@@ -735,7 +814,7 @@ void handleRiddles() {
           addToInventory(reward, false); // or true if you want rings to be possibly cursed
         } else if (category == 3) {
           GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
-          reward = getItem(armorTypes[rand() % (4 + 1)]);
+          reward = getItem(armorTypes[random(0, 4)]);
           addToInventory(reward, false);
         } else if (category == 4) {
           reward = getItem(Mushroom);
@@ -746,10 +825,7 @@ void handleRiddles() {
       playRawSFX(13);
       itemResultMessage = "Wrong answer! You suffer.";
       playerHP -= 10;
-      if (playerHP <= 0) {
-        playRawSFX(10);
-        deathCause = "stupidity";
-      }
+      checkIfDeadFrom("stupidity");
     }
     currentUIState = UI_ITEM_RESULT;
     // Reset riddle so a new one can be generated next time.
@@ -770,36 +846,26 @@ void handleRingEffects() {
     }
 }
 
-void OpenChest(int cy, int cx, int dx, bool solved) {
+void OpenChest(int cy, int cx, int dx) {
   // Require solving a random puzzle before opening
-  if (!solved) {
-    startRandomPuzzle(cy, cx, dx);
+  if (!launchRandomPuzzle()) {
+    return; // Player did not solve puzzle, do not open chest
   }
-
-  if (solved) {
-    // Open the chest: remove chest and spawn loot in 3x3 area
-    playRawSFX(3); // Play pickup sound
-    dungeonMap[cy][cx] = Floor;
-    for (int ldx = -1; ldx <= 1; ldx++) {
-      for (int ldy = -1; ldy <= 1; ldy++) {
-        int lx = cx + ldx;
-        int ly = cy + ldy;
-        if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-          int lootType = rand() % (5 + 1); // 0: potion, 1: scroll, 2: ring, 3: armor, 4: riddle stone
-          if (lootType == 0 && rand() % 101 < 60) {
-            dungeonMap[ly][lx] = RiddleStoneTile;
-          } else if (lootType == 1 && rand() % 101 < 80) {
-            dungeonMap[ly][lx] = ArmorTile;
-          } else if (lootType == 2 && rand() % 101 < 80) {
-            dungeonMap[ly][lx] = RingTile;
-          } else if (lootType == 3 && rand() % 101 < 80) {
-            dungeonMap[ly][lx] = ScrollTile;
-          } else if (lootType == 4) {
-            dungeonMap[ly][lx] = Potion;
-          }
+  // Open the chest: remove chest and spawn loot in 3x3 area
+  playRawSFX(3); // Play pickup sound
+  dungeonMap[cy][cx] = Floor;
+  for (int ldx = -1; ldx <= 1; ldx++) {
+    for (int ldy = -1; ldy <= 1; ldy++) {
+      int lx = cx + ldx;
+      int ly = cy + ldy;
+      if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
+        // Use rarity-based loot spawning - chests can contain items up to rarity 4
+        // This allows for better loot from chests compared to random dungeon spawns
+        if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
+          dungeonMap[ly][lx] = getRandomLootTile(5); // Max rarity 5 for chest loot
         }
       }
     }
-    dx = 2; // break outer loop
   }
+  dx = 2; // break outer loop
 }

@@ -6,8 +6,8 @@
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
 
-//Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
-//U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
+U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
 
@@ -17,6 +17,9 @@ int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 UIState currentUIState = UI_NORMAL; // Current UI state
 
 bool statusScreen = false;
+bool finalStatusScreen = false;
+bool showDeathScreen = false;
+bool credits = false;
 
 const int viewportWidth = SCREEN_WIDTH / tileSize;
 const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
@@ -76,7 +79,7 @@ const int sampleFemaleNamesCount = sizeof(sampleFemaleNames) / sizeof(sampleFema
 // Helper function to shuffle an array of integers
 void shuffleArray(int arr[], int n) {
   for (int i = n - 1; i > 0; i--) {
-    int j = rand() % (i + 1);
+    int j = random(i + 1);
     int temp = arr[i];
     arr[i] = arr[j];
     arr[j] = temp;
@@ -85,23 +88,23 @@ void shuffleArray(int arr[], int n) {
 
 void generateRiddleUI() {
   // Pick a random answer from the list as the correct answer.
-  int answerIndex = rand() % numAnswers;
+  int answerIndex = random(numAnswers);
   RiddleAnswer chosen = possibleAnswers[answerIndex];
 
   // Pick two distinct attributes from the chosen answer.
-  int index1 = rand() % 4;
-  int index2 = rand() % 4;
+  int index1 = random(4);
+  int index2 = random(4);
   while (index2 == index1) {
-    index2 = rand() % 4;
+    index2 = random(4);
   }
   const char* attr1 = chosen.attributes[index1];
   const char* attr2 = chosen.attributes[index2];
 
   // Choose a random template and format the riddle string.
-  int templateIndex = rand() % numTemplates;
+  int templateIndex = random(numTemplates);
   char riddleBuffer[128];  // Buffer for the formatted riddle.
   snprintf(riddleBuffer, sizeof(riddleBuffer), templates[templateIndex], attr1, attr2);
-  currentRiddle.riddle = std::string(riddleBuffer);
+  currentRiddle.riddle = String(riddleBuffer);
 
   // Prepare a list of indices for the answer options.
   const int totalOptions = 4;
@@ -109,7 +112,7 @@ void generateRiddleUI() {
   optionIndices[0] = answerIndex;  // The correct answer.
   int count = 1;
   while (count < totalOptions) {
-    int decoy = rand() % numAnswers;
+    int decoy = random(numAnswers);
     bool unique = true;
     if (decoy == answerIndex) {
       unique = false;
@@ -132,7 +135,7 @@ void generateRiddleUI() {
 
   // Fill in the answer options and record the index of the correct answer.
   for (int i = 0; i < totalOptions; i++) {
-    currentRiddle.options[i] = std::string(possibleAnswers[optionIndices[i]].word);
+    currentRiddle.options[i] = String(possibleAnswers[optionIndices[i]].word);
     if (optionIndices[i] == answerIndex) {
       currentRiddle.correctOption = i;
     }
@@ -166,14 +169,14 @@ void trainFemaleMarkov() {
 }
 
 // --- Generate a female name using the Markov chain ---
-std::string generateFemaleName() {
+String generateFemaleName() {
   char name[NAME_BUFFER_SIZE + 1];
   // Start with a random letter (a–z)
-  int startLetter = rand() % MAX_LETTERS;
+  int startLetter = random(0, MAX_LETTERS);
   name[0] = 'a' + startLetter;
   
   // Randomly choose a length between 4 and NAME_BUFFER_SIZE
-  int length = 4 + rand() % (NAME_BUFFER_SIZE - 3);
+  int length = random(4, NAME_BUFFER_SIZE);
   
   for (int i = 1; i < length; i++) {
     int prev = name[i - 1] - 'a';
@@ -185,11 +188,11 @@ std::string generateFemaleName() {
     }
     
     // Default next letter is random
-    int nextLetter = rand() % MAX_LETTERS;
+    int nextLetter = random(0, MAX_LETTERS);
     
     // If there is training data, select a weighted next letter
     if (total > 0) {
-      int rnd = rand() % total;
+      int rnd = random(0, total);
       int cumulative = 0;
       for (int j = 0; j < MAX_LETTERS; j++) {
         cumulative += femaleTransition[prev][j];
@@ -214,9 +217,9 @@ std::string generateFemaleName() {
   }
 
   if (!hasBadLetter) {
-    return std::string(name);
+    return String(name);
   } else {
-    return std::string(sampleFemaleNames[rand() % (sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
+    return String(sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
   }
 }
 
@@ -226,9 +229,22 @@ uint32_t generateRandomSeed()
   uint8_t  seedByteValue = 0;
   uint32_t seedWordValue = 0;
 
-  // SDL2: Use SDL_GetTicks and rand for seed generation
-  uint32_t seed = static_cast<uint32_t>(SDL_GetTicks()) ^ static_cast<uint32_t>(rand());
-  return seed;
+  for (uint8_t wordShift = 0; wordShift < 4; wordShift++)     // 4 bytes in a 32 bit word
+  {
+    for (uint8_t byteShift = 0; byteShift < 8; byteShift++)   // 8 bits in a byte
+    {
+      for (uint8_t bitSum = 0; bitSum <= 8; bitSum++)         // 8 samples of analog pin
+      {
+        seedBitValue = seedBitValue + (analogRead(seedPin) & 0x01);                // Flip the coin eight times, adding the results together
+      }
+      delay(1);                                                                    // Delay a single millisecond to allow the pin to fluctuate
+      seedByteValue = seedByteValue | ((seedBitValue & 0x01) << byteShift);        // Build a stack of eight flipped coins
+      seedBitValue = 0;                                                            // Clear out the previous coin value
+    }
+    seedWordValue = seedWordValue | (uint32_t)seedByteValue << (8 * wordShift);    // Build a stack of four sets of 8 coins (shifting right creates a larger number so cast to 32bit)
+    seedByteValue = 0;                                                             // Clear out the previous stack value
+  }
+  return (seedWordValue);
 
 }
 // Carve a horizontal corridor
@@ -238,11 +254,37 @@ void carveHorizontalCorridor(int x1, int x2, int y) {
     dungeonMap[y][x] = Floor;
   }
 }
-// Carve a vertical corridor
+
 void carveVerticalCorridor(int y1, int y2, int x) {
   if (y1 > y2) swap(y1, y2);
   for (int y = y1; y <= y2; y++) {
     dungeonMap[y][x] = Floor;
+  }
+}
+void getEdgeTowards(const Room& from, const Room& to, int& outX, int& outY) {
+  int dx = (to.x + to.width / 2) - (from.x + from.width / 2);
+  int dy = (to.y + to.height / 2) - (from.y + from.height / 2);
+
+  if (abs(dx) > abs(dy)) {
+    // Horizontal edge
+    outY = from.y + random(1, from.height - 2);
+    if (dx > 0) {
+      // Exit right
+      outX = from.x + from.width - 1;
+    } else {
+      // Exit left
+      outX = from.x;
+    }
+  } else {
+    // Vertical edge
+    outX = from.x + random(1, from.width - 2);
+    if (dy > 0) {
+      // Exit bottom
+      outY = from.y + from.height - 1;
+    } else {
+      // Exit top
+      outY = from.y;
+    }
   }
 }
 // Utility function to swap values
@@ -309,15 +351,13 @@ void updateButtonStates() {
   buttons.startPressedPrev = buttons.startPressed;
 
   // Read current states
-  // SDL2: Replace with SDL2 keyboard state
-  const Uint8* keystate = SDL_GetKeyboardState(NULL);
-  buttons.upPressed = keystate[SDL_SCANCODE_UP];
-  buttons.downPressed = keystate[SDL_SCANCODE_DOWN];
-  buttons.leftPressed = keystate[SDL_SCANCODE_LEFT];
-  buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT];
-  buttons.aPressed = keystate[SDL_SCANCODE_Z]; // Example: Z for A
-  buttons.bPressed = keystate[SDL_SCANCODE_X]; // Example: X for B
-  buttons.startPressed = keystate[SDL_SCANCODE_RETURN]; // Enter for Start
+  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
+  buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
+  buttons.aPressed = !digitalRead(BUTTON_A_PIN);
+  buttons.bPressed = !digitalRead(BUTTON_B_PIN);
+  buttons.leftPressed = !digitalRead(BUTTON_LEFT_PIN);
+  buttons.rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
+  buttons.startPressed = !digitalRead(BUTTON_START_PIN);
 }
 
 void handleUIStateTransitions() {
@@ -325,8 +365,12 @@ void handleUIStateTransitions() {
     switch (currentUIState) {
       case UI_NORMAL: 
         if (!statusScreen) {
-          currentUIState = UI_INVENTORY;
-          playRawSFX(12);
+          if (!showDialogue) {
+            currentUIState = UI_INVENTORY;
+            playRawSFX(12);
+          } else {
+            showDialogue = false;
+          }
         }
         break;
       case UI_INVENTORY: 
@@ -367,12 +411,6 @@ void handleUIStateTransitions() {
       case UI_RIDDLE:
         currentUIState = UI_RIDDLE;
         break;
-      case UI_LIGHTSOUT_PUZZLE:
-        currentUIState = UI_LIGHTSOUT_PUZZLE;
-        break;
-      case UI_PICROSS_PUZZLE:
-        currentUIState = UI_PICROSS_PUZZLE;
-        break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     playRawSFX(9);
@@ -380,26 +418,85 @@ void handleUIStateTransitions() {
   }
 }
 
-int blobanimcounter = 0;
 int damselanimcounter = 0;
-int teleporteranimcounter = 0;
 void updateAnimations() {
-  blobanimcounter += 1;
-  if (blobanimcounter >= 20) {
-    blobSprite = blobSprite == blobSpriteFrame1 ? blobSpriteFrame2 : blobSpriteFrame1;
-    blobanimcounter = 0;
-  }
   
   damselanimcounter += 1;
-  if (damselanimcounter >= (50 + rand() % (90 - 50))) {
+  if (damselanimcounter >= random(50, 90)) {
     damselSprite = damsel[0].dead ? damselSpriteDead : damselSprite;
     damselanimcounter = 0;
   }
 
-  teleporteranimcounter += 1;
-  if (teleporteranimcounter >= 5) {
-    teleporterSprite = teleporterSprite == teleporterSpriteF1 ? teleporterSpriteF2 : teleporterSprite == teleporterSpriteF2 ? teleporterSpriteF3 : teleporterSprite == teleporterSpriteF3 ? teleporterSpriteF4 : teleporterSprite == teleporterSpriteF4 ? teleporterSpriteF1 : teleporterSprite;
-    teleporteranimcounter = 0;
+  // Enemy animation update logic
+  static int frameIndex[30] = {0};
+  static int frameTimer[30] = {0};
+  for (int i = 0; i < maxEnemies; ++i) {
+    Enemy& e = enemies[i];
+    int animLength = 1;
+    const Frame* anim = nullptr;
+    if (e.name == "blob") {
+      anim = blobAnimation;
+      animLength = blobAnimationLength;
+    } else if (e.name == "teleporter") {
+      anim = teleporterAnimation;
+      animLength = teleporterAnimationLength;
+    } else if (e.name == "batguy") {
+      anim = batguyAnimation;
+      animLength = batguyAnimationLength;
+    } else if (e.name == "shooter") {
+      anim = shooterAnimation;
+      animLength = shooterAnimationLength;
+    } else if (e.name == "clock") {
+      anim = clockAnimation;
+      animLength = clockAnimationLength;
+    } else if (e.name == "boss") {
+      if (bossState == Idle) {
+        if (playerX < enemies[0].x) {
+          anim = bossIdleAnimationFlipped;
+          animLength = bossIdleAnimationLength;
+        } else if (playerX >= enemies[0].x) {
+          anim = bossIdleAnimation;
+          animLength = bossIdleAnimationLength;
+        }
+      } else if (bossState == Floating) {
+        anim = bossFightAnimation;
+        animLength = bossFightAnimationLength;
+      } else if (bossState == Shooting) {
+        if (playerX < enemies[0].x) {
+          anim = bossIdleAnimationFlipped;
+          animLength = bossIdleAnimationLength;
+        } else if (playerX >= enemies[0].x) {
+          anim = bossIdleAnimation;
+          animLength = bossIdleAnimationLength;
+        }
+      } else if (bossState == Summoning) {
+        anim = bossFightAnimation;
+        animLength = bossFightAnimationLength;
+      } else if (bossState == Enraged) {
+        anim = bossFightAnimation;
+        animLength = bossFightAnimationLength;
+      } else if (bossState == Beaten) {
+        anim = bossBeatenAnimation;
+        animLength = bossBeatenAnimationLength;
+      }
+    }
+    if (anim) {
+      frameTimer[i]++;
+      if (frameTimer[i] >= anim[frameIndex[i]].length) {
+        if (anim != bossBeatenAnimation) {
+          frameTimer[i] = 0;
+          frameIndex[i] = (frameIndex[i] + 1) % animLength;
+          e.sprite = anim[frameIndex[i]].frame;
+        } else {
+          // Boss beaten animation does not loop
+          if (frameIndex[i] < animLength - 1) {
+            frameTimer[i] = 0;
+            frameIndex[i]++;
+            e.sprite = anim[frameIndex[i]].frame;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -411,13 +508,13 @@ void renderUI() {
   snprintf(HP, sizeof(HP), "%d", playerHP);
   snprintf(FOOD, sizeof(FOOD), "%d", playerFood);
 
-  display.setTextColor(15, 0);
+  display.setTextColor(15);
   display.setTextSize(1);
   display.setCursor(5, 117);
   display.print("HP:");
   display.setCursor(21, 117);
   display.print(HP);
-  display.setTextColor(textColor, 0);
+  display.setTextColor(textColor);
 
   if (starving) {
     blinkTick += 1;
@@ -429,7 +526,7 @@ void renderUI() {
     textColor = 15; // Default color when not starving
   }
 
-  display.setTextColor(textColor, 0);
+  display.setTextColor(textColor);
 
   display.setCursor(46, 117);
   display.print("FOOD:");
@@ -467,7 +564,7 @@ bool isVisible(int x0, int y0, int x1, int y1) {
 
     // Now check for obstruction
     TileTypes tile = dungeonMap[y0][x0];
-    if (tile == Wall)
+    if (tile == Wall || tile == DoorClosed)
       return false;
 
     // Move to the next tile along the line
@@ -489,40 +586,40 @@ bool isWalkable(int x, int y) {
   TileTypes tile = dungeonMap[y][x];
   // Walkable if floor or items/stairs/exits (adjust as needed)
   return (tile == Floor || tile == StartStairs || tile == Exit ||
-          tile == Potion || tile == Map || tile == MushroomTile);
+          tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
+          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen);
 }
 
-void drawWrappedText(int x, int y, int maxWidth, const std::string &text) {
-  display.setCursor(x, y);
+void drawWrappedText(int x, int y, int maxWidth, const String &text) {
+  u8g2_for_adafruit_gfx.setCursor(x, y);
 
   int lineHeight = 10; // Adjust based on font size
   int cursorX = x;
   int cursorY = y;
-  std::string currentLine = "";
-  std::string word = "";
-  const int charWidth = 6; // Estimate: 6px per character for default font
+  String currentLine = "";
+  String word = "";
 
-  for (size_t i = 0; i < text.length(); i++) {
+  for (unsigned int i = 0; i < text.length(); i++) {
     char c = text[i];
 
     if (c == ' ' || c == '\n') {
-      int wordWidth = static_cast<int>((currentLine.length() + word.length()) * charWidth);
+      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width((currentLine + word).c_str());
 
       if (wordWidth > maxWidth) {
         // Print the current line before adding a new word
-        display.setCursor(cursorX, cursorY);
-        display.print(currentLine.c_str());
+        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+        u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
-        currentLine = word + " ";
+        currentLine = word + ' '; // Move the word to the new line
       } else {
-        currentLine += word + " ";
+        currentLine += word + ' ';
       }
 
       word = "";
 
-      if (c == '\n') {
-        display.setCursor(cursorX, cursorY);
-        display.print(currentLine.c_str());
+      if (c == '\n') {  // Force a new line on explicit newline characters
+        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+        u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
         currentLine = "";
       }
@@ -532,16 +629,16 @@ void drawWrappedText(int x, int y, int maxWidth, const std::string &text) {
   }
 
   // Print the remaining text
-  if (!currentLine.empty() || !word.empty()) {
-    display.setCursor(cursorX, cursorY);
-    display.print((currentLine + word).c_str());
+  if (currentLine.length() > 0 || word.length() > 0) {
+    u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+    u8g2_for_adafruit_gfx.print(currentLine + word);
   }
 }
 
 void updateScreenShake() {
   if (shakeDuration > 0) {
-    offsetX += (rand() % (2 * shakeIntensity + 1)) - shakeIntensity;
-    offsetY += (rand() % (2 * shakeIntensity + 1)) - shakeIntensity;
+    offsetX += random(-shakeIntensity, shakeIntensity + 1);
+    offsetY += random(-shakeIntensity, shakeIntensity + 1);
     shakeDuration--;
   }
 }
@@ -549,4 +646,41 @@ void updateScreenShake() {
 void triggerScreenShake(int duration, int intensity) {
   shakeDuration = duration;
   shakeIntensity = intensity;
+}
+
+bool nearTile(TileTypes tile) {
+  int rPx = round(playerX);
+  int rPy = round(playerY);
+  bool isNear = false;
+  for (int dx = -1; dx <= 1 && !isNear; dx++) {
+    for (int dy = -1; dy <= 1 && !isNear; dy++) {
+      int cx = rPx + dx;
+      int cy = rPy + dy;
+      if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight && dungeonMap[cy][cx] == tile) {
+        isNear = true;
+      }
+    }
+  }
+  return isNear;
+}
+
+void checkIfDeadFrom(const String &cause) {
+  if (playerHP <= 0) {
+    if (!equippedRiddleStone) {
+      playRawSFX(10);
+      deathCause = cause;
+      buttons.bPressedPrev = true;
+      buttons.aPressedPrev = true;
+      showDeathScreen = true;
+    } else {
+      currentUIState = UI_RIDDLE;
+      equippedRiddleStone = false;
+      for (int i = 0; i < inventorySize; i++) {
+        if (inventoryPages[2].items[i].itemResult == "Solve this riddle!") {
+          removeItemFromInventory(2, i);
+          break;
+        }
+      }
+    }
+  }
 }
