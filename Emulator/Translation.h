@@ -9,6 +9,7 @@
 #include <utility>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include <algorithm>
 #include <map>
 #include <chrono>
 #include <SDL2/SDL.h>
@@ -21,6 +22,7 @@
 #define u8g2_font_profont10_mf nullptr
 #define INPUT_PULLUP 0
 inline void pinMode(int, int) {}
+constexpr size_t AUDIO_BLOCK_SAMPLES = 128;
 
 // Store program start time
 inline auto millis_start = std::chrono::steady_clock::now();
@@ -42,6 +44,13 @@ constexpr int SD_CS = 0; // dummy for SDL2
 namespace SD {
     inline bool begin(int) { return true; }
     inline bool exists(const std::string& path) { return std::filesystem::exists(path); }
+    class File {
+    public:
+        bool valid = true;
+        size_t size() const { return 0; }
+        operator bool() const { return valid; }
+    };
+    inline File open(const std::string&) { return File{}; }
 }
 
 // --- Serial ---
@@ -51,6 +60,12 @@ public:
     template<typename T> void print(const T& val) { std::cout << val; }
     template<typename T> void println(const T& val) { std::cout << val << std::endl; }
     void println() { std::cout << std::endl; }
+    template<typename... Args>
+    void printf(const char* fmt, Args... args){
+        char buf[512];
+        snprintf(buf,sizeof(buf),fmt,args...);
+        std::cout << buf;
+    }
 };
 inline SerialClass Serial;
 
@@ -148,11 +163,27 @@ public:
     void stop(){if(channel!=-1) Mix_HaltChannel(channel); channel=-1;}
     bool isPlaying(){return channel!=-1 && Mix_Playing(channel)!=0;}
 };
-
-class AudioPlayQueue{public:Mix_Chunk* chunk=nullptr;void play(uint8_t* data=nullptr,size_t len=0){if(chunk) Mix_PlayChannel(-1,chunk,0);} void setChunk(Mix_Chunk* c){chunk=c;}};
-class AudioMixer4{public:float gainLevel=1.0f; void gain(float g){gainLevel=g;}};
+class AudioPlayQueue{
+public:
+    Mix_Chunk* chunk=nullptr;
+    bool available(){ return true; }
+    int16_t* getBuffer(){ return nullptr; }
+    void playBuffer(){ if(chunk) Mix_PlayChannel(-1,chunk,0); }
+    void setChunk(Mix_Chunk* c){chunk=c;}
+};class AudioPlayQueue{public:Mix_Chunk* chunk=nullptr;void play(uint8_t* data=nullptr,size_t len=0){if(chunk) Mix_PlayChannel(-1,chunk,0);} void setChunk(Mix_Chunk* c){chunk=c;}};
+class AudioMixer4{
+public:
+    float gainLevel[4] = {1.0f,1.0f,1.0f,1.0f};
+    void gain(int ch, float g){ if(ch>=0 && ch<4) gainLevel[ch]=g; }
+};
 class AudioOutputI2S{public: void begin(){};};
-class AudioControlSGTL5000{public: void enable(){};};
+inline void AudioMemory(int) {}
+
+class AudioControlSGTL5000{
+public:
+    void enable(){}
+    void volume(float v){}  // add volume stub
+};
 class AudioConnection{public: template<typename A,typename B> AudioConnection(A&a,int aCh,B&b,int bCh){};};
 
 inline AudioPlayQueue queue[MAX_SIMULTANEOUS_SFX];

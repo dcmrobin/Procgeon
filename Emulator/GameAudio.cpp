@@ -8,11 +8,11 @@
 #include <algorithm>
 
 // Define the audio system objects
-AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
-AudioMixer4         mixer1;
-AudioMixer4         musicMixer; // New mixer for music
-AudioOutputI2S      audioOutput;
-AudioPlaySdWav      playWav1;
+//AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
+//AudioMixer4         mixer1;
+//AudioMixer4         musicMixer; // New mixer for music
+//AudioOutputI2S      audioOutput;
+//AudioPlaySdWav      playWav1;
 
 // Create audio connections
 AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
@@ -23,7 +23,7 @@ AudioConnection     patchCord5(mixer1, 0, musicMixer, 0); // SFX to musicMixer
 AudioConnection     patchCord6(playWav1, 0, musicMixer, 1); // WAV to musicMixer
 AudioConnection     patchCord7(musicMixer, 0, audioOutput, 0);
 AudioConnection     patchCord8(musicMixer, 0, audioOutput, 1);
-AudioControlSGTL5000 sgtl5000_1;
+//AudioControlSGTL5000 sgtl5000_1;
 
 int ambientNoiseLevel = 0;
 
