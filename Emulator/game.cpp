@@ -21,7 +21,7 @@ int noiseLevelDiffuseTimer = 0;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
-const unsigned long frameDelay = 20; // Update every 100ms
+const unsigned long frameDelay = 10;
 
 
 void resetGame() {
