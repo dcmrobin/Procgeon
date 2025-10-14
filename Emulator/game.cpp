@@ -106,7 +106,7 @@ void resetGame() {
   spawnEnemies(false);
 }
 
-void setup() {
+void game_setup() {
   Serial.begin(9600);
   /*while (!Serial && millis() < 4000); // Wait for Serial Monitor
   if (CrashReport) {
@@ -116,7 +116,7 @@ void setup() {
   initAudio();
 
   // Initialize SD card
-  if (!SD::begin(SD_CS)) {
+  if (!SD.begin(SD_CS)) {
     Serial.println("SD initialization failed!");
     while (1);  // Stop execution
   }
@@ -151,7 +151,7 @@ void setup() {
       Serial.println("bossfight.wav is playing");
   }*/
 
-  //if (SD::exists("bossfight.wav")) {
+  //if (SD.exists("bossfight.wav")) {
   //  Serial.println("bossfight.wav does exist");
   //} else {
   //  Serial.println("bossfight.wav does not exist");
@@ -183,7 +183,7 @@ void setup() {
   playRawSFX(11);
 }
 
-void loop() {
+void game_loop() {
 
   serviceRawSFX();
 
@@ -768,7 +768,7 @@ void updateBossfight() {
     case Floating: {
       enemies[0].damage = 20;
       if (!playWav1.isPlaying()) {
-        if (SD::exists("bossfight.wav")) {
+        if (SD.exists("bossfight.wav")) {
           if (!playWav1.play("bossfight.wav")) {
             Serial.println("Failed to play bossfight.wav");
           }
@@ -841,7 +841,7 @@ void updateBossfight() {
     case Enraged: {
       enemies[0].damage = 40;
       if (!playWav1.isPlaying()) {
-        if (SD::exists("alternateBossfight.wav")) {
+        if (SD.exists("alternateBossfight.wav")) {
           if (!playWav1.play("alternateBossfight.wav")) {
             Serial.println("Failed to play alternateBossfight.wav");
           }

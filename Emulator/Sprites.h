@@ -3,8 +3,9 @@
 
 #include <string>
 #include <cstdint>
+#include "Translation.h"
 
-// change unsigned char to uint8_t
+// change unsigned char to uint8_t maybe?
 
 struct Frame {
   const unsigned char* frame;

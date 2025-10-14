@@ -170,7 +170,7 @@ void freeSFX() {
 
 bool loadSFXtoRAM() {
     for (int i = 0; i < NUM_SFX; i++) {
-        File f = SD::open(sfxFilenames[i]);
+        auto f = SD.open(sfxFilenames[i]);
         if (!f) {
             Serial.printf("Failed to open %s\n", sfxFilenames[i]);
             return false;

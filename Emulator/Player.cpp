@@ -274,7 +274,7 @@ void handleInput() {
     }
   }
 
-  if (Serial.available() > 0) {// for debug purposes
+  /*if (Serial.available() > 0) {// for debug purposes
     char input = Serial.read();
     if (input == '7') {
       setTile((int)playerX, (int)playerY, Exit);
@@ -300,7 +300,7 @@ void handleInput() {
     } else if (input == '1') {
       setTile((int)playerX, (int)playerY, RingTile);
     }
-  }
+  }*/
 
   int rNewX = round(newX);
   int rNewY = round(newY);
