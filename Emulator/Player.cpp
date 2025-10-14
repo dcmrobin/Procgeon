@@ -366,7 +366,7 @@ void handleInput() {
           if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight) {
             if (dungeonMap[cy][cx] == ChestTile) {
               playRawSFX(12);
-              OpenChest(cy, cx, dy);
+              OpenChest(cy, cx, dy, false);
               return;
             }
           }
@@ -386,7 +386,7 @@ void handleInput() {
           playRawSFX(13);
         } else if (dungeonMap[ty][tx] == ChestTile) {
           playRawSFX(12);
-          OpenChest(ty, tx, targetDY);
+          OpenChest(ty, tx, targetDY, false);
         } else if (dungeonMap[ty][tx] == Exit) {
           playRawSFX(11);
           if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
@@ -847,10 +847,10 @@ void handleRingEffects() {
     }
 }
 
-void OpenChest(int cy, int cx, int dx) {
+void OpenChest(int cy, int cx, int dx, bool solved) {
   // Require solving a random puzzle before opening
-  if (!launchRandomPuzzle()) {
-    return; // Player did not solve puzzle, do not open chest
+  if (!solved) {
+    launchRandomPuzzle(cy, cx, dx); // Player did not solve puzzle, do not open chest
   }
   // Open the chest: remove chest and spawn loot in 3x3 area
   playRawSFX(3); // Play pickup sound

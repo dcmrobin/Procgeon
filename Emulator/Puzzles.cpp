@@ -1,5 +1,6 @@
 #include "Puzzles.h"
 #include "Sprites.h"
+#include "Player.h"
 #include "HelperFunctions.h"
 
 bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
@@ -138,23 +139,24 @@ bool isPicrossSolved() {
     return true;
 }
 
-bool launchPicrossPuzzle() {
+bool launchPicrossPuzzle(int cy, int cx, int dx) {
     resetPicrossPuzzle();
-    while (!isPicrossSolved()) {
+    if (!isPicrossSolved()) {
         drawPicrossPuzzle();
         handlePicrossInput();
         delay(20); // Frame sync
+    } else {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(15);
+        display.setCursor(20, 50);
+        display.print("Solved!");
+        display.display();
+        delay(800);
+        currentUIState = UI_NORMAL;
+        OpenChest(cy, cx, dx, true);
+        return true;
     }
-    // Optionally show a "Solved!" message
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(15);
-    display.setCursor(20, 50);
-    display.print("Solved!");
-    display.display();
-    delay(800);
-    currentUIState = UI_NORMAL; // Return to normal UI
-    return true;
 }
 
 void resetLightsOutPuzzle() {
@@ -245,28 +247,30 @@ bool isLightsOutSolved() {
     return true;
 }
 
-bool launchLightsOutPuzzle() {
+bool launchLightsOutPuzzle(int cy, int cx, int dx) {
     resetLightsOutPuzzle();
-    while (!isLightsOutSolved()) {
+    if (!isLightsOutSolved()) {
         drawLightsOutPuzzle();
         handleLightsOutInput();
         delay(20);
+    } else {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(15);
+        display.setCursor(20, 50);
+        display.print("Solved!");
+        display.display();
+        delay(800);
+        currentUIState = UI_NORMAL;
+        OpenChest(cy, cx, dx, true);
+        return true;
     }
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(15);
-    display.setCursor(20, 50);
-    display.print("Solved!");
-    display.display();
-    delay(800);
-    currentUIState = UI_NORMAL;
-    return true;
 }
 
-bool launchRandomPuzzle() {
+bool launchRandomPuzzle(int cy, int cx, int dx) {
     if (random(0, 2) == 0) {
-        return launchPicrossPuzzle();
+        return launchPicrossPuzzle(cy, cx, dx);
     } else {
-        return launchLightsOutPuzzle();
+        return launchLightsOutPuzzle (cy, cx, dx);
     }
 }

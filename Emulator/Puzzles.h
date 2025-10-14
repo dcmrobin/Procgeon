@@ -25,9 +25,9 @@ void generateLightsOutPuzzle();
 void drawLightsOutPuzzle();
 void handleLightsOutInput();
 bool isLightsOutSolved();
-bool launchLightsOutPuzzle();
+bool launchLightsOutPuzzle(int cy, int cx, int dx);
 
 // Main puzzle launcher
-bool launchRandomPuzzle();
+bool launchRandomPuzzle(int cy, int cx, int dx);
 
 #endif // PUZZLES_H
