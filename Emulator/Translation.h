@@ -20,7 +20,7 @@
     #endif
 #endif
 
-#ifndef ARDUINO
+/*#ifndef ARDUINO
     #include <cstdlib>
     #include <algorithm>
 
@@ -38,7 +38,7 @@
     inline T constrain(T val, T low, T high) {
         return std::max(low, std::min(high, val));
     }
-#endif
+#endif*/
 // --- end Arduino compatibility section ---
 
 // Single-header Arduino/Teensy -> SDL2 translation shim.
@@ -97,10 +97,39 @@ inline unsigned long millis() {
         std::chrono::duration_cast<std::chrono::milliseconds>(now - millis_start).count()
     );
 }
-inline int random(int min, int max) { return (max > min) ? min + std::rand() % (max - min) : min; }
-inline int random(int max) { return (max > 0) ? std::rand() % max : 0; }
-inline void randomSeed(unsigned long seed) { std::srand(static_cast<unsigned int>(seed)); }
-inline float constrain(float val, float min, float max) { if (val < min) return min; if (val > max) return max; return val; }
+
+// Fixed: Remove inline to avoid multiple definition issues
+/*int random(int min, int max);
+int random(int max);
+void randomSeed(unsigned long seed);
+float constrain(float val, float min, float max);*/
+
+// Implementations (keep inline for header-only use)
+inline int random(int min, int max) { 
+    return (max > min) ? min + std::rand() % (max - min) : min; 
+}
+
+inline int random(int max) { 
+    return (max > 0) ? std::rand() % max : 0; 
+}
+
+inline void randomSeed(unsigned long seed) { 
+    std::srand(static_cast<unsigned int>(seed)); 
+}
+
+inline float constrain(float val, float min, float max) { 
+    if (val < min) return min; 
+    if (val > max) return max; 
+    return val; 
+}
+
+// Template version for other types
+template<typename T>
+inline T constrain(T val, T min, T max) {
+    if (val < min) return min;
+    if (val > max) return max;
+    return val;
+}
 
 // --- SD emulation ---
 constexpr int SD_CS = 0; // dummy for SDL2
@@ -316,12 +345,36 @@ inline bool initSDL2Audio(int freq = 44100, Uint16 format = MIX_DEFAULT_FORMAT, 
     Mix_AllocateChannels(MAX_SIMULTANEOUS_SFX * 2);
     return true;
 }
-inline Mix_Chunk* loadWav(const std::string& path) { Mix_Chunk* c = Mix_LoadWAV(path.c_str()); if (!c) std::printf("Failed to load WAV: %s\n", path.c_str()); return c; }
+
+inline bool initSDL2TTF() {
+    return TTF_Init() == 0;
+}
+
+inline void closeSDL2TTF() {
+    TTF_Quit();
+}
+
+inline void closeSDL2Audio() {
+    Mix_CloseAudio();
+}
+
+inline Mix_Chunk* loadWav(const std::string& path) { 
+    Mix_Chunk* c = Mix_LoadWAV(path.c_str()); 
+    if (!c) std::printf("Failed to load WAV: %s\n", path.c_str()); 
+    return c; 
+}
 
 // --- U8G2 minimal SDL2-backed implementation (TTF) ---
 class U8G2_FOR_ADAFRUIT_GFX {
 public:
     U8G2_FOR_ADAFRUIT_GFX() : cursorX(0), cursorY(0), renderer(nullptr), currentFont(nullptr) {}
+    ~U8G2_FOR_ADAFRUIT_GFX() {
+        if (currentFont) {
+            TTF_CloseFont(currentFont);
+            currentFont = nullptr;
+        }
+    }
+    
     void begin() {}
     void setForegroundColor(int) { (void)0; }
     template<typename T> void begin(T&) { /* accept Adafruit display parameter and ignore */ }
@@ -329,9 +382,14 @@ public:
     void setRenderer(SDL_Renderer* ren) { renderer = ren; }
     bool setFont(const char* fontPath, int fontSize = 16) {
         if (!renderer) return false;
+        if (currentFont) {
+            TTF_CloseFont(currentFont);
+            currentFont = nullptr;
+        }
         TTF_Font* fnt = TTF_OpenFont(fontPath, fontSize);
         if (!fnt) return false;
-        currentFont = fnt; return true;
+        currentFont = fnt; 
+        return true;
     }
 
     void setCursor(int x, int y) { cursorX = x; cursorY = y; }

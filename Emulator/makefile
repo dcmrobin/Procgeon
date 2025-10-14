@@ -2,7 +2,7 @@
 CXX := g++
 CXXFLAGS := -Wall -std=c++17 -O2 -I. -I./SDL2/include
 LDFLAGS := -L./SDL2/lib
-LDLIBS := -lSDL2
+LDLIBS := -lSDL2 -lSDL2_ttf -lSDL2_mixer
 
 # Directories
 BUILD_DIR := build
@@ -11,6 +11,8 @@ EXEC := $(BUILD_DIR)/emulator.exe
 
 # DLL paths
 SDL_DLL_SOURCE := SDL2/bin/SDL2.dll
+SDL_TTF_DLL_SOURCE := SDL2/bin/SDL2_ttf.dll
+SDL_MIXER_DLL_SOURCE := SDL2/bin/SDL2_mixer.dll
 GCC_DLL_SOURCE := /mingw64/bin/libgcc_s_seh-1.dll
 STDCPP_DLL_SOURCE := /mingw64/bin/libstdc++-6.dll
 PTHREAD_DLL_SOURCE := /mingw64/bin/libwinpthread-1.dll
@@ -21,7 +23,6 @@ OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
 # Default target
 all: $(EXEC) copy_dll
-
 
 # Build executable
 $(EXEC): $(OBJS)
@@ -34,6 +35,8 @@ $(EXEC): $(OBJS)
 copy_dll:
 	@echo "Copying DLLs to $(BUILD_DIR)..."
 	@cp "$(SDL_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2.dll not found"
+	@cp "$(SDL_TTF_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_ttf.dll not found"
+	@cp "$(SDL_MIXER_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_mixer.dll not found"
 	@cp "$(GCC_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libgcc_s_seh-1.dll not found"
 	@cp "$(STDCPP_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libstdc++-6.dll not found"
 	@cp "$(PTHREAD_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libwinpthread-1.dll not found"

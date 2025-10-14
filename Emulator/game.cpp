@@ -129,14 +129,14 @@ void game_setup() {
     Serial.println("SFX loaded successfully");
   }
 
-  Serial.println("type 8: teleport damsel to player if damsel is available");
+  /*Serial.println("type 8: teleport damsel to player if damsel is available");
   Serial.println("type 7: make tile player is on into the exit");
   Serial.println("type 6: add potion to inventory");
   Serial.println("type 5: make tile player is on into a riddlestone");
   Serial.println("type 4: make tile player is on into a mushroom");
   Serial.println("type 3: make tile player is on into an armor");
   Serial.println("type 2: make tile player is on into a scroll");
-  Serial.println("type 1: make tile player is on into a ring");
+  Serial.println("type 1: make tile player is on into a ring");*/
 
   // Play a WAV file
   /*if (playWav1.play("bossfight.wav")) {
