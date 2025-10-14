@@ -448,6 +448,6 @@ private:
         return TTF_FontHeight(currentFont);
     }
 };
-
+extern U8G2_FOR_ADAFRUIT_GFX u8g2;
 // end include guard
 #endif // TRANSLATION_H
