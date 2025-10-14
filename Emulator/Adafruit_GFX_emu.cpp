@@ -338,7 +338,7 @@ void Adafruit_GFX::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color
 
 // Text functions
 void Adafruit_GFX::setTextSize(uint8_t s) { textsize = (s > 0) ? s : 1; }
-void Adafruit_GFX::setTextColor(uint16_t c) { textcolor = textbgcolor = c; }
+void Adafruit_GFX::setTextColor(uint16_t c) { textcolor = textbgcolor = c; textbgcolor = 0; }
 void Adafruit_GFX::setTextColor(uint16_t c, uint16_t b) { textcolor = c; textbgcolor = b; }
 void Adafruit_GFX::setTextWrap(bool w) { wrap = w; }
 void Adafruit_GFX::setCursor(int16_t x, int16_t y) { cursor_x = x; cursor_y = y; }
