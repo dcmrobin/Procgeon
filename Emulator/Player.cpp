@@ -850,23 +850,24 @@ void handleRingEffects() {
 void OpenChest(int cy, int cx, int dx, bool solved) {
   // Require solving a random puzzle before opening
   if (!solved) {
-    launchRandomPuzzle(cy, cx, dx); // Player did not solve puzzle, do not open chest
-  }
-  // Open the chest: remove chest and spawn loot in 3x3 area
-  playRawSFX(3); // Play pickup sound
-  dungeonMap[cy][cx] = Floor;
-  for (int ldx = -1; ldx <= 1; ldx++) {
-    for (int ldy = -1; ldy <= 1; ldy++) {
-      int lx = cx + ldx;
-      int ly = cy + ldy;
-      if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-        // Use rarity-based loot spawning - chests can contain items up to rarity 4
-        // This allows for better loot from chests compared to random dungeon spawns
-        if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
-          dungeonMap[ly][lx] = getRandomLootTile(5); // Max rarity 5 for chest loot
+    launchRandomPuzzle(cy, cx, dx);
+  } else {
+    // Open the chest: remove chest and spawn loot in 3x3 area
+    playRawSFX(3); // Play pickup sound
+    dungeonMap[cy][cx] = Floor;
+    for (int ldx = -1; ldx <= 1; ldx++) {
+      for (int ldy = -1; ldy <= 1; ldy++) {
+        int lx = cx + ldx;
+        int ly = cy + ldy;
+        if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
+          // Use rarity-based loot spawning - chests can contain items up to rarity 4
+          // This allows for better loot from chests compared to random dungeon spawns
+          if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
+            dungeonMap[ly][lx] = getRandomLootTile(5); // Max rarity 5 for chest loot
+          }
         }
       }
     }
+    dx = 2; // break outer loop
   }
-  dx = 2; // break outer loop
 }
