@@ -352,13 +352,21 @@ void updateButtonStates() {
   buttons.startPressedPrev = buttons.startPressed;
 
   // Read current states
-  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
+  /*buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
   buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
   buttons.aPressed = !digitalRead(BUTTON_A_PIN);
   buttons.bPressed = !digitalRead(BUTTON_B_PIN);
   buttons.leftPressed = !digitalRead(BUTTON_LEFT_PIN);
   buttons.rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
-  buttons.startPressed = !digitalRead(BUTTON_START_PIN);
+  buttons.startPressed = !digitalRead(BUTTON_START_PIN);*/
+  const Uint8* keystate = SDL_GetKeyboardState(NULL);
+  buttons.upPressed = keystate[SDL_SCANCODE_UP];
+  buttons.downPressed = keystate[SDL_SCANCODE_DOWN];
+  buttons.leftPressed = keystate[SDL_SCANCODE_LEFT];
+  buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT];
+  buttons.aPressed = keystate[SDL_SCANCODE_Z]; // Example: Z for A
+  buttons.bPressed = keystate[SDL_SCANCODE_X]; // Example: X for B
+  buttons.startPressed = keystate[SDL_SCANCODE_RETURN]; // Enter for Start
 }
 
 void handleUIStateTransitions() {
