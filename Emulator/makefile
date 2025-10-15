@@ -29,9 +29,11 @@ GCC_DLL_SOURCE := /mingw64/bin/libgcc_s_seh-1.dll
 STDCPP_DLL_SOURCE := /mingw64/bin/libstdc++-6.dll
 PTHREAD_DLL_SOURCE := /mingw64/bin/libwinpthread-1.dll
 
-# Fonts directory
+# Resource directories
 FONTS_SOURCE := Fonts
 FONTS_TARGET := $(BUILD_DIR)/Fonts
+AUDIO_SOURCE := Audio
+AUDIO_TARGET := $(BUILD_DIR)/Audio
 
 # Auto-discover source files
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
@@ -44,17 +46,17 @@ release:
 	@echo "Building release version..."
 	@mkdir -p build/release
 	$(CXX) $(CXXFLAGS) $(SRCS) -o build/release/emulator.exe $(LDFLAGS) $(LDLIBS)
-	@$(MAKE) copy_dll_copy_fonts BUILD_DIR=build/release
+	@$(MAKE) copy_resources BUILD_DIR=build/release
 
 # Debug build
 debug:
 	@echo "Building debug version..."
 	@mkdir -p build/debug
 	$(CXX) $(CXXFLAGS) $(SRCS) -o build/debug/emulator-debug.exe $(LDFLAGS) $(LDLIBS)
-	@$(MAKE) copy_dll_copy_fonts BUILD_DIR=build/debug
+	@$(MAKE) copy_resources BUILD_DIR=build/debug
 
 # Combined copy targets
-copy_dll_copy_fonts: copy_dll copy_fonts
+copy_resources: copy_dll copy_fonts copy_audio
 
 # Copy necessary DLLs to build directory
 copy_dll:
@@ -74,6 +76,16 @@ copy_fonts:
 		echo "Fonts copied successfully"; \
 	else \
 		echo "WARNING: Fonts directory not found"; \
+	fi
+
+# Copy Audio folder to build directory
+copy_audio:
+	@echo "Copying Audio folder to $(BUILD_DIR)..."
+	@if [ -d "$(AUDIO_SOURCE)" ]; then \
+		cp -r "$(AUDIO_SOURCE)" "$(AUDIO_TARGET)" && \
+		echo "Audio copied successfully"; \
+	else \
+		echo "WARNING: Audio directory not found"; \
 	fi
 
 # Clean all build artifacts (both release and debug)
@@ -132,10 +144,14 @@ help:
 	@echo "    Release: build/release/"
 	@echo "    Debug:   build/debug/"
 	@echo ""
+	@echo "  Resource directories copied:"
+	@echo "    - Fonts/ -> build/[type]/Fonts/"
+	@echo "    - Audio/ -> build/[type]/Audio/"
+	@echo ""
 	@echo "  Debug features:"
 	@echo "    - Debug builds include -g flag for debug symbols"
 	@echo "    - Debug builds define DEBUG macro for debug prints"
 	@echo "    - Use #ifdef DEBUG in code for debug-only sections"
 
 # Phony targets
-.PHONY: all release debug clean clean-debug clean-release run run-debug gdb help copy_dll copy_fonts copy_dll_copy_fonts
+.PHONY: all release debug clean clean-debug clean-release run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources
