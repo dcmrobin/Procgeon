@@ -10,14 +10,39 @@ const int HEIGHT = 128;
 Adafruit_SSD1327 display; // Global display object
 
 int main() {
-    SDL_Init(SDL_INIT_VIDEO);
+    // Initialize SDL with both video and audio
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        printf("SDL initialization failed: %s\n", SDL_GetError());
+        return 1;
+    }
+    
+    // Initialize SDL audio system
+    if (!initSDL2Audio()) {
+        printf("SDL audio initialization failed: %s\n", SDL_GetError());
+        // Don't return - let it continue without audio
+    } else {
+        printf("SDL audio initialized successfully\n");
+    }
     
     SDL_Window* window = SDL_CreateWindow("SSD1327 Emulator", 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
         WIDTH * 4, HEIGHT * 4, SDL_WINDOW_SHOWN);
         
+    if (!window) {
+        printf("Window creation failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+    
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 
         SDL_RENDERER_ACCELERATED);
+
+    if (!renderer) {
+        printf("Renderer creation failed: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
 
     display.begin();
     game_setup();  // Initialize game
@@ -55,6 +80,9 @@ int main() {
         SDL_RenderPresent(renderer);
         SDL_Delay(3); // ~30 FPS
     }
+
+    // Cleanup
+    closeSDL2Audio();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

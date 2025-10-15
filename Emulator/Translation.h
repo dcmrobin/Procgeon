@@ -274,6 +274,23 @@ public:
     void play() { if (chunk) channel = Mix_PlayChannel(-1, chunk, 0); }
     void stop() { if (channel != -1) Mix_HaltChannel(channel); channel = -1; }
     bool isPlaying() { return channel != -1 && Mix_Playing(channel) != 0; }
+    void volume(float level) {
+        // level should be between 0.0 (silent) and 1.0 (full volume)
+        int mixVolume = static_cast<int>(level * MIX_MAX_VOLUME);
+        mixVolume = constrain(mixVolume, 0, MIX_MAX_VOLUME);
+        
+        if (chunk) {
+            Mix_VolumeChunk(chunk, mixVolume);
+        }
+        // Also set volume for currently playing channel
+        if (channel != -1) {
+            Mix_Volume(channel, mixVolume);
+        }
+    }
+    
+    void setVolume(float level) {
+        volume(level);
+    }
 };
 
 class AudioPlayQueue {

@@ -7,12 +7,10 @@ BUILD_TYPE ?= release
 # Conditional flags based on build type
 ifeq ($(BUILD_TYPE), debug)
     CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -I. -I./SDL2/include
-    BUILD_DIR := build/debug
-    EXEC := $(BUILD_DIR)/emulator-debug.exe
+    EXEC := build/emulator-debug.exe
 else
     CXXFLAGS := -Wall -std=c++17 -O2 -I. -I./SDL2/include
-    BUILD_DIR := build/release
-    EXEC := $(BUILD_DIR)/emulator.exe
+    EXEC := build/emulator.exe
 endif
 
 LDFLAGS := -L./SDL2/lib
@@ -20,6 +18,7 @@ LDLIBS := -lSDL2 -lSDL2_ttf -lSDL2_mixer
 
 # Directories
 SRC_DIR := .
+BUILD_DIR := build
 
 # DLL paths
 SDL_DLL_SOURCE := SDL2/bin/SDL2.dll
@@ -44,16 +43,16 @@ all: release
 # Release build
 release:
 	@echo "Building release version..."
-	@mkdir -p build/release
-	$(CXX) $(CXXFLAGS) $(SRCS) -o build/release/emulator.exe $(LDFLAGS) $(LDLIBS)
-	@$(MAKE) copy_resources BUILD_DIR=build/release
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS)
+	@$(MAKE) copy_resources
 
 # Debug build
 debug:
 	@echo "Building debug version..."
-	@mkdir -p build/debug
-	$(CXX) $(CXXFLAGS) $(SRCS) -o build/debug/emulator-debug.exe $(LDFLAGS) $(LDLIBS)
-	@$(MAKE) copy_resources BUILD_DIR=build/debug
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS)
+	@$(MAKE) copy_resources
 
 # Combined copy targets
 copy_resources: copy_dll copy_fonts copy_audio
@@ -88,35 +87,25 @@ copy_audio:
 		echo "WARNING: Audio directory not found"; \
 	fi
 
-# Clean all build artifacts (both release and debug)
+# Clean build artifacts
 clean:
-	@echo "Cleaning build directories..."
-	rm -rf build/debug build/release
-
-# Clean debug build only
-clean-debug:
-	@echo "Cleaning debug build..."
-	rm -rf build/debug
-
-# Clean release build only
-clean-release:
-	@echo "Cleaning release build..."
-	rm -rf build/release
+	@echo "Cleaning build directory..."
+	rm -rf $(BUILD_DIR)
 
 # Run the release emulator
 run: release
 	@echo "Running release emulator..."
-	cd build/release && ./emulator.exe
+	cd $(BUILD_DIR) && ./emulator.exe
 
 # Run the debug emulator
 run-debug: debug
 	@echo "Running debug emulator..."
-	cd build/debug && ./emulator-debug.exe
+	cd $(BUILD_DIR) && ./emulator-debug.exe
 
 # Run debug emulator with gdb
 gdb: debug
 	@echo "Running debug emulator with gdb..."
-	cd build/debug && gdb ./emulator-debug.exe
+	cd $(BUILD_DIR) && gdb ./emulator-debug.exe
 
 # Help command - display all available targets
 help:
@@ -133,20 +122,21 @@ help:
 	@echo "    make gdb       - Build debug version and launch with gdb"
 	@echo ""
 	@echo "  Clean targets:"
-	@echo "    make clean       - Clean both release and debug builds"
-	@echo "    make clean-debug - Clean only debug build"
-	@echo "    make clean-release - Clean only release build"
+	@echo "    make clean       - Clean build directory"
 	@echo ""
 	@echo "  Utility targets:"
 	@echo "    make help     - Show this help message"
 	@echo ""
-	@echo "  Build directories:"
-	@echo "    Release: build/release/"
-	@echo "    Debug:   build/debug/"
+	@echo "  Build directory:"
+	@echo "    build/"
+	@echo ""
+	@echo "  Executable names:"
+	@echo "    Release: emulator.exe"
+	@echo "    Debug:   emulator-debug.exe"
 	@echo ""
 	@echo "  Resource directories copied:"
-	@echo "    - Fonts/ -> build/[type]/Fonts/"
-	@echo "    - Audio/ -> build/[type]/Audio/"
+	@echo "    - Fonts/ -> build/Fonts/"
+	@echo "    - Audio/ -> build/Audio/"
 	@echo ""
 	@echo "  Debug features:"
 	@echo "    - Debug builds include -g flag for debug symbols"
@@ -154,4 +144,4 @@ help:
 	@echo "    - Use #ifdef DEBUG in code for debug-only sections"
 
 # Phony targets
-.PHONY: all release debug clean clean-debug clean-release run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources
+.PHONY: all release debug clean run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources
