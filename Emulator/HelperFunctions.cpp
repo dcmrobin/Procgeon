@@ -24,6 +24,7 @@ bool credits = false;
 
 const int viewportWidth = SCREEN_WIDTH / tileSize;
 const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
+int puzzleChestY = 0, puzzleChestX = 0, puzzleChestDx = 0;
 
 float offsetX = 0;
 float offsetY = 0;
@@ -419,6 +420,9 @@ void handleUIStateTransitions() {
         break;
       case UI_RIDDLE:
         currentUIState = UI_RIDDLE;
+        break;
+      case UI_PUZZLE:
+        currentUIState = UI_PUZZLE;
         break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {

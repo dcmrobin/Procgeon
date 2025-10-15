@@ -55,7 +55,8 @@ enum UIState {
   UI_ITEM_INFO,   // Item info screen
   UI_ITEM_RESULT, // Item result screen
   UI_PAUSE,       // Pause screen
-  UI_RIDDLE       // Riddle screen
+  UI_RIDDLE,      // Riddle screen
+  UI_PUZZLE       // Puzzles
 };
 
 struct GeneratedRiddle {
@@ -82,6 +83,7 @@ extern bool statusScreen;
 extern bool finalStatusScreen;
 extern bool showDeathScreen;
 extern bool credits;
+extern int puzzleChestY, puzzleChestX, puzzleChestDx;
 
 extern const int viewportWidth;
 extern const int viewportHeight;

@@ -139,12 +139,12 @@ bool isPicrossSolved() {
     return true;
 }
 
-bool launchPicrossPuzzle(int cy, int cx, int dx) {
-    resetPicrossPuzzle();
+bool updatePicrossPuzzle() {
     if (!isPicrossSolved()) {
         drawPicrossPuzzle();
         handlePicrossInput();
-        delay(20); // Frame sync
+        delay(20);
+        return false;
     } else {
         display.clearDisplay();
         display.setTextSize(2);
@@ -154,7 +154,6 @@ bool launchPicrossPuzzle(int cy, int cx, int dx) {
         display.display();
         delay(800);
         currentUIState = UI_NORMAL;
-        OpenChest(cy, cx, dx, true);
         return true;
     }
 }
@@ -247,12 +246,12 @@ bool isLightsOutSolved() {
     return true;
 }
 
-bool launchLightsOutPuzzle(int cy, int cx, int dx) {
-    resetLightsOutPuzzle();
+bool updateLightsOutPuzzle() {
     if (!isLightsOutSolved()) {
         drawLightsOutPuzzle();
         handleLightsOutInput();
         delay(20);
+        return false;
     } else {
         display.clearDisplay();
         display.setTextSize(2);
@@ -262,15 +261,36 @@ bool launchLightsOutPuzzle(int cy, int cx, int dx) {
         display.display();
         delay(800);
         currentUIState = UI_NORMAL;
-        OpenChest(cy, cx, dx, true);
         return true;
     }
 }
 
-bool launchRandomPuzzle(int cy, int cx, int dx) {
-    if (random(0, 2) == 0) {
-        return launchPicrossPuzzle(cy, cx, dx);
-    } else {
-        return launchLightsOutPuzzle (cy, cx, dx);
+bool updateRandomPuzzle() {
+    static int puzzleType = -1;
+    static bool initialized = false;
+    
+    if (!initialized) {
+        puzzleType = random(0, 2);
+        if (puzzleType == 0) {
+            resetPicrossPuzzle();
+        } else {
+            resetLightsOutPuzzle();
+        }
+        initialized = true;
     }
+    
+    if (puzzleType == 0) {
+        return updatePicrossPuzzle();
+    } else {
+        return updateLightsOutPuzzle();
+    }
+}
+
+void launchRandomPuzzle(int cy, int cx, int dx) {
+    // Just set the state - the actual puzzle will be handled in game loop
+    currentUIState = UI_PUZZLE;
+    // Store chest coordinates for later
+    puzzleChestY = cy;
+    puzzleChestX = cx;
+    puzzleChestDx = dx;
 }

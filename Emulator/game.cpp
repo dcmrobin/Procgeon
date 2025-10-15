@@ -228,6 +228,14 @@ void game_loop() {
               handlePauseScreen();
               break;
 
+            case UI_PUZZLE:
+              if (updateRandomPuzzle()) {
+                  // Puzzle solved - open the chest
+                  OpenChest(puzzleChestY, puzzleChestX, puzzleChestDx, true);
+                  currentUIState = UI_NORMAL;
+              }
+              break;
+
             case UI_RIDDLE:
               handleRiddles();
               break;
