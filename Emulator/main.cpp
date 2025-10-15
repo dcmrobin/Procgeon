@@ -3,6 +3,7 @@
 #include "Adafruit_SSD1327_emu.h"
 #include "game.h"
 #include "Translation.h"
+#include "GameAudio.h"
 
 const int WIDTH = 128;
 const int HEIGHT = 128;
@@ -22,6 +23,19 @@ int main() {
         // Don't return - let it continue without audio
     } else {
         printf("SDL audio initialized successfully\n");
+    }
+
+    if (!initSDL2Audio()) {
+        printf("SDL audio initialization failed: %s\n", SDL_GetError());
+    } else {
+        printf("SDL audio initialized successfully\n");
+        
+        // Load sound effects
+        if (!loadSFXtoRAM()) {
+            printf("Failed to load SFX to RAM\n");
+        } else {
+            printf("SFX loaded successfully\n");
+        }
     }
     
     SDL_Window* window = SDL_CreateWindow("SSD1327 Emulator", 
@@ -82,6 +96,7 @@ int main() {
     }
 
     // Cleanup
+    freeSFX();
     closeSDL2Audio();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

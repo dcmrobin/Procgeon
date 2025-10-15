@@ -292,43 +292,7 @@ public:
         volume(level);
     }
 };
-
-class AudioPlayQueue {
-public:
-    Mix_Chunk* chunk = nullptr;
-    bool available() { return true; }
-    int16_t* getBuffer() { return nullptr; } // Teensy provides a buffer — here we don't
-    void playBuffer() { if (chunk) Mix_PlayChannel(-1, chunk, 0); }
-    void setChunk(Mix_Chunk* c) { chunk = c; }
-};
-
-class AudioMixer4 {
-public:
-    float gainLevel[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    void gain(int ch, float g) { if (ch >= 0 && ch < 4) gainLevel[ch] = g; }
-};
-
-class AudioOutputI2S { public: void begin() {} };
-inline void AudioMemory(int) {}
-
-class AudioControlSGTL5000 {
-public:
-    void enable() {}
-    void volume(float) {}
-};
-
-class AudioConnection {
-public:
-    template<typename A, typename B>
-    AudioConnection(A& a, int aCh, B& b, int bCh) { (void)a; (void)aCh; (void)b; (void)bCh; }
-};
-
-inline AudioPlayQueue queue[MAX_SIMULTANEOUS_SFX];
-inline AudioMixer4 mixer1;
-inline AudioMixer4 musicMixer;
-inline AudioOutputI2S audioOutput;
-inline AudioPlaySdWav playWav1;
-inline AudioControlSGTL5000 sgtl5000_1;
+inline AudioPlaySdWav musicPlayer;
 
 // SDL2 helper wrappers
 inline bool initSDL2Audio(int freq = 44100, Uint16 format = MIX_DEFAULT_FORMAT, int channels = 2, int chunksize = 1024) {
