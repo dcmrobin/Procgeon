@@ -1,6 +1,7 @@
 #include "Adafruit_GFX_emu.h"
 #include <algorithm>
 #include <cstring>
+#include <vector>
 
 #ifndef __AVR__
 // Emulate PROGMEM for non-Arduino platforms
@@ -552,37 +553,105 @@ const uint8_t Adafruit_GFX::builtin_font[] = {
 
 size_t Adafruit_GFX::print(const std::string &str) {
     size_t count = 0;
-    // Use the font pointer directly
     const uint8_t* activeFont = font ? font : builtin_font;
+    
+    // Store initial cursor position for new lines
+    int16_t initialX = cursor_x;
+    
+    // Calculate maximum x position for wrapping
+    int16_t maxX = 128 - (fontWidth + 1) * textsize;
+    
+    // Split string into words for proper word wrapping
+    std::vector<std::string> words;
+    std::string currentWord;
+    
     for (char c : str) {
-        // Skip non-printable characters
-        if (c < ' ' || c > '~') continue;
+        if (c == ' ' || c == '\n') {
+            if (!currentWord.empty()) {
+                words.push_back(currentWord);
+                currentWord.clear();
+            }
+            if (c == '\n') {
+                words.push_back("\n");
+            } else {
+                words.push_back(" ");
+            }
+        } else if (c >= ' ' && c <= '~') {
+            currentWord += c;
+        }
+    }
+    
+    if (!currentWord.empty()) {
+        words.push_back(currentWord);
+    }
+    
+    // Process each word
+    for (const auto& word : words) {
+        if (word == "\n") {
+            // Newline - move to next line
+            cursor_x = initialX;
+            cursor_y += fontHeight * textsize;
+            continue;
+        }
+        
+        // Calculate word width
+        int16_t wordWidth = word.length() * (fontWidth + 1) * textsize;
+        
+        // Check if word would exceed right edge
+        if (cursor_x + wordWidth > maxX && cursor_x != initialX) {
+            // Move to next line for word that doesn't fit (unless we're at line start)
+            cursor_x = initialX;
+            cursor_y += fontHeight * textsize;
+        }
+        
+        // Check if we've exceeded bottom of screen
+        if (cursor_y + fontHeight * textsize > 128) {
+            break; // Stop printing if we're at bottom of screen
+        }
+        
+        // Print the word character by character
+        for (char c : word) {
+            // Skip non-printable characters
+            if (c < ' ' || c > '~') continue;
 
-        // Calculate character position
-        int16_t minx = cursor_x;
-        int16_t miny = cursor_y;
-        int16_t maxx = cursor_x + (fontWidth + 1) * textsize - 1;
-        int16_t maxy = cursor_y + fontHeight * textsize - 1;
+            // Calculate character position
+            int16_t minx = cursor_x;
+            int16_t miny = cursor_y;
+            int16_t maxx = cursor_x + (fontWidth + 1) * textsize - 1;
+            int16_t maxy = cursor_y + fontHeight * textsize - 1;
 
-        // Draw character background
-        fillRect(minx, miny, maxx - minx + 1, maxy - miny + 1, textbgcolor);
+            // Draw character background
+            fillRect(minx, miny, maxx - minx + 1, maxy - miny + 1, textbgcolor);
 
-        // Draw character
-        const int char_index = (c - ' ') * fontWidth;
-        for (uint8_t col = 0; col < fontWidth; col++) {
-            uint8_t font_col = activeFont[char_index + col];
-            for (uint8_t row = 0; row < fontHeight; row++) {
-                if (font_col & (1 << row)) {
-                    fillRect(cursor_x + col * textsize,
-                             cursor_y + row * textsize,
-                             textsize, textsize, textcolor);
+            // Draw character
+            const int char_index = (c - ' ') * fontWidth;
+            for (uint8_t col = 0; col < fontWidth; col++) {
+                uint8_t font_col = activeFont[char_index + col];
+                for (uint8_t row = 0; row < fontHeight; row++) {
+                    if (font_col & (1 << row)) {
+                        fillRect(cursor_x + col * textsize,
+                                 cursor_y + row * textsize,
+                                 textsize, textsize, textcolor);
+                    }
+                }
+            }
+
+            cursor_x += (fontWidth + 1) * textsize;
+            count++;
+            
+            // Check if we've exceeded right edge after each character
+            if (cursor_x > maxX) {
+                cursor_x = initialX;
+                cursor_y += fontHeight * textsize;
+                
+                // Check if we've exceeded bottom of screen
+                if (cursor_y + fontHeight * textsize > 128) {
+                    return count; // Stop printing if we're at bottom of screen
                 }
             }
         }
-
-        cursor_x += (fontWidth + 1) * textsize;
-        count++;
     }
+    
     return count;
 }
 
