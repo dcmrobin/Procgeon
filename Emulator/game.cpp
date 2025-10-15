@@ -369,7 +369,6 @@ void gameOver() {
     }
     return;
   }
-  display.setFont(Adafruit_GFX::builtin_font);
 
   /*if (buttons.aPressed && !buttons.aPressedPrev) {
     playRawSFX(8);
@@ -525,6 +524,7 @@ void gameOver() {
   }
 
   display.display();
+  display.setFont(Adafruit_GFX::builtin_font);
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
     resetGame();

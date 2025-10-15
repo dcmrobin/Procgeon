@@ -688,26 +688,36 @@ void Adafruit_GFX::setFont(const uint8_t *f) {
 // Monochrome bitmap (1-bit per pixel)
 void Adafruit_GFX::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
                              int16_t w, int16_t h, uint16_t color) {
+    // Early returns for invalid parameters
+    if (bitmap == nullptr) return;
+    if (w <= 0 || h <= 0) return;
+    if (x >= 128 || y >= 128) return; // Completely off-screen
+    
+#ifdef DEBUG
+    printf("SAFE drawBitmap: (%d,%d) size %dx%d, ptr=%p\n", x, y, w, h, bitmap);
+#endif
+
     startWrite();
-    for (int16_t j = 0; j < h; j++) {
-        for (int16_t i = 0; i < w; i++) {
-            if (pgm_read_byte(bitmap + j * ((w + 7) / 8) + (i / 8)) & (128 >> (i & 7))) {
-                writePixel(x + i, y + j, color);
+    
+    for (int16_t row = 0; row < h; row++) {
+        int16_t screenY = y + row;
+        if (screenY < 0 || screenY >= 128) continue; // Skip off-screen rows
+        
+        for (int16_t col = 0; col < w; col++) {
+            int16_t screenX = x + col;
+            if (screenX < 0 || screenX >= 128) continue; // Skip off-screen columns
+            
+            // Calculate byte and bit position
+            int16_t byteIndex = row * ((w + 7) / 8) + (col / 8);
+            uint8_t bitMask = 1 << (7 - (col % 8)); // MSB first
+            
+            // Check if we should draw this pixel
+            if (bitmap[byteIndex] & bitMask) {
+                writePixel(screenX, screenY, color);
             }
         }
     }
-    endWrite();
-}
-
-void Adafruit_GFX::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, 
-                             int16_t w, int16_t h, uint16_t color, uint16_t bg) {
-    startWrite();
-    for (int16_t j = 0; j < h; j++) {
-        for (int16_t i = 0; i < w; i++) {
-            bool pixel = pgm_read_byte(bitmap + j * ((w + 7) / 8) + (i / 8)) & (128 >> (i & 7));
-            writePixel(x + i, y + j, pixel ? color : bg);
-        }
-    }
+    
     endWrite();
 }
 
