@@ -26,7 +26,7 @@
 #define SCREEN_HEIGHT 128
 
 extern Adafruit_SSD1327 display;
-extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+//extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 struct ButtonStates {
   bool upPressed;

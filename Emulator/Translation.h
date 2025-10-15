@@ -380,7 +380,9 @@ public:
     template<typename T> void begin(T&) { /* accept Adafruit display parameter and ignore */ }
 
     void setRenderer(SDL_Renderer* ren) { renderer = ren; }
-    bool setFont(const char* fontPath, int fontSize = 16) {
+    bool setFont(const char* fontPath, int fontSize = 12) {
+        fontSize = 12;
+        fontPath = "Fonts/PixelifySans-VariableFont_wght.ttf";
         if (!renderer) return false;
         if (currentFont) {
             TTF_CloseFont(currentFont);
@@ -448,6 +450,6 @@ private:
         return TTF_FontHeight(currentFont);
     }
 };
-extern U8G2_FOR_ADAFRUIT_GFX u8g2;
+extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 // end include guard
 #endif // TRANSLATION_H

@@ -8,7 +8,7 @@ const int WIDTH = 128;
 const int HEIGHT = 128;
 
 Adafruit_SSD1327 display; // Global display object
-U8G2_FOR_ADAFRUIT_GFX u8g2; // Global U8G2 instance
+U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx; // Global U8G2 instance
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -20,13 +20,13 @@ int main() {
         SDL_RENDERER_ACCELERATED);
 
     // Initialize U8G2 with the SDL renderer
-    u8g2.setRenderer(renderer);
+    u8g2_for_adafruit_gfx.setRenderer(renderer);
     
     // Try to load a font - you'll need a .ttf file in your project directory
-    if (!u8g2.setFont("arial.ttf", 12)) {
+    if (!u8g2_for_adafruit_gfx.setFont("arial.ttf", 12)) {
         // Try some common fallback paths
-        if (!u8g2.setFont("./fonts/arial.ttf", 12)) {
-            if (!u8g2.setFont("C:/Windows/Fonts/arial.ttf", 12)) {
+        if (!u8g2_for_adafruit_gfx.setFont("./fonts/arial.ttf", 12)) {
+            if (!u8g2_for_adafruit_gfx.setFont("C:/Windows/Fonts/arial.ttf", 12)) {
                 printf("WARNING: Could not load font for U8G2 text rendering\n");
                 printf("Text will not be visible. Please place arial.ttf in your project directory.\n");
             }

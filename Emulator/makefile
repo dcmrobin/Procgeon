@@ -17,19 +17,21 @@ GCC_DLL_SOURCE := /mingw64/bin/libgcc_s_seh-1.dll
 STDCPP_DLL_SOURCE := /mingw64/bin/libstdc++-6.dll
 PTHREAD_DLL_SOURCE := /mingw64/bin/libwinpthread-1.dll
 
+# Fonts directory
+FONTS_SOURCE := Fonts
+FONTS_TARGET := $(BUILD_DIR)/Fonts
+
 # Auto-discover source files
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
-OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
 # Default target
-all: $(EXEC) copy_dll
+all: $(EXEC) copy_dll copy_fonts
 
-# Build executable
-$(EXEC): $(OBJS)
-	@echo "Linking executable..."
+# Build executable directly from source files
+$(EXEC): $(SRCS)
+	@echo "Compiling and linking executable directly..."
+	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
-	@echo "Removing object files..."
-	@find $(BUILD_DIR) -name '*.o' -delete
 
 # Copy necessary DLLs to build directory
 copy_dll:
@@ -41,11 +43,15 @@ copy_dll:
 	@cp "$(STDCPP_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libstdc++-6.dll not found"
 	@cp "$(PTHREAD_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libwinpthread-1.dll not found"
 
-# Pattern rule for compiling .cpp files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(@D)
-	@echo "Compiling $<..."
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+# Copy Fonts folder to build directory
+copy_fonts:
+	@echo "Copying Fonts folder to $(BUILD_DIR)..."
+	@if [ -d "$(FONTS_SOURCE)" ]; then \
+		cp -r "$(FONTS_SOURCE)" "$(FONTS_TARGET)" && \
+		echo "Fonts copied successfully"; \
+	else \
+		echo "WARNING: Fonts directory not found"; \
+	fi
 
 # Clean build artifacts
 clean:
@@ -58,4 +64,4 @@ run: all
 	cd $(BUILD_DIR) && ./emulator.exe
 
 # Phony targets
-.PHONY: all clean run copy_dll
+.PHONY: all clean run copy_dll copy_fonts
