@@ -283,11 +283,19 @@ bool updateRandomPuzzle() {
         initialized = true;
     }
     
+    bool puzzleSolved = false;
     if (puzzleType == 0) {
-        return updatePicrossPuzzle();
+        puzzleSolved = updatePicrossPuzzle();
     } else {
-        return updateLightsOutPuzzle();
+        puzzleSolved = updateLightsOutPuzzle();
     }
+    
+    // Reset initialization when puzzle is solved
+    if (puzzleSolved) {
+        initialized = false;
+    }
+    
+    return puzzleSolved;
 }
 
 void launchRandomPuzzle(int cy, int cx, int dx) {
