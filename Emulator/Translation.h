@@ -20,31 +20,6 @@
     #endif
 #endif
 
-/*#ifndef ARDUINO
-    #include <cstdlib>
-    #include <algorithm>
-
-    // Random replacements
-    inline long random(long min, long max) {
-        return min + (std::rand() % (max - min));
-    }
-    inline float random(float min, float max) {
-        float scale = std::rand() / (float)RAND_MAX;
-        return min + scale * (max - min);
-    }
-
-    // Constrain replacement
-    template<typename T>
-    inline T constrain(T val, T low, T high) {
-        return std::max(low, std::min(high, val));
-    }
-#endif*/
-// --- end Arduino compatibility section ---
-
-// Single-header Arduino/Teensy -> SDL2 translation shim.
-// Provides: String, Serial, millis/random, SD (File), EEPROM, Audio stubs (SDL_mixer),
-// U8G2 minimal SDL renderer using SDL_ttf, pinMode/digital/analog/delay, etc.
-
 #include <string>
 #include <sstream>
 #include <vector>
@@ -363,93 +338,5 @@ inline Mix_Chunk* loadWav(const std::string& path) {
     if (!c) std::printf("Failed to load WAV: %s\n", path.c_str()); 
     return c; 
 }
-
-// --- U8G2 minimal SDL2-backed implementation (TTF) ---
-class U8G2_FOR_ADAFRUIT_GFX {
-public:
-    U8G2_FOR_ADAFRUIT_GFX() : cursorX(0), cursorY(0), renderer(nullptr), currentFont(nullptr) {}
-    ~U8G2_FOR_ADAFRUIT_GFX() {
-        if (currentFont) {
-            TTF_CloseFont(currentFont);
-            currentFont = nullptr;
-        }
-    }
-    
-    void begin() {}
-    void setForegroundColor(int) { (void)0; }
-    template<typename T> void begin(T&) { /* accept Adafruit display parameter and ignore */ }
-
-    void setRenderer(SDL_Renderer* ren) { renderer = ren; }
-    bool setFont(const char* fontPath, int fontSize = 12) {
-        fontSize = 12;
-        fontPath = "Fonts/PixelifySans-VariableFont_wght.ttf";
-        if (!renderer) return false;
-        if (currentFont) {
-            TTF_CloseFont(currentFont);
-            currentFont = nullptr;
-        }
-        TTF_Font* fnt = TTF_OpenFont(fontPath, fontSize);
-        if (!fnt) return false;
-        currentFont = fnt; 
-        return true;
-    }
-
-    void setCursor(int x, int y) { cursorX = x; cursorY = y; }
-
-    void drawStr(int x, int y, const char* str) {
-        if (!renderer || !currentFont || !str) return;
-        SDL_Color color = {255, 255, 255, 255};
-        SDL_Surface* s = TTF_RenderUTF8_Solid(currentFont, str, color);
-        if (!s) return;
-        SDL_Texture* t = SDL_CreateTextureFromSurface(renderer, s);
-        SDL_Rect r = { x, y, s->w, s->h };
-        SDL_RenderCopy(renderer, t, nullptr, &r);
-        SDL_DestroyTexture(t);
-        SDL_FreeSurface(s);
-    }
-    void drawStr(const char* str) { drawStr(cursorX, cursorY, str); }
-    void clearBuffer() {}
-    void sendBuffer() {}
-    void setCursorColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255) { textColor = { r,g,b,a }; }
-
-    template<typename T>
-    void print(const T& val) {
-        if constexpr (std::is_same_v<T, StringImpl>) {
-            drawStr(val.c_str());
-        } else if constexpr (std::is_convertible_v<T, std::string>) {
-            drawStr(static_cast<std::string>(val).c_str());
-        } else if constexpr (std::is_arithmetic_v<T>) {
-            drawStr(std::to_string(val).c_str());
-        } else {
-            drawStr("<?>");
-        }
-    }
-    void print(const char* str) { drawStr(str); }
-    void print(const std::string& str) { drawStr(str.c_str()); }
-
-    template<typename T> void println(const T& val) { print(val); cursorY += lineHeight(); cursorX = 0; }
-    void println(const char* str) { print(str); cursorY += lineHeight(); cursorX = 0; }
-    void println(const std::string& str) { print(str.c_str()); cursorY += lineHeight(); cursorX = 0; }
-
-    int getUTF8Width(const char* text) {
-        if (!currentFont || !text) return 0;
-        int w = 0, h = 0;
-        TTF_SizeUTF8(currentFont, text, &w, &h);
-        return w;
-    }
-
-private:
-    int cursorX;
-    int cursorY;
-    SDL_Renderer* renderer;
-    TTF_Font* currentFont;
-    SDL_Color textColor;
-
-    int lineHeight() const {
-        if (!currentFont) return 10;
-        return TTF_FontHeight(currentFont);
-    }
-};
-extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 // end include guard
 #endif // TRANSLATION_H

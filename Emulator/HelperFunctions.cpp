@@ -8,7 +8,7 @@
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
 
 //Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
-//U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+//display display;
 
 ButtonStates buttons = {false};
 
@@ -600,7 +600,7 @@ bool isWalkable(int x, int y) {
 }
 
 void drawWrappedText(int x, int y, int maxWidth, const String &text) {
-  u8g2_for_adafruit_gfx.setCursor(x, y);
+  display.setCursor(x, y);
 
   int lineHeight = 10; // Adjust based on font size
   int cursorX = x;
@@ -612,12 +612,13 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text) {
     char c = text[i];
 
     if (c == ' ' || c == '\n') {
-      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width((currentLine + word).c_str());
+      //int wordWidth = display.getUTF8Width((currentLine + word).c_str());
+      int wordWidth = 0;// temp
 
       if (wordWidth > maxWidth) {
         // Print the current line before adding a new word
-        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-        u8g2_for_adafruit_gfx.print(currentLine);
+        display.setCursor(cursorX, cursorY);
+        display.print(currentLine);
         cursorY += lineHeight;
         currentLine = word + ' '; // Move the word to the new line
       } else {
@@ -627,8 +628,8 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text) {
       word = "";
 
       if (c == '\n') {  // Force a new line on explicit newline characters
-        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-        u8g2_for_adafruit_gfx.print(currentLine);
+        display.setCursor(cursorX, cursorY);
+        display.print(currentLine);
         cursorY += lineHeight;
         currentLine = "";
       }
@@ -639,8 +640,8 @@ void drawWrappedText(int x, int y, int maxWidth, const String &text) {
 
   // Print the remaining text
   if (currentLine.length() > 0 || word.length() > 0) {
-    u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-    u8g2_for_adafruit_gfx.print(currentLine + word);
+    display.setCursor(cursorX, cursorY);
+    display.print(currentLine + word);
   }
 }
 

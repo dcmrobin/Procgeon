@@ -576,7 +576,7 @@ void renderInventory() {
     display.println(combiningTwoItems ? "Select second item tocombine..." : identifyingItem ? "Select item to identify..." : "Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
     display.fillRect(0, 19, 128, 9, 15);
     String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
     display.println(pageName.c_str());
@@ -642,7 +642,7 @@ void renderInventory() {
     display.fillRect(50, 40, 65, 12, 15);
 
     // Title
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
     display.setCursor(55, 42);
     display.println("Options:");
     display.setTextColor(15);

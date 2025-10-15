@@ -3,7 +3,7 @@
 
 #include "Adafruit_SSD1327_emu.h"
 #include "Adafruit_GFX_emu.h"
-//#include <U8g2_for_Adafruit_GFX.h>
+//#include <display.h>
 #include "Dungeon.h"
 #include "Entities.h"
 #include "Sprites.h"
@@ -26,7 +26,7 @@
 #define SCREEN_HEIGHT 128
 
 extern Adafruit_SSD1327 display;
-//extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+//extern display display;
 
 struct ButtonStates {
   bool upPressed;

@@ -79,7 +79,7 @@ void renderPlayer() {
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
     display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
 
-    // --- Show 'carry [b]' prompt if player can carry damsel ---
+    // --- Show 'carry [x]' prompt if player can carry damsel ---
     float dx = playerX - damsel[0].x;
     float dy = playerY - damsel[0].y;
     float distanceSquared = dx * dx + dy * dy;
@@ -91,10 +91,10 @@ void renderPlayer() {
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 2;
       display.setCursor(textX, textY);
-      display.print("Carry [B]");
+      display.print("Carry [X]");
     }
 
-    // --- Show 'Open Chest [B]' prompt only if player is facing a chest ---
+    // --- Show 'Open Chest [X]' prompt only if player is facing a chest ---
     int facingX = round(playerX) + playerDX;
     int facingY = round(playerY) + playerDY;
     bool facingChest = false;
@@ -114,18 +114,18 @@ void renderPlayer() {
 
       display.setTextSize(1);
       display.setTextColor(15);
-      int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
+      int textWidth = 14 * 6; // "Open Chest [X]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
       if (facingChest) {
-        display.print("Open Chest [B]");
+        display.print("Open Chest [X]");
       } else if (facingClosedDoor) {
-        display.print("Open Door [B]");
+        display.print("Open Door [X]");
       } else if (facingOpenDoor) {
-        display.print("Close Door [B]");
+        display.print("Close Door [X]");
       } else if (facingOpenExit) {
-        display.print("Descend [B]");
+        display.print("Descend [X]");
       }
     }
   }
@@ -431,7 +431,7 @@ void handlePauseScreen() {
   display.print("PAUSED");
   display.setTextSize(1);
   display.setCursor(24, 65);
-  display.print("Press [START]");
+  display.print("Press [Enter]");
   display.display();
 }
 
@@ -625,10 +625,11 @@ void handleDialogue() {
       }
       showDialogue = false;
     }
-    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+    //display.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
-    u8g2_for_adafruit_gfx.setCursor(27, 19);
-    drawWrappedText(27, 19, 96, currentDialogue);
+    display.setCursor(27, 19);
+    //drawWrappedText(27, 19, 96, currentDialogue);
+    display.print(currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
     if (!isRidiculeDialogue || currentDialogue == "Hey! Wait up!") {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);

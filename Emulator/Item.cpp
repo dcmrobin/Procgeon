@@ -226,7 +226,7 @@ void renderItemResult() {
   display.clearDisplay();
   
   // Message text
-  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
+  //display.setFont(u8g2_font_profont12_tr);
   display.setCursor(15, 65);
   display.print(itemResultMessage);
   
