@@ -72,6 +72,7 @@ int shootDelay = 0;
 bool reloading;
 
 void renderPlayer() {
+  display.setFont(Adafruit_GFX::builtin_font);
   float screenX = (playerX - offsetX) * tileSize;
   float screenY = (playerY - offsetY) * tileSize;
 
@@ -571,6 +572,7 @@ void playDamselSFX(String tone) {
 
 int dialogueTimer = 0;
 void handleDialogue() {
+  display.setFont(Adafruit_GFX::profont10_font);
   static int dialogueDelayTimer = 0;
   
   // Glamour dialogue system
@@ -627,7 +629,7 @@ void handleDialogue() {
     }
     //display.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
-    display.setCursor(27, 19);
+    display.setCursor(27, 12);
     //drawWrappedText(27, 19, 96, currentDialogue);
     display.print(currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
@@ -742,6 +744,7 @@ void handleDialogue() {
 }
 
 void handleRiddles() {
+  display.setFont(Adafruit_GFX::profont10_font);
   // Generate the riddle only once per riddle screen
   if (!riddleGenerated) {
     generateRiddleUI();
@@ -774,6 +777,7 @@ void handleRiddles() {
   }
   
   display.display();
+  display.setFont(Adafruit_GFX::builtin_font);
 
   // --- Handle button scrolling and selection ---
   // (Assume updateButtonStates() is being called elsewhere in your main loop)

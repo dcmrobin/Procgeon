@@ -516,6 +516,7 @@ void updateAnimations() {
 int blinkTick = 0;
 int textColor = 3;
 void renderUI() {
+  display.setFont(Adafruit_GFX::builtin_font);
   char HP[4];
   char FOOD[7];
   snprintf(HP, sizeof(HP), "%d", playerHP);

@@ -79,24 +79,28 @@ void drawPicrossPuzzle() {
             }
         }
     }
+    display.setFont(Adafruit_GFX::profont10_font);
+    display.setTextColor(15);
+    display.setTextSize(1);
     // Draw simple clues: just one number per row/col
     for (int y = 0; y < PICROSS_SIZE; y++) {
         int count = 0;
         for (int x = 0; x < PICROSS_SIZE; x++)
             if (picrossSolution[y][x]) count++;
         display.setCursor(gridX - 18, gridY + y * cellSize + 4);
-        display.print(count);
+        display.print(std::to_string(count));
     }
     for (int x = 0; x < PICROSS_SIZE; x++) {
         int count = 0;
         for (int y = 0; y < PICROSS_SIZE; y++)
             if (picrossSolution[y][x]) count++;
         display.setCursor(gridX + x * cellSize + 4, gridY - 10);
-        display.print(count);
+        display.print(std::to_string(count));
     }
     display.setCursor(0, 120);
     display.print("Picross puzzle");
     display.display();
+    display.setFont(Adafruit_GFX::builtin_font);
 }
 
 void handlePicrossInput() {

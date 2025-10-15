@@ -567,6 +567,7 @@ void handleItemActionMenu() {
 
 bool showTooltip = true;
 void renderInventory() {
+  display.setFont(Adafruit_GFX::builtin_font);
   display.clearDisplay();
   display.setTextSize(1);
 
