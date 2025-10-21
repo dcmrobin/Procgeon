@@ -14,6 +14,7 @@ extern AudioMixer4         mixer1;
 extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
 extern AudioPlaySdWav      playWav1;
+//extern AudioAmplifier      amp1;
 
 extern int ambientNoiseLevel;
 

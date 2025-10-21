@@ -29,6 +29,10 @@ const unsigned long frameDelay = 20; // Update every 100ms
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  //amp1.gain(0.01);
+  pinMode(8, OUTPUT);
+  digitalWrite(8, HIGH);
+
   playWav1.stop();// Stop any currently playing music
   // Reset player stats
   playerHP = 100;

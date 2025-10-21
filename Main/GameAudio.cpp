@@ -7,6 +7,7 @@ AudioMixer4         mixer1;
 AudioMixer4         musicMixer; // New mixer for music
 AudioOutputI2S      audioOutput;
 AudioPlaySdWav      playWav1;
+//AudioAmplifier      amp1;
 
 // Create audio connections
 AudioConnection     patchCord1(queue[0], 0, mixer1, 0);

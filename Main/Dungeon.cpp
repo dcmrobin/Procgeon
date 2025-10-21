@@ -360,9 +360,9 @@ void spawnEnemies(bool isBossfight) {
             enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
           }
 
-          if (random(0, 30) > 27) {
+          /*if (random(0, 30) > 27) {
             enemies[i] = { (float)ex, (float)ey, 50, false, 0.04, "brute", 50, 50, false, 0, 0, false, false };
-          }
+          }*/
           break;
         }
       }
