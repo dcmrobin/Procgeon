@@ -103,8 +103,8 @@ void resetGame() {
   randomizeRingEffects();
 
   // --- Explicitly reset all ring and speed effect flags ---
-  ringOfSwiftnessActive = false;
   ringOfStrengthActive = false;
+  swiftnessRingsNumber = 0;
   ringOfWeaknessActive = false;
   ringOfHungerActive = false;
   ringOfRegenActive = false;

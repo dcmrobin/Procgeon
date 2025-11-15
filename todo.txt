@@ -2,8 +2,6 @@ need splash screen- "VELHO"
 
 add an enemy that plays the happy music and attracts loads of other enemies because the sound level is so high.
 
-rings of swiftness might be not increasing speed.
-
 riddle stone is not resurrecting the player when it is equipped.
 
 enemies sometimes get stuck on corners.

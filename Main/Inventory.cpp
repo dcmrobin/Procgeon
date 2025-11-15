@@ -494,8 +494,7 @@ void handleItemActionMenu() {
             if (selectedItem.item == Ring) {
               int idx = selectedItem.ringEffectIndex;
               if (ringEffects[idx] == "Ring of Swiftness") {
-                ringOfSwiftnessActive = false;
-                currentSpeedMultiplier -= 0.5;
+                swiftnessRingsNumber -= 1;
               } else if (ringEffects[idx] == "Ring of Strength") {
                 ringOfStrengthActive = false;
                 playerAttackDamage -= 5;
@@ -529,8 +528,7 @@ void handleItemActionMenu() {
             if (selectedItem.item == Ring) {
               int idx = selectedItem.ringEffectIndex;
               if (ringEffects[idx] == "Ring of Swiftness") {
-                ringOfSwiftnessActive = true;
-                currentSpeedMultiplier += 0.5;
+                swiftnessRingsNumber += 1;
               } else if (ringEffects[idx] == "Ring of Strength") {
                 ringOfStrengthActive = true;
                 playerAttackDamage += 5;

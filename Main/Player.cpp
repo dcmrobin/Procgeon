@@ -50,7 +50,7 @@ int equippedArmorValue = 0;  // Current armor value (damage reduction)
 GameItem equippedArmor = {};  // Currently equipped armor item
 bool equippedRiddleStone = false;
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
-bool ringOfSwiftnessActive = false;
+int swiftnessRingsNumber = 0;
 bool ringOfStrengthActive = false;
 bool ringOfWeaknessActive = false;
 bool ringOfHungerActive = false;
@@ -142,6 +142,7 @@ float baseSpeed = 0.1;
 void handleInput() {
   float newX = playerX;
   float newY = playerY;
+  baseSpeed = 0.1 + (swiftnessRingsNumber * 0.05);// Apply speed effect per ring of swiftness equipped
 
   float speed = speeding ? baseSpeed * currentSpeedMultiplier : baseSpeed;
 

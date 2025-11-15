@@ -50,7 +50,7 @@ extern int equippedArmorValue;
 extern GameItem equippedArmor;
 extern bool equippedRiddleStone;
 extern int playerAttackDamage;
-extern bool ringOfSwiftnessActive;
+extern int swiftnessRingsNumber;
 extern bool ringOfStrengthActive;
 extern bool ringOfWeaknessActive;
 extern bool ringOfHungerActive;
