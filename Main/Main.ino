@@ -52,6 +52,7 @@ void resetGame() {
   damsel[0].name = generateFemaleName();
   damsel[0].levelOfLove = 0;
   knowsDamselName = false;
+  carryingDamsel = false;
   
   // Reset inventory
   for (int i = 0; i < inventorySize; i++) {

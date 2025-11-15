@@ -591,15 +591,19 @@ void renderInventory() {
       display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) display.print("> ");
       // Highlight combinable items when combiningTwoItems is true
+      String displayName = item.name;
       if (combiningTwoItems) {
         GameItem result = CombineTwoItemsToGetItem(combiningItem1, item);
         if (result.item != Null) {
-          display.print(">>"); // Marker for combinable
+          if (i == selectedInventoryIndex) {
+            displayName = result.name; // Show result name only when selected
+            display.print(">>"); // Marker for combinable
+          }
         } else {
           display.print("");
         }
       }
-      display.print(item.name);
+      display.print(displayName);
       
       // Add equipped indicator
       if (item.isEquipped) {
