@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "typeinfo": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "istream": "cpp",
+        "iosfwd": "cpp"
     }
 }

@@ -192,7 +192,6 @@ void setup() {
 }
 
 void loop() {
-
   serviceRawSFX();
 
   unsigned long currentTime = millis();

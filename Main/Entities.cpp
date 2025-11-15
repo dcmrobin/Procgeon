@@ -799,7 +799,9 @@ void updateProjectiles() {
                      checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x + 1, enemies[j].y + 1);
         } else {
           // For regular enemies, use normal 8x8 collision
-          collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y);
+          if (!enemies[j].isFriend) {// Friendly enemies cannot be hurt
+            collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y);
+          }
         }
         
         if (collision && enemies[j].hp > 0) {
@@ -811,7 +813,7 @@ void updateProjectiles() {
           }
           projectiles[i].active = false; // Deactivate the bullet
           break;
-        } else if (!damsel[0].dead && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
+        } else if (!damsel[0].dead && !carryingDamsel && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
           playRawSFX(23);
           playRawSFX(17);
           levelOfDamselDeath = dungeon;

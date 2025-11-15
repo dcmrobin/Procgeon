@@ -1,0 +1,5 @@
+sfx seem to be glitching when there's lots of enemies and the buttons are being pressed.
+
+when combining things, the name of the currently hovered over item could change to the result to show what it would become.
+
+armor is way overpowered. the armorvalue needs to be reduced by a certain small amount with each hit from an enemy depending on the damage that enemy does. then the currentarmorvalue needs to be reassigned after each bit of damage to the armor. armor value should not be able to co below 0- if it would, the armor needs to show "broken" in its description.
