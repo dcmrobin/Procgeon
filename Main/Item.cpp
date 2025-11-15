@@ -269,6 +269,10 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         } else if (item1Empty && item2Empty) {
             return getItem(EmptyBottle);
         }
+        // Prevent combining an item with itself
+        if (item1.item == item2.item) {
+            return getItem(Null);
+        }
         // If either is non-primary, return BrownPotion
         if (!item1Primary || !item2Primary) {
             return getItem(BrownPotion);
