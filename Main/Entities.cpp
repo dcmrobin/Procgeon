@@ -501,7 +501,7 @@ void updateEnemies() {
           float towardPlayerX = -diffX / distance;
           float towardPlayerY = -diffY / distance;
           
-          // Combine dodge and approach movements (70% dodge, 30% approach)
+          // Combine dodge and approach movements (70% dodge, 30% approach)// what the sigma is this
           float combinedX = (avoidX * 0.7f) + (towardPlayerX * 0.3f);
           float combinedY = (avoidY * 0.7f) + (towardPlayerY * 0.3f);
           

@@ -316,7 +316,7 @@ int predictYtile(float y) {
 bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
     int ptx = predictXtile(newX);
     int cty = round(newY);
-    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] != Wall && dungeonMap[cty][ptx] != Bars);
+    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] != Wall && dungeonMap[cty][ptx] != Bars && dungeonMap[cty][ptx] != ChestTile);
     if (!xValid) {
         newX = currentX;
     }
@@ -325,7 +325,7 @@ bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX) {
     int pty = predictYtile(newY);
     int ctx = round(newX);
-    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] != Wall && dungeonMap[pty][ctx] != Bars);
+    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] != Wall && dungeonMap[pty][ctx] != Bars && dungeonMap[pty][ctx] != ChestTile);
     if (!yValid) {
         newY = currentY;
     }
