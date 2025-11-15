@@ -53,6 +53,7 @@ void resetGame() {
   damsel[0].levelOfLove = 0;
   knowsDamselName = false;
   carryingDamsel = false;
+  damselGotTaken = false;
   
   // Reset inventory
   for (int i = 0; i < inventorySize; i++) {
