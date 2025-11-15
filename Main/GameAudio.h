@@ -6,7 +6,7 @@
 
 #define NUM_SFX 25
 #define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
-#define MAX_SIMULTANEOUS_SFX 4  // Number of sounds that can play at once
+#define MAX_SIMULTANEOUS_SFX 8  // Number of sounds that can play at once
 
 // Declare audio objects (defined in .cpp)
 extern AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];

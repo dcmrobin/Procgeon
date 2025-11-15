@@ -565,7 +565,7 @@ void updateEnemies() {
       }
     } else {
       // Regular hostile enemy behavior
-      if (gridDistanceSquared <= (25 + (ambientNoiseLevel * 2))) { // Chase if within 5 tiles + noise factor
+      if (gridDistanceSquared <= (25 + (ambientNoiseLevel))) { // Chase if within 5 tiles + noise factor
         enemies[i].chasingPlayer = true;
       } else {
         if (enemies[i].chasingPlayer) {
@@ -790,7 +790,7 @@ void updateProjectiles() {
           continue;
         }
 
-        bool collision;
+        bool collision = false;
         if (enemies[j].name == "boss") {
           // For boss, check collision with full 16x16 sprite using 4 points
           collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) ||

@@ -14,10 +14,14 @@ AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
 AudioConnection     patchCord2(queue[1], 0, mixer1, 1);
 AudioConnection     patchCord3(queue[2], 0, mixer1, 2);
 AudioConnection     patchCord4(queue[3], 0, mixer1, 3);
-AudioConnection     patchCord5(mixer1, 0, musicMixer, 0); // SFX to musicMixer
-AudioConnection     patchCord6(playWav1, 0, musicMixer, 1); // WAV to musicMixer
-AudioConnection     patchCord7(musicMixer, 0, audioOutput, 0);
-AudioConnection     patchCord8(musicMixer, 0, audioOutput, 1);
+AudioConnection     patchCord5(queue[4], 0, mixer1, 0); // Additional slots using same mixer
+AudioConnection     patchCord6(queue[5], 0, mixer1, 1);
+AudioConnection     patchCord7(queue[6], 0, mixer1, 2);
+AudioConnection     patchCord8(queue[7], 0, mixer1, 3);
+AudioConnection     patchCord9(mixer1, 0, musicMixer, 0); // SFX to musicMixer
+AudioConnection     patchCord10(playWav1, 0, musicMixer, 1); // WAV to musicMixer
+AudioConnection     patchCord11(musicMixer, 0, audioOutput, 0);
+AudioConnection     patchCord12(musicMixer, 0, audioOutput, 1);
 AudioControlSGTL5000 sgtl5000_1;
 
 int ambientNoiseLevel = 0;
@@ -60,7 +64,7 @@ RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 // Initialize the audio system
 void initAudio() {
     // Enable the audio shield
-    AudioMemory(30);
+    AudioMemory(60);
     sgtl5000_1.enable();
     sgtl5000_1.volume(0.5);
     // Set mixer levels for each channel
