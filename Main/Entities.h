@@ -61,7 +61,6 @@ struct Enemy {
   int attackDelayCounter = attackDelay; // Each enemy tracks its own attack delay
   bool nearClock;
   bool isFriend;
-  int dodgeDirection; // 1 for left perpendicular, -1 for right perpendicular
 };
 extern Enemy enemies[maxEnemies];
 

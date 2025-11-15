@@ -491,12 +491,26 @@ void updateEnemies() {
         inCorridor = (freeDirections < 3);
         
         if (!inCorridor) {
-          // Calculate a perpendicular (sideways) vector relative to the player's facing direction.
-          // For example, if the player's direction is (playerDX,playerDY),
-          // then one perpendicular is (-playerDY, playerDX) and the other is (playerDY, -playerDX).
-          // Use the enemy's dodgeDirection to pick left or right
-          float avoidX = enemies[i].dodgeDirection * -playerDY;
-          float avoidY = enemies[i].dodgeDirection * playerDX;
+          // Determine which dodge direction gets the enemy out of line-of-sight faster
+          // by choosing the perpendicular that moves away from the player's position
+          float perpLeft_x = -playerDY;
+          float perpLeft_y = playerDX;
+          float perpRight_x = playerDY;
+          float perpRight_y = -playerDX;
+          
+          // Calculate dot product of each perpendicular with the direction away from player
+          float awayFromPlayerX = enemies[i].x - playerX;
+          float awayFromPlayerY = enemies[i].y - playerY;
+          
+          float dotLeft = perpLeft_x * awayFromPlayerX + perpLeft_y * awayFromPlayerY;
+          float dotRight = perpRight_x * awayFromPlayerX + perpRight_y * awayFromPlayerY;
+          
+          // Choose the perpendicular with the higher dot product (points more away from player)
+          int chosenDodgeDir = (dotLeft >= dotRight) ? 1 : -1;
+          
+          // Use the chosen direction
+          float avoidX = chosenDodgeDir * -playerDY;
+          float avoidY = chosenDodgeDir * playerDX;
           
           // Also calculate the direction toward the player
           float towardPlayerX = -diffX / distance;
