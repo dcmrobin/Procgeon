@@ -201,7 +201,7 @@ void loop() {
     lastUpdateTime = currentTime;
     updateButtonStates();
     if (!credits) {
-      if (playerHP > 0) {
+      if (playerHP > 0 || currentUIState == UI_RIDDLE) {  // Allow riddle UI even when playerHP <= 0
         handleUIStateTransitions();
         if (!statusScreen) {
           switch (currentUIState) {

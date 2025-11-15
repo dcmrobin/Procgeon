@@ -715,13 +715,8 @@ bool nearTile(TileTypes tile) {
 
 void checkIfDeadFrom(const String &cause) {
   if (playerHP <= 0) {
-    if (!equippedRiddleStone) {
-      playRawSFX(10);
-      deathCause = cause;
-      buttons.bPressedPrev = true;
-      buttons.aPressedPrev = true;
-      showDeathScreen = true;
-    } else {
+    // If the riddle stone is equipped, trigger the riddle instead of death
+    if (equippedRiddleStone) {
       currentUIState = UI_RIDDLE;
       equippedRiddleStone = false;
       for (int i = 0; i < inventorySize; i++) {
@@ -730,6 +725,14 @@ void checkIfDeadFrom(const String &cause) {
           break;
         }
       }
+      return; // Exit early to prevent showing death screen
     }
+    
+    // No riddle stone, show death screen
+    playRawSFX(10);
+    deathCause = cause;
+    buttons.bPressedPrev = true;
+    buttons.aPressedPrev = true;
+    showDeathScreen = true;
   }
 }

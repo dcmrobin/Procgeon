@@ -799,7 +799,6 @@ void handleRiddles() {
       } else {
         itemResultMessage = "Correct! You are revived.";
         playerHP = (int)(playerMaxHP / 2);
-        return;
       }
       // Give three random items as a reward
       for (int i = 0; i < 3; i++) {
@@ -824,6 +823,7 @@ void handleRiddles() {
         }
       }
     } else {
+      display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
       playRawSFX(13);
       itemResultMessage = "Wrong answer! You suffer.";
       playerHP -= 10;
