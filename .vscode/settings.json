@@ -3,6 +3,7 @@
         "typeinfo": "cpp",
         "cmath": "cpp",
         "istream": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "cstdlib": "cpp"
     }
 }

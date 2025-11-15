@@ -114,6 +114,7 @@ void updateAnimations();
 void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 bool isWalkable(int x, int y);
+void unstuckEnemy(Enemy &enemy);
 void drawWrappedText(int x, int y, int maxWidth, const String &text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);

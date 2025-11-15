@@ -4,8 +4,6 @@ add an enemy that plays the happy music and attracts loads of other enemies beca
 
 riddle stone is not resurrecting the player when it is equipped.
 
-enemies sometimes get stuck on corners.
-
 enemies need to have a value- a value that decides which direction they should dodge. It should probably be an int.
 
 rings need to have an effect assigned to them when worn instead of at the start of the game so that there could be two diamond rings, one that is weakness and cursed, and the other that is strength effect.

@@ -405,6 +405,11 @@ void updateEnemies() {
 
   // --- Third pass: main update logic ---
   for (int i = 0; i < maxEnemies; i++) {
+    if (enemies[i].hp <= 0) continue; // Skip dead enemies
+    
+    // Check if enemy is stuck in a wall and unstuck them
+    unstuckEnemy(enemies[i]);
+    
     if (enemies[i].name == "boss") {
       // Skip boss AI but allow friendly enemies to attack it
       if (enemies[i].hp > 0) {
@@ -430,7 +435,6 @@ void updateEnemies() {
       }
       continue; // Skip boss AI, it's handled in Main.ino in updateBossfight()
     }
-    if (enemies[i].hp <= 0) continue; // Skip dead enemies
     if (!playerActed && !enemies[i].nearClock && enemies[i].name != "clock") { continue; }
 
     // Calculate the vector from the player to the enemy.

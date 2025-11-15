@@ -590,6 +590,55 @@ bool isWalkable(int x, int y) {
           tile == ArmorTile || tile == ScrollTile || tile == DoorOpen);
 }
 
+void unstuckEnemy(Enemy &enemy) {
+  // Check if the enemy is stuck inside a wall
+  int enemyGridX = round(enemy.x);
+  int enemyGridY = round(enemy.y);
+  
+  if (!isWalkable(enemyGridX, enemyGridY)) {
+    // Enemy is stuck in a wall, try to find a nearby walkable tile
+    bool found = false;
+    
+    // Search in expanding radius (3x3, 5x5, 7x7 areas)
+    for (int radius = 1; radius <= 3 && !found; radius++) {
+      for (int dx = -radius; dx <= radius && !found; dx++) {
+        for (int dy = -radius; dy <= radius; dy++) {
+          // Only check tiles on the perimeter of the square
+          if (abs(dx) != radius && abs(dy) != radius) continue;
+          
+          int checkX = enemyGridX + dx;
+          int checkY = enemyGridY + dy;
+          
+          if (isWalkable(checkX, checkY)) {
+            // Found a walkable tile, move enemy there
+            enemy.x = (float)checkX;
+            enemy.y = (float)checkY;
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    // If still stuck, do a wider search in a larger area
+    if (!found) {
+      for (int dx = -5; dx <= 5 && !found; dx++) {
+        for (int dy = -5; dy <= 5 && !found; dy++) {
+          int checkX = enemyGridX + dx;
+          int checkY = enemyGridY + dy;
+          
+          if (isWalkable(checkX, checkY)) {
+            enemy.x = (float)checkX;
+            enemy.y = (float)checkY;
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 void drawWrappedText(int x, int y, int maxWidth, const String &text) {
   u8g2_for_adafruit_gfx.setCursor(x, y);
 
