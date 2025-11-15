@@ -270,7 +270,7 @@ void updateDamsel() {
   if (!damsel[0].completelyRescued && !nearSuccubus && !succubusChasing && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken && damsel[0].active) {
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;
-    playRawSFX(17);
+    playRawSFX3D(17, damsel[0].x, damsel[0].y);
     currentDialogue = "Hey! Wait up!";
     showDialogue = true;
     damselSaidWaitUp = true;
@@ -419,7 +419,7 @@ void updateEnemies() {
                 if (enemies[i].hp <= 0) {
                   kills += 1;
                 }
-                playRawSFX(23); // Play hit sound
+                playRawSFX3D(23, enemies[i].x, enemies[i].y); // Play hit sound
                 enemies[j].attackDelayCounter = 0;
               } else {
                 enemies[j].attackDelayCounter++;
@@ -747,7 +747,7 @@ void updateEnemies() {
               if (enemies[j].hp <= 0) {
                 kills += 1;
               }
-              playRawSFX(23); // Play hit sound
+              playRawSFX3D(23, enemies[i].x, enemies[i].y); // Play hit sound
               hasAttacked = true;
             }
           }
@@ -780,7 +780,7 @@ void updateProjectiles() {
       // Check for collisions with walls or out-of-bounds
       if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || dungeonMap[projectileTileY][projectileTileX] == DoorClosed || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
         projectiles[i].active = false; // Deactivate the bullet
-        playRawSFX(22);
+        playRawSFX3D(22, projectiles[i].x, projectiles[i].y);
       }
 
       // Check for collisions with enemies
@@ -807,15 +807,15 @@ void updateProjectiles() {
         if (collision && enemies[j].hp > 0) {
           // Hit by player's projectile or another enemy's projectile
           enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
-          playRawSFX(23);
+          playRawSFX3D(23, enemies[j].x, enemies[j].y);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
             kills += 1;
           }
           projectiles[i].active = false; // Deactivate the bullet
           break;
         } else if (!damsel[0].dead && !carryingDamsel && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
-          playRawSFX(23);
-          playRawSFX(17);
+          playRawSFX3D(23, damsel[0].x, damsel[0].y);
+          playRawSFX3D(17, damsel[0].x, damsel[0].y);
           levelOfDamselDeath = dungeon;
           damsel[0].dead = true;
           currentDamselPortrait = damselPortraitDying;

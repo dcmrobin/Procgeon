@@ -534,10 +534,11 @@ void handleHungerAndEffects() {
           nearSuccubus = true;
           // While pulling, dialogue pops up
           currentDialogue = "Hey there, handsome...";
+          damsel[0].followingPlayer = false;
           currentDamselPortrait = succubusPortrait;
           showDialogue = true;
           if (dialogueTimeLength != 373) {
-            playRawSFX(24);
+            playRawSFX3D(24, enemies[i].x, enemies[i].y);
           }
           dialogueTimeLength = 373;
           float pullStrength = 0.05; // Adjust this value to change pull strength
@@ -560,11 +561,11 @@ void handleHungerAndEffects() {
 
 void playDamselSFX(String tone) {
   if (tone == "normal") {
-    playRawSFX(16);
+    playRawSFX3D(16, damsel[0].x, damsel[0].y);
   } else if (tone == "annoying") {
-    playRawSFX(21);
+    playRawSFX3D(21, damsel[0].x, damsel[0].y);
   } else if (tone == "alone") {
-    playRawSFX(16);
+    playRawSFX3D(16, damsel[0].x, damsel[0].y);
   }
 }
 

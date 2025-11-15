@@ -226,6 +226,7 @@ void generateDungeon(bool isBossfight) {
     damsel[0].x = 3000;
     damsel[0].y = 3000;
     damsel[0].active = false;
+    damsel[0].followingPlayer = false;
     damsel[0].completelyRescued = false;
   }
 

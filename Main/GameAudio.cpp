@@ -1,4 +1,5 @@
 #include "GameAudio.h"
+#include "Player.h"
 #include <SD.h>
 
 // Define the audio system objects
@@ -64,7 +65,7 @@ RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 // Initialize the audio system
 void initAudio() {
     // Enable the audio shield
-    AudioMemory(60);
+    AudioMemory(100);
     sgtl5000_1.enable();
     sgtl5000_1.volume(0.5);
     // Set mixer levels for each channel
@@ -115,6 +116,53 @@ bool playRawSFX(int sfxIndex) {
     activeSFX[slot].samplesPlayed = 0;
     activeSFX[slot].isPlaying = true;
     activeSFX[slot].volume = constrain(1, 0.0f, 1.0f);
+    
+    return true;
+}
+
+// Play a sound effect with 3D positioning
+bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
+    // Calculate distance from player to sound source
+    float dx = soundX - playerX;
+    float dy = soundY - playerY;
+    float distance = sqrt(dx * dx + dy * dy);
+    
+    // If sound is too far away, don't play it
+    if (distance > MAX_AUDIO_DISTANCE) {
+        return false;
+    }
+    
+    // Calculate volume based on distance (linear falloff)
+    float volume = 1.0f;
+    if (distance > 0) {
+        volume = 1.0f - (distance / MAX_AUDIO_DISTANCE);
+        volume = constrain(volume, MIN_AUDIO_VOLUME, 1.0f);
+    }
+    
+    ambientNoiseLevel++;
+    if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
+    if (!sfxData[sfxIndex]) return false;
+    
+    // Find an available playback slot
+    int slot = -1;
+    for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
+        if (!activeSFX[i].isPlaying) {
+            slot = i;
+            break;
+        }
+    }
+    
+    // If all slots are in use, return false
+    if (slot == -1) {
+        return false;
+    }
+    
+    // Initialize the sound in the chosen slot with calculated volume
+    activeSFX[slot].data = (const int16_t*)sfxData[sfxIndex];
+    activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / 2;
+    activeSFX[slot].samplesPlayed = 0;
+    activeSFX[slot].isPlaying = true;
+    activeSFX[slot].volume = sfxIndex == 23 ? volume / 2.0f : volume;
     
     return true;
 }

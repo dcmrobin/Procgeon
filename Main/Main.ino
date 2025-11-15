@@ -975,7 +975,7 @@ void updateBossfight() {
               }
               
               // Play teleport sound for each spawn
-              playRawSFX(14);
+              playRawSFX3D(14, enemies[j].x, enemies[j].y);
               break;
             }
           }

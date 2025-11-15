@@ -7,6 +7,8 @@
 #define NUM_SFX 25
 #define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
 #define MAX_SIMULTANEOUS_SFX 8  // Number of sounds that can play at once
+#define MAX_AUDIO_DISTANCE 20  // Maximum distance for sound to be heard
+#define MIN_AUDIO_VOLUME 0.01f   // Minimum volume before sound cuts out
 
 // Declare audio objects (defined in .cpp)
 extern AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
@@ -39,6 +41,9 @@ extern RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 
 // Play a sound effect
 bool playRawSFX(int sfxIndex);
+
+// Play a sound effect with 3D positioning (x, y coordinates)
+bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
 
 // Call this every frame to service the audio system
 void serviceRawSFX();

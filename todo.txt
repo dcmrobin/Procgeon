@@ -1,7 +1,9 @@
 need splash screen- "VELHO"
 
-sfx need to be kinda 3d so you can't hear a bullet impacting across the map.
-
 add an enemy that plays the happy music and attracts loads of other enemies because the sound level is so high.
+
+rings of swiftness might be not increasing speed.
+
+riddle stone is not resurrecting the player when it is equipped.
 
 armor is way overpowered. the armorvalue needs to be reduced by a certain small amount with each hit from an enemy depending on the damage that enemy does. then the currentarmorvalue needs to be reassigned after each bit of damage to the armor. armor value should not be able to co below 0- if it would, the armor needs to show "broken" in its description.
