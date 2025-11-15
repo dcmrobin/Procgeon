@@ -501,9 +501,11 @@ void updateEnemies() {
           float towardPlayerX = -diffX / distance;
           float towardPlayerY = -diffY / distance;
           
-          // Combine dodge and approach movements (70% dodge, 30% approach)// what the sigma is this
-          float combinedX = (avoidX * 0.7f) + (towardPlayerX * 0.3f);
-          float combinedY = (avoidY * 0.7f) + (towardPlayerY * 0.3f);
+          // Combine dodge and approach movements (70% dodge, 30% approach)// What the sigma is this
+          //float combinedX = (avoidX * 0.7f) + (towardPlayerX * 0.3f);
+          //float combinedY = (avoidY * 0.7f) + (towardPlayerY * 0.3f);
+          float combinedX = towardPlayerX;// Much better, now they will only approach when in a corridor
+          float combinedY = towardPlayerY;
           
           // Normalize the combined vector
           float combinedMagnitude = sqrt(combinedX * combinedX + combinedY * combinedY);
