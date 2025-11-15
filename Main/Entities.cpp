@@ -493,9 +493,10 @@ void updateEnemies() {
         if (!inCorridor) {
           // Calculate a perpendicular (sideways) vector relative to the player's facing direction.
           // For example, if the player's direction is (playerDX,playerDY),
-          // then one perpendicular is (-playerDY, playerDX).
-          float avoidX = -playerDY;
-          float avoidY = playerDX;
+          // then one perpendicular is (-playerDY, playerDX) and the other is (playerDY, -playerDX).
+          // Use the enemy's dodgeDirection to pick left or right
+          float avoidX = enemies[i].dodgeDirection * -playerDY;
+          float avoidY = enemies[i].dodgeDirection * playerDX;
           
           // Also calculate the direction toward the player
           float towardPlayerX = -diffX / distance;
