@@ -195,6 +195,72 @@ Frame blobAnimation[] = {
 
 const int blobAnimationLength = 2;
 
+// Jukebox sprites
+const unsigned char PROGMEM jukeboxSpriteFrame1[] = {
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00011000,
+  0b00111100,
+  0b01011010,
+  0b01111110
+};
+
+const unsigned char PROGMEM jukeboxSpriteFrame2[] = {
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00011000,
+  0b00100100,
+  0b00111100,
+  0b01011010,
+  0b01111110
+};
+
+const unsigned char PROGMEM jukeboxSpriteFrame3[] = {
+  0b00000000,
+  0b00011000,
+  0b00100100,
+  0b01000010,
+  0b00000000,
+  0b00111100,
+  0b01011010,
+  0b01111110
+};
+
+const unsigned char PROGMEM jukeboxSpriteFrame4[] = {
+  0b00111100,
+  0b01000010,
+  0b10000001,
+  0b00000000,
+  0b00000000,
+  0b00111100,
+  0b01011010,
+  0b01111110
+};
+
+const unsigned char PROGMEM jukeboxSpriteFrame5[] = {
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00111100,
+  0b01011010,
+  0b01111110
+};
+
+Frame jukeboxAnimation[] = {
+  {jukeboxSpriteFrame1, 15},
+  {jukeboxSpriteFrame2, 15},
+  {jukeboxSpriteFrame3, 15},
+  {jukeboxSpriteFrame4, 15},
+  {jukeboxSpriteFrame5, 30}
+};
+
+const int jukeboxAnimationLength = 5;
+
 // Batguy sprites
 const unsigned char PROGMEM batguySpriteFrame1[] = {
   0b00000000,

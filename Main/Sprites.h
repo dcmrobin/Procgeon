@@ -42,6 +42,15 @@ extern const unsigned char blobSpriteFrame2[];
 extern Frame blobAnimation[];
 extern const int blobAnimationLength;
 
+// Jukebox sprites
+extern const unsigned char jukeboxSpriteFrame1[];
+extern const unsigned char jukeboxSpriteFrame2[];
+extern const unsigned char jukeboxSpriteFrame3[];
+extern const unsigned char jukeboxSpriteFrame4[];
+extern const unsigned char jukeboxSpriteFrame5[];
+extern Frame jukeboxAnimation[];
+extern const int jukeboxAnimationLength;
+
 // Batguy sprites
 extern const unsigned char batguySpriteFrame1[];
 extern const unsigned char batguySpriteFrame2[];

@@ -449,6 +449,9 @@ void updateAnimations() {
     } else if (e.name == "clock") {
       anim = clockAnimation;
       animLength = clockAnimationLength;
+    } else if (e.name == "jukebox") {
+      anim = jukeboxAnimation;
+      animLength = jukeboxAnimationLength;
     } else if (e.name == "boss") {
       if (bossState == Idle) {
         if (playerX < enemies[0].x) {
