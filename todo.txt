@@ -2,8 +2,6 @@ need splash screen- "VELHO"
 
 reimpliment brutes.
 
-damsel level of love not increasing at all.
-
 armor is way overpowered. the armorvalue needs to be reduced by a certain small amount with each hit from an enemy depending on the
 damage that enemy does. then the currentarmorvalue needs to be reassigned after each bit of damage to the armor. armor value should
 not be able to co below 0- if it would, the armor needs to show "broken" in its description.

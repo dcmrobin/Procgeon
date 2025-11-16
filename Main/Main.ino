@@ -318,10 +318,10 @@ void renderCredits() {
   if (creditsBrightness > 0) {
     if ((!damsel[0].dead || damsel[0].active) && !succubusIsFriend && damsel[0].completelyRescued) {
       display.drawBitmap(0, 0, creditsDamselSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else if ((damsel[0].dead || !damsel[0].active) && !succubusIsFriend && !damsel[0].completelyRescued) {
-      display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     } else if (succubusIsFriend) {
       display.drawBitmap(0, 0, creditsSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
+    } else {
+      display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     }
   }
   if (creditsBrightness == 0) {
@@ -673,6 +673,18 @@ void showStatusScreen() {
       damsel[0].levelOfLove += rescued ? 1 : 0;
       damsel[0].levelOfLove += rescued && damselGotTaken ? 1 : 0;
       damsel[0].levelOfLove += rescued && carryingDamsel ? 1 : 0;
+      
+      /*Serial.print("DEBUG: rescued=");
+      Serial.print(rescued);
+      Serial.print(", followingPlayer=");
+      Serial.print(damsel[0].followingPlayer);
+      Serial.print(", active=");
+      Serial.print(damsel[0].active);
+      Serial.print(", dead=");
+      Serial.print(damsel[0].dead);
+      Serial.print(", levelOfLove=");
+      Serial.println(damsel[0].levelOfLove);*/
+      
       damselGotTaken = rescued ? false : damselGotTaken;
       if (damsel[0].dead) {
         damsel[0].levelOfLove = 0;

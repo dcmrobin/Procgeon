@@ -223,9 +223,9 @@ void generateDungeon(bool isBossfight) {
     damsel[0].completelyRescued = false;
     // Only initialize levelOfLove if this is the first time encountering her
     // If she was recaptured (damselGotTaken), preserve her level of love
-    if (!damselGotTaken) {
+    /*if (!damselGotTaken) {
       damsel[0].levelOfLove = 0;  // First encounter
-    }
+    }*/
     // If damselGotTaken is true, her levelOfLove is preserved from before
   } else {
     // Deactivate damsel if succubus is friend or damsel is dead
