@@ -19,6 +19,7 @@ extern AudioPlaySdWav      playWav1;
 //extern AudioAmplifier      amp1;
 
 extern int ambientNoiseLevel;
+extern int masterVolume; // 1..10
 
 // Audio connections will be defined in the cpp file
 

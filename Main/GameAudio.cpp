@@ -26,6 +26,7 @@ AudioConnection     patchCord12(musicMixer, 0, audioOutput, 1);
 AudioControlSGTL5000 sgtl5000_1;
 
 int ambientNoiseLevel = 0;
+int masterVolume = 10; // Default volume (1..10). sgtl5000_1.volume will be masterVolume/10.0
 
 // RAM-loaded sound effect storage
 uint8_t* sfxData[NUM_SFX] = { nullptr };
@@ -67,7 +68,9 @@ void initAudio() {
     // Enable the audio shield
     AudioMemory(100);
     sgtl5000_1.enable();
-    sgtl5000_1.volume(0.5);
+    // Apply master volume (1..10 mapped to 0.0..1.0)
+    float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
+    sgtl5000_1.volume(vol);
     // Set mixer levels for each channel
     mixer1.gain(0, 0.5);
     mixer1.gain(1, 0.5);

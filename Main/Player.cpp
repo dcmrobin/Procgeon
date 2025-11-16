@@ -24,6 +24,7 @@ int ingredient1index = 0;
 int playerFood = 100;
 int dialogueTimeLength = 1000;
 int timeTillNextDialogue = 1000;
+bool shouldRestartGame = false;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
@@ -424,15 +425,83 @@ void startCarryingDamsel() {
 }
 
 void handlePauseScreen() {
+  static int pauseSelection = 0; // 0 = Volume, 1 = Restart
   display.clearDisplay();
   display.setTextSize(2);
-  display.setCursor(27, 40);
+  display.setCursor(27, 16);
   display.setTextColor(15);
   display.print("PAUSED");
   display.setTextSize(1);
-  display.setCursor(24, 65);
+
+  // Draw menu entries
+  int baseY = 46;
+  // Volume entry
+  // Draw chevron at a fixed column to avoid misalignment
+  display.setCursor(6, baseY);
+  if (pauseSelection == 0) display.print(">"); else display.print(" ");
+  display.setCursor(18, baseY);
+  display.print("Volume:");
+  // Draw left chevron, value, right chevron
+  int vol = masterVolume; // 1..10
+  String volStr = "<" + String(vol) + ">";
+  display.setCursor(80, baseY);
+  display.print(volStr);
+
+  // Restart entry
+  baseY += 14;
+  if (pauseSelection == 1) display.print(">"); else display.print(" ");
+  display.setCursor(18, baseY);
+  display.print("Restart Game");
+
+  display.setCursor(24, 110);
   display.print("Press [START]");
   display.display();
+
+  // Handle navigation input: up/down to move selection, left/right to change volume
+  if (buttons.upPressed && !buttons.upPressedPrev) {
+    pauseSelection = max(0, pauseSelection - 1);
+    playRawSFX(8);
+  }
+  if (buttons.downPressed && !buttons.downPressedPrev) {
+    pauseSelection = min(1, pauseSelection + 1);
+    playRawSFX(8);
+  }
+
+  if (pauseSelection == 0) {
+    if (buttons.leftPressed && !buttons.leftPressedPrev) {
+      masterVolume = max(1, masterVolume - 1);
+      float volf = masterVolume / 10.0f;
+      sgtl5000_1.volume(volf);
+      // Also scale mixer gains so playRawSFX and music levels respect master volume
+      mixer1.gain(0, 0.5 * volf);
+      mixer1.gain(1, 0.5 * volf);
+      mixer1.gain(2, 0.5 * volf);
+      mixer1.gain(3, 0.5 * volf);
+      musicMixer.gain(0, volf); // SFX master
+      musicMixer.gain(1, 0.2 * volf); // music
+      playRawSFX(7);
+    }
+    if (buttons.rightPressed && !buttons.rightPressedPrev) {
+      masterVolume = min(10, masterVolume + 1);
+      float volf = masterVolume / 10.0f;
+      sgtl5000_1.volume(volf);
+      mixer1.gain(0, 0.5 * volf);
+      mixer1.gain(1, 0.5 * volf);
+      mixer1.gain(2, 0.5 * volf);
+      mixer1.gain(3, 0.5 * volf);
+      musicMixer.gain(0, volf);
+      musicMixer.gain(1, 0.2 * volf);
+      playRawSFX(7);
+    }
+  }
+
+  // Restart: press B to confirm
+  if (pauseSelection == 1 && buttons.bPressed && !buttons.bPressedPrev) {
+    playRawSFX(9);
+    shouldRestartGame = true;
+    // Leave pause state
+    currentUIState = UI_NORMAL;
+  }
 }
 
 int hungerTick = 0;
