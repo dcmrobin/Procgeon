@@ -16,6 +16,7 @@ struct Damsel {
   int levelOfLove;
   String name;
   bool completelyRescued;
+  bool beingCarried;
 };
 extern Damsel damsel[1];
 

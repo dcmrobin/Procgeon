@@ -30,7 +30,6 @@ bool hasMap = false;
 bool paused = false;
 bool nearSuccubus = false;
 bool succubusIsFriend = false;
-bool carryingDamsel = false;
 bool damselGotTaken = false;
 bool damselSayThanksForRescue = false;
 bool knowsDamselName = false;
@@ -83,7 +82,7 @@ void renderPlayer() {
     float dx = playerX - damsel[0].x;
     float dy = playerY - damsel[0].y;
     float distanceSquared = dx * dx + dy * dy;
-    if (!carryingDamsel && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
+    if (!damsel[0].beingCarried && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
       display.setTextSize(1);
       display.setTextColor(15);
       // Center the text under the player sprite (estimate 6px per char, 9 chars)
@@ -190,7 +189,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = -1;
       playerDY = 0;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
       newX -= speed; // Move left
     }
     playerActed = true;
@@ -198,7 +197,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = 1;
       playerDY = 0;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteRight : playerSpriteRight;
       newX += speed; // Move right
     }
     playerActed = true;
@@ -206,7 +205,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDY = -1;
       playerDX = -1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
       newY -= diagSpeed; // Move up & left
       newX -= diagSpeed; // Move up & left
     }
@@ -215,7 +214,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDY = -1;
       playerDX = 1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteRight : playerSpriteRight;
       newY -= diagSpeed; // Move up & right
       newX += diagSpeed; // Move up & left
     }
@@ -224,7 +223,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = -1;
       playerDY = 1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
       newX -= diagSpeed; // Move left & down
       newY += diagSpeed; // Move up & left
     }
@@ -233,7 +232,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = 1;
       playerDY = 1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteRight : playerSpriteRight;
       newX += diagSpeed; // Move right & down
       newY += diagSpeed; // Move up & left
     }
@@ -257,7 +256,7 @@ void handleInput() {
   }
 
   if (buttons.bPressed) {
-    if (!reloading && !carryingDamsel && distanceSquared > 0.3) {
+    if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3) {
       shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
       playRawSFX(1);
       reloading = true;
@@ -406,9 +405,9 @@ void startCarryingDamsel() {
   display.fillRect(0, 0, carryingDelay, 15, (int)(carryingDelay/8));
   display.display();
   if (carryingDelay >= SCREEN_WIDTH) {
-    carryingDamsel = !carryingDamsel;
+    damsel[0].beingCarried = !damsel[0].beingCarried;
 
-    if (carryingDamsel) {
+    if (damsel[0].beingCarried) {
       currentDamselPortrait = damselPortraitCarrying;
       dialogueTimeLength = 300;
       currentDialogue = "Oh! Thanks...";
@@ -517,7 +516,7 @@ void handlePauseScreen() {
 
 int hungerTick = 0;
 void handleHungerAndEffects() {
-  hungerTick += playerMoving || carryingDamsel ? 2 : 1;
+  hungerTick += playerMoving || damsel[0].beingCarried ? 2 : 1;
 
   if (hungerTick >= (starving ? 200 : 700)) {
     if (starving) {
@@ -561,7 +560,7 @@ void handleHungerAndEffects() {
     }
   }
 
-  if (carryingDamsel) {
+  if (damsel[0].beingCarried) {
     damselHealDelay++;
     if (damselHealDelay >= 200) {
       damselHealDelay = 0;
@@ -606,7 +605,7 @@ void handleHungerAndEffects() {
   }
 
   // If the player is close to a succubus, she slowly draws the player towards herself.
-  if (!carryingDamsel && !succubusIsFriend) {
+  if (!damsel[0].beingCarried && !succubusIsFriend) {
     for (int i = 0; i < maxEnemies; i++) {
       if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
         float sdx = enemies[i].x - playerX;
@@ -745,7 +744,7 @@ void handleDialogue() {
 
       // Carrying damsel dialogue branch.
       if (!damsel[0].completelyRescued) {
-        if (carryingDamsel) {
+        if (damsel[0].beingCarried) {
           int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
           int index = pickDialogue(damselCarryDialogue, length);
           currentDamselPortrait = damselPortraitCarrying;

@@ -241,7 +241,7 @@ void updateDamsel() {
   int dy = round(destinationY) - round(damsel[0].y);
   int distanceSquared = dx * dx + dy * dy;
 
-  if (carryingDamsel) {
+  if (damsel[0].beingCarried) {
     damsel[0].x = playerX;
     damsel[0].y = playerY;
     return;
@@ -864,7 +864,7 @@ void updateProjectiles() {
           }
           projectiles[i].active = false; // Deactivate the bullet
           break;
-        } else if (!damsel[0].dead && !carryingDamsel && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
+        } else if (!damsel[0].dead && !damsel[0].beingCarried && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
           playRawSFX3D(23, damsel[0].x, damsel[0].y);
           playRawSFX3D(17, damsel[0].x, damsel[0].y);
           levelOfDamselDeath = dungeon;
@@ -950,7 +950,7 @@ void renderEnemies() {
 }
 
 void renderDamsel() {
-  if (carryingDamsel) return;
+  if (damsel[0].beingCarried) return;
   
   // Don't render if damsel is deactivated (succubus is friend)
   if (!damsel[0].active) return;

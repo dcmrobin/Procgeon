@@ -53,7 +53,8 @@ void resetGame() {
   damsel[0].name = generateFemaleName();
   damsel[0].levelOfLove = 0;
   knowsDamselName = false;
-  carryingDamsel = false;
+  damsel[0].beingCarried = false;
+  damsel[0].completelyRescued = false;
   damselGotTaken = false;
   
   // Reset inventory
@@ -556,7 +557,7 @@ void showStatusScreen() {
       if (!damselKidnapScreen) {
         if (dungeon > levelOfDamselDeath + 3) {
           if (!damsel[0].dead && damsel[0].followingPlayer) {
-            if (!carryingDamsel) {
+            if (!damsel[0].beingCarried) {
               display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
             } else {
               display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
@@ -672,7 +673,7 @@ void showStatusScreen() {
 
       damsel[0].levelOfLove += rescued ? 1 : 0;
       damsel[0].levelOfLove += rescued && damselGotTaken ? 1 : 0;
-      damsel[0].levelOfLove += rescued && carryingDamsel ? 1 : 0;
+      damsel[0].levelOfLove += rescued && damsel[0].beingCarried ? 1 : 0;
       
       /*Serial.print("DEBUG: rescued=");
       Serial.print(rescued);
@@ -698,7 +699,7 @@ void showStatusScreen() {
         leftDamsel = false;
       }
 
-      if (rescued && randomChance == 3 && !carryingDamsel && dungeon < bossfightLevel) {
+      if (rescued && randomChance == 3 && !damsel[0].beingCarried && dungeon < bossfightLevel) {
         damselKidnapScreen = true; // Switch to the kidnap screen
         statusScreen = true;       // Keep status screen active
         damselGotTaken = true;

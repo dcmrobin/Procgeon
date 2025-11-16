@@ -60,6 +60,7 @@ void generateDungeon(bool isBossfight) {
       damsel[0].x = cellX + (cellWidth / 2);
       damsel[0].y = cellY + (cellHeight / 2);
       damsel[0].followingPlayer = false; // She's trapped now
+      damsel[0].beingCarried = false;
       damsel[0].completelyRescued = true;
     }
     
@@ -218,6 +219,7 @@ void generateDungeon(bool isBossfight) {
     dungeonMap[centerY][centerX] = ChestTile;
     damsel[0].speed = 0.1;
     damsel[0].followingPlayer = false;
+    damsel[0].beingCarried = false;
     damsel[0].dead = false;
     damsel[0].active = true;
     damsel[0].completelyRescued = false;
@@ -232,6 +234,7 @@ void generateDungeon(bool isBossfight) {
     damsel[0].x = 3000;
     damsel[0].y = 3000;
     damsel[0].active = false;
+    damsel[0].beingCarried = false;
     damsel[0].followingPlayer = false;
     damsel[0].completelyRescued = false;
   }
