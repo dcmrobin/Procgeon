@@ -444,7 +444,8 @@ void handleHungerAndEffects() {
       playerHP -= 3;
     } else {
       int hungerDrain = 1;
-      if (ringOfHungerActive) hungerDrain += 4; // Increase drain if hunger ring is active
+      if (ringOfHungerActive) hungerDrain += 7; // Increase drain if hunger ring is active
+      if (ringOfRegenActive) hungerDrain += 3;
       playerFood -= hungerDrain;
     }
     hungerTick = 0;
