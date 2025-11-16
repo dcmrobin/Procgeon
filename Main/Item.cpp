@@ -102,7 +102,6 @@ const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinat
 String ringTypes[NUM_RINGS] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring" };
 String ringEffects[NUM_RINGS] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration" };
 bool ringCursed[NUM_RINGS] = { false, false, true, true, false };
-bool ringIdentified[NUM_RINGS] = { false, false, false, false, false };
 
 void randomizePotionEffects() {
   // Shuffle the potion effects array
@@ -137,18 +136,14 @@ GameItem getItem(GameItems item) {
     newItem.isScrollRevealed = false;
   }
   
-  // Assign a random effect to rings
+  // Create a ring item: assign it a visible type now, but do NOT assign its effect until worn or identified
   if (item == Ring) {
-    int effectIndex = random(0, NUM_RINGS);
-    newItem.ringEffectIndex = effectIndex;
-    newItem.isCursed = ringCursed[effectIndex];
-    if (ringIdentified[effectIndex]) {
-      newItem.isRingIdentified = true;
-      newItem.name = ringEffects[effectIndex];
-    } else {
-      newItem.isRingIdentified = false;
-      newItem.name = ringTypes[effectIndex];
-    }
+    int typeIndex = random(0, NUM_RINGS);
+    newItem.ringTypeIndex = typeIndex;
+    newItem.ringEffectIndex = -1; // effect not yet assigned
+    newItem.isRingIdentified = false;
+    newItem.isCursed = false; // curse status depends on the effect once assigned
+    newItem.name = ringTypes[typeIndex];
   }
   
   return newItem;
@@ -453,13 +448,17 @@ void randomizeRingEffects() {
 }
 
 void updateRingName(GameItem &ring) {
-    if (ring.ringEffectIndex >= 0 && ring.ringEffectIndex < NUM_RINGS) {
-        ring.name = ringEffects[ring.ringEffectIndex];
-        ring.description = "A mysterious ring. Its power is now revealed.";
-        ring.isRingIdentified = true;
-        ringIdentified[ring.ringEffectIndex] = true; // Mark globally as identified
-        ring.isCursed = ringCursed[ring.ringEffectIndex];
-    }
+  // If this ring doesn't yet have an assigned effect, assign one now for this instance
+  if (ring.ringEffectIndex < 0 || ring.ringEffectIndex >= NUM_RINGS) {
+    ring.ringEffectIndex = random(0, NUM_RINGS);
+    ring.isCursed = ringCursed[ring.ringEffectIndex];
+  }
+  if (ring.ringEffectIndex >= 0 && ring.ringEffectIndex < NUM_RINGS) {
+    ring.name = ringEffects[ring.ringEffectIndex];
+    ring.description = "A mysterious ring. Its power is now revealed.";
+    ring.isRingIdentified = true;
+    // NOTE: identification is per-instance now — do NOT mark any global identification flags
+  }
 }
 
 // Rarity-based item selection functions

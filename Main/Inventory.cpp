@@ -526,6 +526,12 @@ void handleItemActionMenu() {
             }
             // --- Apply ring effects when equipped ---
             if (selectedItem.item == Ring) {
+              // If this ring has not yet been assigned an effect, assign one now for this instance
+              if (selectedItem.ringEffectIndex < 0 || selectedItem.ringEffectIndex >= NUM_RINGS) {
+                int assignIdx = random(0, NUM_RINGS);
+                selectedItem.ringEffectIndex = assignIdx;
+                selectedItem.isCursed = ringCursed[assignIdx];
+              }
               int idx = selectedItem.ringEffectIndex;
               if (ringEffects[idx] == "Ring of Swiftness") {
                 swiftnessRingsNumber += 1;

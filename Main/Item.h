@@ -95,6 +95,7 @@ struct GameItem {
   int scrollEffectIndex = -1;  // Index of the assigned scroll effect
   // --- Ring support ---
   int ringEffectIndex = -1; // Index of the assigned ring effect
+  int ringTypeIndex = -1; // Index of the ring's visible type (Wooden, Diamond, etc.)
   bool isRingIdentified = false;
 };
 
@@ -133,7 +134,6 @@ extern PotionEffect potionEffects[];
 extern String ringTypes[NUM_RINGS];
 extern String ringEffects[NUM_RINGS];
 extern bool ringCursed[NUM_RINGS];
-extern bool ringIdentified[NUM_RINGS];
 
 void randomizePotionEffects();  // Call this once at game start
 void randomizeScrollEffects();  // Call this once at game start
