@@ -4,6 +4,8 @@
         "cmath": "cpp",
         "istream": "cpp",
         "iosfwd": "cpp",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "limits": "cpp",
+        "utility": "cpp"
     }
 }

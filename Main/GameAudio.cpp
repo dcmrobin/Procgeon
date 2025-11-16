@@ -74,20 +74,22 @@ void initAudio() {
     // Apply master volume (1..10 mapped to 0.0..1.0)
     float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
     sgtl5000_1.volume(vol);
-    // Set mixer levels for each channel
-    mixer1.gain(0, 0.5);
-    mixer1.gain(1, 0.5);
-    mixer1.gain(2, 0.5);
-    mixer1.gain(3, 0.5);
-    musicMixer.gain(0, 1.0); // SFX
-    musicMixer.gain(1, 0.2); // WAV music (main)
+    // Set mixer levels for each channel, scaled by master volume
+    mixer1.gain(0, 0.5 * vol);
+    mixer1.gain(1, 0.5 * vol);
+    mixer1.gain(2, 0.5 * vol);
+    mixer1.gain(3, 0.5 * vol);
+    musicMixer.gain(0, vol); // SFX scaled by master volume
+    musicMixer.gain(1, 0.2 * vol); // WAV music (main) scaled by master volume
     musicMixer.gain(2, 0.0); // jukebox channel (starts at 0, controlled by setJukeboxVolume)
     musicMixer.gain(3, 0.0);
 }
 
 void setJukeboxVolume(float v) {
-    jukeboxVolume = constrain(v, 0.0f, 1.0f);
-    musicMixer.gain(2, jukeboxVolume);
+    jukeboxVolume = constrain(v, 0.0f, 0.3f);
+    // Scale jukebox volume by master volume so it respects the volume control
+    float masterVol = masterVolume / 10.0f;
+    musicMixer.gain(2, jukeboxVolume * masterVol);
 }
 
 bool playRawSFX(int sfxIndex) {

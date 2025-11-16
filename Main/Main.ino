@@ -716,11 +716,11 @@ void updateBossfight() {
     bossStateTimer++;
   }
   if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
-    bossState = Enraged;
-    if (enemies[0].hp == 100) {
+    if (bossState != Enraged) {
+      playWav1.stop();
       playWav1.play("alternateBossfight.wav");
-      enemies[0].hp -= enemies[0].hp == 100 ? 1 : 0; // Prevent replaying sound
     }
+    bossState = Enraged;
   } else if (enemies[0].hp <= 0) {
     playWav1.stop();
     bossState = Beaten;
