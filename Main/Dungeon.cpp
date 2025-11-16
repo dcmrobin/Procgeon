@@ -27,7 +27,7 @@ void generateDungeon(bool isBossfight) {
   }
 
   if (isBossfight) {
-    playerX = mapWidth / 2;
+    playerX = (mapWidth / 2) - 3;
     playerY = mapHeight / 2;
 
     // Only create the damsel's cell if she was following the player (or the player carried her)

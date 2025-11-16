@@ -727,10 +727,10 @@ void showStatusScreen() {
       bossStateTimer = 0;
       playWav1.stop();
       bool played = playWav1.play("endCredits.wav");
-      Serial.print("DEBUG: play endCredits.wav returned ");
-      Serial.println(played);
+      //Serial.print("DEBUG: play endCredits.wav returned ");
+      //Serial.println(played);
       if (!played) {
-        Serial.println("DEBUG: endCredits.wav failed to start (file missing or busy)");
+        //Serial.println("DEBUG: endCredits.wav failed to start (file missing or busy)");
       }
     }
   }
