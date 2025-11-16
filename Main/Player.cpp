@@ -9,6 +9,7 @@
 
 String deathCause = "";
 String currentDialogue = "";
+bool DIDNOTRESCUEDAMSEL = false;
 float playerX = 0;
 float playerY = 0;
 float currentSpeedMultiplier = 1;

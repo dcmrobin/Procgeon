@@ -29,6 +29,7 @@ const unsigned long frameDelay = 20; // Update every 100ms
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
   //amp1.gain(0.01);
   pinMode(8, OUTPUT);
@@ -317,11 +318,11 @@ void renderCredits() {
   }
   display.clearDisplay();
   if (creditsBrightness > 0) {
-    if ((!damsel[0].dead && damsel[0].active) && !succubusIsFriend) {
+    if ((!damsel[0].dead && damsel[0].active) && !succubusIsFriend && !DIDNOTRESCUEDAMSEL) {
       display.drawBitmap(0, 0, creditsDamselSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else if (succubusIsFriend) {
+    } else if (succubusIsFriend && !DIDNOTRESCUEDAMSEL) {
       display.drawBitmap(0, 0, creditsSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else {
+    } else if (DIDNOTRESCUEDAMSEL) {
       display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     }
   }
@@ -677,10 +678,15 @@ void showStatusScreen() {
       damsel[0].levelOfLove += rescued && damselGotTaken ? 1 : 0;
       damsel[0].levelOfLove += rescued && wasBeingCarried ? 1 : 0;
       
-      damsel[0].beingCarried = wasBeingCarried; // Preserve carry state across level transition if she was being carried
-      if (wasBeingCarried) {
-        damsel[0].followingPlayer = true; // Ensure followingPlayer reflects carried state
-        damsel[0].active = true; // Ensure damsel is active when being carried
+      // Preserve carry state across level transition except when entering the bossfight
+      if (dungeon == bossfightLevel) {
+        damsel[0].beingCarried = false; // In bossfight the damsel should be placed in her cell
+      } else {
+        damsel[0].beingCarried = wasBeingCarried;
+        if (wasBeingCarried) {
+          damsel[0].followingPlayer = true; // Ensure followingPlayer reflects carried state
+          damsel[0].active = true; // Ensure damsel is active when being carried
+        }
       }
       
       /*Serial.print("DEBUG: rescued=");

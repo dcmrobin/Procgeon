@@ -28,6 +28,7 @@ extern bool shouldRestartGame;
 extern bool speeding;
 extern bool hasMap;
 extern bool paused;
+extern bool DIDNOTRESCUEDAMSEL;
 extern bool damselGotTaken;
 extern bool damselSayThanksForRescue;
 extern bool knowsDamselName;
