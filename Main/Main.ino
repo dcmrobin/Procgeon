@@ -320,10 +320,10 @@ void renderCredits() {
   if (creditsBrightness > 0) {
     if ((!damsel[0].dead && damsel[0].active) && !succubusIsFriend && !DIDNOTRESCUEDAMSEL) {
       display.drawBitmap(0, 0, creditsDamselSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else if (succubusIsFriend && !DIDNOTRESCUEDAMSEL) {
-      display.drawBitmap(0, 0, creditsSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
-    } else if (DIDNOTRESCUEDAMSEL) {
+    } else if (DIDNOTRESCUEDAMSEL && !succubusIsFriend) {
       display.drawBitmap(0, 0, creditsDamselNotSaved, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
+    } else if (succubusIsFriend) {
+      display.drawBitmap(0, 0, creditsSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, creditsBrightness);
     }
   }
   if (creditsBrightness == 0) {
