@@ -584,7 +584,7 @@ void showStatusScreen() {
               u8g2_for_adafruit_gfx.setCursor(0, 125);
               u8g2_for_adafruit_gfx.print(F("She loved you!"));
             }
-          } else if (!damsel[0].dead && !damsel[0].followingPlayer) {
+          } else if (!damsel[0].dead && !damsel[0].followingPlayer && !damsel[0].beingCarried) {
             display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
             u8g2_for_adafruit_gfx.setCursor(0, 125);
             if (!knowsDamselName) {
@@ -653,6 +653,8 @@ void showStatusScreen() {
       damselSayThanksForRescue = true;
     } else if (statusScreen) {
       bool rescued = damsel[0].active && !damsel[0].dead && damsel[0].followingPlayer;
+      bool wasBeingCarried = damsel[0].beingCarried; // Save carry state before reset
+      
       if (nearSuccubus) {
         succubusIsFriend = true;
       }
@@ -673,7 +675,13 @@ void showStatusScreen() {
 
       damsel[0].levelOfLove += rescued ? 1 : 0;
       damsel[0].levelOfLove += rescued && damselGotTaken ? 1 : 0;
-      damsel[0].levelOfLove += rescued && damsel[0].beingCarried ? 1 : 0;
+      damsel[0].levelOfLove += rescued && wasBeingCarried ? 1 : 0;
+      
+      damsel[0].beingCarried = wasBeingCarried; // Preserve carry state across level transition if she was being carried
+      if (wasBeingCarried) {
+        damsel[0].followingPlayer = true; // Ensure followingPlayer reflects carried state
+        damsel[0].active = true; // Ensure damsel is active when being carried
+      }
       
       /*Serial.print("DEBUG: rescued=");
       Serial.print(rescued);
@@ -699,7 +707,7 @@ void showStatusScreen() {
         leftDamsel = false;
       }
 
-      if (rescued && randomChance == 3 && !damsel[0].beingCarried && dungeon < bossfightLevel) {
+      if (rescued && randomChance == 3 && !wasBeingCarried && dungeon < bossfightLevel) {
         damselKidnapScreen = true; // Switch to the kidnap screen
         statusScreen = true;       // Keep status screen active
         damselGotTaken = true;
@@ -711,7 +719,13 @@ void showStatusScreen() {
     if (finalStatusScreen && !credits) {
       credits = true;
       bossStateTimer = 0;
-      playWav1.play("endCredits.wav");
+      playWav1.stop();
+      bool played = playWav1.play("endCredits.wav");
+      Serial.print("DEBUG: play endCredits.wav returned ");
+      Serial.println(played);
+      if (!played) {
+        Serial.println("DEBUG: endCredits.wav failed to start (file missing or busy)");
+      }
     }
   }
 }
