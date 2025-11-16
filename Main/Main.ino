@@ -256,6 +256,13 @@ void loop() {
       renderCredits();
     }
   }
+
+  if (!playWav2.isPlaying()) {
+    playWav2.play("12_8.wav");
+  }
+  if (currentUIState == UI_PAUSE) {
+    setJukeboxVolume(0.0f);
+  }
 }
 
 void updateGame() {

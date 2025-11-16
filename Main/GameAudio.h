@@ -16,10 +16,13 @@ extern AudioMixer4         mixer1;
 extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
 extern AudioPlaySdWav      playWav1;
+extern AudioPlaySdWav      playWav2;  // Jukebox music player
 //extern AudioAmplifier      amp1;
 
 extern int ambientNoiseLevel;
 extern int masterVolume; // 1..10
+extern float jukeboxVolume; // 0.0 .. 1.0
+void setJukeboxVolume(float v);
 
 // Audio connections will be defined in the cpp file
 

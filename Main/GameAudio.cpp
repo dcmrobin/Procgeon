@@ -8,6 +8,7 @@ AudioMixer4         mixer1;
 AudioMixer4         musicMixer; // New mixer for music
 AudioOutputI2S      audioOutput;
 AudioPlaySdWav      playWav1;
+AudioPlaySdWav      playWav2;  // Jukebox music player
 //AudioAmplifier      amp1;
 
 // Create audio connections
@@ -20,13 +21,15 @@ AudioConnection     patchCord6(queue[5], 0, mixer1, 1);
 AudioConnection     patchCord7(queue[6], 0, mixer1, 2);
 AudioConnection     patchCord8(queue[7], 0, mixer1, 3);
 AudioConnection     patchCord9(mixer1, 0, musicMixer, 0); // SFX to musicMixer
-AudioConnection     patchCord10(playWav1, 0, musicMixer, 1); // WAV to musicMixer
-AudioConnection     patchCord11(musicMixer, 0, audioOutput, 0);
-AudioConnection     patchCord12(musicMixer, 0, audioOutput, 1);
+AudioConnection     patchCord10(playWav1, 0, musicMixer, 1); // WAV music to musicMixer
+AudioConnection     patchCord11(playWav2, 0, musicMixer, 2); // Jukebox music to musicMixer
+AudioConnection     patchCord12(musicMixer, 0, audioOutput, 0);
+AudioConnection     patchCord13(musicMixer, 0, audioOutput, 1);
 AudioControlSGTL5000 sgtl5000_1;
 
 int ambientNoiseLevel = 0;
 int masterVolume = 10; // Default volume (1..10). sgtl5000_1.volume will be masterVolume/10.0
+float jukeboxVolume = 0.0f;
 
 // RAM-loaded sound effect storage
 uint8_t* sfxData[NUM_SFX] = { nullptr };
@@ -77,9 +80,14 @@ void initAudio() {
     mixer1.gain(2, 0.5);
     mixer1.gain(3, 0.5);
     musicMixer.gain(0, 1.0); // SFX
-    musicMixer.gain(1, 0.2); // WAV music
-    musicMixer.gain(2, 0.0);
+    musicMixer.gain(1, 0.2); // WAV music (main)
+    musicMixer.gain(2, 0.0); // jukebox channel (starts at 0, controlled by setJukeboxVolume)
     musicMixer.gain(3, 0.0);
+}
+
+void setJukeboxVolume(float v) {
+    jukeboxVolume = constrain(v, 0.0f, 1.0f);
+    musicMixer.gain(2, jukeboxVolume);
 }
 
 bool playRawSFX(int sfxIndex) {

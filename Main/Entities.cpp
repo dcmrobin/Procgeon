@@ -404,6 +404,38 @@ void updateEnemies() {
   }
 
   // --- Third pass: main update logic ---
+
+  // Find closest jukebox to the player and set jukebox music volume accordingly
+  {
+    float closestDist = 1e9;
+    int closestIndex = -1;
+    for (int j = 0; j < maxEnemies; j++) {
+      if (enemies[j].hp > 0 && enemies[j].name == "jukebox") {
+        float dx = enemies[j].x - playerX;
+        float dy = enemies[j].y - playerY;
+        float dist = sqrt(dx*dx + dy*dy);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIndex = j;
+        }
+      }
+    }
+    float vol = 0.0f;
+    if (closestIndex != -1) {
+      // Map distance to volume: within maxRadius tiles full volume, beyond zero
+      const float maxRadius = 12.0f;
+      if (closestDist < maxRadius) {
+        vol = 1.0f - (closestDist / maxRadius);
+        if (vol < 0.0f) vol = 0.0f;
+      }
+    }
+    setJukeboxVolume(vol);
+
+    // Increase ambient noise proportional to jukebox volume so enemies are attracted
+    int noiseFromJukebox = (int)round(vol * 8.0f); // 0..8
+    if (ambientNoiseLevel < noiseFromJukebox) ambientNoiseLevel = noiseFromJukebox;
+  }
+
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp <= 0) continue; // Skip dead enemies
     

@@ -1,6 +1,6 @@
 need splash screen- "VELHO"
 
-add an enemy that plays the happy music and attracts loads of other enemies because the sound level is so high.
+reimpliment brutes.
 
 armor is way overpowered. the armorvalue needs to be reduced by a certain small amount with each hit from an enemy depending on the
 damage that enemy does. then the currentarmorvalue needs to be reassigned after each bit of damage to the armor. armor value should
