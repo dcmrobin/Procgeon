@@ -433,12 +433,15 @@ void handlePauseScreen() {
   display.print("PAUSED");
   display.setTextSize(1);
 
-  // Draw menu entries
+  // Draw menu entries using highlighted background for selection
   int baseY = 46;
   // Volume entry
-  // Draw chevron at a fixed column to avoid misalignment
-  display.setCursor(6, baseY);
-  if (pauseSelection == 0) display.print(">"); else display.print(" ");
+  if (pauseSelection == 0) {
+    display.fillRect(10, baseY - 2, 108, 12, 15); // white background
+    display.setTextColor(0); // black text on highlight
+  } else {
+    display.setTextColor(15); // white text on black
+  }
   display.setCursor(18, baseY);
   display.print("Volume:");
   // Draw left chevron, value, right chevron
@@ -449,9 +452,17 @@ void handlePauseScreen() {
 
   // Restart entry
   baseY += 14;
-  if (pauseSelection == 1) display.print(">"); else display.print(" ");
+  if (pauseSelection == 1) {
+    display.fillRect(10, baseY - 2, 108, 12, 15);
+    display.setTextColor(0);
+  } else {
+    display.setTextColor(15);
+  }
   display.setCursor(18, baseY);
   display.print("Restart Game");
+
+  // Reset text color to white for footer
+  display.setTextColor(15);
 
   display.setCursor(24, 110);
   display.print("Press [START]");
