@@ -285,6 +285,9 @@ void handleItemActionMenu() {
         // Apply scroll effects based on type
         if (selectedItem.effectType == ScrollProtectionEffect) {
           if (equippedArmor.item != Null) {
+            if (equippedArmor.armorValue == 0) {
+              equippedArmor.description = "Restored armor.";
+            }
             equippedArmor.armorValue += 1;
             equippedArmorValue += 1; // Increase armor protection
           } else {

@@ -32,9 +32,9 @@ GameItem itemList[] = {
   { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens."), 4},
   { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), 3, false},
   { Ring, EquipmentCategory, String("Ring"), 0,  0,  0, 0, 0, String("Put it on to find out."), String("Ring"), String("You equip the ring."), 3, false},
-  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), 3, false, ArmorEffect, 2, false, false, 2, false},
-  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), 4, false, ArmorEffect, 3, false, false, 2, true},
-  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 4, false, ArmorEffect, 1, false, false, 2, false},
+  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage taken."), String("Leather Armor"), String("You equip the leather armor."), 3, false, ArmorEffect, 2, false, false, 2, false},
+  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage taken."), String("Iron Armor"), String("You equip the iron armor."), 4, false, ArmorEffect, 3, false, false, 2, true},
+  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage taken and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 4, false, ArmorEffect, 1, false, false, 2, false},
   { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), 4, false, ArmorEffect, 0, false, false, 2, false},
   { Null, PotionCategory, String("Null"), 0, 0, 0, 0, 0, String(""), String("Null"), String(""), 5, false }
 };

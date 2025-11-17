@@ -86,7 +86,7 @@ struct GameItem {
   int rarity = 2;
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
-  int armorValue = 0;  // Damage reduction when equipped
+  float armorValue = 0.0f;  // Damage reduction when equipped
   bool isEquipped = false;  // Whether this item is currently equipped
   bool isCursed = false;
   int curseChance = 0;

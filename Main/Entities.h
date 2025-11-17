@@ -91,5 +91,6 @@ void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer
 void renderEnemies();
 void renderDamsel();
 void renderProjectiles();
+void reduceArmorDurability(int i);
 
 #endif

@@ -1,9 +1,9 @@
-need splash screen- "VELHO"
+need the splash screen integrated.
 
 reimpliment brutes.
 
-logic for the clock enemy might be a bit shaky.
+need more armor, rings, and scrolls.
 
-armor is way overpowered. the armorvalue needs to be reduced by a certain small amount with each hit from an enemy depending on the
-damage that enemy does. then the currentarmorvalue needs to be reassigned after each bit of damage to the armor. armor value should
-not be able to co below 0- if it would, the armor needs to show "broken" in its description.
+why is armor durability not reducing?
+
+logic for the clock enemy might be a bit shaky. is the nearclock bool not being reset when the clock is killed?

@@ -755,18 +755,21 @@ void updateEnemies() {
     // Handle collisions differently for friendly and hostile enemies
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
       if (enemies[i].name == "teleporter") {
-        playRawSFX(14);
-        int newX, newY;
-        do {
-          newX = random(0, mapWidth);
-          newY = random(0, mapHeight);
-        } while (dungeonMap[newY][newX] != Floor);
-        playerX = newX;
-        playerY = newY;
+        if (equippedArmor.item != MagicRobe) { // Only teleport if not wearing Magic Robe
+          playRawSFX(14);
+          int newX, newY;
+          do {
+            newX = random(0, mapWidth);
+            newY = random(0, mapHeight);
+          } while (dungeonMap[newY][newX] != Floor);
+          playerX = newX;
+          playerY = newY;
+        }
       } else if (!enemies[i].isFriend) { // Only hostile enemies damage the player
         isAttacking = true;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
-          int damage = enemies[i].damage - equippedArmorValue;
+          int damage = enemies[i].damage - (int)equippedArmorValue;
+          reduceArmorDurability(i);
           if (damage < 0) damage = 0;
           if (damage > 0) {
             playerHP -= damage;
@@ -881,7 +884,8 @@ void updateProjectiles() {
 
       // Also check for collision with player:
       if (projectiles[i].shotByPlayer == false && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, playerX, playerY)) {
-        int damage = projectiles[i].damage - equippedArmorValue;
+        int damage = projectiles[i].damage - (int)equippedArmorValue;
+        reduceArmorDurability(i);
         if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
         playerHP -= damage;
         triggerScreenShake(2, 1);
@@ -896,6 +900,21 @@ void updateProjectiles() {
 void moveDamselToPos(float posX, float posY) {
   damsel[0].x = posX;
   damsel[0].y = posY;
+}
+
+void reduceArmorDurability(int i) {
+  equippedArmor.armorValue -= (enemies[i].damage / 10);
+  if (equippedArmor.armorValue < 0) {
+    equippedArmor.armorValue = 0;
+    equippedArmor.description = "Broken armor.";
+  }
+  
+  equippedArmorValue = equippedArmor.armorValue;
+
+  Serial.print("Armor durability reduced to: ");
+  Serial.println(equippedArmor.armorValue);
+  Serial.print("EquippedArmorvalue is now: ");
+  Serial.println(equippedArmorValue);
 }
 
 void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId) {

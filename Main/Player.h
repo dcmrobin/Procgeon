@@ -47,7 +47,7 @@ extern bool nearSuccubus;
 extern bool damselWasFollowing;
 extern int damselWaitUpTimer;
 extern bool damselSaidWaitUp;
-extern int equippedArmorValue;
+extern float equippedArmorValue;
 extern GameItem equippedArmor;
 extern bool equippedRiddleStone;
 extern int playerAttackDamage;
