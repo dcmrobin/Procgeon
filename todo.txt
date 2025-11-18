@@ -4,4 +4,4 @@ reimpliment brutes.
 
 need more armor, rings, and scrolls.
 
-logic for the clock enemy might be a bit shaky. is the nearclock bool not being reset when the clock is killed?
+logic for the clock enemy might be a bit shaky. is the nearclock bool not being reset when the clock is killed? (nearclock still being set near where the clock died)

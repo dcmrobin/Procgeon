@@ -592,7 +592,7 @@ void showStatusScreen() {
             display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
             u8g2_for_adafruit_gfx.setCursor(0, 105);
             if (!knowsDamselName) {
-              u8g2_for_adafruit_gfx.print(F(damselDeathMsg + "the Damsel!"));
+              u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
             } else {
               String msg = damselDeathMsg + damsel[0].name + "!";
               u8g2_for_adafruit_gfx.print(F(msg.c_str()));

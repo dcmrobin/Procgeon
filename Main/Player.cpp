@@ -611,29 +611,41 @@ void handleHungerAndEffects() {
         float sdx = enemies[i].x - playerX;
         float sdy = enemies[i].y - playerY;
         float succubusDistanceSquared = sdx * sdx + sdy * sdy;
-        if (succubusDistanceSquared < 40.0) {
-          nearSuccubus = true;
-          // While pulling, dialogue pops up
-          currentDialogue = "Hey there, handsome...";
-          damsel[0].followingPlayer = false;
-          currentDamselPortrait = succubusPortrait;
-          showDialogue = true;
-          if (dialogueTimeLength != 373) {
-            playRawSFX3D(24, enemies[i].x, enemies[i].y);
+        if (damsel[0].levelOfLove < 6 || !damsel[0].followingPlayer || damsel[0].dead || !damsel[0].active) {
+          if (succubusDistanceSquared < 40.0) {
+            nearSuccubus = true;
+            // While pulling, dialogue pops up
+            currentDialogue = "Hey there, handsome...";
+            damsel[0].followingPlayer = false;
+            currentDamselPortrait = succubusPortrait;
+            showDialogue = true;
+            if (dialogueTimeLength != 373) {
+              playRawSFX3D(24, enemies[i].x, enemies[i].y);
+            }
+            dialogueTimeLength = 373;
+            float pullStrength = 0.05; // Adjust this value to change pull strength
+            playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+            playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+            // Ensure the player doesn't move into walls due to the pull
+            int rPullX = round(playerX);
+            int rPullY = round(playerY);
+            if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
+              playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+              playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+            }
+          } else {
+            nearSuccubus = false;
           }
-          dialogueTimeLength = 373;
-          float pullStrength = 0.05; // Adjust this value to change pull strength
-          playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
-          playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
-          // Ensure the player doesn't move into walls due to the pull
-          int rPullX = round(playerX);
-          int rPullY = round(playerY);
-          if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
-            playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
-            playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
-          }
-        } else {
+        } else if (damsel[0].levelOfLove >= 6 && damsel[0].followingPlayer && !damsel[0].dead && damsel[0].active) {
           nearSuccubus = false;
+          damsel[0].beingCarried = true;
+          currentDamselPortrait = damselPortraitCarrying;
+          dialogueTimeLength = 400;
+          //currentDialogue = "You get away from him! He's mine!";
+          currentDialogue = "Stay away from her- you're mine!";
+          showDialogue = true;
+          playRawSFX(21);
+          playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
         }
       }
     }
