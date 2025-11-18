@@ -411,10 +411,17 @@ void handleUIStateTransitions() {
       case UI_RIDDLE:
         currentUIState = UI_RIDDLE;
         break;
+      case UI_SPLASH:
+        currentUIState = UI_SPLASH;
+        break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     playRawSFX(9);
-    currentUIState = currentUIState == UI_PAUSE ? UI_NORMAL : UI_PAUSE;
+    if (currentUIState == UI_SPLASH) {
+      playWav1.stop();
+      shouldRestartGame = true;
+    }
+    currentUIState = currentUIState == UI_PAUSE || currentUIState == UI_SPLASH ? UI_NORMAL : currentUIState == UI_NORMAL ? UI_PAUSE : currentUIState;
   }
 }
 

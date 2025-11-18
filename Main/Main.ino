@@ -192,7 +192,8 @@ void setup() {
   pinMode(BUTTON_START_PIN, INPUT_PULLUP);
 
   // Initialize the game
-  resetGame();
+  currentUIState = UI_SPLASH;
+  //resetGame();
   playRawSFX(11);
 }
 
@@ -201,6 +202,7 @@ void loop() {
 
   if (shouldRestartGame) {
     resetGame();
+    shouldRestartGame = false;
   }
 
   unsigned long currentTime = millis();
@@ -246,6 +248,10 @@ void loop() {
 
             case UI_RIDDLE:
               handleRiddles();
+              break;
+
+            case UI_SPLASH:
+              renderSplashScreen();
               break;
           }
         } else {
@@ -309,6 +315,17 @@ void renderGame() {
   if (playerActed || playerNearClockEnemy) {
     updateAnimations();
   }
+  display.display();
+}
+
+void renderSplashScreen() {
+  // add up up down down left right left right b a start for a secret
+
+  if (!playWav1.isPlaying()) {
+    playWav1.play("title.wav");
+  }
+  display.clearDisplay();
+  display.drawBitmap(0, 0, splashScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
   display.display();
 }
 

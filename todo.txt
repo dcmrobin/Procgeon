@@ -1,4 +1,4 @@
-need the splash screen integrated.
+add up up down down left right left right b a start for a secret at the splash screen.
 
 reimpliment brutes.
 

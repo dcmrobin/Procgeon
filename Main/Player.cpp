@@ -509,9 +509,7 @@ void handlePauseScreen() {
   // Restart: press B to confirm
   if (pauseSelection == 1 && buttons.bPressed && !buttons.bPressedPrev) {
     playRawSFX(9);
-    shouldRestartGame = true;
-    // Leave pause state
-    currentUIState = UI_NORMAL;
+    currentUIState = UI_SPLASH;
   }
 }
 
