@@ -4,6 +4,4 @@ reimpliment brutes.
 
 need more armor, rings, and scrolls.
 
-why is armor durability not reducing?
-
 logic for the clock enemy might be a bit shaky. is the nearclock bool not being reset when the clock is killed?

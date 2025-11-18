@@ -768,7 +768,7 @@ void updateEnemies() {
       } else if (!enemies[i].isFriend) { // Only hostile enemies damage the player
         isAttacking = true;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
-          int damage = enemies[i].damage - (int)equippedArmorValue;
+          int damage = enemies[i].damage - round(equippedArmorValue);
           reduceArmorDurability(i);
           if (damage < 0) damage = 0;
           if (damage > 0) {
@@ -776,8 +776,8 @@ void updateEnemies() {
             triggerScreenShake(2, 1);
             playRawSFX(0);
             checkIfDeadFrom(enemies[i].name);
-            hasAttacked = true;
           }
+          hasAttacked = true;
         }
       }
     }
@@ -884,7 +884,7 @@ void updateProjectiles() {
 
       // Also check for collision with player:
       if (projectiles[i].shotByPlayer == false && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, playerX, playerY)) {
-        int damage = projectiles[i].damage - (int)equippedArmorValue;
+        int damage = projectiles[i].damage - round(equippedArmorValue);
         reduceArmorDurability(i);
         if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
         playerHP -= damage;
@@ -903,7 +903,7 @@ void moveDamselToPos(float posX, float posY) {
 }
 
 void reduceArmorDurability(int i) {
-  equippedArmor.armorValue -= (enemies[i].damage / 10);
+  equippedArmor.armorValue -= ((float)enemies[i].damage / 100);
   if (equippedArmor.armorValue < 0) {
     equippedArmor.armorValue = 0;
     equippedArmor.description = "Broken armor.";
@@ -911,10 +911,10 @@ void reduceArmorDurability(int i) {
   
   equippedArmorValue = equippedArmor.armorValue;
 
-  Serial.print("Armor durability reduced to: ");
-  Serial.println(equippedArmor.armorValue);
-  Serial.print("EquippedArmorvalue is now: ");
-  Serial.println(equippedArmorValue);
+  //Serial.print("Armor durability reduced to: ");
+  //Serial.println(equippedArmor.armorValue);
+  //Serial.print("EquippedArmorvalue is now: ");
+  //Serial.println(equippedArmorValue);
 }
 
 void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId) {
