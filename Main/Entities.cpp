@@ -864,6 +864,11 @@ void updateProjectiles() {
           playRawSFX3D(23, enemies[j].x, enemies[j].y);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
             kills += 1;
+            if (enemies[j].name == "clock") {
+              enemies[j].x = -3000;
+              enemies[j].y = -3000;
+              playerNearClockEnemy = false;
+            }
           }
           projectiles[i].active = false; // Deactivate the bullet
           break;

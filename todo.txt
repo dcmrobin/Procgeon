@@ -3,5 +3,3 @@ add up up down down left right left right b a start for a secret at the splash s
 reimpliment brutes.
 
 need more armor, rings, and scrolls.
-
-logic for the clock enemy might be a bit shaky. is the nearclock bool not being reset when the clock is killed? (nearclock still being set near where the clock died)
