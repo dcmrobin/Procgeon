@@ -158,5 +158,6 @@ extern const unsigned char endScreenSuccubus [];
 extern const unsigned char creditsDamselSaved [];
 extern const unsigned char creditsDamselNotSaved [];
 extern const unsigned char creditsSuccubus [];
+extern const unsigned char splashScreen [];
 
 #endif // SPRITES_H
