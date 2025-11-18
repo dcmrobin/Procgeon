@@ -66,6 +66,7 @@ extern int blindnessTimer;
 extern bool paralyzed;
 extern int paralysisTimer;
 extern bool playerNearClockEnemy;
+extern String damselDeathMsg;
 
 void renderPlayer();
 void handleInput();

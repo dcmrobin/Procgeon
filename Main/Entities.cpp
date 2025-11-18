@@ -868,17 +868,22 @@ void updateProjectiles() {
           projectiles[i].active = false; // Deactivate the bullet
           break;
         } else if (!damsel[0].dead && !damsel[0].beingCarried && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
-          playRawSFX3D(23, damsel[0].x, damsel[0].y);
-          playRawSFX3D(17, damsel[0].x, damsel[0].y);
-          levelOfDamselDeath = dungeon;
-          damsel[0].dead = true;
-          currentDamselPortrait = damselPortraitDying;
-          dialogueTimeLength = 200;
-          currentDialogue = "Ugh-!";
-          showDialogue = true;
-          damsel[0].active = false;
-          projectiles[i].active = false;
-          break;
+          if (damsel[0].levelOfLove < 6 || !projectiles[i].shotByPlayer) {
+            if (!projectiles[i].shotByPlayer) {
+              damselDeathMsg = "Something killed ";
+            }
+            playRawSFX3D(23, damsel[0].x, damsel[0].y);
+            playRawSFX3D(17, damsel[0].x, damsel[0].y);
+            levelOfDamselDeath = dungeon;
+            damsel[0].dead = true;
+            currentDamselPortrait = damselPortraitDying;
+            dialogueTimeLength = 200;
+            currentDialogue = "Ugh-!";
+            showDialogue = true;
+            damsel[0].active = false;
+            projectiles[i].active = false;
+            break;
+          }
         }
       }
 

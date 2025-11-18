@@ -70,6 +70,7 @@ int paralysisTimer = 0;
 bool playerNearClockEnemy = false;
 int shootDelay = 0;
 bool reloading;
+String damselDeathMsg = "You killed ";
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;

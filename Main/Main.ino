@@ -29,6 +29,7 @@ const unsigned long frameDelay = 20; // Update every 100ms
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  damselDeathMsg = "You killed ";
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
   //amp1.gain(0.01);
@@ -591,9 +592,9 @@ void showStatusScreen() {
             display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
             u8g2_for_adafruit_gfx.setCursor(0, 105);
             if (!knowsDamselName) {
-              u8g2_for_adafruit_gfx.print(F("You killed the Damsel!"));
+              u8g2_for_adafruit_gfx.print(F(damselDeathMsg + "the Damsel!"));
             } else {
-              String msg = "You killed " + damsel[0].name + "!";
+              String msg = damselDeathMsg + damsel[0].name + "!";
               u8g2_for_adafruit_gfx.print(F(msg.c_str()));
             }
             u8g2_for_adafruit_gfx.setCursor(0, 115);
