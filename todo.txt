@@ -1,5 +1,3 @@
 add up up down down left right left right b a start for a secret at the splash screen.
 
-reimpliment brutes.
-
 need more armor, rings, and scrolls.
