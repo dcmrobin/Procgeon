@@ -71,25 +71,25 @@ Dialogue damselCarryDialogue[] = {
 };
 
 Dialogue ridiculeDialogue[] = {
-  {"Is that the best you can do?", 400},
-  {"I've seen slimes with more brains.", 400},
+  {"There you have it. You're an idiot.", 400},
+  {"Lights are on, but nobody's home.", 400},
   {"Use your brain! Oh wait- you don't have one.", 400},
-  {"Nice move genius.", 400},
-  {"You call that magic?", 400},
-  {"You're not the greatest at this.", 400},
-  {"Wow. Just wow.", 400},
-  {"Maybe potions just aren't your thing.", 400}
+  {"Nice move, man.", 400},
+  {"You're so done for.", 400},
+  {"You're pretty bad at this.", 400},
+  {"Incredibly bad performance.", 400},
+  {"Only stupid people drink that potion.", 400}
 };
 
 Dialogue glamourDialogue[] = {
-  {"You're looking sharp today!", 400},
-  {"That was some impressive magic!", 400},
-  {"You make this look so easy.", 400},
-  {"Is there anything you can't do?", 400},
-  {"You're a true hero!", 400},
-  {"Many aren't as skilled as you.", 400},
-  {"Your bravery is very inspiring.", 400},
-  {"Keep going, champion!", 400}
+  {"Nobody could resist your charm!", 400},
+  {"What bulging muscles!", 400},
+  {"What a glorious hat you wear!", 400},
+  {"You're so handsome!", 400},
+  {"You're the best at this!", 400},
+  {"You're such a hero!", 400},
+  {"Such bravery!", 400},
+  {"Don't give up, champion!", 400}
 };
 
 bool computePath(int startX, int startY, int goalX, int goalY, PathNode* path, int &pathLength, int maxPathNodes = 32) {
