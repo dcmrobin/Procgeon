@@ -50,6 +50,7 @@ void resetGame() {
   creditsBrightness = 15;
   nearSuccubus = false;
   succubusIsFriend = false;
+  endlessMode = false;
   
   // Reset damsel
   damsel[0].name = generateFemaleName();
@@ -571,60 +572,66 @@ void showStatusScreen() {
   u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
 
   // Only show regular status screens if not final status screen
-  if (!finalStatusScreen) {
-    if (!succubusIsFriend && !nearSuccubus) {
-      if (!damselKidnapScreen) {
-        if (dungeon > levelOfDamselDeath + 3) {
-          if (!damsel[0].dead && damsel[0].followingPlayer) {
-            if (!damsel[0].beingCarried) {
-              display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-            } else {
-              display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-            }
-            u8g2_for_adafruit_gfx.setCursor(0, 125);
-            u8g2_for_adafruit_gfx.print(F("You rescued the Damsel!"));
-          } else {
-            u8g2_for_adafruit_gfx.setCursor(0, 125);
-            u8g2_for_adafruit_gfx.print(F("Error."));
-          }
-        } else if (dungeon == levelOfDamselDeath) {
-          if (damsel[0].dead) {
-            display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-            u8g2_for_adafruit_gfx.setCursor(0, 105);
-            if (!knowsDamselName) {
-              u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
-            } else {
-              String msg = damselDeathMsg + damsel[0].name + "!";
-              u8g2_for_adafruit_gfx.print(F(msg.c_str()));
-            }
-            u8g2_for_adafruit_gfx.setCursor(0, 115);
-            u8g2_for_adafruit_gfx.print(F(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!"));
-            if (damsel[0].levelOfLove >= 5) {
+  if (!nearSuccubus && !endlessMode) {
+    if (!finalStatusScreen) {
+      if (!succubusIsFriend && !nearSuccubus) {
+        if (!damselKidnapScreen) {
+          if (dungeon > levelOfDamselDeath + 3) {
+            if (!damsel[0].dead && damsel[0].followingPlayer) {
+              if (!damsel[0].beingCarried) {
+                display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+              } else {
+                display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+              }
               u8g2_for_adafruit_gfx.setCursor(0, 125);
-              u8g2_for_adafruit_gfx.print(F("She loved you!"));
-            }
-          } else if (!damsel[0].dead && !damsel[0].followingPlayer && !damsel[0].beingCarried) {
-            display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-            u8g2_for_adafruit_gfx.setCursor(0, 125);
-            if (!knowsDamselName) {
-              u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
+              u8g2_for_adafruit_gfx.print(F("You rescued the Damsel!"));
             } else {
-              String msg = "You left " + damsel[0].name + "!";
-              u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+              u8g2_for_adafruit_gfx.setCursor(0, 125);
+              u8g2_for_adafruit_gfx.print(F("Error."));
             }
-            leftDamsel = true;
+          } else if (dungeon == levelOfDamselDeath) {
+            if (damsel[0].dead) {
+              display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+              u8g2_for_adafruit_gfx.setCursor(0, 105);
+              if (!knowsDamselName) {
+                u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
+              } else {
+                String msg = damselDeathMsg + damsel[0].name + "!";
+                u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+              }
+              u8g2_for_adafruit_gfx.setCursor(0, 115);
+              u8g2_for_adafruit_gfx.print(F(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!"));
+              if (damsel[0].levelOfLove >= 5) {
+                u8g2_for_adafruit_gfx.setCursor(0, 125);
+                u8g2_for_adafruit_gfx.print(F("She loved you!"));
+              }
+            } else if (!damsel[0].dead && !damsel[0].followingPlayer && !damsel[0].beingCarried) {
+              display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+              u8g2_for_adafruit_gfx.setCursor(0, 125);
+              if (!knowsDamselName) {
+                u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
+              } else {
+                String msg = "You left " + damsel[0].name + "!";
+                u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+              }
+              leftDamsel = true;
+            }
+          } else {
+            display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+            u8g2_for_adafruit_gfx.setCursor(0, 125);
+            u8g2_for_adafruit_gfx.print(F("You progress. Alone."));
           }
         } else {
-          display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-          u8g2_for_adafruit_gfx.setCursor(0, 125);
-          u8g2_for_adafruit_gfx.print(F("You progress. Alone."));
+          display.drawBitmap(0, 0, capturedDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+          u8g2_for_adafruit_gfx.setCursor(0, 10);
+          u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
         }
-      } else {
-        display.drawBitmap(0, 0, capturedDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-        u8g2_for_adafruit_gfx.setCursor(0, 10);
-        u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
       }
     }
+  } else if (endlessMode) {
+    display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+    u8g2_for_adafruit_gfx.setCursor(0, 125);
+    u8g2_for_adafruit_gfx.print(F("You progress. Alone."));
   }
   if (nearSuccubus && !finalStatusScreen) {
     if (!succubusIsFriend) {
@@ -814,7 +821,9 @@ void updateBossfight() {
     enemies[0].moveAmount = 0.1; // Faster movement in enraged state
   } else if (bossState == Beaten) {
     enemies[0].moveAmount = 0;
-    if (!finalStatusScreen) {
+    dungeonMap[(mapHeight/2) + 4][(mapWidth/2) - 3] = Exit;
+    dungeonMap[(mapHeight/2) + 4][(mapWidth/2) + 3] = Freedom;
+    /*if (!finalStatusScreen) {
       bossStateTimer -= 10;
       if (bossStateTimer < -2000) {
         statusScreen = true;
@@ -822,7 +831,7 @@ void updateBossfight() {
         // Clear succubus flags when showing final status screen
         nearSuccubus = false;
       }
-    }
+    }*/
   }
 
   // Boss AI
@@ -1056,7 +1065,7 @@ void updateBossfight() {
         currentDialogue = "Heh... that was quite exhilarating.";
         showDialogue = true;
       } else if (damsel[0].active && !damsel[0].dead) {
-        if (currentDialogue != "You did it! You killed him!") {
+        if (currentDialogue != "You did it! You killed him!" && currentDialogue != "Please don't go- come be free, free with me!") {
           currentDamselPortrait = damselPortraitNormal;
           dialogueTimeLength = 300;
           playRawSFX(18);

@@ -86,7 +86,7 @@ void initAudio() {
 }
 
 void setJukeboxVolume(float v) {
-    jukeboxVolume = constrain(v, 0.0f, 0.3f);
+    jukeboxVolume = constrain(v, 0.0f, 0.23f);
     // Scale jukebox volume by master volume so it respects the volume control
     float masterVol = masterVolume / 10.0f;
     musicMixer.gain(2, jukeboxVolume * masterVol);

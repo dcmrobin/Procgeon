@@ -1,3 +1,5 @@
 add up up down down left right left right b a start for a secret at the splash screen.
 
 need more armor, rings, and scrolls.
+
+convert all String to char arrays for memory stability.

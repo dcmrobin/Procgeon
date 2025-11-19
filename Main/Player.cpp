@@ -71,6 +71,7 @@ bool playerNearClockEnemy = false;
 int shootDelay = 0;
 bool reloading;
 String damselDeathMsg = "You killed ";
+bool endlessMode = false;
 
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
@@ -102,13 +103,15 @@ void renderPlayer() {
     bool facingClosedDoor = false;
     bool facingOpenDoor = false;
     bool facingOpenExit = false;
+    bool facingFreedom = false;
     if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
       facingChest = (dungeonMap[facingY][facingX] == ChestTile);
       facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
       facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
       facingOpenExit = (dungeonMap[facingY][facingX] == Exit);
+      facingFreedom = (dungeonMap[facingY][facingX] == Freedom);
     }
-    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit) {
+    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit || facingFreedom) {
       // Prevent player from shooting while opening chest or door
       reloading = true;
       shootDelay = 0;
@@ -127,6 +130,8 @@ void renderPlayer() {
         display.print("Close Door [B]");
       } else if (facingOpenExit) {
         display.print("Descend [B]");
+      } else if (facingFreedom) {
+        display.print("Escape [B]");
       }
     }
   }
@@ -308,7 +313,7 @@ void handleInput() {
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == DoorOpen) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
@@ -391,11 +396,39 @@ void handleInput() {
           OpenChest(ty, tx, targetDY);
         } else if (dungeonMap[ty][tx] == Exit) {
           playRawSFX(11);
-          if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
-            levelOfDamselDeath = dungeon;
-            damsel[0].active = false;
+          if (dungeon != bossfightLevel) {
+            if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
+              levelOfDamselDeath = dungeon;
+              damsel[0].active = false;
+            }
+            statusScreen = true;
+          } else {
+            if (damsel[0].levelOfLove >= 8 && !damsel[0].dead) {
+              // Damsel does not let player go deeper in the dungeon
+              currentDamselPortrait = damselPortraitScared;
+              currentDialogue = "Please don't go- come be free, free with me!";
+              showDialogue = true;
+              dialogueTimeLength = 400;
+            } else if (damsel[0].levelOfLove < 8) {
+              playRawSFX(11);
+              statusScreen = true;
+              endlessMode = true;
+              damsel[0].active = false;
+              damsel[0].levelOfLove = 0;
+              damsel[0].x = -3000;
+              damsel[0].y = -3000;
+              damsel[0].beingCarried = false;
+              damsel[0].followingPlayer = false;
+              damsel[0].completelyRescued = false;
+            }
           }
+        } else if (dungeonMap[ty][tx] == Freedom) {
+          playRawSFX(11);
           statusScreen = true;
+          finalStatusScreen = true;
+          bossStateTimer = 0;
+          // Clear succubus flags when showing final status screen
+          nearSuccubus = false;
         }
       }
     }

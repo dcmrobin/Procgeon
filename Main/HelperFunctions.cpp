@@ -595,9 +595,9 @@ bool isWalkable(int x, int y) {
   if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
   TileTypes tile = dungeonMap[y][x];
   // Walkable if floor or items/stairs/exits (adjust as needed)
-  return (tile == Floor || tile == StartStairs || tile == Exit ||
+  return (tile == Floor || tile == StartStairs || tile == Exit || tile == Freedom ||
           tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
-          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen);
+          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen || tile == RiddleStoneTile);
 }
 
 void unstuckEnemy(Enemy &enemy) {

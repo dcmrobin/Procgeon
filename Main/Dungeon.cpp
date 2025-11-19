@@ -5,6 +5,7 @@
 #include "Entities.h"
 #include "Player.h"
 #include "Item.h"
+#include "GameAudio.h"
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
@@ -13,6 +14,7 @@ bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;
 void generateDungeon(bool isBossfight) {
+  ambientNoiseLevel = 0;
   generatedMapItem = false;
 
   // Initialize map with walls
@@ -179,7 +181,7 @@ void generateDungeon(bool isBossfight) {
     }
   }
 
-  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend) {
+  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend && !endlessMode) {
     // Generate the damsel's cell
     int damselRoomWidth = 7;
     int damselRoomHeight = 5;
@@ -234,8 +236,8 @@ void generateDungeon(bool isBossfight) {
     // If damselGotTaken is true, her levelOfLove is preserved from before
   } else {
     // Deactivate damsel if succubus is friend or damsel is dead
-    damsel[0].x = 3000;
-    damsel[0].y = 3000;
+    damsel[0].x = -3000;
+    damsel[0].y = -3000;
     damsel[0].active = false;
     damsel[0].beingCarried = false;
     damsel[0].followingPlayer = false;
@@ -337,6 +339,7 @@ void spawnEnemies(bool isBossfight) {
       generatedSuccubusFriend = true;
       currentDamselPortrait = succubusPortrait;
       currentDialogue = "You didn't try to kill me. I'll return the favour.";
+      playRawSFX(24);
       showDialogue = true;
       dialogueTimeLength = 600;
       enemies[0] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
@@ -521,6 +524,12 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
         display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case Exit:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
+      break;
+    case Freedom:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))

@@ -16,6 +16,7 @@ enum TileTypes {
   DoorClosed,
   DoorOpen,
   Exit,
+  Freedom,
   Potion,
   Map,
   MushroomTile,
