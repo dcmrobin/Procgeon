@@ -354,28 +354,28 @@ void spawnEnemies(bool isBossfight) {
         int ey = random(0, mapHeight);
         if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
           if (random(0, 5) == 1 && dungeon > 1) {
-            enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0, {}, nullptr, 20, false, false };
+            enemies[i] = { (float)ex, (float)ey, 20 + (endlessMode ? (dungeon-11) : 0), false, 0.05, "blob", 20, 2 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
           } else if (random(0, 4) == 2 && dungeon > 3) {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0, {}, nullptr, 20, false, false };
+            enemies[i] = { (float)ex, (float)ey, 10 + (endlessMode ? (dungeon-11) : 0), false, 0.11, "teleporter", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
           } else if (random(0, 6) == 4 && dungeon > 4) {
-            enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, {}, nullptr, 20, false, false };
+            enemies[i] = { (float)ex, (float)ey, 15 + (endlessMode ? (dungeon-11) : 0), false, 0.06, "shooter", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
           } else if (random(0, 10) == 5 && dungeon > 6) {
-            enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, {}, nullptr, 50, false, false };
+            enemies[i] = { (float)ex, (float)ey, 30 + (endlessMode ? (dungeon-11) : 0), false, 0.02, "succubus", 50, 110 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 50, false, false };
             enemies[i].sprite = succubusIdleSprite;
           } else if (random(0, 100) > 92 && dungeon > 2) {
-            enemies[i] = { (float)ex, (float)ey, 25, false, 0.07, "jukebox", 20, 0, false, 0, 0, {}, nullptr, 20, false, false };
+            enemies[i] = { (float)ex, (float)ey, 25 + (endlessMode ? (dungeon-11) : 0), false, 0.07, "jukebox", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = jukeboxAnimation[random(0, jukeboxAnimationLength)].frame;
           } else if (random(0, 12) == 11 && dungeon > 6) {
             if (!generatedClockEnemy) {
-              enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0, {}, nullptr, 20, false, false };
+              enemies[i] = { (float)ex, (float)ey, 30 + (endlessMode ? (dungeon-11) : 0), false, 0.07, "clock", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
               enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
               generatedClockEnemy = true;
             }
           } else {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, {}, nullptr, 20, false, false };
+            enemies[i] = { (float)ex, (float)ey, 10 + (endlessMode ? (dungeon-11) : 0), false, 0.08, "batguy", 20, 1 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
           }
 
