@@ -390,9 +390,6 @@ void gameOver() {
     } else if (deathCause == "boss") {
       display.drawBitmap(0, 0, wizardDeath_boss, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("You failed."));
-    } else if (deathCause == "brute") {
-      display.drawBitmap(0, 0, wizardDeath_stupidity, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("Slain."));
     } else {
       u8g2_for_adafruit_gfx.print(F("Yeah, idk what killed you."));
     }
