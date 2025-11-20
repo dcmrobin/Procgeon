@@ -29,6 +29,7 @@ const unsigned long frameDelay = 20; // Update every 100ms
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  playTitleScreenMusicTimer = 0;
   damselDeathMsg = "You killed ";
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
@@ -321,11 +322,20 @@ void renderGame() {
 }
 
 void renderSplashScreen() {
+  playTitleScreenMusicTimer++;
+  if (playTitleScreenMusicTimer > 600) {
+    playTitleScreenMusicTimer = 600;
+  }
   // add up up down down left right left right b a start for a secret
 
-  if (!playWav1.isPlaying()) {
-    playWav1.play("title.wav");
+  if (playTitleScreenMusicTimer > 30) {
+    if (!playWav1.isPlaying()) {
+      playWav1.play("title_screen.wav");
+    }
   }
+  //if (!SD.exists("title_screen.wav")) {
+  //  Serial.println("title_screen.wav apparently doesn't exist");
+  //}
   display.clearDisplay();
   display.drawBitmap(0, 0, splashScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
   display.display();

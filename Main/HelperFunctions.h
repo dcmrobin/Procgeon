@@ -92,6 +92,7 @@ extern float offsetY;
 
 extern int shakeDuration;
 extern int shakeIntensity;
+extern int playTitleScreenMusicTimer;
 
 extern const float scrollSpeed;
 
