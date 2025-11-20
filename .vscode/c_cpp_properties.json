@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Arduino-Teensy4",
             "includePath": [
                 "C:/Users/matsk/AppData/Local/Arduino15/packages/teensy/hardware/avr/1.59.0/cores/teensy4",
                 "C:/Users/matsk/AppData/Local/Arduino15/packages/teensy/hardware/avr/1.59.0/libraries/**",
@@ -9,6 +9,7 @@
                 "${workspaceFolder}"
             ],
             "defines": [
+                "USBCON",
                 "TEENSYDUINO",
                 "ARDUINO=10813",
                 "F_CPU=600000000"
