@@ -3,16 +3,19 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "C:/Users/matsk/AppData/Local/Arduino15/packages/teensy/hardware/avr/1.59.0/cores/teensy4",
+                "C:/Users/matsk/AppData/Local/Arduino15/packages/teensy/hardware/avr/1.59.0/libraries/**",
+                "C:/Users/matsk/Documents/Arduino/libraries/**",
+                "${workspaceFolder}"
             ],
             "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
+                "TEENSYDUINO",
+                "ARDUINO=10813",
+                "F_CPU=600000000"
             ],
             "cStandard": "c17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "windows-gcc-x64"
+            "intelliSenseMode": "gcc-arm"
         }
     ],
     "version": 4
