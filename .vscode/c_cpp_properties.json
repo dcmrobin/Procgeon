@@ -15,7 +15,8 @@
             ],
             "cStandard": "c17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "gcc-arm"
+            "intelliSenseMode": "gcc-arm",
+            "compilerPath": "C:/Users/matsk/AppData/Local/Arduino15/packages/teensy/tools/teensy-compile/11.3.1/arm/bin/arm-none-eabi-g++"
         }
     ],
     "version": 4
