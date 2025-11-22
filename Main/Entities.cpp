@@ -4,7 +4,7 @@
 #include "Dungeon.h"
 #include "Player.h"
 #include "GameAudio.h"
-
+#include <string.h>
 #include <cmath>
 
 // --- A* pathfinding implementation ---
@@ -261,7 +261,7 @@ void updateDamsel() {
   // Also ensure no succubus is currently chasing the player
   bool succubusChasing = false;
   for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer && !enemies[i].isFriend) {
+    if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && enemies[i].chasingPlayer && !enemies[i].isFriend) {
       succubusChasing = true;
       break;
     }
@@ -271,7 +271,7 @@ void updateDamsel() {
     currentDamselPortrait = damselPortraitScared;
     dialogueTimeLength = 300;
     playRawSFX3D(17, damsel[0].x, damsel[0].y);
-    currentDialogue = "Hey! Wait up!";
+    snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Hey! Wait up!");
     showDialogue = true;
     damselSaidWaitUp = true;
     damselWaitUpTimer = 200; // Prevent spam for 200 frames
@@ -313,7 +313,7 @@ void updateDamsel() {
       currentDamselPortrait = damselPortraitNormal;
       dialogueTimeLength = 400;
       playRawSFX(16);
-      currentDialogue = "Hey! I shall follow you, please get me out of here.";
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Hey! I shall follow you, please get me out of here.");
       showDialogue = true;
       damsel[0].levelOfLove = 1;
     }
@@ -321,7 +321,7 @@ void updateDamsel() {
       playRawSFX(17);
       currentDamselPortrait = damselPortraitAlone;
       dialogueTimeLength = 400;
-      currentDialogue = "He- wasn't gentle...";
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "He- wasn't gentle...");
       showDialogue = true;
       damselSayThanksForRescue = false;
     }
@@ -378,7 +378,7 @@ int giveUpTimer = 0;
 void updateEnemies() {
   // --- First pass: find the clock enemy and set clockX/clockY ---
   for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0 && enemies[i].name == "clock") {
+    if (enemies[i].hp > 0 && strcmp(enemies[i].name, "clock") == 0) {
       clockX = enemies[i].x;
       clockY = enemies[i].y;
       break; // Only one clock enemy assumed
@@ -387,10 +387,10 @@ void updateEnemies() {
 
   // --- Second pass: set nearClock for all non-clock enemies ---
   for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].name == "boss") {
+    if (strcmp(enemies[i].name, "boss") == 0) {
       continue; // Skip boss, its AI is handled in Main.ino in updateBossfight()
     }
-    if (enemies[i].hp > 0 && enemies[i].name != "clock") {
+    if (enemies[i].hp > 0 && strcmp(enemies[i].name, "clock") != 0) {
       float clockDiffX = enemies[i].x - clockX;
       float clockDiffY = enemies[i].y - clockY;
       float clockDistanceSquared = clockDiffX * clockDiffX + clockDiffY * clockDiffY;
@@ -410,7 +410,7 @@ void updateEnemies() {
     float closestDist = 1e9;
     int closestIndex = -1;
     for (int j = 0; j < maxEnemies; j++) {
-      if (enemies[j].hp > 0 && enemies[j].name == "jukebox") {
+      if (enemies[j].hp > 0 && strcmp(enemies[j].name, "jukebox") == 0) {
         float dx = enemies[j].x - playerX;
         float dy = enemies[j].y - playerY;
         float dist = sqrt(dx*dx + dy*dy);
@@ -442,7 +442,7 @@ void updateEnemies() {
     // Check if enemy is stuck in a wall and unstuck them
     unstuckEnemy(enemies[i]);
     
-    if (enemies[i].name == "boss") {
+    if (strcmp(enemies[i].name, "boss") == 0) {
       // Skip boss AI but allow friendly enemies to attack it
       if (enemies[i].hp > 0) {
         // Check if any friendly enemies are near the boss and can attack it
@@ -467,7 +467,7 @@ void updateEnemies() {
       }
       continue; // Skip boss AI, it's handled in Main.ino in updateBossfight()
     }
-    if (!playerActed && !enemies[i].nearClock && enemies[i].name != "clock") { continue; }
+    if (!playerActed && !enemies[i].nearClock && strcmp(enemies[i].name, "clock") != 0) { continue; }
 
     // Calculate the vector from the player to the enemy.
     float diffX = enemies[i].x - playerX;
@@ -475,7 +475,7 @@ void updateEnemies() {
     int distanceSquared = diffX * diffX + diffY * diffY;
     float distance = sqrt(distanceSquared);
 
-    if (enemies[i].name == "clock") {
+    if (strcmp(enemies[i].name, "clock") == 0) {
       // clockX/clockY already set above
       if (distance <= 5) {
         playerNearClockEnemy = true;
@@ -661,7 +661,7 @@ void updateEnemies() {
         }
       }
     } else {
-      if (enemies[i].name == "succubus") {
+      if (strcmp(enemies[i].name, "succubus") == 0) {
         continue; // Succubi do not wander when not chasing
       }
 
@@ -724,7 +724,7 @@ void updateEnemies() {
     }
 
     // Shooter enemies shoot projectiles when chasing the player
-    if (enemies[i].name == "shooter" && enemies[i].chasingPlayer) {
+    if (strcmp(enemies[i].name, "shooter") == 0 && enemies[i].chasingPlayer) {
       // Add a cooldown to prevent constant shooting
       static int shooterCooldown[maxEnemies] = {0};
       if (shooterCooldown[i] <= 0) {
@@ -754,7 +754,7 @@ void updateEnemies() {
     
     // Handle collisions differently for friendly and hostile enemies
     if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
-      if (enemies[i].name == "teleporter") {
+      if (strcmp(enemies[i].name, "teleporter") == 0) {
         if (equippedArmor.item != MagicRobe) { // Only teleport if not wearing Magic Robe
           playRawSFX(14);
           int newX, newY;
@@ -845,7 +845,7 @@ void updateProjectiles() {
         }
 
         bool collision = false;
-        if (enemies[j].name == "boss") {
+        if (strcmp(enemies[j].name, "boss") == 0) {
           // For boss, check collision with full 16x16 sprite using 4 points
           collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) ||
                      checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x + 1, enemies[j].y) ||
@@ -864,7 +864,7 @@ void updateProjectiles() {
           playRawSFX3D(23, enemies[j].x, enemies[j].y);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
             kills += 1;
-            if (enemies[j].name == "clock") {
+            if (strcmp(enemies[j].name, "clock") == 0) {
               enemies[j].x = -3000;
               enemies[j].y = -3000;
               playerNearClockEnemy = false;
@@ -875,7 +875,7 @@ void updateProjectiles() {
         } else if (!damsel[0].dead && !damsel[0].beingCarried && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
           if (damsel[0].levelOfLove < 6 || !projectiles[i].shotByPlayer) {
             if (!projectiles[i].shotByPlayer) {
-              damselDeathMsg = "Something killed ";
+              snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "Something killed ");
             }
             playRawSFX3D(23, damsel[0].x, damsel[0].y);
             playRawSFX3D(17, damsel[0].x, damsel[0].y);
@@ -883,7 +883,7 @@ void updateProjectiles() {
             damsel[0].dead = true;
             currentDamselPortrait = damselPortraitDying;
             dialogueTimeLength = 200;
-            currentDialogue = "Ugh-!";
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Ugh-!");
             showDialogue = true;
             damsel[0].active = false;
             projectiles[i].active = false;
@@ -951,7 +951,7 @@ void renderEnemies() {
 
   for (int i = 0; i < maxEnemies; i++) {
     // Always show boss even if dead, hide other enemies when dead
-    if (enemies[i].name == "boss" || enemies[i].hp > 0) {
+    if (strcmp(enemies[i].name, "boss") == 0 || enemies[i].hp > 0) {
       int enemyTileX = predictXtile(enemies[i].x);
       int enemyTileY = predictYtile(enemies[i].y);
 
@@ -967,10 +967,11 @@ void renderEnemies() {
         float screenY = (enemies[i].y - offsetY) * tileSize;
         if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
           Enemy& e = enemies[i];
-          if (e.name == "succubus") {
+          if (strcmp(e.name, "succubus") == 0) {
             display.drawBitmap(screenX, screenY, playerX > e.x ? e.sprite : playerX < e.x ? succubusIdleSpriteFlipped : e.sprite, 8, 8, 15);
           } else {
-            display.drawBitmap(screenX, screenY, e.sprite, e.name == "boss" ? 16 : 8, e.name == "boss" ? 16 : 8, 15);
+            bool isBoss = strcmp(e.name, "boss") == 0;
+            display.drawBitmap(screenX, screenY, e.sprite, isBoss ? 16 : 8, isBoss ? 16 : 8, 15);
           }
         }
       }

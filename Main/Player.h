@@ -7,8 +7,8 @@
 
 #define RIDICULE_DURATION 1000
 
-extern String deathCause;
-extern String currentDialogue;
+extern char deathCause[50];
+extern char currentDialogue[200];
 extern float playerX;
 extern float playerY;
 extern float currentSpeedMultiplier;
@@ -66,7 +66,7 @@ extern int blindnessTimer;
 extern bool paralyzed;
 extern int paralysisTimer;
 extern bool playerNearClockEnemy;
-extern String damselDeathMsg;
+extern char damselDeathMsg[100];
 extern bool endlessMode;
 
 void renderPlayer();
@@ -76,7 +76,7 @@ void handlePauseScreen();
 void handleHungerAndEffects();
 void handleDialogue();
 void handleRiddles();
-void playDamselSFX(String tone);
+void playDamselSFX(const char *tone);
 void handleRingEffects();
 void OpenChest(int cy, int cx, int dx);
 

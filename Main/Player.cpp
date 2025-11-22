@@ -6,9 +6,10 @@
 #include "GameAudio.h"
 #include "Item.h"
 #include "Puzzles.h"
+#include <string.h>
 
-String deathCause = "";
-String currentDialogue = "";
+char deathCause[50] = "";
+char currentDialogue[200] = "";
 bool DIDNOTRESCUEDAMSEL = false;
 float playerX = 0;
 float playerY = 0;
@@ -70,7 +71,7 @@ int paralysisTimer = 0;
 bool playerNearClockEnemy = false;
 int shootDelay = 0;
 bool reloading;
-String damselDeathMsg = "You killed ";
+char damselDeathMsg[100] = "You killed ";
 bool endlessMode = false;
 
 void renderPlayer() {
@@ -406,7 +407,7 @@ void handleInput() {
             if (damsel[0].levelOfLove >= 8 && !damsel[0].dead) {
               // Damsel does not let player go deeper in the dungeon
               currentDamselPortrait = damselPortraitScared;
-              currentDialogue = "Please don't go- come be free, free with me!";
+              snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Please don't go- come be free, free with me!");
               showDialogue = true;
               dialogueTimeLength = 400;
             } else if (damsel[0].levelOfLove < 8) {
@@ -445,7 +446,7 @@ void startCarryingDamsel() {
     if (damsel[0].beingCarried) {
       currentDamselPortrait = damselPortraitCarrying;
       dialogueTimeLength = 300;
-      currentDialogue = "Oh! Thanks...";
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Oh! Thanks...");
       showDialogue = true;
       playRawSFX(20);
       playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
@@ -480,7 +481,8 @@ void handlePauseScreen() {
   display.print("Volume:");
   // Draw left chevron, value, right chevron
   int vol = masterVolume; // 1..10
-  String volStr = "<" + String(vol) + ">";
+  char volStr[20];
+  snprintf(volStr, sizeof(volStr), "<%d>", vol);
   display.setCursor(80, baseY);
   display.print(volStr);
 
@@ -640,7 +642,7 @@ void handleHungerAndEffects() {
   // If the player is close to a succubus, she slowly draws the player towards herself.
   if (!damsel[0].beingCarried && !succubusIsFriend) {
     for (int i = 0; i < maxEnemies; i++) {
-      if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
+      if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && enemies[i].chasingPlayer) {
         float sdx = enemies[i].x - playerX;
         float sdy = enemies[i].y - playerY;
         float succubusDistanceSquared = sdx * sdx + sdy * sdy;
@@ -648,7 +650,7 @@ void handleHungerAndEffects() {
           if (succubusDistanceSquared < 40.0) {
             nearSuccubus = true;
             // While pulling, dialogue pops up
-            currentDialogue = "Hey there, handsome...";
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Hey there, handsome...");
             damsel[0].followingPlayer = false;
             currentDamselPortrait = succubusPortrait;
             showDialogue = true;
@@ -675,7 +677,7 @@ void handleHungerAndEffects() {
           currentDamselPortrait = damselPortraitCarrying;
           dialogueTimeLength = 400;
           //currentDialogue = "You get away from him! He's mine!";
-          currentDialogue = "Stay away from her- you're mine!";
+          snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Stay away from her- you're mine!");
           showDialogue = true;
           playRawSFX(21);
           playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
@@ -685,12 +687,12 @@ void handleHungerAndEffects() {
   }
 }
 
-void playDamselSFX(String tone) {
-  if (tone == "normal") {
+void playDamselSFX(const char *tone) {
+  if (strcmp(tone, "normal") == 0) {
     playRawSFX3D(16, damsel[0].x, damsel[0].y);
-  } else if (tone == "annoying") {
+  } else if (strcmp(tone, "annoying") == 0) {
     playRawSFX3D(21, damsel[0].x, damsel[0].y);
-  } else if (tone == "alone") {
+  } else if (strcmp(tone, "alone") == 0) {
     playRawSFX3D(16, damsel[0].x, damsel[0].y);
   }
 }
@@ -711,7 +713,7 @@ void handleDialogue() {
       }
       lastGlamourIndex = index;
       dialogueTimeLength = glamourDialogue[index].duration;
-      currentDialogue = glamourDialogue[index].message;
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", glamourDialogue[index].message);
       showDialogue = true;
       isRidiculeDialogue = true; // Reuse this to hide portrait
       dialogueDelayTimer = 50; // Add delay before next dialogue
@@ -729,7 +731,7 @@ void handleDialogue() {
       }
       lastRidiculeIndex = index;
       dialogueTimeLength = ridiculeDialogue[index].duration;
-      currentDialogue = ridiculeDialogue[index].message;
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", ridiculeDialogue[index].message);
       showDialogue = true;
       isRidiculeDialogue = true;
       dialogueDelayTimer = 50; // Add delay before next dialogue
@@ -756,7 +758,7 @@ void handleDialogue() {
     u8g2_for_adafruit_gfx.setCursor(27, 19);
     drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
-    if (!isRidiculeDialogue || currentDialogue == "Hey! Wait up!") {
+    if (!isRidiculeDialogue || strcmp(currentDialogue, "Hey! Wait up!") == 0) {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
       display.drawRect(8, 10, 18, 34, 15);
     }
@@ -795,7 +797,7 @@ void handleDialogue() {
           currentDamselPortrait = damselPortraitCarrying;
           dialogueTimeLength = damselCarryDialogue[index].duration;
           isRidiculeDialogue = false;
-          currentDialogue = damselCarryDialogue[index].message;
+          snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselCarryDialogue[index].message);
           if (!damselCarryDialogue[index].alreadyBeenSaid) {
             playRawSFX(18);
           }
@@ -808,14 +810,14 @@ void handleDialogue() {
             if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
               playDamselSFX(damselAnnoyingDialogue[index].tone);
             }
-            currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
+            currentDamselPortrait = (strcmp(damselAnnoyingDialogue[index].tone, "annoying") == 0) ? 
                                     damselPortraitScared : 
-                                    (damselAnnoyingDialogue[index].tone == "alone") ? 
+                                    (strcmp(damselAnnoyingDialogue[index].tone, "alone") == 0) ? 
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
             dialogueTimeLength = damselAnnoyingDialogue[index].duration;
             isRidiculeDialogue = false;
-            currentDialogue = damselAnnoyingDialogue[index].message;
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselAnnoyingDialogue[index].message);
             damselAnnoyingDialogue[index].alreadyBeenSaid = true;
           } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
             int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
@@ -823,14 +825,14 @@ void handleDialogue() {
             if (!damselPassiveDialogue[index].alreadyBeenSaid) {
               playDamselSFX(damselPassiveDialogue[index].tone);
             }
-            currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
+            currentDamselPortrait = (strcmp(damselPassiveDialogue[index].tone, "annoying") == 0) ? 
                                     damselPortraitScared : 
-                                    (damselPassiveDialogue[index].tone == "alone") ? 
+                                    (strcmp(damselPassiveDialogue[index].tone, "alone") == 0) ? 
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
             dialogueTimeLength = damselPassiveDialogue[index].duration;
             isRidiculeDialogue = false;
-            currentDialogue = damselPassiveDialogue[index].message;
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselPassiveDialogue[index].message);
             damselPassiveDialogue[index].alreadyBeenSaid = true;
           } else if (damsel[0].levelOfLove >= 6) {
             if (!knowsDamselName) {
@@ -838,7 +840,7 @@ void handleDialogue() {
               if (!knowsDamselName) {
                 playDamselSFX("normal");
               }
-              currentDialogue = "By the way, my name is " + damsel[0].name + "...";
+              snprintf(currentDialogue, sizeof(currentDialogue), "By the way, my name is %s...", damsel[0].name);
               knowsDamselName = true;
             } else {
               int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
@@ -846,14 +848,14 @@ void handleDialogue() {
               if (!damselGoodDialogue[index].alreadyBeenSaid) {
                 playDamselSFX(damselGoodDialogue[index].tone);
               }
-              currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+              currentDamselPortrait = (strcmp(damselGoodDialogue[index].tone, "annoying") == 0) ? 
                                       damselPortraitScared : 
-                                      (damselGoodDialogue[index].tone == "alone") ? 
+                                      (strcmp(damselGoodDialogue[index].tone, "alone") == 0) ? 
                                       damselPortraitAlone : 
                                       damselPortraitNormal;
               dialogueTimeLength = damselGoodDialogue[index].duration;
               isRidiculeDialogue = false;
-              currentDialogue = damselGoodDialogue[index].message;
+              snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselGoodDialogue[index].message);
               damselGoodDialogue[index].alreadyBeenSaid = true;
             }
           }

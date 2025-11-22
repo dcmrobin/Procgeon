@@ -7,10 +7,10 @@ int selectedInventoryIndex = 0; // Currently selected inventory item
 char itemResultMessage[100] = "";
 
 InventoryPage inventoryPages[] = {
-  {"Potions", PotionCategory},
-  {"Food", FoodCategory},
-  {"Equipment", EquipmentCategory},
-  {"Scrolls", ScrollsCategory}
+  {{"Potions"}, PotionCategory},
+  {{"Food"}, FoodCategory},
+  {{"Equipment"}, EquipmentCategory},
+  {{"Scrolls"}, ScrollsCategory}
 };
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
@@ -32,7 +32,9 @@ void identifyItem(GameItem &item) {
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
   if (item.isCursed && strstr(item.description, "(Cursed)") == NULL) {// what the heck does strstr do
-    snprintf(item.description, sizeof(item.description), "%s (Cursed)", item.description);
+    char temp[100];
+    snprintf(temp, sizeof(temp), "%s (Cursed)", item.description);
+    snprintf(item.description, sizeof(item.description), "%s", temp);
   }
 }
 
@@ -182,7 +184,7 @@ void handleInventoryItemUsage() {
           for (int p = 0; p < numInventoryPages; p++) {
             for (int i = 0; i < inventorySize; i++) {
               if (inventoryPages[p].items[i].item == combiningItem1.item && 
-                  inventoryPages[p].items[i].name == combiningItem1.name) {
+                  strcmp(inventoryPages[p].items[i].name, combiningItem1.name) == 0) {
                 ingredient1Page = p;
                 ingredient1Index = i;
                 break;
@@ -195,7 +197,7 @@ void handleInventoryItemUsage() {
           for (int p = 0; p < numInventoryPages; p++) {
             for (int i = 0; i < inventorySize; i++) {
               if (inventoryPages[p].items[i].item == combiningItem2.item && 
-                  inventoryPages[p].items[i].name == combiningItem2.name) {
+                  strcmp(inventoryPages[p].items[i].name, combiningItem2.name) == 0) {
                 ingredient2Page = p;
                 ingredient2Index = i;
                 break;
@@ -504,17 +506,17 @@ void handleItemActionMenu() {
             // --- Remove ring effects when unequipped ---
             if (selectedItem.item == Ring) {
               int idx = selectedItem.ringEffectIndex;
-              if (ringEffects[idx] == "Ring of Swiftness") {
+              if (strcmp(ringEffects[idx], "Ring of Swiftness") == 0) {
                 swiftnessRingsNumber -= 1;
-              } else if (ringEffects[idx] == "Ring of Strength") {
+              } else if (strcmp(ringEffects[idx], "Ring of Strength") == 0) {
                 ringOfStrengthActive = false;
                 playerAttackDamage -= 5;
-              } else if (ringEffects[idx] == "Ring of Weakness") {
+              } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
                 ringOfWeaknessActive = false;
                 playerAttackDamage += 5;
-              } else if (ringEffects[idx] == "Ring of Hunger") {
+              } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
                 ringOfHungerActive = false;
-              } else if (ringEffects[idx] == "Ring of Regeneration") {
+              } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
                 ringOfRegenActive = false;
               }
             }
@@ -544,17 +546,17 @@ void handleItemActionMenu() {
                 selectedItem.isCursed = ringCursed[assignIdx];
               }
               int idx = selectedItem.ringEffectIndex;
-              if (ringEffects[idx] == "Ring of Swiftness") {
+              if (strcmp(ringEffects[idx], "Ring of Swiftness") == 0) {
                 swiftnessRingsNumber += 1;
-              } else if (ringEffects[idx] == "Ring of Strength") {
+              } else if (strcmp(ringEffects[idx], "Ring of Strength") == 0) {
                 ringOfStrengthActive = true;
                 playerAttackDamage += 5;
-              } else if (ringEffects[idx] == "Ring of Weakness") {
+              } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
                 ringOfWeaknessActive = true;
                 playerAttackDamage -= 5;
-              } else if (ringEffects[idx] == "Ring of Hunger") {
+              } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
                 ringOfHungerActive = true;
-              } else if (ringEffects[idx] == "Ring of Regeneration") {
+              } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
                 ringOfRegenActive = true;
               }
             }
@@ -596,8 +598,9 @@ void renderInventory() {
     display.setCursor(10, 20);
     display.setTextColor(0);
     display.fillRect(0, 19, 128, 9, 15);
-    String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
-    display.println(pageName.c_str());
+    char pageName[40];
+    snprintf(pageName, sizeof(pageName), "<%s>", inventoryPages[currentInventoryPageIndex].name);
+    display.println(pageName);
     display.setTextColor(15);
 
     int yPos = 30;
@@ -610,7 +613,7 @@ void renderInventory() {
       display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) display.print("> ");
       // Highlight combinable items when combiningTwoItems is true
-      String displayName = item.name;
+      const char* displayName = item.name;
       if (combiningTwoItems) {
         GameItem result = CombineTwoItemsToGetItem(combiningItem1, item);
         if (result.item != Null) {
@@ -671,10 +674,10 @@ void renderInventory() {
 
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    String equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+    const char* equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
     
     // Determine the use text based on item type
-    String useText = "Use";
+    const char* useText = "Use";
     if (selectedItem.item == Scroll) {
       useText = "Read";
     } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
@@ -684,14 +687,17 @@ void renderInventory() {
     }
 
     // Options
+    char useLine[20], equipLine[20];
+    snprintf(useLine, sizeof(useLine), "%s %s", (selectedActionIndex == 0 ? ">" : ""), useText);
+    snprintf(equipLine, sizeof(equipLine), "%s %s", (selectedActionIndex == 3 ? ">" : ""), equipText);
     display.setCursor(55, 60);
-    display.println(selectedActionIndex == 0 ? "> " + useText : " " + useText);
+    display.println(useLine);
     display.setCursor(55, 70);
     display.println(selectedActionIndex == 1 ? "> Drop" : " Drop");
     display.setCursor(55, 80);
     display.println(selectedActionIndex == 2 ? "> Info" : " Info");
     display.setCursor(55, 90);
-    display.println(selectedActionIndex == 3 ? "> " + equipText : " " + equipText);
+    display.println(equipLine);
     display.setCursor(55, 100);
     display.println(selectedActionIndex == 4 ? "> Combine" : " Combine");
   }

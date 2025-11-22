@@ -1,8 +1,9 @@
 add up up down down left right left right b a start for a secret at the splash screen. and maybe a different secret, where you enter the same up up down down thing
 but switch the b and a around, and you get a thing that has to do with a specific enemy.
 
-need more armor, rings, and scrolls.
-
-convert all String to char arrays for memory stability.
+need more armor, rings, and scrolls. ideas:
+    1. a scroll that teleports you to random location
 
 add save/load feature. saves need to delete on death.
+
+need explosion potion to make all tiles around player into ground tiles.

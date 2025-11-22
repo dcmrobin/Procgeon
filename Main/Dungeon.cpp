@@ -1,4 +1,5 @@
 #include <cmath>
+#include <string.h>
 #include "WProgram.h"
 #include "Dungeon.h"
 #include "HelperFunctions.h"
@@ -338,7 +339,7 @@ void spawnEnemies(bool isBossfight) {
     if (succubusIsFriend && !generatedSuccubusFriend) {
       generatedSuccubusFriend = true;
       currentDamselPortrait = succubusPortrait;
-      currentDialogue = "You didn't try to kill me. I'll return the favour.";
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "You didn't try to kill me. I'll return the favour.");
       playRawSFX(24);
       showDialogue = true;
       dialogueTimeLength = 600;

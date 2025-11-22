@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Inventory.h"
+#include <string.h>
 
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
@@ -104,7 +105,7 @@ void generateRiddleUI() {
   int templateIndex = random(numTemplates);
   char riddleBuffer[128];  // Buffer for the formatted riddle.
   snprintf(riddleBuffer, sizeof(riddleBuffer), templates[templateIndex], attr1, attr2);
-  currentRiddle.riddle = String(riddleBuffer);
+  snprintf(currentRiddle.riddle, sizeof(currentRiddle.riddle), "%s", riddleBuffer);
 
   // Prepare a list of indices for the answer options.
   const int totalOptions = 4;
@@ -135,7 +136,7 @@ void generateRiddleUI() {
 
   // Fill in the answer options and record the index of the correct answer.
   for (int i = 0; i < totalOptions; i++) {
-    currentRiddle.options[i] = String(possibleAnswers[optionIndices[i]].word);
+    snprintf(currentRiddle.options[i], sizeof(currentRiddle.options[i]), "%s", possibleAnswers[optionIndices[i]].word);
     if (optionIndices[i] == answerIndex) {
       currentRiddle.correctOption = i;
     }
@@ -169,17 +170,17 @@ void trainFemaleMarkov() {
 }
 
 // --- Generate a female name using the Markov chain ---
-String generateFemaleName() {
-  char name[NAME_BUFFER_SIZE + 1];
+void generateFemaleName(char *name, size_t nameSize) {
+  char tempName[NAME_BUFFER_SIZE + 1];
   // Start with a random letter (a–z)
   int startLetter = random(0, MAX_LETTERS);
-  name[0] = 'a' + startLetter;
+  tempName[0] = 'a' + startLetter;
   
   // Randomly choose a length between 4 and NAME_BUFFER_SIZE
   int length = random(4, NAME_BUFFER_SIZE);
   
   for (int i = 1; i < length; i++) {
-    int prev = name[i - 1] - 'a';
+    int prev = tempName[i - 1] - 'a';
     
     // Calculate the total weight from the transition table for the previous letter
     int total = 0;
@@ -202,24 +203,24 @@ String generateFemaleName() {
         }
       }
     }
-    name[i] = 'a' + nextLetter;
+    tempName[i] = 'a' + nextLetter;
   }
-  name[length] = '\0';
+  tempName[length] = '\0';
   
   // Capitalize the first letter
-  name[0] = toupper(name[0]);
+  tempName[0] = toupper(tempName[0]);
   
   bool hasBadLetter = false;
   for (int i = 0; i < length; i++) {
-    if (name[i] == 'z' || name[i] == 'Z' || name[i] == 'x' || name[i] == 'X' || name[i] == 'q' || name[i] == 'Q') {
+    if (tempName[i] == 'z' || tempName[i] == 'Z' || tempName[i] == 'x' || tempName[i] == 'X' || tempName[i] == 'q' || tempName[i] == 'Q') {
       hasBadLetter = true;
     }
   }
 
   if (!hasBadLetter) {
-    return String(name);
+    snprintf(name, nameSize, "%s", tempName);
   } else {
-    return String(sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
+    snprintf(name, nameSize, "%s", sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
   }
 }
 
@@ -444,25 +445,25 @@ void updateAnimations() {
     Enemy& e = enemies[i];
     int animLength = 1;
     const Frame* anim = nullptr;
-    if (e.name == "blob") {
+    if (strcmp(e.name, "blob") == 0) {
       anim = blobAnimation;
       animLength = blobAnimationLength;
-    } else if (e.name == "teleporter") {
+    } else if (strcmp(e.name, "teleporter") == 0) {
       anim = teleporterAnimation;
       animLength = teleporterAnimationLength;
-    } else if (e.name == "batguy") {
+    } else if (strcmp(e.name, "batguy") == 0) {
       anim = batguyAnimation;
       animLength = batguyAnimationLength;
-    } else if (e.name == "shooter") {
+    } else if (strcmp(e.name, "shooter") == 0) {
       anim = shooterAnimation;
       animLength = shooterAnimationLength;
-    } else if (e.name == "clock") {
+    } else if (strcmp(e.name, "clock") == 0) {
       anim = clockAnimation;
       animLength = clockAnimationLength;
-    } else if (e.name == "jukebox") {
+    } else if (strcmp(e.name, "jukebox") == 0) {
       anim = jukeboxAnimation;
       animLength = jukeboxAnimationLength;
-    } else if (e.name == "boss") {
+    } else if (strcmp(e.name, "boss") == 0) {
       if (bossState == Idle) {
         if (playerX < enemies[0].x) {
           anim = bossIdleAnimationFlipped;
@@ -652,48 +653,67 @@ void unstuckEnemy(Enemy &enemy) {
   }
 }
 
-void drawWrappedText(int x, int y, int maxWidth, const String &text) {
+void drawWrappedText(int x, int y, int maxWidth, const char *text) {
   u8g2_for_adafruit_gfx.setCursor(x, y);
 
   int lineHeight = 10; // Adjust based on font size
   int cursorX = x;
   int cursorY = y;
-  String currentLine = "";
-  String word = "";
+  char currentLine[300] = "";
+  char word[100] = "";
+  size_t wordLen = 0;
+  size_t currentLineLen = 0;
+  size_t textLen = strlen(text);
 
-  for (unsigned int i = 0; i < text.length(); i++) {
+  for (size_t i = 0; i < textLen; i++) {
     char c = text[i];
 
     if (c == ' ' || c == '\n') {
-      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width((currentLine + word).c_str());
+      // Check if adding this word would exceed maxWidth
+      char testLine[400];
+      snprintf(testLine, sizeof(testLine), "%s%s ", currentLine, word);
+      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width(testLine);
 
       if (wordWidth > maxWidth) {
         // Print the current line before adding a new word
         u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
         u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
-        currentLine = word + ' '; // Move the word to the new line
+        // Move the word to the new line
+        snprintf(currentLine, sizeof(currentLine), "%s ", word);
+        currentLineLen = strlen(currentLine);
       } else {
-        currentLine += word + ' ';
+        // Append word to current line
+        snprintf(currentLine + currentLineLen, sizeof(currentLine) - currentLineLen, "%s ", word);
+        currentLineLen = strlen(currentLine);
       }
 
-      word = "";
+      word[0] = '\0';
+      wordLen = 0;
 
       if (c == '\n') {  // Force a new line on explicit newline characters
         u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
         u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
-        currentLine = "";
+        currentLine[0] = '\0';
+        currentLineLen = 0;
       }
     } else {
-      word += c;
+      // Append character to word
+      if (wordLen < sizeof(word) - 1) {
+        word[wordLen] = c;
+        wordLen++;
+        word[wordLen] = '\0';
+      }
     }
   }
 
   // Print the remaining text
-  if (currentLine.length() > 0 || word.length() > 0) {
+  if (currentLineLen > 0 || wordLen > 0) {
+    char finalLine[400];
+    snprintf(finalLine, sizeof(finalLine), "%s%s", currentLine, word);
     u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
-    u8g2_for_adafruit_gfx.print(currentLine + word);
+    u8g2_for_adafruit_gfx.print(finalLine);
   }
 }
 
@@ -726,14 +746,14 @@ bool nearTile(TileTypes tile) {
   return isNear;
 }
 
-void checkIfDeadFrom(const String &cause) {
+void checkIfDeadFrom(const char *cause) {
   if (playerHP <= 0) {
     // If the riddle stone is equipped, trigger the riddle instead of death
     if (equippedRiddleStone) {
       currentUIState = UI_RIDDLE;
       equippedRiddleStone = false;
       for (int i = 0; i < inventorySize; i++) {
-        if (inventoryPages[2].items[i].itemResult == "Solve this riddle!") {
+        if (strcmp(inventoryPages[2].items[i].itemResult, "Solve this riddle!") == 0) {
           removeItemFromInventory(2, i);
           break;
         }
@@ -743,7 +763,7 @@ void checkIfDeadFrom(const String &cause) {
     
     // No riddle stone, show death screen
     playRawSFX(10);
-    deathCause = cause;
+    snprintf(deathCause, sizeof(deathCause), "%s", cause);
     buttons.bPressedPrev = true;
     buttons.aPressedPrev = true;
     showDeathScreen = true;

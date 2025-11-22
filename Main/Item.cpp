@@ -280,27 +280,11 @@ GameItem combineItems(GameItem item1, GameItem item2) {
       } else if (item1.category == EquipmentCategory ? item1.canRust : item2.canRust) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
         bool cursed = random(0, 10) < 3 ? true : false;
-        GameItem rustedItem = {
-          item.item,
-          item.category,
-          *item.name,// this star is suspicious.
-          item.healthRecoverAmount,
-          item.hungerRecoverAmount,
-          item.AOEsize,
-          123,// This is to make sure "rusty"s don't get added more than necessary to the name
-          item.SpeedMultiplier,
-          *item.description,
-          *item.originalName,
-          *item.itemResult,
-          item.rarity,
-          item.oneTimeUse,
-          item.effectType,
-          item.armorValue - (item.armorValue < 0 ? 0 : 1),
-          item.isEquipped,
-          cursed,
-          item.curseChance,
-          true
-        };
+        GameItem rustedItem = item; // Copy the entire struct first
+        rustedItem.AOEdamage = 123; // This is to make sure "rusty"s don't get added more than necessary to the name
+        rustedItem.armorValue = item.armorValue - (item.armorValue < 0 ? 0 : 1);
+        rustedItem.isCursed = cursed;
+        rustedItem.canRust = true;
         snprintf(rustedItem.description, sizeof(rustedItem.description), "A Rusty %s. It looks degraded%s.", item.name, (cursed ? ", and you feel a sense of unease around it." : ""));
         snprintf(rustedItem.name, sizeof(rustedItem.name), "Rusty %s", item.name);
         snprintf(rustedItem.itemResult, sizeof(rustedItem.itemResult), "You pour the %s over the %s. It rusts%s.", (item1.category == PotionCategory ? item1.name : item2.name), item.name, (cursed ? ", becomes less durable, and shimmers slightly red for a moment" : " and becomes less durable"));
@@ -310,19 +294,7 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         return rustedItem;
       } else if (item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
-        GameItem unrustedItem = {
-          item.item,
-          item.category,
-          *item.name,
-          item.healthRecoverAmount,
-          item.hungerRecoverAmount,
-          item.AOEsize,
-          item.AOEdamage,
-          item.SpeedMultiplier,
-          *item.name,
-          *item.originalName,
-          *item.itemResult
-        };
+        GameItem unrustedItem = item; // Copy the entire struct
         snprintf(unrustedItem.itemResult, sizeof(unrustedItem.itemResult), "You pour the %s over the %s, but nothing happens.", (item1.category == PotionCategory ? item1.name : item2.name), item.name);
         return unrustedItem;
       }
@@ -374,33 +346,35 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
 }
 
 // Generate a random scroll name using a simple algorithm
-String generateScrollName() {
+void generateScrollName(char *name, size_t nameSize) {
   const char* consonants[] = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
   const char* vowels[] = {"a", "e", "i", "o", "u"};
   
-  String name = "";
+  char baseName[20] = "";
   int length = random(4, 8); // Random length between 4-7 characters
   
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length && i < (int)(sizeof(baseName) - 1); i++) {
     if (i % 2 == 0) {
       // Even positions get consonants
-      name += consonants[random(0, sizeof(consonants)/sizeof(consonants[0]))];
+      strcat(baseName, consonants[random(0, sizeof(consonants)/sizeof(consonants[0]))]);
     } else {
       // Odd positions get vowels
-      name += vowels[random(0, sizeof(vowels)/sizeof(vowels[0]))];
+      strcat(baseName, vowels[random(0, sizeof(vowels)/sizeof(vowels[0]))]);
     }
   }
   
   // Capitalize first letter
-  name.setCharAt(0, toupper(name.charAt(0)));
+  if (strlen(baseName) > 0) {
+    baseName[0] = toupper(baseName[0]);
+  }
   
-  return "Scroll: " + name;
+  snprintf(name, nameSize, "Scroll: %s", baseName);
 }
 
 void randomizeScrollEffects() {
   // Generate random names for scrolls
   for (int i = 0; i < NUM_SCROLLS; i++) {
-    snprintf(scrollNames[i], sizeof(scrollNames[i]), "%s", generateScrollName().c_str());
+    generateScrollName(scrollNames[i], sizeof(scrollNames[i]));
   }
   
   // Shuffle the scroll effects array

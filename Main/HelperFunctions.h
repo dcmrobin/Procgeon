@@ -61,8 +61,8 @@ enum UIState {
 };
 
 struct GeneratedRiddle {
-  String riddle;       // The riddle text (with inserted attributes)
-  String options[4];   // Four answer options (one is correct)
+  char riddle[300];       // The riddle text (with inserted attributes)
+  char options[4][50];   // Four answer options (one is correct)
   int correctOption;   // Index (0-3) of the correct answer in options[]
 };
 
@@ -98,7 +98,7 @@ extern const float scrollSpeed;
 
 void generateRiddleUI();
 void trainFemaleMarkov();
-String generateFemaleName();
+void generateFemaleName(char *name, size_t nameSize);
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
@@ -117,10 +117,10 @@ void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 bool isWalkable(int x, int y);
 void unstuckEnemy(Enemy &enemy);
-void drawWrappedText(int x, int y, int maxWidth, const String &text);
+void drawWrappedText(int x, int y, int maxWidth, const char *text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
 bool nearTile(TileTypes tile);
-void checkIfDeadFrom(const String &cause);
+void checkIfDeadFrom(const char *cause);
 
 #endif

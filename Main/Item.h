@@ -137,7 +137,7 @@ extern bool ringCursed[NUM_RINGS];
 
 void randomizePotionEffects();  // Call this once at game start
 void randomizeScrollEffects();  // Call this once at game start
-String generateScrollName();  // Generate a random scroll name
+void generateScrollName(char *name, size_t nameSize);  // Generate a random scroll name
 GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
 void updateScrollName(GameItem &scroll);  // Reveals scroll's true name when read

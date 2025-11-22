@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <SerialFlash.h>
+#include <string.h>
 #include "Sprites.h"
 #include "Dungeon.h"
 #include "HelperFunctions.h"
@@ -31,7 +32,7 @@ const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
   introNum = 0;
-  damselDeathMsg = "You killed ";
+  snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "You killed ");
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
   //amp1.gain(0.01);
@@ -55,7 +56,7 @@ void resetGame() {
   endlessMode = false;
   
   // Reset damsel
-  damsel[0].name = generateFemaleName();
+  generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
   damsel[0].levelOfLove = 0;
   knowsDamselName = false;
   damsel[0].beingCarried = false;
@@ -179,7 +180,7 @@ void setup() {
   trainFemaleMarkov();
   
   // Assign a randomly generated name to the damsel
-  damsel[0].name = generateFemaleName();
+  generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
 
   display.begin();
   u8g2_for_adafruit_gfx.begin(display);
@@ -400,25 +401,25 @@ void gameOver() {
   if (showDeathScreen) {
     display.clearDisplay();
     u8g2_for_adafruit_gfx.setCursor(0, 125);
-    if (deathCause == "blob") {
+    if (strcmp(deathCause, "blob") == 0) {
       display.drawBitmap(0, 0, wizardDeath_blob, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a blob!"));
-    } else if (deathCause == "batguy") {
+    } else if (strcmp(deathCause, "batguy") == 0) {
       display.drawBitmap(0, 0, wizardDeath_batguy, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a batguy!"));
-    } else if (deathCause == "succubus") {
+    } else if (strcmp(deathCause, "succubus") == 0) {
       display.drawBitmap(0, 0, wizardDeath_succubus, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a succubus!"));
-    } else if (deathCause == "shooter") {
+    } else if (strcmp(deathCause, "shooter") == 0) {
       display.drawBitmap(-10, 0, wizardDeath_shooter, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("Slain by a shooter!"));
-    } else if (deathCause == "hunger" || deathCause == "poison") {
+    } else if (strcmp(deathCause, "hunger") == 0 || strcmp(deathCause, "poison") == 0) {
       display.drawBitmap(0, 0, wizardDeath_hunger, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F(deathCause == "poison" ? "You died from poison!" : "You starved!"));
-    } else if (deathCause == "stupidity") {
+      u8g2_for_adafruit_gfx.print(F(strcmp(deathCause, "poison") == 0 ? "You died from poison!" : "You starved!"));
+    } else if (strcmp(deathCause, "stupidity") == 0) {
       display.drawBitmap(0, 0, wizardDeath_stupidity, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("You died of pure stupidity."));
-    } else if (deathCause == "boss") {
+    } else if (strcmp(deathCause, "boss") == 0) {
       display.drawBitmap(0, 0, wizardDeath_boss, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
       u8g2_for_adafruit_gfx.print(F("You failed."));
     } else {
@@ -624,8 +625,9 @@ void showStatusScreen() {
               if (!knowsDamselName) {
                 u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
               } else {
-                String msg = damselDeathMsg + damsel[0].name + "!";
-                u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+                char msg[150];
+                snprintf(msg, sizeof(msg), "%s%s!", damselDeathMsg, damsel[0].name);
+                u8g2_for_adafruit_gfx.print(F(msg));
               }
               u8g2_for_adafruit_gfx.setCursor(0, 115);
               u8g2_for_adafruit_gfx.print(F(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!"));
@@ -639,8 +641,9 @@ void showStatusScreen() {
               if (!knowsDamselName) {
                 u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
               } else {
-                String msg = "You left " + damsel[0].name + "!";
-                u8g2_for_adafruit_gfx.print(F(msg.c_str()));
+                char msg[100];
+                snprintf(msg, sizeof(msg), "You left %s!", damsel[0].name);
+                u8g2_for_adafruit_gfx.print(F(msg));
               }
               leftDamsel = true;
             }
@@ -757,12 +760,12 @@ void showStatusScreen() {
       if (damsel[0].dead) {
         damsel[0].levelOfLove = 0;
         knowsDamselName = false;
-        damsel[0].name = generateFemaleName();
+        generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
       }
       if (leftDamsel) {
         damsel[0].levelOfLove = 0;
         knowsDamselName = false;
-        damsel[0].name = generateFemaleName();
+        generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
         leftDamsel = false;
       }
 
@@ -866,10 +869,10 @@ void updateBossfight() {
   switch (bossState) {
     case Idle:
       enemies[0].damage = 20;
-      if (currentDialogue != "You've amused me, little wizard. Time to die!") {
+      if (strcmp(currentDialogue, "You've amused me, little wizard. Time to die!") != 0) {
         currentDamselPortrait = bossPortraitIdle;
         dialogueTimeLength = 3000;
-        currentDialogue = "You've amused me, little wizard. Time to die!";
+        snprintf(currentDialogue, sizeof(currentDialogue), "%s", "You've amused me, little wizard. Time to die!");
         showDialogue = true;
       }
       break;
@@ -958,10 +961,10 @@ void updateBossfight() {
           Serial.println("alternateBossfight.wav not found");
         }
       }
-      if (currentDialogue != "AAGH! DIE, PEST!") {
+      if (strcmp(currentDialogue, "AAGH! DIE, PEST!") != 0) {
         currentDamselPortrait = bossPortraitEnraged;
         dialogueTimeLength = 300;
-        currentDialogue = "AAGH! DIE, PEST!";
+        snprintf(currentDialogue, sizeof(currentDialogue), "%s", "AAGH! DIE, PEST!");
         showDialogue = true;
       }
       
@@ -1051,7 +1054,7 @@ void updateBossfight() {
               
               // Pick a random enemy type
               int enemyType = random(0, 9);
-              String enemyName;
+              const char* enemyName;
               switch (enemyType) {
                 case 0: enemyName = "blob"; break;
                 case 1: enemyName = "blob"; break;
@@ -1062,15 +1065,16 @@ void updateBossfight() {
                 case 6: enemyName = "shooter"; break;
                 case 7: enemyName = "shooter"; break;
                 case 8: enemyName = "shooter"; break;
+                default: enemyName = "blob"; break;
               }
               
-              if (enemyName == "blob") {
+              if (strcmp(enemyName, "blob") == 0) {
                 enemies[j] = { (float)tileX, (float)tileY, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false, false };
                 enemies[j].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
-              } else if (enemyName == "shooter") {
+              } else if (strcmp(enemyName, "shooter") == 0) {
                 enemies[j] = { (float)tileX, (float)tileY, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false, false };
                 enemies[j].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
-              } else if (enemyName == "batguy") {
+              } else if (strcmp(enemyName, "batguy") == 0) {
                 enemies[j] = { (float)tileX, (float)tileY, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false, false };
                 enemies[j].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
               }
@@ -1090,14 +1094,14 @@ void updateBossfight() {
       if (succubusIsFriend) {
         dialogueTimeLength = 300;
         currentDamselPortrait = succubusPortrait;
-        currentDialogue = "Heh... that was quite exhilarating.";
+        snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Heh... that was quite exhilarating.");
         showDialogue = true;
       } else if (damsel[0].active && !damsel[0].dead) {
-        if (currentDialogue != "You did it! You killed him!" && currentDialogue != "Please don't go- come be free, free with me!") {
+        if (strcmp(currentDialogue, "You did it! You killed him!") != 0 && strcmp(currentDialogue, "Please don't go- come be free, free with me!") != 0) {
           currentDamselPortrait = damselPortraitNormal;
           dialogueTimeLength = 300;
           playRawSFX(18);
-          currentDialogue = "You did it! You killed him!";
+          snprintf(currentDialogue, sizeof(currentDialogue), "%s", "You did it! You killed him!");
           showDialogue = true;
         }
       }
