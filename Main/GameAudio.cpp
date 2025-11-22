@@ -4,7 +4,8 @@
 
 // Define the audio system objects
 AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
-AudioMixer4         mixer1;
+AudioMixer4         mixer1;  // For queues 0-3
+AudioMixer4         mixer2;  // For queues 4-7
 AudioMixer4         musicMixer; // New mixer for music
 AudioOutputI2S      audioOutput;
 AudioPlaySdWav      playWav1;
@@ -12,19 +13,23 @@ AudioPlaySdWav      playWav2;  // Jukebox music player
 //AudioAmplifier      amp1;
 
 // Create audio connections
+// First mixer for queues 0-3
 AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
 AudioConnection     patchCord2(queue[1], 0, mixer1, 1);
 AudioConnection     patchCord3(queue[2], 0, mixer1, 2);
 AudioConnection     patchCord4(queue[3], 0, mixer1, 3);
-AudioConnection     patchCord5(queue[4], 0, mixer1, 0); // Additional slots using same mixer
-AudioConnection     patchCord6(queue[5], 0, mixer1, 1);
-AudioConnection     patchCord7(queue[6], 0, mixer1, 2);
-AudioConnection     patchCord8(queue[7], 0, mixer1, 3);
-AudioConnection     patchCord9(mixer1, 0, musicMixer, 0); // SFX to musicMixer
-AudioConnection     patchCord10(playWav1, 0, musicMixer, 1); // WAV music to musicMixer
-AudioConnection     patchCord11(playWav2, 0, musicMixer, 2); // Jukebox music to musicMixer
-AudioConnection     patchCord12(musicMixer, 0, audioOutput, 0);
-AudioConnection     patchCord13(musicMixer, 0, audioOutput, 1);
+// Second mixer for queues 4-7
+AudioConnection     patchCord5(queue[4], 0, mixer2, 0);
+AudioConnection     patchCord6(queue[5], 0, mixer2, 1);
+AudioConnection     patchCord7(queue[6], 0, mixer2, 2);
+AudioConnection     patchCord8(queue[7], 0, mixer2, 3);
+// Mix both SFX mixers and music into final mixer
+AudioConnection     patchCord9(mixer1, 0, musicMixer, 0); // SFX mixer1 to musicMixer
+AudioConnection     patchCord10(mixer2, 0, musicMixer, 1); // SFX mixer2 to musicMixer
+AudioConnection     patchCord11(playWav1, 0, musicMixer, 2); // WAV music to musicMixer
+AudioConnection     patchCord12(playWav2, 0, musicMixer, 3); // Jukebox music to musicMixer (moved to input 3)
+AudioConnection     patchCord13(musicMixer, 0, audioOutput, 0);
+AudioConnection     patchCord14(musicMixer, 0, audioOutput, 1);
 AudioControlSGTL5000 sgtl5000_1;
 
 int ambientNoiseLevel = 0;
@@ -69,20 +74,28 @@ RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 // Initialize the audio system
 void initAudio() {
     // Enable the audio shield
-    AudioMemory(100);
+    // Increased AudioMemory to handle more simultaneous sounds
+    AudioMemory(150);
     sgtl5000_1.enable();
     // Apply master volume (1..10 mapped to 0.0..1.0)
     float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
     sgtl5000_1.volume(vol);
     // Set mixer levels for each channel, scaled by master volume
+    // Mixer1 (queues 0-3)
     mixer1.gain(0, 0.5 * vol);
     mixer1.gain(1, 0.5 * vol);
     mixer1.gain(2, 0.5 * vol);
     mixer1.gain(3, 0.5 * vol);
-    musicMixer.gain(0, vol); // SFX scaled by master volume
-    musicMixer.gain(1, 0.2 * vol); // WAV music (main) scaled by master volume
-    musicMixer.gain(2, 0.0); // jukebox channel (starts at 0, controlled by setJukeboxVolume)
-    musicMixer.gain(3, 0.0);
+    // Mixer2 (queues 4-7)
+    mixer2.gain(0, 0.5 * vol);
+    mixer2.gain(1, 0.5 * vol);
+    mixer2.gain(2, 0.5 * vol);
+    mixer2.gain(3, 0.5 * vol);
+    // Final musicMixer - combine both SFX mixers and music
+    musicMixer.gain(0, vol); // SFX mixer1 scaled by master volume
+    musicMixer.gain(1, vol); // SFX mixer2 scaled by master volume
+    musicMixer.gain(2, 0.2 * vol); // WAV music (main) scaled by master volume
+    musicMixer.gain(3, 0.0); // jukebox channel (starts at 0, controlled by setJukeboxVolume)
     Serial.println("Audio initialized");
 }
 
@@ -90,7 +103,7 @@ void setJukeboxVolume(float v) {
     jukeboxVolume = constrain(v, 0.0f, 0.23f);
     // Scale jukebox volume by master volume so it respects the volume control
     float masterVol = masterVolume / 10.0f;
-    musicMixer.gain(2, jukeboxVolume * masterVol);
+    musicMixer.gain(3, jukeboxVolume * masterVol); // Changed to input 3 (was 2)
 }
 
 bool playRawSFX(int sfxIndex) {
