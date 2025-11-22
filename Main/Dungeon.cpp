@@ -429,32 +429,36 @@ void drawMinimap() {
   display.clearDisplay();
   int mapScale = 2;
 
-  for (int y = 0; y < mapHeight; y++) {
-    for (int x = 0; x < mapWidth; x++) {
-      TileTypes tile = dungeonMap[y][x];
-      int drawX = x * mapScale;
-      int drawY = y * mapScale;
+  if (!blinded) {
+    for (int y = 0; y < mapHeight; y++) {
+      for (int x = 0; x < mapWidth; x++) {
+        TileTypes tile = dungeonMap[y][x];
+        int drawX = x * mapScale;
+        int drawY = y * mapScale;
 
-      if (tile == Floor) continue;
-      if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
-      if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
-      if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
+        if (tile == Floor) continue;
+        if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
+        if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
+        if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
+      }
     }
-  }
 
-  int playerMinimapX = (playerX)*mapScale;
-  int playerMinimapY = (playerY)*mapScale;
-  display.drawCircle(playerMinimapX, playerMinimapY, 1, 10);
+    int playerMinimapX = (playerX)*mapScale;
+    int playerMinimapY = (playerY)*mapScale;
+    display.drawCircle(playerMinimapX, playerMinimapY, 1, 10);
 
-  if (seeAll) {
-    for (int i = 0; i < maxEnemies; i++) {
-      int enemyMinimapX = (enemies[i].x)*mapScale;
-      int enemyMinimapY = (enemies[i].y)*mapScale;
-      display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
+    if (seeAll) {
+      for (int i = 0; i < maxEnemies; i++) {
+        int enemyMinimapX = (enemies[i].x)*mapScale;
+        int enemyMinimapY = (enemies[i].y)*mapScale;
+        display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
+      }
+      int damselMinimapX = (damsel[0].x)*mapScale;
+      int damselMinimapY = (damsel[0].y)*mapScale;
+      display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
     }
-    int damselMinimapX = (damsel[0].x)*mapScale;
-    int damselMinimapY = (damsel[0].y)*mapScale;
-    display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
+  } else {
+    drawWrappedText(10, 10, 100, "You can't see the map while blinded!");
   }
 
   display.display();

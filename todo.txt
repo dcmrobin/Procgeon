@@ -3,6 +3,4 @@ but switch the b and a around, and you get a thing that has to do with a specifi
 
 need more armor, rings, and scrolls.
 
-why does title screen music not play on bootup but does on restart game.
-
 convert all String to char arrays for memory stability.
