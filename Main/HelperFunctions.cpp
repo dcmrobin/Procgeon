@@ -30,8 +30,6 @@ float offsetY = 0;
 int shakeDuration = 0;   // How many frames to shake for
 int shakeIntensity = 1;  // How strong the shake is
 
-int playTitleScreenMusicTimer = 0;
-
 const float scrollSpeed = 0.25f;
 
 // Global variable for the current riddle

@@ -20,6 +20,7 @@ unsigned int dngnHighscoreAddress = 0;
 unsigned int killHighscoreAddress = 1;
 int creditsBrightness = 15;
 int noiseLevelDiffuseTimer = 0;
+int introNum = 0;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
@@ -29,7 +30,7 @@ const unsigned long frameDelay = 20; // Update every 100ms
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
-  playTitleScreenMusicTimer = 0;
+  introNum = 0;
   damselDeathMsg = "You killed ";
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
@@ -328,31 +329,34 @@ void renderGame() {
 }
 
 void renderIntroScreen() {
+  introNum++;
+  if (introNum > 50) {
+    introNum = 50;
+  }
   display.clearDisplay();
-  playTitleScreenMusicTimer++;
-  if (playTitleScreenMusicTimer > 100) {
-    //
-    playTitleScreenMusicTimer = 0;
+  display.setTextColor(15);
+  display.setTextSize(1);
+  display.setCursor(41, 50);
+  display.print("Paladin");
+  display.setCursor(38, 60);
+  display.print("Presents");
+  display.display();
+  if (!playWav1.isPlaying()) {
+    playWav1.play("intro.wav");
+  }
+  if (!playWav1.isPlaying() && introNum > 10) {
+    playWav1.stop();
     currentUIState = UI_SPLASH;
   }
-  display.display();
 }
 
 void renderSplashScreen() {
-  playTitleScreenMusicTimer++;
-  if (playTitleScreenMusicTimer > 600) {
-    playTitleScreenMusicTimer = 600;
-  }
   // add up up down down left right left right b a start for a secret
 
-  if (playTitleScreenMusicTimer > 30) {
-    if (!playWav1.isPlaying()) {
-      playWav1.play("title_screen.wav");
-    }
+  if (!playWav1.isPlaying()) {
+    playWav1.play("title_screen.wav");
   }
-  //if (!SD.exists("title_screen.wav")) {
-  //  Serial.println("title_screen.wav apparently doesn't exist");
-  //}
+
   display.clearDisplay();
   display.drawBitmap(0, 0, splashScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
   display.display();
