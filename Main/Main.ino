@@ -193,11 +193,13 @@ void setup() {
   pinMode(BUTTON_B_PIN, INPUT_PULLUP);
   pinMode(BUTTON_A_PIN, INPUT_PULLUP);
   pinMode(BUTTON_START_PIN, INPUT_PULLUP);
+  display.clearDisplay();
 
   // Initialize the game
-  currentUIState = UI_SPLASH;
-  //resetGame();
-  playRawSFX(11);
+  resetGame();
+  //currentUIState = UI_SPLASH;
+  currentUIState = UI_INTRO;
+  //playRawSFX(11);
 }
 
 void loop() {
@@ -255,6 +257,10 @@ void loop() {
 
             case UI_SPLASH:
               renderSplashScreen();
+              break;
+
+            case UI_INTRO:
+              renderIntroScreen();
               break;
           }
         } else {
@@ -317,6 +323,17 @@ void renderGame() {
   handleDialogue();
   if (playerActed || playerNearClockEnemy) {
     updateAnimations();
+  }
+  display.display();
+}
+
+void renderIntroScreen() {
+  display.clearDisplay();
+  playTitleScreenMusicTimer++;
+  if (playTitleScreenMusicTimer > 100) {
+    //
+    playTitleScreenMusicTimer = 0;
+    currentUIState = UI_SPLASH;
   }
   display.display();
 }

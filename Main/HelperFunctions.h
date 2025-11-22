@@ -56,7 +56,8 @@ enum UIState {
   UI_ITEM_RESULT, // Item result screen
   UI_PAUSE,       // Pause screen
   UI_RIDDLE,      // Riddle screen
-  UI_SPLASH       // Title screen
+  UI_SPLASH,      // Title screen
+  UI_INTRO        // Intro screen
 };
 
 struct GeneratedRiddle {

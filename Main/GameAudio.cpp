@@ -83,6 +83,7 @@ void initAudio() {
     musicMixer.gain(1, 0.2 * vol); // WAV music (main) scaled by master volume
     musicMixer.gain(2, 0.0); // jukebox channel (starts at 0, controlled by setJukeboxVolume)
     musicMixer.gain(3, 0.0);
+    Serial.println("Audio initialized");
 }
 
 void setJukeboxVolume(float v) {
