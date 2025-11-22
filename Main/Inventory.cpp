@@ -1,9 +1,10 @@
 #include "Inventory.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include <string.h>
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
-String itemResultMessage = "";
+char itemResultMessage[100] = "";
 
 InventoryPage inventoryPages[] = {
   {"Potions", PotionCategory},
@@ -30,8 +31,8 @@ void identifyItem(GameItem &item) {
   }
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
-  if (item.isCursed && item.description.indexOf("(Cursed)") == -1) {
-    item.description += " (Cursed)";
+  if (item.isCursed && strstr(item.description, "(Cursed)") == NULL) {// what the heck does strstr do
+    snprintf(item.description, sizeof(item.description), "%s (Cursed)", item.description);
   }
 }
 
@@ -139,9 +140,9 @@ void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && identifyingItem && currentUIState == UI_INVENTORY) {
     // Select item to identify
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    if (selectedItem.name != "Empty" && selectedItem.name != "") {
+    if (strcmp(selectedItem.name, "Empty") != 0 && strlen(selectedItem.name) > 0) {
       identifyItem(selectedItem);
-      itemResultMessage = "Identified: " + selectedItem.name + (selectedItem.isCursed ? ". It is cursed!" : ". Not cursed.");
+      snprintf(itemResultMessage, sizeof(itemResultMessage), "Identified: %s%s", selectedItem.name, selectedItem.isCursed ? ". It is cursed!" : ". Not cursed.");
       // Remove the scroll
       if (identifyScrollPage >= 0 && identifyScrollIndex >= 0) {
         inventoryPages[identifyScrollPage].items[identifyScrollIndex] = { Null, PotionCategory, "Empty"};
@@ -158,7 +159,7 @@ void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && !identifyingItem && currentUIState == UI_INVENTORY) {
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
   
-    if (selectedItem.name != "Empty" && selectedItem.name != "") {
+    if (strcmp(selectedItem.name, "Empty") != 0 && strlen(selectedItem.name) > 0) {
       playRawSFX(7);
       if (!combiningTwoItems) {
         currentUIState = UI_ITEM_ACTION;
@@ -167,7 +168,7 @@ void handleInventoryItemUsage() {
         combiningItem2 = selectedItem;
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
 
-        if (resultItem.name != "Null") {
+        if (strcmp(resultItem.name, "Null") != 0) {
           bool ingredient1IsPotion = combiningItem1.category == PotionCategory;
           bool ingredient2IsPotion = combiningItem2.category == PotionCategory;
 
@@ -228,9 +229,13 @@ void handleInventoryItemUsage() {
         }
         currentUIState = UI_ITEM_RESULT;
         if (resultItem.category != EquipmentCategory) {
-          itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
+          if (strcmp(resultItem.name, "Null") == 0) {
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "These two items cannot be combined.");
+          } else {
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "Combined two items! The result was: %s", resultItem.name);
+          }
         } else {
-          itemResultMessage = resultItem.itemResult;
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", resultItem.itemResult);
         }
         combiningTwoItems = false;
       }
@@ -264,7 +269,7 @@ void handleItemActionMenu() {
     if (selectedActionIndex == 0) { // Use/Read/Drink
       if (selectedItem.category == ScrollsCategory) {
         if (blinded) {
-          itemResultMessage = "You can't read while blind!";
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't read while blind!");
           currentUIState = UI_ITEM_RESULT;
           buttons.bPressedPrev = true;
           return;
@@ -280,18 +285,18 @@ void handleItemActionMenu() {
         }
 
         playRawSFX(2);
-        itemResultMessage = selectedItem.itemResult;
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
         
         // Apply scroll effects based on type
         if (selectedItem.effectType == ScrollProtectionEffect) {
           if (equippedArmor.item != Null) {
             if (equippedArmor.armorValue == 0) {
-              equippedArmor.description = "Restored armor.";
+              snprintf(equippedArmor.description, sizeof(equippedArmor.description), "%s", "Restored armor.");
             }
             equippedArmor.armorValue += 1;
             equippedArmorValue += 1; // Increase armor protection
           } else {
-            itemResultMessage = "The scroll disappears.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "The scroll disappears.");
           }
         } else if (selectedItem.effectType == ScrollIdentifyEffect) {
           // Start identify flow
@@ -303,7 +308,7 @@ void handleItemActionMenu() {
         } else if (selectedItem.effectType == ScrollEnchantEffect) {
           // Enchant scroll: increase player attack damage
           playerAttackDamage += 2; // Increase by 2, adjust as desired
-          itemResultMessage = "You feel more powerful! Your attacks do more damage.";
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel more powerful! Your attacks do more damage.");
           // Destroy the enchant scroll
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
@@ -315,14 +320,17 @@ void handleItemActionMenu() {
                     GameItem &item = inventoryPages[p].items[i];
                     if (item.isEquipped && item.isCursed) {
                         item.isCursed = false;
-                        int pos = item.description.indexOf(" (Cursed)");
-                        if (pos != -1) {
-                            item.description.remove(pos, 9);
+                        char *cursedPos = strstr(item.description, " (Cursed)");
+                        if (cursedPos != NULL) {
+                            // Remove " (Cursed)" by shifting the remaining string left
+                            size_t removeLen = 9; // length of " (Cursed)"
+                            size_t remainingLen = strlen(cursedPos + removeLen);
+                            memmove(cursedPos, cursedPos + removeLen, remainingLen + 1); // +1 for null terminator
                         }
                     }
                 }
             }
-            itemResultMessage = "You feel as if someone is watching over you.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel as if someone is watching over you.");
             currentUIState = UI_ITEM_RESULT;
         }
         
@@ -336,7 +344,7 @@ void handleItemActionMenu() {
         }
         buttons.bPressedPrev = true;
       } else if ((selectedItem.category == PotionCategory || selectedItem.category == FoodCategory) && selectedItem.item != EmptyBottle) {
-        if (selectedItem.itemResult == "A lot happens.") { // random effect applied to the potion before anything else so that all the effects can be applied after
+        if (strcmp(selectedItem.itemResult, "A lot happens.") == 0) { // random effect applied to the potion before anything else so that all the effects can be applied after
           selectedItem.healthRecoverAmount = random(-90, 101); // -90 to +100
           selectedItem.hungerRecoverAmount = random(-90, 101); // -90 to +100
           selectedItem.AOEsize = random(0, 11); // 0 to 10
@@ -367,36 +375,36 @@ void handleItemActionMenu() {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
         }
 
-        if (selectedItem.itemResult == "You are now more hungry.") {
+        if (strcmp(selectedItem.itemResult, "You are now more hungry.") == 0) {
           playerFood -= 51;//heheheh u want it to be 50 don't u >:D
-        } else if (selectedItem.itemResult == "You can now see that which was unseen for a limited time.") {
+        } else if (strcmp(selectedItem.itemResult, "You can now see that which was unseen for a limited time.") == 0) {
           seeAll = true;
           seeAllTimer = 1000;
           blinded = false;
           blindnessTimer = 0;
-        } else if (selectedItem.itemResult == "What is going on?") {
+        } else if (strcmp(selectedItem.itemResult, "What is going on?") == 0) {
           confused = true;
           confusionTimer = 1000;
-        } else if (selectedItem.itemResult == "You feel fabulous!") {
+        } else if (strcmp(selectedItem.itemResult, "You feel fabulous!") == 0) {
           if (ridiculed) {
             ridiculed = false;
             ridiculeTimer = 0;
           }
           glamoured = true;
           glamourTimer = 1000;
-        } else if (selectedItem.itemResult == "You feel stupid.") {
+        } else if (strcmp(selectedItem.itemResult, "You feel stupid.") == 0) {
           if (glamoured) {
             glamoured = false;
             glamourTimer = 0;
           }
           ridiculed = true;
           ridiculeTimer = RIDICULE_DURATION;
-        } else if (selectedItem.itemResult == "A cloak of darkness falls around you.") {
+        } else if (strcmp(selectedItem.itemResult, "A cloak of darkness falls around you.") == 0) {
           blinded = true;
           blindnessTimer = 700;
-        } else if (selectedItem.itemResult == "You feel stronger.") {
+        } else if (strcmp(selectedItem.itemResult, "You feel stronger.") == 0) {
           playerAttackDamage += 3;
-        } else if (selectedItem.itemResult == "You feel restored!") {
+        } else if (strcmp(selectedItem.itemResult, "You feel restored!") == 0) {
           //cures blindness, confusion, ridicule, and glamoured, and restores speed, and raises player attack damage, and restores player hp and food
           blinded = false;
           blindnessTimer = 0;
@@ -420,7 +428,7 @@ void handleItemActionMenu() {
           playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
           playerFood += 15;
           playerFood = playerFood > 100 ? 100 : playerFood;
-        } else if (selectedItem.itemResult == "You can't move!") {
+        } else if (strcmp(selectedItem.itemResult, "You can't move!") == 0) {
           paralyzed = true;
           paralysisTimer = 1000;
         }
@@ -431,10 +439,10 @@ void handleItemActionMenu() {
           }
         }
 
-        itemResultMessage = selectedItem.itemResult;
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
 
         if (selectedItem.effectType == ArmorEffect) {
-          itemResultMessage = "You can't use this, Try equipping it.";
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't use this, Try equipping it.");
         }
 
         currentUIState = UI_ITEM_RESULT; // Change to result screen
@@ -450,7 +458,7 @@ void handleItemActionMenu() {
 
         buttons.bPressedPrev = true;
       } else if (selectedItem.effectType == ArmorEffect || selectedItem.item == Ring) {
-        itemResultMessage = "You can't use this, try equipping it.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't use this, try equipping it.");
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
       } else if (selectedItem.item == RiddleStone) {
@@ -459,7 +467,7 @@ void handleItemActionMenu() {
         inventoryPages[currentInventoryPageIndex].itemCount--;
       } else {
         playRawSFX(2);
-        itemResultMessage = selectedItem.itemResult;
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
       }
@@ -467,7 +475,7 @@ void handleItemActionMenu() {
       // Prevent dropping equipped items
       if (selectedItem.isEquipped) {
         playRawSFX(13);
-        itemResultMessage = "You need to unequip it first.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip it first.");
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
       } else {
@@ -482,7 +490,7 @@ void handleItemActionMenu() {
         if (selectedItem.isEquipped) {
           // Unequip the item
           if (selectedItem.isCursed) {
-            itemResultMessage = "You can't. It appears to be cursed.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't. It appears to be cursed.");
             currentUIState = UI_ITEM_RESULT;
           } else {
             selectedItem.isEquipped = false;
@@ -517,7 +525,7 @@ void handleItemActionMenu() {
           // Check if trying to equip armor when armor is already equipped
           if (selectedItem.effectType == ArmorEffect && equippedArmor.item != Null) {
             playRawSFX(13);
-            itemResultMessage = "You need to unequip the armor first.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip the armor first.");
             currentUIState = UI_ITEM_RESULT;
             buttons.bPressedPrev = true;
           } else {
@@ -551,14 +559,18 @@ void handleItemActionMenu() {
               }
             }
             playRawSFX(2);
-            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : "You equip the " + selectedItem.name + "."; // override riddle stone text
-            equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
+            if (strcmp(selectedItem.itemResult, "Solve this riddle!") == 0) {
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You equip the riddle stone.");
+              equippedRiddleStone = true;
+            } else {
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "You equip the %s.", selectedItem.name);
+            }
             currentUIState = UI_ITEM_RESULT;
           }
         }
       } else {
         playRawSFX(2);
-        itemResultMessage = "This item cannot be equipped.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "This item cannot be equipped.");
         currentUIState = UI_ITEM_RESULT;
       }
       buttons.bPressedPrev = true;

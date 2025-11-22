@@ -920,9 +920,9 @@ void handleRiddles() {
       playRawSFX(6);
       display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
       if (playerHP > 0) {
-        itemResultMessage = "Correct! You are rewarded.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "Correct! You are rewarded.");
       } else {
-        itemResultMessage = "Correct! You are revived.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "Correct! You are revived.");
         playerHP = (int)(playerMaxHP / 2);
       }
       // Give three random items as a reward
@@ -950,7 +950,7 @@ void handleRiddles() {
     } else {
       display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
       playRawSFX(13);
-      itemResultMessage = "Wrong answer! You suffer.";
+      snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "Wrong answer! You suffer.");
       playerHP -= 10;
       checkIfDeadFrom("stupidity");
     }

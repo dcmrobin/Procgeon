@@ -74,15 +74,15 @@ enum EffectType {
 struct GameItem {
   GameItems item = Null;
   ItemCategory category = PotionCategory;
-  String name = "Null";
+  char name[20] = "Null";
   int healthRecoverAmount = 0;
   int hungerRecoverAmount = 0;
   int AOEsize = 0;
   int AOEdamage = 0;
   float SpeedMultiplier = 0;
-  String description = "";
-  String originalName = "";
-  String itemResult = "";
+  char description[100] = "";
+  char originalName[20] = "";
+  char itemResult[100] = "";
   int rarity = 2;
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
@@ -105,16 +105,16 @@ struct PotionEffect {
   int AOEsize;
   int AOEdamage;
   float SpeedMultiplier;
-  String effectName;
-  String effectDescription;
-  String effectResult;
+  char effectName[20];
+  char effectDescription[100];
+  char effectResult[100];
   EffectType effectType;
 };
 
 struct ScrollEffect {
-  String effectName;
-  String effectDescription;
-  String effectResult;
+  char effectName[20];
+  char effectDescription[100];
+  char effectResult[100];
   EffectType effectType;
 };
 
@@ -128,11 +128,11 @@ struct ItemCombination {
 extern ItemCombination itemCombinations[];
 extern const int NUM_ITEM_COMBINATIONS;
 
-extern String scrollNames[];
+extern char scrollNames[][20];
 extern PotionEffect potionEffects[];
 
-extern String ringTypes[NUM_RINGS];
-extern String ringEffects[NUM_RINGS];
+extern char ringTypes[NUM_RINGS][20];
+extern char ringEffects[NUM_RINGS][100];
 extern bool ringCursed[NUM_RINGS];
 
 void randomizePotionEffects();  // Call this once at game start

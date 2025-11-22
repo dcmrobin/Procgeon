@@ -916,7 +916,7 @@ void reduceArmorDurability(int i) {
   equippedArmor.armorValue -= ((float)enemies[i].damage / 100);
   if (equippedArmor.armorValue < 0) {
     equippedArmor.armorValue = 0;
-    equippedArmor.description = "Broken armor.";
+    snprintf(equippedArmor.description, sizeof(equippedArmor.description), "%s", "Broken armor.");
   }
   
   equippedArmorValue = equippedArmor.armorValue;
