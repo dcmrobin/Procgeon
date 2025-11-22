@@ -4,3 +4,5 @@ but switch the b and a around, and you get a thing that has to do with a specifi
 need more armor, rings, and scrolls.
 
 convert all String to char arrays for memory stability.
+
+add save/load feature. saves need to delete on death.
