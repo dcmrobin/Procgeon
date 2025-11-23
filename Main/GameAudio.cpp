@@ -242,7 +242,7 @@ void freeSFX() {
     }
 }
 
-/*bool loadSFXtoRAM() {
+bool loadSFXtoRAM() {
     for (int i = 0; i < NUM_SFX; i++) {
         File f = SD.open(sfxFilenames[i]);
         if (!f) {
@@ -265,4 +265,4 @@ void freeSFX() {
         f.close();
     }
     return true;
-}*/
+}

@@ -6,4 +6,8 @@ need more armor, rings, and scrolls. ideas:
 
 need to be able to back out of a chest puzzle.
 
+need loading screens for load and save.
+
 need explosion potion to make all tiles around player into ground tiles.
+
+need scrollnames[] and itemlist[] to be saved.

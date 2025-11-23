@@ -121,7 +121,7 @@ void resetGame() {
   playerAttackDamage = 10;
 
   // Generate new dungeon and spawn enemies
-  generateDungeon(false, false);
+  generateDungeon(false);
   spawnEnemies(false);
 }
 
@@ -142,11 +142,11 @@ void setup() {
   Serial.println("SD initialization done.");
 
   // Play a sound effect from memory
-  /*if (!loadSFXtoRAM()) {
+  if (!loadSFXtoRAM()) {
     Serial.println("Failed to load SFX to RAM");
   } else {
     Serial.println("SFX loaded successfully");
-  }*/
+  }
 
   Serial.println("type 8: teleport damsel to player if damsel is available");
   Serial.println("type 7: make tile player is on into the exit");
@@ -723,7 +723,7 @@ void showStatusScreen() {
       playerDX = 0;
       playerDY = 1;
       statusScreen = false;
-      generateDungeon(dungeon == bossfightLevel ? true : false, false); // Generate a new dungeon
+      generateDungeon(dungeon == bossfightLevel ? true : false); // Generate a new dungeon
       showDialogue = false;
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;

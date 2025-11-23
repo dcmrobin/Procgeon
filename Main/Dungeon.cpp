@@ -14,7 +14,7 @@ int bossfightLevel = 12;
 bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;
-void generateDungeon(bool isBossfight, bool keepPlayerPos) {
+void generateDungeon(bool isBossfight) {
   ambientNoiseLevel = 0;
   generatedMapItem = false;
 
@@ -30,10 +30,8 @@ void generateDungeon(bool isBossfight, bool keepPlayerPos) {
   }
 
   if (isBossfight) {
-    if (!keepPlayerPos) {
-      playerX = (mapWidth / 2) - 3;
-      playerY = mapHeight / 2;
-    }
+    playerX = (mapWidth / 2) - 3;
+    playerY = mapHeight / 2;
 
     // Only create the damsel's cell if she was following the player (or the player carried her)
     // and we don't have a friendly succubus
@@ -253,10 +251,8 @@ void generateDungeon(bool isBossfight, bool keepPlayerPos) {
   int playerStartX = startRoomX + startRoomWidth / 2;
   int playerStartY = startRoomY + startRoomHeight / 2;
   dungeonMap[playerStartY][playerStartX] = Floor;  // Make sure the player's position is a floor
-  if (!keepPlayerPos) {
-    playerX = playerStartX;
-    playerY = playerStartY;
-  }
+  playerX = playerStartX;
+  playerY = playerStartY;
 
   // Place the exit in the last room
   dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]

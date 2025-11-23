@@ -18,6 +18,8 @@ int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
 UIState currentUIState = UI_NORMAL; // Current UI state
 
+SaveData saveData = {};
+
 bool statusScreen = false;
 bool finalStatusScreen = false;
 bool showDeathScreen = false;
@@ -774,74 +776,70 @@ void checkIfDeadFrom(const char *cause) {
 }
 
 void trySaveGame() {
-    Serial.println("trySaveGame() started");
-    
-    // Pause audio output
-    AudioNoInterrupts();
-    delay(50);
-    
-    // Now save
-    if (!saveGame(worldSeed, dungeon, playerX, playerY, playerHP, playerFood, 
-                 succubusIsFriend, playerAttackDamage, endlessMode, kills, 
-                 equippedArmorValue, equippedRiddleStone, swiftnessRingsNumber,
-                 strengthRingsNumber, weaknessRingsNumber)) {
-        Serial.println("saveGame() failed");
-    }
-    
-    // Resume audio
-    AudioInterrupts(); 
-    Serial.println("trySaveGame() completed");
+  saveData.armorValue = equippedArmorValue;
+  saveData.attackDamage = playerAttackDamage;
+  saveData.currentDungeon = dungeon;
+  saveData.damsel = damsel[0];
+  saveData.endlessMode = endlessMode;
+  saveData.equippedArmor = equippedArmor;
+  saveData.equippedRiddleStone = equippedRiddleStone;
+  saveData.food = playerFood;
+  saveData.hp = playerHP;
+  for (int i = 0; i < numInventoryPages; i++) {
+      saveData.savedInventory[i] = inventoryPages[i];
+  }
+  for (int i = 0; i < 30; i++) {
+      saveData.savedEnemies[i] = enemies[i];
+  }
+  for (int y = 0; y < 64; y++) {
+      for (int x = 0; x < 64; x++) {
+          saveData.dungeonMap[y][x] = dungeonMap[y][x];
+      }
+  }
+  saveData.kills = kills;
+  saveData.playerX = playerX;
+  saveData.playerY = playerY;
+  saveData.strengthRingsNum = strengthRingsNumber;
+  saveData.weaknessRingsNum = weaknessRingsNumber;
+  saveData.swiftnessRingsNum = swiftnessRingsNumber;
+  saveData.succubusFriend = succubusIsFriend;
+  saveData.worldSeed = worldSeed;
+  if (!saveGame(saveData)) {
+    Serial.println("saveGame() failed");
+  }
 }
 
 void tryLoadGame() {
-    Serial.println("tryLoadGame() started");
-
-    // Pause audio output
-    AudioNoInterrupts();
-    delay(50);
-    
-    uint32_t loadedWorldSeed;
-    uint8_t loadedDungeon;
-    uint16_t loadedPlayerX, loadedPlayerY;
-    uint8_t loadedHP, loadedFood;
-    bool loadedSuccubusFriend;
-    int loadedAttackDamage;
-    bool loadedEndlessMode;
-    int loadedKills;
-    float loadedArmorValue;
-    bool loadedRiddleStone;
-    int loadedSwiftnessRings, loadedStrengthRings, loadedWeaknessRings;
-    
-    if (!loadGame(
-        loadedWorldSeed, loadedDungeon, loadedPlayerX, loadedPlayerY,
-        loadedHP, loadedFood, loadedSuccubusFriend, loadedAttackDamage, loadedEndlessMode,
-        loadedKills, loadedArmorValue, loadedRiddleStone, loadedSwiftnessRings,
-        loadedStrengthRings, loadedWeaknessRings
-    )) {
-        Serial.println("loadGame() failed — not applying saveData");
-        return;
-    }
-    
-    // Apply loaded values
-    worldSeed = loadedWorldSeed;
-    dungeon = loadedDungeon;
-    playerX = loadedPlayerX;
-    playerY = loadedPlayerY;
-    playerHP = loadedHP;
-    playerFood = loadedFood;
-    succubusIsFriend = loadedSuccubusFriend;
-    playerAttackDamage = loadedAttackDamage;
-    endlessMode = loadedEndlessMode;
-    kills = loadedKills;
-    equippedArmorValue = loadedArmorValue;
-    equippedRiddleStone = loadedRiddleStone;
-    swiftnessRingsNumber = loadedSwiftnessRings;
-    strengthRingsNumber = loadedStrengthRings;
-    weaknessRingsNumber = loadedWeaknessRings;
-    
-    randomSeed(worldSeed);
-    // Resume audio
-    AudioInterrupts();
-    Serial.println("✅ Game loaded successfully");
-    Serial.println("tryLoadGame() completed");
+  if (!loadGame(saveData)) {
+    Serial.println("loadGame() failed — not applying saveData");
+    return;
+  }
+  equippedArmorValue = saveData.armorValue;
+  playerAttackDamage = saveData.attackDamage;
+  dungeon = saveData.currentDungeon;
+  damsel[0] = saveData.damsel;
+  endlessMode = saveData.endlessMode;
+  equippedArmor = saveData.equippedArmor;
+  equippedRiddleStone = saveData.equippedRiddleStone;
+  playerFood = saveData.food;
+  playerHP = saveData.hp;
+  for (int i = 0; i < numInventoryPages; i++) {
+      inventoryPages[i] = saveData.savedInventory[i];
+  }
+  for (int i = 0; i < 30; i++) {
+      enemies[i] = saveData.savedEnemies[i];
+  }
+  for (int y = 0; y < 64; y++) {
+      for (int x = 0; x < 64; x++) {
+          dungeonMap[y][x] = saveData.dungeonMap[y][x];
+      }
+  }
+  kills = saveData.kills;
+  playerX = saveData.playerX;
+  playerY = saveData.playerY;
+  strengthRingsNumber = saveData.strengthRingsNum;
+  weaknessRingsNumber = saveData.weaknessRingsNum;
+  swiftnessRingsNumber = saveData.swiftnessRingsNum;
+  succubusIsFriend = saveData.succubusFriend;
+  randomSeed(saveData.worldSeed);
 }

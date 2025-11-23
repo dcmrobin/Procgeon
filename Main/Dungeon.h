@@ -37,7 +37,7 @@ struct Room {
   int x, y, width, height;
 };
 
-void generateDungeon(bool isBossfight, bool keepPlayerPos);
+void generateDungeon(bool isBossfight);
 void placeRoomEntranceDoors();
 void spawnEnemies(bool isBossfight);
 void setTile(int tileX, int tileY, TileTypes tileType);
