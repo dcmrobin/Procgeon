@@ -839,4 +839,6 @@ void tryLoadGame() {
   swiftnessRingsNumber = saveData.swiftnessRingsNum;
   succubusIsFriend = saveData.succubusFriend;
   randomSeed(saveData.worldSeed);
+  generateDungeon(dungeon == bossfightLevel ? true : false);
+  spawnEnemies(dungeon == bossfightLevel ? true : false);// maybe just assign enemies[] to a enemies array in savedata
 }
