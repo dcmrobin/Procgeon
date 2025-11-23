@@ -75,7 +75,7 @@ RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 void initAudio() {
     // Enable the audio shield
     // Increased AudioMemory to handle more simultaneous sounds
-    AudioMemory(50);
+    AudioMemory(150);
     sgtl5000_1.enable();
     // Apply master volume (1..10 mapped to 0.0..1.0)
     float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
