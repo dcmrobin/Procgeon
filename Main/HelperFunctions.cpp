@@ -13,8 +13,6 @@ U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
 
-SaveData saveData = {};
-
 // Add action selection tracking
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
@@ -777,62 +775,64 @@ void checkIfDeadFrom(const char *cause) {
 
 void trySaveGame() {
     Serial.println("trySaveGame() started");
-    checkMemory();
-    // Update save data
-    saveData.armorValue = equippedArmorValue;
-    saveData.attackDamage = playerAttackDamage;
-    saveData.currentDungeon = dungeon;
-    saveData.endlessMode = endlessMode;
-    saveData.equippedRiddleStone = equippedRiddleStone;
-    saveData.food = playerFood;
-    saveData.hp = playerHP;
-    saveData.kills = kills;
-    saveData.playerX = playerX;
-    saveData.playerY = playerY;
-    saveData.strengthRingsNum = strengthRingsNumber;
-    saveData.weaknessRingsNum = weaknessRingsNumber;
-    saveData.swiftnessRingsNum = swiftnessRingsNumber;
-    saveData.succubusFriend = succubusIsFriend;
-    saveData.worldSeed = worldSeed;
     
-    Serial.print("SaveData size: ");
-    Serial.println(sizeof(SaveData));
-    
-    Serial.println("Calling saveGame()...");
-    if (!saveGame(saveData)) {
+    // Save individual values directly
+    if (!saveGame(
+        worldSeed, dungeon, playerX, playerY,
+        playerHP, playerFood, succubusIsFriend, playerAttackDamage, endlessMode,
+        kills, equippedArmorValue, equippedRiddleStone, swiftnessRingsNumber,
+        strengthRingsNumber, weaknessRingsNumber
+    )) {
         Serial.println("saveGame() failed");
+    } else {
+        Serial.println("trySaveGame() completed");
     }
-    Serial.println("trySaveGame() completed");
-    checkMemory();
 }
 
 void tryLoadGame() {
-  checkMemory();
     Serial.println("tryLoadGame() started");
     
-    if (!loadGame(saveData)) {
+    uint32_t loadedWorldSeed;
+    uint8_t loadedDungeon;
+    uint16_t loadedPlayerX, loadedPlayerY;
+    uint8_t loadedHP, loadedFood;
+    bool loadedSuccubusFriend;
+    int loadedAttackDamage;
+    bool loadedEndlessMode;
+    int loadedKills;
+    float loadedArmorValue;
+    bool loadedRiddleStone;
+    int loadedSwiftnessRings, loadedStrengthRings, loadedWeaknessRings;
+    
+    if (!loadGame(
+        loadedWorldSeed, loadedDungeon, loadedPlayerX, loadedPlayerY,
+        loadedHP, loadedFood, loadedSuccubusFriend, loadedAttackDamage, loadedEndlessMode,
+        loadedKills, loadedArmorValue, loadedRiddleStone, loadedSwiftnessRings,
+        loadedStrengthRings, loadedWeaknessRings
+    )) {
         Serial.println("loadGame() failed — not applying saveData");
         return;
     }
     
-    // Apply loaded data
-    equippedArmorValue = saveData.armorValue;
-    playerAttackDamage = saveData.attackDamage;
-    dungeon = saveData.currentDungeon;
-    endlessMode = saveData.endlessMode;
-    equippedRiddleStone = saveData.equippedRiddleStone;
-    playerFood = saveData.food;
-    playerHP = saveData.hp;
-    kills = saveData.kills;
-    playerX = saveData.playerX;
-    playerY = saveData.playerY;
-    strengthRingsNumber = saveData.strengthRingsNum;
-    weaknessRingsNumber = saveData.weaknessRingsNum;
-    swiftnessRingsNumber = saveData.swiftnessRingsNum;
-    succubusIsFriend = saveData.succubusFriend;
-    randomSeed(saveData.worldSeed);
+    // Apply loaded values
+    worldSeed = loadedWorldSeed;
+    dungeon = loadedDungeon;
+    playerX = loadedPlayerX;
+    playerY = loadedPlayerY;
+    playerHP = loadedHP;
+    playerFood = loadedFood;
+    succubusIsFriend = loadedSuccubusFriend;
+    playerAttackDamage = loadedAttackDamage;
+    endlessMode = loadedEndlessMode;
+    kills = loadedKills;
+    equippedArmorValue = loadedArmorValue;
+    equippedRiddleStone = loadedRiddleStone;
+    swiftnessRingsNumber = loadedSwiftnessRings;
+    strengthRingsNumber = loadedStrengthRings;
+    weaknessRingsNumber = loadedWeaknessRings;
+    
+    randomSeed(worldSeed);
     
     Serial.println("✅ Game loaded successfully");
     Serial.println("tryLoadGame() completed");
-    checkMemory();
 }

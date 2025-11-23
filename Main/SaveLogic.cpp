@@ -1,59 +1,50 @@
 #include "SaveLogic.h"
 
-// ------------------------------------------------------------
-// Check if save file exists
-// ------------------------------------------------------------
-bool saveExists()
-{
-    return SD.exists(SAVE_FILE_PATH);
-}
-
-// ------------------------------------------------------------
-// Delete save file
-// ------------------------------------------------------------
-bool deleteSave()
-{
-    if (SD.exists(SAVE_FILE_PATH)) {
-        return SD.remove(SAVE_FILE_PATH);
-    }
-    return false;
-}
-
-// ------------------------------------------------------------
-// SAVE GAME (ultra simple)
-// ------------------------------------------------------------
-bool saveGame(const SaveData& data) {
-    Serial.println("=== SAVE GAME ===");
+bool saveGame(uint32_t worldSeed, uint8_t currentDungeon, uint16_t playerX, uint16_t playerY,
+              uint8_t hp, uint8_t food, bool succubusFriend, int attackDamage, bool endlessMode,
+              int kills, float armorValue, bool equippedRiddleStone, int swiftnessRingsNum,
+              int strengthRingsNum, int weaknessRingsNum) {
     
-    // Remove existing file first
+    Serial.println("=== TEXT SAVE ===");
+    
     if (SD.exists(SAVE_FILE_PATH)) {
         SD.remove(SAVE_FILE_PATH);
     }
     
-    // Open file for writing
     File f = SD.open(SAVE_FILE_PATH, FILE_WRITE);
     if (!f) {
         Serial.println("❌ Cannot open file for writing");
         return false;
     }
     
-    // Write data directly (without checksum for now)
-    size_t written = f.write((const uint8_t*)&data, sizeof(SaveData));
+    // Write each value on its own line
+    f.println(worldSeed);
+    f.println(currentDungeon);
+    f.println(playerX);
+    f.println(playerY);
+    f.println(hp);
+    f.println(food);
+    f.println(succubusFriend ? 1 : 0);
+    f.println(attackDamage);
+    f.println(endlessMode ? 1 : 0);
+    f.println(kills);
+    f.println(armorValue, 6); // 6 decimal places for float
+    f.println(equippedRiddleStone ? 1 : 0);
+    f.println(swiftnessRingsNum);
+    f.println(strengthRingsNum);
+    f.println(weaknessRingsNum);
+    
     f.close();
-    
-    Serial.print("Written: ");
-    Serial.print(written);
-    Serial.print("/");
-    Serial.println(sizeof(SaveData));
-    
-    return (written == sizeof(SaveData));
+    Serial.println("✅ Text save successful");
+    return true;
 }
 
-// ------------------------------------------------------------
-// LOAD GAME (ultra simple)
-// ------------------------------------------------------------
-bool loadGame(SaveData& outData) {
-    Serial.println("=== LOAD GAME ===");
+bool loadGame(uint32_t& worldSeed, uint8_t& currentDungeon, uint16_t& playerX, uint16_t& playerY,
+              uint8_t& hp, uint8_t& food, bool& succubusFriend, int& attackDamage, bool& endlessMode,
+              int& kills, float& armorValue, bool& equippedRiddleStone, int& swiftnessRingsNum,
+              int& strengthRingsNum, int& weaknessRingsNum) {
+    
+    Serial.println("=== TEXT LOAD ===");
     
     if (!SD.exists(SAVE_FILE_PATH)) {
         Serial.println("❌ Save file doesn't exist");
@@ -66,40 +57,36 @@ bool loadGame(SaveData& outData) {
         return false;
     }
     
-    size_t fileSize = f.size();
-    if (fileSize != sizeof(SaveData)) {
-        Serial.print("❌ File size mismatch: ");
-        Serial.print(fileSize);
-        Serial.print(" != ");
-        Serial.println(sizeof(SaveData));
-        f.close();
-        return false;
-    }
+    // Read each value line by line
+    worldSeed = f.parseInt();
+    currentDungeon = f.parseInt();
+    playerX = f.parseInt();
+    playerY = f.parseInt();
+    hp = f.parseInt();
+    food = f.parseInt();
+    succubusFriend = (f.parseInt() != 0);
+    attackDamage = f.parseInt();
+    endlessMode = (f.parseInt() != 0);
+    kills = f.parseInt();
+    armorValue = f.parseFloat();
+    equippedRiddleStone = (f.parseInt() != 0);
+    swiftnessRingsNum = f.parseInt();
+    strengthRingsNum = f.parseInt();
+    weaknessRingsNum = f.parseInt();
     
-    // Read data directly
-    size_t readBytes = f.read((uint8_t*)&outData, sizeof(SaveData));
     f.close();
     
-    Serial.print("Read: ");
-    Serial.print(readBytes);
-    Serial.print("/");
-    Serial.println(sizeof(SaveData));
-    
-    return (readBytes == sizeof(SaveData));
+    Serial.println("✅ Text load successful");
+    return true;
 }
 
-void checkMemory() {
-    extern unsigned long _heap_start;
-    extern unsigned long _heap_end;
-    extern char *__brkval;
-    
-    int free_memory;
-    if (__brkval == 0) {
-        free_memory = ((int)&free_memory) - ((int)&_heap_end);
-    } else {
-        free_memory = ((int)&free_memory) - ((int)__brkval);
+bool saveExists() {
+    return SD.exists(SAVE_FILE_PATH);
+}
+
+bool deleteSave() {
+    if (SD.exists(SAVE_FILE_PATH)) {
+        return SD.remove(SAVE_FILE_PATH);
     }
-    
-    Serial.print("Free memory: ");
-    Serial.println(free_memory);
+    return false;
 }
