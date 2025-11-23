@@ -4,6 +4,6 @@ but switch the b and a around, and you get a thing that has to do with a specifi
 need more armor, rings, and scrolls. ideas:
     1. a scroll that teleports you to random location
 
-add save/load feature. saves need to delete on death.
+need to be able to back out of a chest puzzle.
 
 need explosion potion to make all tiles around player into ground tiles.

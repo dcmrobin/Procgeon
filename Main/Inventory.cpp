@@ -509,11 +509,9 @@ void handleItemActionMenu() {
               if (strcmp(ringEffects[idx], "Ring of Swiftness") == 0) {
                 swiftnessRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Strength") == 0) {
-                ringOfStrengthActive = false;
-                playerAttackDamage -= 5;
+                strengthRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
-                ringOfWeaknessActive = false;
-                playerAttackDamage += 5;
+                weaknessRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
                 ringOfHungerActive = false;
               } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
@@ -549,11 +547,9 @@ void handleItemActionMenu() {
               if (strcmp(ringEffects[idx], "Ring of Swiftness") == 0) {
                 swiftnessRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Strength") == 0) {
-                ringOfStrengthActive = true;
-                playerAttackDamage += 5;
+                strengthRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
-                ringOfWeaknessActive = true;
-                playerAttackDamage -= 5;
+                weaknessRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
                 ringOfHungerActive = true;
               } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {

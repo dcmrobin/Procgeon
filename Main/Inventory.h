@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "Item.h"
 #include "HelperFunctions.h"
-#include "Entities.h"
+//#include "Entities.h"
 
 #define inventorySize 8
 

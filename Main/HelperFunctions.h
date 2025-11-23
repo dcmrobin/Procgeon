@@ -71,6 +71,10 @@ struct RiddleAnswer {
   const char* attributes[4];  // 4 attributes per answer for variety
 };
 
+extern uint32_t worldSeed;
+
+//extern SaveData saveData;
+
 extern GeneratedRiddle currentRiddle;
 extern int selectedRiddleOption; 
 extern bool riddleGenerated; 
@@ -122,5 +126,7 @@ void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
 bool nearTile(TileTypes tile);
 void checkIfDeadFrom(const char *cause);
+void trySaveGame();
+void tryLoadGame();
 
 #endif

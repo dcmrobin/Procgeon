@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Inventory.h"
+#include "SaveLogic.h"
 #include <string.h>
 
 #define MAX_LETTERS 26
@@ -11,6 +12,8 @@ Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_
 U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
+
+SaveData saveData = {};
 
 // Add action selection tracking
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
@@ -30,6 +33,8 @@ float offsetY = 0;
 
 int shakeDuration = 0;   // How many frames to shake for
 int shakeIntensity = 1;  // How strong the shake is
+
+uint32_t worldSeed = 0;
 
 const float scrollSpeed = 0.25f;
 
@@ -768,4 +773,65 @@ void checkIfDeadFrom(const char *cause) {
     buttons.aPressedPrev = true;
     showDeathScreen = true;
   }
+}
+
+void trySaveGame() {
+  saveData.armorValue = equippedArmorValue;
+  saveData.attackDamage = playerAttackDamage;
+  saveData.currentDungeon = dungeon;
+  saveData.damsel = damsel[0];
+  saveData.endlessMode = endlessMode;
+  saveData.equippedArmor = equippedArmor;
+  saveData.equippedRiddleStone = equippedRiddleStone;
+  saveData.food = playerFood;
+  saveData.hp = playerHP;
+  for (int i = 0; i < numInventoryPages; i++) {
+      saveData.savedInventory[i] = inventoryPages[i];
+  }
+  saveData.kills = kills;
+  saveData.playerX = playerX;
+  saveData.playerY = playerY;
+  saveData.strengthRingsNum = strengthRingsNumber;
+  saveData.weaknessRingsNum = weaknessRingsNumber;
+  saveData.swiftnessRingsNum = swiftnessRingsNumber;
+  saveData.succubusFriend = succubusIsFriend;
+  saveData.worldSeed = worldSeed;
+  Serial.print("SaveData size: ");
+  Serial.println(sizeof(SaveData));
+  Serial.print("InventoryPage size: ");
+  Serial.println(sizeof(InventoryPage));
+  Serial.print("GameItem size: ");
+  Serial.println(sizeof(GameItem));
+  Serial.print("Damsel size: ");
+  Serial.println(sizeof(Damsel));
+  if (!saveGame(saveData)) {
+    Serial.println("saveGame() failed");
+  }
+}
+
+void tryLoadGame() {
+  if (!loadGame(saveData)) {
+    Serial.println("loadGame() failed — not applying saveData");
+    return;
+  }
+  equippedArmorValue = saveData.armorValue;
+  playerAttackDamage = saveData.attackDamage;
+  dungeon = saveData.currentDungeon;
+  damsel[0] = saveData.damsel;
+  endlessMode = saveData.endlessMode;
+  equippedArmor = saveData.equippedArmor;
+  equippedRiddleStone = saveData.equippedRiddleStone;
+  playerFood = saveData.food;
+  playerHP = saveData.hp;
+  for (int i = 0; i < numInventoryPages; i++) {
+      inventoryPages[i] = saveData.savedInventory[i];
+  }
+  kills = saveData.kills;
+  playerX = saveData.playerX;
+  playerY = saveData.playerY;
+  strengthRingsNumber = saveData.strengthRingsNum;
+  weaknessRingsNumber = saveData.weaknessRingsNum;
+  swiftnessRingsNumber = saveData.swiftnessRingsNum;
+  succubusIsFriend = saveData.succubusFriend;
+  randomSeed(saveData.worldSeed);
 }

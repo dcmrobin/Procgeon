@@ -13,6 +13,7 @@
 #include "Inventory.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include "SaveLogic.h"
 
 
 bool itemResultScreenActive = false;
@@ -111,9 +112,9 @@ void resetGame() {
   randomizeRingEffects();
 
   // --- Explicitly reset all ring and speed effect flags ---
-  ringOfStrengthActive = false;
   swiftnessRingsNumber = 0;
-  ringOfWeaknessActive = false;
+  strengthRingsNumber = 0;
+  weaknessRingsNumber = 0;
   ringOfHungerActive = false;
   ringOfRegenActive = false;
   lastPotionSpeedModifier = 0;
@@ -174,8 +175,8 @@ void setup() {
   //} else {
   //  Serial.println("bossfight.wav does not exist");
   //}
-
-  randomSeed(generateRandomSeed());
+  worldSeed = generateRandomSeed();
+  randomSeed(worldSeed);
 
   trainFemaleMarkov();
   
@@ -269,6 +270,9 @@ void loop() {
           showStatusScreen();
         }
       } else {
+        if (saveExists()) {
+          deleteSave();
+        }
         gameOver();
       }
     } else {

@@ -53,8 +53,8 @@ GameItem equippedArmor = {};  // Currently equipped armor item
 bool equippedRiddleStone = false;
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
 int swiftnessRingsNumber = 0;
-bool ringOfStrengthActive = false;
-bool ringOfWeaknessActive = false;
+int strengthRingsNumber = 0;
+int weaknessRingsNumber = 0;
 bool ringOfHungerActive = false;
 bool ringOfRegenActive = false;
 float lastPotionSpeedModifier = 0;
@@ -460,7 +460,7 @@ void startCarryingDamsel() {
 }
 
 void handlePauseScreen() {
-  static int pauseSelection = 0; // 0 = Volume, 1 = Restart
+  static int pauseSelection = 0; // 0 = Volume, 1 = Restart, 2 = Save, 3 = Load
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(27, 16);
@@ -497,6 +497,26 @@ void handlePauseScreen() {
   display.setCursor(18, baseY);
   display.print("Restart Game");
 
+  baseY += 14;
+  if (pauseSelection == 2) {
+    display.fillRect(10, baseY - 2, 108, 12, 15);
+    display.setTextColor(0);
+  } else {
+    display.setTextColor(15);
+  }
+  display.setCursor(18, baseY);
+  display.print("Save game");
+
+  baseY += 14;
+  if (pauseSelection == 3) {
+    display.fillRect(10, baseY - 2, 108, 12, 15);
+    display.setTextColor(0);
+  } else {
+    display.setTextColor(15);
+  }
+  display.setCursor(18, baseY);
+  display.print("Load game");
+
   // Reset text color to white for footer
   display.setTextColor(15);
 
@@ -506,12 +526,13 @@ void handlePauseScreen() {
 
   // Handle navigation input: up/down to move selection, left/right to change volume
   if (buttons.upPressed && !buttons.upPressedPrev) {
-    pauseSelection = max(0, pauseSelection - 1);
-    playRawSFX(8);
+      pauseSelection = (pauseSelection + 3) % 4;  // goes up and wraps from 0 -> 3
+      playRawSFX(8);
   }
+
   if (buttons.downPressed && !buttons.downPressedPrev) {
-    pauseSelection = min(1, pauseSelection + 1);
-    playRawSFX(8);
+      pauseSelection = (pauseSelection + 1) % 4;  // goes down and wraps from 3 -> 0
+      playRawSFX(8);
   }
 
   if (pauseSelection == 0) {
@@ -543,9 +564,16 @@ void handlePauseScreen() {
   }
 
   // Restart: press B to confirm
-  if (pauseSelection == 1 && buttons.bPressed && !buttons.bPressedPrev) {
-    playRawSFX(9);
-    currentUIState = UI_SPLASH;
+  if (buttons.bPressed && !buttons.bPressedPrev) {
+    if (pauseSelection == 1) {
+      playRawSFX(9);
+      currentUIState = UI_SPLASH;
+    } else if (pauseSelection == 2) {
+      trySaveGame();
+    } else if (pauseSelection == 3) {
+      tryLoadGame();
+      generateDungeon(dungeon == bossfightLevel ? true : false);
+    }
   }
 }
 

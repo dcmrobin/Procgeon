@@ -935,7 +935,7 @@ void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer
       projectiles[i].y = y;
       projectiles[i].dx = xDir;  // Set direction based on player's facing direction
       projectiles[i].dy = yDir;
-      projectiles[i].damage = shotByPlayer ? playerAttackDamage : 4; // Player projectiles do playerAttackDamage, enemies do 4 damage
+      projectiles[i].damage = shotByPlayer ? (playerAttackDamage + (strengthRingsNumber * 5) + (weaknessRingsNumber * 5)) : 4; // Player projectiles do playerAttackDamage, enemies do 4 damage
       projectiles[i].speed = shotByPlayer? 0.5 : 0.25;
       projectiles[i].active = true;
       projectiles[i].shotByPlayer = shotByPlayer;
