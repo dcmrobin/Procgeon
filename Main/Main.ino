@@ -121,7 +121,7 @@ void resetGame() {
   playerAttackDamage = 10;
 
   // Generate new dungeon and spawn enemies
-  generateDungeon(false);
+  generateDungeon(false, false);
   spawnEnemies(false);
 }
 
@@ -723,7 +723,7 @@ void showStatusScreen() {
       playerDX = 0;
       playerDY = 1;
       statusScreen = false;
-      generateDungeon(dungeon == bossfightLevel ? true : false); // Generate a new dungeon
+      generateDungeon(dungeon == bossfightLevel ? true : false, false); // Generate a new dungeon
       showDialogue = false;
       for (int i = 0; i < maxProjectiles; i++) {
         projectiles[i].active = false;
