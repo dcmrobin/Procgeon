@@ -13,7 +13,7 @@ U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
 
-SaveData saveData;
+SaveData saveData = {};
 
 // Add action selection tracking
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
@@ -776,8 +776,8 @@ void checkIfDeadFrom(const char *cause) {
 }
 
 void trySaveGame() {
-    cleanupMemory();
-    
+    Serial.println("trySaveGame() started");
+    checkMemory();
     // Update save data
     saveData.armorValue = equippedArmorValue;
     saveData.attackDamage = playerAttackDamage;
@@ -798,13 +798,17 @@ void trySaveGame() {
     Serial.print("SaveData size: ");
     Serial.println(sizeof(SaveData));
     
+    Serial.println("Calling saveGame()...");
     if (!saveGame(saveData)) {
         Serial.println("saveGame() failed");
     }
+    Serial.println("trySaveGame() completed");
+    checkMemory();
 }
 
 void tryLoadGame() {
-    cleanupMemory();
+  checkMemory();
+    Serial.println("tryLoadGame() started");
     
     if (!loadGame(saveData)) {
         Serial.println("loadGame() failed — not applying saveData");
@@ -829,4 +833,6 @@ void tryLoadGame() {
     randomSeed(saveData.worldSeed);
     
     Serial.println("✅ Game loaded successfully");
+    Serial.println("tryLoadGame() completed");
+    checkMemory();
 }
