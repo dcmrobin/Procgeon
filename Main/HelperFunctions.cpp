@@ -776,21 +776,29 @@ void checkIfDeadFrom(const char *cause) {
 void trySaveGame() {
     Serial.println("trySaveGame() started");
     
-    // Save individual values directly
-    if (!saveGame(
-        worldSeed, dungeon, playerX, playerY,
-        playerHP, playerFood, succubusIsFriend, playerAttackDamage, endlessMode,
-        kills, equippedArmorValue, equippedRiddleStone, swiftnessRingsNumber,
-        strengthRingsNumber, weaknessRingsNumber
-    )) {
+    // Pause audio output
+    AudioNoInterrupts();
+    delay(50);
+    
+    // Now save
+    if (!saveGame(worldSeed, dungeon, playerX, playerY, playerHP, playerFood, 
+                 succubusIsFriend, playerAttackDamage, endlessMode, kills, 
+                 equippedArmorValue, equippedRiddleStone, swiftnessRingsNumber,
+                 strengthRingsNumber, weaknessRingsNumber)) {
         Serial.println("saveGame() failed");
-    } else {
-        Serial.println("trySaveGame() completed");
     }
+    
+    // Resume audio
+    AudioInterrupts(); 
+    Serial.println("trySaveGame() completed");
 }
 
 void tryLoadGame() {
     Serial.println("tryLoadGame() started");
+
+    // Pause audio output
+    AudioNoInterrupts();
+    delay(50);
     
     uint32_t loadedWorldSeed;
     uint8_t loadedDungeon;
@@ -832,7 +840,8 @@ void tryLoadGame() {
     weaknessRingsNumber = loadedWeaknessRings;
     
     randomSeed(worldSeed);
-    
+    // Resume audio
+    AudioInterrupts();
     Serial.println("✅ Game loaded successfully");
     Serial.println("tryLoadGame() completed");
 }
