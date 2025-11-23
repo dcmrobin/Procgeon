@@ -573,6 +573,7 @@ void handlePauseScreen() {
     } else if (pauseSelection == 3) {
       tryLoadGame();
       generateDungeon(dungeon == bossfightLevel ? true : false);
+      spawnEnemies(dungeon == bossfightLevel ? true : false);
     }
   }
 }
