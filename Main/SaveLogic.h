@@ -45,5 +45,9 @@ bool saveGame(const SaveData& data);
 bool loadGame(SaveData& outData);
 bool deleteSave();
 bool saveExists();
+void cleanupMemory();
+
+// Internal helpers
+bool copyFile(const char* src, const char* dest);
 
 #endif

@@ -142,11 +142,11 @@ void setup() {
   Serial.println("SD initialization done.");
 
   // Play a sound effect from memory
-  if (!loadSFXtoRAM()) {
+  /*if (!loadSFXtoRAM()) {
     Serial.println("Failed to load SFX to RAM");
   } else {
     Serial.println("SFX loaded successfully");
-  }
+  }*/
 
   Serial.println("type 8: teleport damsel to player if damsel is available");
   Serial.println("type 7: make tile player is on into the exit");
@@ -629,7 +629,7 @@ void showStatusScreen() {
               if (!knowsDamselName) {
                 u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
               } else {
-                char msg[150];
+                char msg[30];
                 snprintf(msg, sizeof(msg), "%s%s!", damselDeathMsg, damsel[0].name);
                 u8g2_for_adafruit_gfx.print(F(msg));
               }

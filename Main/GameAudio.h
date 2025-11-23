@@ -55,7 +55,7 @@ void serviceRawSFX();
 
 void initAudio();
 void freeSFX();
-bool loadSFXtoRAM();
+//bool loadSFXtoRAM();
 
 // Utility function to play specific sound effects by name
 //inline bool playSFX_PlayerHurt()     { return playRawSFX(0); }
