@@ -33,8 +33,9 @@ bool saveExists()
 // ------------------------------------------------------------
 bool deleteSave()
 {
-    if (SD.exists(SAVE_FILE_PATH))
+    if (SD.exists(SAVE_FILE_PATH)){
         return SD.remove(SAVE_FILE_PATH);
+    }
     return false;
 }
 

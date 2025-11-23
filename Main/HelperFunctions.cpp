@@ -776,18 +776,23 @@ void checkIfDeadFrom(const char *cause) {
 }
 
 void trySaveGame() {
+  if (deleteSave()) {
+    Serial.println("Save successfully deleted");
+  } else {
+    Serial.println("Could not delete save");
+  }
   saveData.armorValue = equippedArmorValue;
   saveData.attackDamage = playerAttackDamage;
   saveData.currentDungeon = dungeon;
-  saveData.damsel = damsel[0];
+  //saveData.damsel = damsel[0];
   saveData.endlessMode = endlessMode;
-  saveData.equippedArmor = equippedArmor;
+  //saveData.equippedArmor = equippedArmor;
   saveData.equippedRiddleStone = equippedRiddleStone;
   saveData.food = playerFood;
   saveData.hp = playerHP;
-  for (int i = 0; i < numInventoryPages; i++) {
-      saveData.savedInventory[i] = inventoryPages[i];
-  }
+  //for (int i = 0; i < numInventoryPages; i++) {
+  //    saveData.savedInventory[i] = inventoryPages[i];
+  //}
   saveData.kills = kills;
   saveData.playerX = playerX;
   saveData.playerY = playerY;
@@ -817,15 +822,15 @@ void tryLoadGame() {
   equippedArmorValue = saveData.armorValue;
   playerAttackDamage = saveData.attackDamage;
   dungeon = saveData.currentDungeon;
-  damsel[0] = saveData.damsel;
+  //damsel[0] = saveData.damsel;
   endlessMode = saveData.endlessMode;
-  equippedArmor = saveData.equippedArmor;
+  //equippedArmor = saveData.equippedArmor;
   equippedRiddleStone = saveData.equippedRiddleStone;
   playerFood = saveData.food;
   playerHP = saveData.hp;
-  for (int i = 0; i < numInventoryPages; i++) {
-      inventoryPages[i] = saveData.savedInventory[i];
-  }
+  //for (int i = 0; i < numInventoryPages; i++) {
+  //    inventoryPages[i] = saveData.savedInventory[i];
+  //}
   kills = saveData.kills;
   playerX = saveData.playerX;
   playerY = saveData.playerY;

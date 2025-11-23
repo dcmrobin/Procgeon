@@ -25,14 +25,14 @@ struct SaveData {
     uint8_t hp;
     uint8_t food;
 
-    InventoryPage savedInventory[4];
-    Damsel damsel;
+    //InventoryPage savedInventory[4];
+    //Damsel damsel;
     bool succubusFriend;
     int attackDamage;
     bool endlessMode;
     int kills;
     float armorValue;
-    GameItem equippedArmor;
+    //GameItem equippedArmor;
     bool equippedRiddleStone;
     int swiftnessRingsNum;
     int strengthRingsNum;
