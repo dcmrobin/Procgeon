@@ -140,10 +140,14 @@ bool isPicrossSolved() {
 
 bool launchPicrossPuzzle() {
     resetPicrossPuzzle();
-    while (!isPicrossSolved()) {
+    while (!isPicrossSolved() && !(buttons.aPressed && !buttons.aPressedPrev)) {
         drawPicrossPuzzle();
         handlePicrossInput();
         delay(20); // Frame sync
+    }
+    if (!isPicrossSolved()) {
+        currentUIState = UI_NORMAL;
+        return false;
     }
     // Optionally show a "Solved!" message
     display.clearDisplay();
@@ -247,10 +251,14 @@ bool isLightsOutSolved() {
 
 bool launchLightsOutPuzzle() {
     resetLightsOutPuzzle();
-    while (!isLightsOutSolved()) {
+    while (!isLightsOutSolved() && !(buttons.aPressed && !buttons.aPressedPrev)) {
         drawLightsOutPuzzle();
         handleLightsOutInput();
         delay(20);
+    }
+    if (!isLightsOutSolved()) {
+        currentUIState = UI_NORMAL;
+        return false;
     }
     display.clearDisplay();
     display.setTextSize(2);
