@@ -6,7 +6,7 @@
 
 #define NUM_POTIONS 20
 #define NUM_SCROLLS 4
-#define NUM_RINGS 5
+#define NUM_RINGS 6
 
 enum GameItems {
   RedPotion,
@@ -39,6 +39,7 @@ enum GameItems {
   IronArmor,
   MagicRobe,
   Cloak,
+  Trenchcoat,
   Null
 };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };

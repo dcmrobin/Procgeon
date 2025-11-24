@@ -35,7 +35,7 @@ struct SaveData {
     TileTypes dungeonMap[64][64];
     
     char scrollNames[4][20];
-    GameItem itemList[31];
+    GameItem itemList[32];
     bool hasMap;
     bool playerNearClockEnemy;
     bool knowsDamselName;
