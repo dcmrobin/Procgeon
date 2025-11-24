@@ -3,6 +3,7 @@
 #include "GameAudio.h"
 #include "Inventory.h"
 #include "SaveLogic.h"
+#include "Item.h"
 #include <string.h>
 
 #define MAX_LETTERS 26
@@ -796,6 +797,22 @@ void trySaveGame() {
           saveData.dungeonMap[y][x] = dungeonMap[y][x];
       }
   }
+
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 20; x++) {
+      saveData.scrollNames[y][x] = scrollNames[y][x];
+    }
+  }
+  for (int i = 0; i < 31; i++) {
+      saveData.itemList[i] = itemList[i];
+  }
+  saveData.hasMap = hasMap;
+  saveData.playerNearClockEnemy = playerNearClockEnemy;
+  saveData.knowsDamselName = knowsDamselName;
+  saveData.damselSayThanksForRescue = damselSayThanksForRescue;
+  saveData.damselGotTaken = damselGotTaken;
+  saveData.levelOfDamselDeath = levelOfDamselDeath;
+
   saveData.kills = kills;
   saveData.playerX = playerX;
   saveData.playerY = playerY;
@@ -834,6 +851,22 @@ void tryLoadGame() {
           dungeonMap[y][x] = saveData.dungeonMap[y][x];
       }
   }
+
+  for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 20; x++) {
+      scrollNames[y][x] = saveData.scrollNames[y][x];
+    }
+  }
+  for (int i = 0; i < 31; i++) {
+      itemList[i] = saveData.itemList[i];
+  }
+  hasMap = saveData.hasMap;
+  playerNearClockEnemy = saveData.playerNearClockEnemy;
+  knowsDamselName = saveData.knowsDamselName;
+  damselSayThanksForRescue = saveData.damselSayThanksForRescue;
+  damselGotTaken = saveData.damselGotTaken;
+  levelOfDamselDeath = saveData.levelOfDamselDeath;
+
   kills = saveData.kills;
   playerX = saveData.playerX;
   playerY = saveData.playerY;
