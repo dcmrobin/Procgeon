@@ -27,11 +27,13 @@ int introNum = 0;
 // Timing variables
 unsigned long lastUpdateTime = 0;
 const unsigned long frameDelay = 20; // Update every 100ms
+bool deleteSV = false;
 
 // SD card chip select pin for Teensy Audio Board
 const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  deleteSV = false;
   introNum = 0;
   snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "You killed ");
   DIDNOTRESCUEDAMSEL = false;
@@ -270,8 +272,9 @@ void loop() {
           showStatusScreen();
         }
       } else {
-        if (saveExists()) {
-          deleteSave();
+        if (!deleteSV) {
+          trySaveGame();
+          deleteSV = true;
         }
         gameOver();
       }
@@ -593,6 +596,7 @@ void gameOver() {
 
   if (buttons.bPressed && !buttons.bPressedPrev) {
     resetGame();
+    deleteSV = false;
   }
 }
 
