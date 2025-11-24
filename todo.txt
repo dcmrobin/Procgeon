@@ -10,4 +10,4 @@ need loading screens for load and save.
 
 need explosion potion to make all tiles around player into ground tiles.
 
-need scrollnames[] and itemlist[] to be saved.
+need scrollnames[] and itemlist[] to be saved as well as hasmap.

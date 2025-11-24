@@ -17,23 +17,29 @@ bool saveGame(const SaveData& data) {
     AudioNoInterrupts();
     delay(100);
     
-    const char* tempPath = "/save_temp.dat";
+    // Generate a unique temp filename each time
+    static uint32_t tempCounter = 0;
+    char tempPath[20];
+    sprintf(tempPath, "/save_temp%d.dat", tempCounter++);
     
-    // Remove temp file if it exists
+    Serial.print("Using temp file: ");
+    Serial.println(tempPath);
+    
+    // Remove the temp file if it exists (shouldn't, but just in case)
     if (SD.exists(tempPath)) {
         SD.remove(tempPath);
-        delay(10);
+        delay(20);
     }
     
-    // Create temp file first
+    // Create the new temp file
     File f = SD.open(tempPath, FILE_WRITE);
     if (!f) {
-        Serial.println("❌ Cannot open TEMP file for writing");
+        Serial.println("❌ Cannot open new temp file for writing");
         AudioInterrupts();
         return false;
     }
     
-    Serial.println("✅ Temp file opened successfully");
+    Serial.println("✅ New temp file opened successfully");
     
     // Calculate and add checksum
     SaveData tempData = data;
@@ -113,29 +119,50 @@ bool saveGame(const SaveData& data) {
         return false;
     }
     
-    // Remove old save file and rename temp to final
-    deleteSave(); // This will remove the old file if it exists
+    // Remove old save file and rename
+    deleteSave();
+    delay(50);
     
+    // Rename temp to final
     if (SD.rename(tempPath, SAVE_FILE_PATH)) {
-        Serial.println("✅ Temp file renamed to final save file");
+        Serial.println("✅ Rename successful");
     } else {
-        Serial.println("❌ Rename failed");
-        SD.remove(tempPath);
-        AudioInterrupts();
-        return false;
+        Serial.println("❌ Rename failed - trying copy fallback");
+        
+        // Manual copy fallback
+        File src = SD.open(tempPath, FILE_READ);
+        File dst = SD.open(SAVE_FILE_PATH, FILE_WRITE);
+        
+        if (src && dst) {
+            uint8_t buffer[256];
+            size_t copied = 0;
+            
+            while (src.available()) {
+                size_t read = src.read(buffer, sizeof(buffer));
+                dst.write(buffer, read);
+                copied += read;
+            }
+            
+            dst.close();
+            src.close();
+            
+            Serial.print("Copied: ");
+            Serial.print(copied);
+            Serial.print("/");
+            Serial.println(totalSize);
+            
+            if (copied == totalSize) {
+                Serial.println("✅ Copy fallback successful");
+                SD.remove(tempPath);
+            } else {
+                Serial.println("❌ Copy fallback failed - incomplete copy");
+                success = false;
+            }
+        } else {
+            Serial.println("❌ Cannot open files for copy fallback");
+            success = false;
+        }
     }
-    
-    // Final verification
-    File finalCheck = SD.open(SAVE_FILE_PATH, FILE_READ);
-    size_t finalSize = finalCheck.size();
-    finalCheck.close();
-    
-    Serial.print("Final file size: ");
-    Serial.print(finalSize);
-    Serial.print("/");
-    Serial.println(totalSize);
-    
-    success = (finalSize == totalSize);
     
     AudioInterrupts();
     Serial.println(success ? "✅ Save successful" : "❌ Save failed");
@@ -252,36 +279,42 @@ bool loadGame(SaveData& outData) {
 }
 
 bool deleteSave() {
-    Serial.println("=== DELETING SAVE FILE ===");
+    Serial.println("=== DELETING SAVE FILES ===");
     
     AudioNoInterrupts();
     delay(50);
     
-    // SIMPLE: Just call remove() directly
-    bool success = SD.remove(SAVE_FILE_PATH);
+    bool mainDeleted = true;
+    bool tempDeleted = true;
     
-    if (success) {
-        Serial.println("✅ Save file deleted successfully");
-    } else {
-        // Check if the failure is because file doesn't exist
-        if (!SD.exists(SAVE_FILE_PATH)) {
-            Serial.println("ℹ️ No save file to delete (file doesn't exist)");
-            success = true; // Consider this success
+    // Delete main file
+    if (SD.exists(SAVE_FILE_PATH)) {
+        mainDeleted = SD.remove(SAVE_FILE_PATH);
+        if (mainDeleted) {
+            Serial.println("✅ Main save file deleted");
         } else {
-            Serial.println("❌ Could not delete save file (file exists but remove failed)");
+            Serial.println("❌ Could not delete main save file");
         }
-    }
-    
-    // Also clean up temp file if it exists
-    if (SD.exists("/save_temp.dat")) {
-        if (SD.remove("/save_temp.dat")) {
-            Serial.println("✅ Temp file also deleted");
-        }
+    } else {
+        Serial.println("ℹ️ Main save file doesn't exist");
     }
     
     delay(20);
+    
+    // Delete temp file  
+    if (SD.exists("/save_temp.dat")) {
+        tempDeleted = SD.remove("/save_temp.dat");
+        if (tempDeleted) {
+            Serial.println("✅ Temp file deleted");
+        } else {
+            Serial.println("❌ Could not delete temp file");
+        }
+    } else {
+        Serial.println("ℹ️ Temp file doesn't exist");
+    }
+    
     AudioInterrupts();
-    return success;
+    return mainDeleted && tempDeleted;
 }
 
 bool saveExists() {
