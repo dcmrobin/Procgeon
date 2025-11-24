@@ -39,5 +39,6 @@ bool saveGame(const SaveData& data);
 bool loadGame(SaveData& outData);
 bool deleteSave();
 bool saveExists();
-
+void stopAllAudio();
+void resumeAudio();
 #endif

@@ -1,4 +1,5 @@
 #include "SaveLogic.h"
+#include "GameAudio.h"
 #include <Audio.h>
 
 // Calculate checksum of entire struct except checksum field
@@ -14,10 +15,10 @@ static uint32_t calculateChecksum(const SaveData& data) {
 bool saveGame(const SaveData& data) {
     Serial.println("=== CHUNKED SAVE ===");
     
-    AudioNoInterrupts();
-    delay(100);
+    // STOP AUDIO COMPLETELY before any SD operations
+    stopAllAudio();
     
-    // Generate a unique temp filename each time
+    // Generate unique temp filename
     static uint32_t tempCounter = 0;
     char tempPath[20];
     sprintf(tempPath, "/save_temp%d.dat", tempCounter++);
@@ -25,21 +26,20 @@ bool saveGame(const SaveData& data) {
     Serial.print("Using temp file: ");
     Serial.println(tempPath);
     
-    // Remove the temp file if it exists (shouldn't, but just in case)
+    // Remove temp file if it exists
     if (SD.exists(tempPath)) {
         SD.remove(tempPath);
         delay(20);
     }
     
-    // Create the new temp file
     File f = SD.open(tempPath, FILE_WRITE);
     if (!f) {
-        Serial.println("❌ Cannot open new temp file for writing");
-        AudioInterrupts();
+        Serial.println("❌ Cannot open temp file for writing");
+        resumeAudio();
         return false;
     }
     
-    Serial.println("✅ New temp file opened successfully");
+    Serial.println("✅ Temp file opened successfully");
     
     // Calculate and add checksum
     SaveData tempData = data;
@@ -91,7 +91,7 @@ bool saveGame(const SaveData& data) {
     if (!success) {
         Serial.println("❌ Save failed during chunk writing");
         SD.remove(tempPath);
-        AudioInterrupts();
+        resumeAudio();
         return false;
     }
     
@@ -100,7 +100,7 @@ bool saveGame(const SaveData& data) {
     if (!verifyTemp) {
         Serial.println("❌ Cannot verify temp file");
         SD.remove(tempPath);
-        AudioInterrupts();
+        resumeAudio();
         return false;
     }
     
@@ -115,7 +115,7 @@ bool saveGame(const SaveData& data) {
     if (tempSize != totalSize) {
         Serial.println("❌ Temp file size mismatch");
         SD.remove(tempPath);
-        AudioInterrupts();
+        resumeAudio();
         return false;
     }
     
@@ -129,7 +129,7 @@ bool saveGame(const SaveData& data) {
     } else {
         Serial.println("❌ Rename failed - trying copy fallback");
         
-        // Manual copy fallback
+        // Manual copy fallback (audio is still stopped)
         File src = SD.open(tempPath, FILE_READ);
         File dst = SD.open(SAVE_FILE_PATH, FILE_WRITE);
         
@@ -164,7 +164,9 @@ bool saveGame(const SaveData& data) {
         }
     }
     
-    AudioInterrupts();
+    // RESUME AUDIO only after ALL SD operations are complete
+    resumeAudio();
+    
     Serial.println(success ? "✅ Save successful" : "❌ Save failed");
     return success;
 }
@@ -172,14 +174,14 @@ bool saveGame(const SaveData& data) {
 bool loadGame(SaveData& outData) {
     Serial.println("=== CHUNKED LOAD ===");
     
-    AudioNoInterrupts();
-    delay(50);
+    // STOP AUDIO COMPLETELY before any SD operations
+    stopAllAudio();
     
     // Try both main and temp paths
-    const char* paths[] = {SAVE_FILE_PATH, "/save_temp.dat"};
+    const char* paths[] = {SAVE_FILE_PATH, "/save_temp0.dat", "/save_temp1.dat", "/save_temp2.dat"};
     bool success = false;
     
-    for (int pathIndex = 0; pathIndex < 2; pathIndex++) {
+    for (int pathIndex = 0; pathIndex < 4; pathIndex++) {
         const char* currentPath = paths[pathIndex];
         
         if (!SD.exists(currentPath)) {
@@ -265,7 +267,8 @@ bool loadGame(SaveData& outData) {
         
         if (savedChecksum == calculatedChecksum) {
             Serial.println("✅ Load successful");
-            AudioInterrupts();
+            // RESUME AUDIO only after successful load
+            resumeAudio();
             return true;
         } else {
             Serial.println("❌ Checksum mismatch - file may be corrupted");
@@ -273,7 +276,8 @@ bool loadGame(SaveData& outData) {
         }
     }
     
-    AudioInterrupts();
+    // RESUME AUDIO even if load failed
+    resumeAudio();
     Serial.println("❌ Load failed from all paths");
     return false;
 }
@@ -281,8 +285,8 @@ bool loadGame(SaveData& outData) {
 bool deleteSave() {
     Serial.println("=== DELETING SAVE FILES ===");
     
-    AudioNoInterrupts();
-    delay(50);
+    // STOP AUDIO COMPLETELY before any SD operations
+    stopAllAudio();
     
     bool mainDeleted = true;
     bool tempDeleted = true;
@@ -295,28 +299,61 @@ bool deleteSave() {
         } else {
             Serial.println("❌ Could not delete main save file");
         }
+        delay(20);
     } else {
         Serial.println("ℹ️ Main save file doesn't exist");
     }
     
-    delay(20);
+    // Delete all possible temp files
+    const char* tempFiles[] = {"/save_temp.dat", "/save_temp0.dat", "/save_temp1.dat", "/save_temp2.dat", "/save_temp3.dat"};
     
-    // Delete temp file  
-    if (SD.exists("/save_temp.dat")) {
-        tempDeleted = SD.remove("/save_temp.dat");
-        if (tempDeleted) {
-            Serial.println("✅ Temp file deleted");
-        } else {
-            Serial.println("❌ Could not delete temp file");
+    for (int i = 0; i < 5; i++) {
+        if (SD.exists(tempFiles[i])) {
+            if (SD.remove(tempFiles[i])) {
+                Serial.print("✅ Deleted temp file: ");
+                Serial.println(tempFiles[i]);
+            } else {
+                Serial.print("❌ Could not delete temp file: ");
+                Serial.println(tempFiles[i]);
+                tempDeleted = false;
+            }
+            delay(10);
         }
-    } else {
-        Serial.println("ℹ️ Temp file doesn't exist");
     }
     
-    AudioInterrupts();
+    // RESUME AUDIO after all deletion attempts
+    resumeAudio();
+    
     return mainDeleted && tempDeleted;
 }
 
 bool saveExists() {
     return SD.exists(SAVE_FILE_PATH) || SD.exists("/save_temp.dat");
+}
+
+void stopAllAudio() {
+    Serial.println("Stopping all audio playback...");
+    
+    // Stop all audio objects that play from SD card
+    // Replace these with your actual audio object names
+    if (playWav1.isPlaying()) {
+        playWav1.stop();
+        Serial.println("Stopped playWav1");
+    }
+    if (playWav2.isPlaying()) {
+        playWav2.stop();
+        Serial.println("Stopped playWav2");
+    }
+    
+    delay(100); // Let audio fully stop
+    
+    // Then disable audio interrupts
+    AudioNoInterrupts();
+    delay(50);
+}
+
+void resumeAudio() {
+    AudioInterrupts();
+    delay(50);
+    Serial.println("Audio resumed");
 }
