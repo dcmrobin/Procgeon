@@ -16,18 +16,20 @@ bool saveGame(const SaveData& data) {
     
     AudioNoInterrupts();
     delay(50);
-
+    
+    // Remove old save file FIRST, before we open anything
     if (SD.exists(SAVE_FILE_PATH)) {
-        Serial.println("Removing existing save file...");
-        if (!SD.remove(SAVE_FILE_PATH)) {
-            Serial.println("⚠️ Could not remove existing save file");
-            // Don't return false here - try to continue anyway
+        Serial.println("Emptying old save file...");
+        if (!deleteSave()) {
+            Serial.println("⚠️ Could not empty old save file");
+            // Continue anyway - it might not exist or be in a weird state
         } else {
-            Serial.println("✅ Existing save file removed");
+            Serial.println("✅ Old save file emptied");
         }
-        delay(10); // Give SD card time to process deletion
+        delay(20);
     }
     
+    // Now create the new file
     File f = SD.open(SAVE_FILE_PATH, FILE_WRITE);
     if (!f) {
         Serial.println("❌ Cannot open file for writing");
@@ -35,11 +37,13 @@ bool saveGame(const SaveData& data) {
         return false;
     }
     
+    Serial.println("✅ Save file opened successfully");
+    
     // Calculate and add checksum
     SaveData tempData = data;
     tempData.checksum = calculateChecksum(data);
     
-    // Save in chunks to avoid large continuous writes
+    // Save in chunks
     const uint8_t* dataPtr = (const uint8_t*)&tempData;
     size_t totalSize = sizeof(SaveData);
     size_t chunks = (totalSize + SAVE_CHUNK_SIZE - 1) / SAVE_CHUNK_SIZE;
@@ -69,8 +73,8 @@ bool saveGame(const SaveData& data) {
             break;
         }
         
-        f.flush(); // Flush after each chunk
-        delay(10); // Small delay between chunks
+        f.flush();
+        delay(10);
         
         Serial.print("✓ Chunk ");
         Serial.print(i);
@@ -79,21 +83,37 @@ bool saveGame(const SaveData& data) {
         Serial.println(" bytes");
     }
     
+    // CRITICAL: Flush and close the file
+    f.flush();
     f.close();
+    delay(50); // Important delay after close
     
-    // Verify file size
-    if (success) {
-        File verify = SD.open(SAVE_FILE_PATH, FILE_READ);
-        size_t fileSize = verify.size();
-        verify.close();
-        
-        Serial.print("Final file size: ");
-        Serial.print(fileSize);
-        Serial.print("/");
-        Serial.println(totalSize);
-        
-        success = (fileSize == totalSize);
+    if (!success) {
+        Serial.println("❌ Save failed during chunk writing");
+        // Remove the partial file
+        SD.remove(SAVE_FILE_PATH);
+        AudioInterrupts();
+        return false;
     }
+    
+    // Verify the file was written correctly
+    File verify = SD.open(SAVE_FILE_PATH, FILE_READ);
+    if (!verify) {
+        Serial.println("❌ Cannot verify save file");
+        SD.remove(SAVE_FILE_PATH);
+        AudioInterrupts();
+        return false;
+    }
+    
+    size_t fileSize = verify.size();
+    verify.close();
+    
+    Serial.print("Final file size: ");
+    Serial.print(fileSize);
+    Serial.print("/");
+    Serial.println(totalSize);
+    
+    success = (fileSize == totalSize);
     
     AudioInterrupts();
     Serial.println(success ? "✅ Save successful" : "❌ Save failed");
@@ -197,22 +217,44 @@ bool saveExists() {
 }
 
 bool deleteSave() {
+    Serial.println("=== EMPTYING SAVE FILE ===");
+    
     AudioNoInterrupts();
     delay(50);
     
-    bool result = false;
-    if (SD.exists(SAVE_FILE_PATH)) {
-        result = SD.remove(SAVE_FILE_PATH);
-        if (result) {
-            Serial.println("✅ Save file deleted");
+    bool success = false;
+    
+    // Method 1: Open with truncation (preferred)
+    File f = SD.open(SAVE_FILE_PATH, FILE_WRITE);
+    if (f) {
+        // Just opening in write mode should truncate to 0 bytes, but let's be explicit
+        f.truncate(0);
+        f.flush();
+        f.close();
+        delay(20);
+        
+        // Verify the file is now empty or doesn't exist
+        if (SD.exists(SAVE_FILE_PATH)) {
+            File verify = SD.open(SAVE_FILE_PATH, FILE_READ);
+            size_t size = verify.size();
+            verify.close();
+            
+            if (size == 0) {
+                Serial.println("✅ Save file emptied successfully (0 bytes)");
+                success = true;
+            } else {
+                Serial.print("⚠️ File not empty after truncation: ");
+                Serial.print(size);
+                Serial.println(" bytes");
+            }
         } else {
-            Serial.println("❌ Could not delete save file");
+            Serial.println("✅ Save file no longer exists after truncation");
+            success = true;
         }
     } else {
-        Serial.println("ℹ️ No save file to delete");
-        result = true; // No file to delete is considered success
+        Serial.println("❌ Cannot open save file for emptying");
     }
     
     AudioInterrupts();
-    return result;
+    return success;
 }
