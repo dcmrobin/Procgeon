@@ -9,7 +9,7 @@
 #include "Dungeon.h"
 
 #define SAVE_FILE_PATH "/save.dat"
-#define SAVE_CHUNK_SIZE 256  // Save in 256-byte chunks
+#define SAVE_CHUNK_SIZE 256
 
 struct SaveData {
     uint32_t worldSeed;
