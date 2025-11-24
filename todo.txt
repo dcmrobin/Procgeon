@@ -3,7 +3,3 @@ but switch the b and a around, and you get a thing that has to do with a specifi
 
 need more armor, rings, and scrolls. ideas:
     1. a scroll that teleports you to random location
-
-need loading screens for load and save.
-
-need explosion potion to make all tiles around player into ground tiles.
