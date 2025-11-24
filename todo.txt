@@ -3,3 +3,15 @@ but switch the b and a around, and you get a thing that has to do with a specifi
 
 need more armor, rings, and scrolls. ideas:
     1. a scroll that teleports you to random location
+    2. ring of invisibility
+    3. spiky armor that damages the attacker
+    4. ring of aggravation- makes every enemy on the map come to your location
+    5. ring of shadows- makes you harder to hit
+    6. trenchcoat armor- does no protection
+    7. ring that does nothing
+    8. cursed ring that slowly drains health
+    9. scroll that creates a decoy of yourself that enemies will chase
+    10. ring mail armor
+    11. scroll that sets hasMap to true
+    12. suit of chaos- armor that randomly changes your armor value each frame
+    13. 
