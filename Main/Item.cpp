@@ -37,6 +37,7 @@ GameItem itemList[] = {
   { MagicRobe, EquipmentCategory, "Magic Robe", 0,  0,  0, 0, 0, "Enchanted robe. Reduces damage taken and increases magic resistance.", "Magic Robe", "You equip the magic robe.", 4, false, ArmorEffect, 1, false, false, 2, false},
   { Cloak, EquipmentCategory, "Cloak", 0,  0,  0, 0, 0, "A simple cloth cloak. Provides no protection but keeps you warm.", "Cloak", "You equip the cloak.", 4, false, ArmorEffect, 0, false, false, 2, false},
   { Trenchcoat, EquipmentCategory, "Trenchcoat", 0,  0,  0, 0, 0, "A trenchcoat and fedora. Provides no protection but looks cool.", "Trenchcoat", "You equip the trenchcoat.", 4, false, ArmorEffect, 0, false, false, 2, false},
+  { DenimJacket, EquipmentCategory, "Denim Jacket", 0,  0,  0, 0, 0, "A simple denim jacket. Provides no protection but looks cool.", "Denim Jacket", "You equip the denim jacket.", 4, false, ArmorEffect, 0, false, false, 2, false},
   { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, "", "Null", "", 5, false }
 };
 
@@ -44,7 +45,8 @@ char scrollNames[NUM_SCROLLS][20] = {
     "Protect scroll",
     "Identify scroll",
     "Enchant scroll",
-    "Uncurse scroll"
+    "Uncurse scroll",
+    "Empty scroll"
 };
 
 // Possible effect pool
@@ -75,7 +77,8 @@ ScrollEffect scrollEffects[NUM_SCROLLS] = {
     {"Protect scroll", "Protects your armor from rusting and raises its damage reduction.", "Your armor is covered by a shimmering gold shield!", ScrollProtectionEffect},
     {"Identify scroll", "Reveals the true name of an item and sees if it is cursed.", "Select an item to identify.", ScrollIdentifyEffect},
     {"Enchant scroll", "Makes an item better than it used to be.", "Select an item to enchant.", ScrollEnchantEffect},
-    {"Uncurse scroll", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect}
+    {"Uncurse scroll", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect},
+    {"Empty scroll", "It looks like it's just paper.", "You look at the empty scroll.", ScrollEmptyEffect},
 };
 
 // Define all possible item combinations (generalized from potions)
