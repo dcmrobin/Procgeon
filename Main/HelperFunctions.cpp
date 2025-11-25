@@ -19,7 +19,7 @@ int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
 UIState currentUIState = UI_NORMAL; // Current UI state
 
-SaveData saveData = {};
+SaveData saveData = {0};
 
 bool statusScreen = false;
 bool finalStatusScreen = false;

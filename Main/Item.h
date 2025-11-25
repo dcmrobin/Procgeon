@@ -131,7 +131,7 @@ extern const int NUM_ITEM_COMBINATIONS;
 
 extern char scrollNames[][20];
 extern PotionEffect potionEffects[];
-extern GameItem itemList[31];
+extern GameItem itemList[32];
 
 extern char ringTypes[NUM_RINGS][20];
 extern char ringEffects[NUM_RINGS][100];
