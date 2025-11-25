@@ -5,13 +5,21 @@ need more armor, rings, and scrolls. ideas:
     1. a scroll that teleports you to random location
     2. ring of invisibility
     3. spiky armor that damages the attacker
-    4. ring of aggravation- makes every enemy on the map come to your location
+    4. ring of aggravation- makes every enemy chasing you never give up
     5. ring of shadows- makes you harder to hit
-    6.
-    7.
+    6. scroll of aggravation- makes every enemy on the map instantly target you
+    7. scroll of amnesia- makes you forget everything you knew from identifying things
     8. cursed ring that slowly drains health
-    9. scroll that creates a decoy of yourself that enemies will chase
+    9. denim jacket
     10. ring mail armor
     11. scroll that sets hasMap to true
     12. suit of chaos- armor that randomly changes your armor value each frame
-    13. 
+    13. blank scroll
+    14. scroll of create monster- creates a random monster near you
+    15. scroll of destroy armor- armor value of currently worn armor is set to 0
+    16. ring of clarity- grants immunity to blindness
+    17. ring of freedom- makes player's speed not be able to go below base speed
+    18. ring of maintain armor- makes your armor not be degraded by enemy attacks
+    19. slow digestion ring- makes hunger decrease less
+    20. ring of teleportation that randomly teleports the player around the map
+    21. The One Ring- yep
