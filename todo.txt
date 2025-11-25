@@ -6,13 +6,13 @@ need more armor, rings, and scrolls. ideas:
     2. ring of invisibility
     3. spiky armor that damages the attacker
     4. ring of aggravation- makes every enemy chasing you never give up
-    5. ring of shadows- makes you harder to hit
+    5.
     6. scroll of aggravation- makes every enemy on the map instantly target you
     7. scroll of amnesia- makes you forget everything you knew from identifying things
     8. cursed ring that slowly drains health
     9.
     10. ring mail armor
-    11. scroll that sets hasMap to true
+    11.
     12. suit of chaos- armor that randomly changes your armor value each frame
     13.
     14. scroll of create monster- creates a random monster near you
@@ -26,3 +26,5 @@ need more armor, rings, and scrolls. ideas:
 
 what if the blank scroll actually had a massively powerful thing on it- you can only activate that if you drink a see all potion. come to think of it, what if
 the see all potion basically upgraded scrolls?
+
+special dialogue for different armors?

@@ -336,6 +336,8 @@ void handleItemActionMenu() {
             currentUIState = UI_ITEM_RESULT;
         } else if (selectedItem.effectType == ScrollEmptyEffect) {
           // special thing here?
+        } else if (selectedItem.effectType == ScrollMapEffect) {
+          hasMap = true;
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)

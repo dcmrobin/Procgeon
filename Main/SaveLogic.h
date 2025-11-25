@@ -33,7 +33,7 @@ struct SaveData {
     int weaknessRingsNum;
     uint32_t checksum;
     TileTypes dungeonMap[64][64];
-    char scrollNames[5][20];
+    char scrollNames[6][20];
     GameItem itemList[32];
     bool hasMap;
     bool playerNearClockEnemy;
@@ -41,7 +41,6 @@ struct SaveData {
     bool damselSayThanksForRescue;
     bool damselGotTaken;
     int levelOfDamselDeath;
-
     int hungerRingsNumber;
     int regenRingsNumber
 };

@@ -46,7 +46,8 @@ char scrollNames[NUM_SCROLLS][20] = {
     "Identify scroll",
     "Enchant scroll",
     "Uncurse scroll",
-    "Empty scroll"
+    "Empty scroll",
+    "Mapping scroll"
 };
 
 // Possible effect pool
@@ -79,6 +80,7 @@ ScrollEffect scrollEffects[NUM_SCROLLS] = {
     {"Enchant scroll", "Makes an item better than it used to be.", "Select an item to enchant.", ScrollEnchantEffect},
     {"Uncurse scroll", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect},
     {"Empty scroll", "It looks like it's just paper.", "You look at the empty scroll.", ScrollEmptyEffect},
+    {"Mapping scroll", "It has a map on it.", "You study the map on the scroll.", ScrollMapEffect},
 };
 
 // Define all possible item combinations (generalized from potions)
