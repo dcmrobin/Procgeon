@@ -10,7 +10,6 @@
 
 #define SAVE_FILE_PATH "/save.dat"
 #define SAVE_CHUNK_SIZE 256
-#define MAX_TEMP_FILES 10
 
 struct SaveData {
     uint32_t worldSeed;
@@ -51,5 +50,4 @@ bool deleteSave();
 bool saveExists();
 void stopAllAudio();
 void resumeAudio();
-void cleanupTempFiles();
 #endif

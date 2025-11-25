@@ -2,64 +2,43 @@
 #include "GameAudio.h"
 #include <Audio.h>
 
-// Improved checksum calculation
+// Calculate checksum of entire struct except checksum field
 static uint32_t calculateChecksum(const SaveData& data) {
     const uint8_t* bytes = (const uint8_t*)&data;
     uint32_t sum = 0;
-    size_t dataSize = sizeof(SaveData) - sizeof(uint32_t);
-    
-    for (size_t i = 0; i < dataSize; i++) {
-        sum = (sum * 31) + bytes[i];  // Better distribution
+    for (size_t i = 0; i < sizeof(SaveData) - sizeof(uint32_t); i++) {
+        sum = (sum << 3) ^ bytes[i];
     }
     return sum;
 }
 
-// New function to clean up temp files
-void cleanupTempFiles() {
-    for (int i = 0; i < MAX_TEMP_FILES; i++) {
-        char tempPath[20];
-        sprintf(tempPath, "/save_temp%d.dat", i);
-        if (SD.exists(tempPath)) {
-            SD.remove(tempPath);
-            delay(10);
-        }
-    }
-}
-
 bool saveGame(const SaveData& data) {
-    Serial.println("=== CHUNKED SAVE ===");
+    Serial.println("=== SIMPLE SAVE ===");
     
     // STOP AUDIO COMPLETELY before any SD operations
     stopAllAudio();
     
-    // Clean up old temp files first
-    cleanupTempFiles();
-    
-    // Use a rotating temp counter (0-9)
-    static uint8_t tempCounter = 0;
-    char tempPath[20];
-    sprintf(tempPath, "/save_temp%d.dat", tempCounter);
-    tempCounter = (tempCounter + 1) % MAX_TEMP_FILES;  // Wrap around
-    
-    Serial.print("Using temp file: ");
-    Serial.println(tempPath);
-    
-    // Remove temp file if it exists
-    if (SD.exists(tempPath)) {
-        SD.remove(tempPath);
-        delay(50);  // Increased delay
+    // Delete existing save file if it exists
+    if (SD.exists(SAVE_FILE_PATH)) {
+        if (!SD.remove(SAVE_FILE_PATH)) {
+            Serial.println("❌ Could not delete existing save file");
+            resumeAudio();
+            return false;
+        }
+        delay(50);
     }
     
-    File f = SD.open(tempPath, FILE_WRITE);
+    // Create new save file
+    File f = SD.open(SAVE_FILE_PATH, FILE_WRITE);
     if (!f) {
-        Serial.println("❌ Cannot open temp file for writing");
+        Serial.println("❌ Cannot open save file for writing");
         resumeAudio();
         return false;
     }
     
-    Serial.println("✅ Temp file opened successfully");
+    Serial.println("✅ Save file opened successfully");
     
-    // Create temporary data with checksum
+    // Calculate and add checksum
     SaveData tempData = data;
     tempData.checksum = calculateChecksum(data);
     
@@ -94,7 +73,7 @@ bool saveGame(const SaveData& data) {
         }
         
         f.flush();
-        delay(15);  // Increased delay
+        delay(10);
         
         Serial.print("✓ Chunk ");
         Serial.print(i);
@@ -104,261 +83,175 @@ bool saveGame(const SaveData& data) {
     }
     
     f.close();
-    delay(100);  // Increased delay for file system
+    delay(50);
     
     if (!success) {
         Serial.println("❌ Save failed during chunk writing");
-        SD.remove(tempPath);
+        // Clean up partial file
+        if (SD.exists(SAVE_FILE_PATH)) {
+            SD.remove(SAVE_FILE_PATH);
+        }
         resumeAudio();
         return false;
     }
     
-    // Verify temp file
-    File verifyTemp = SD.open(tempPath, FILE_READ);
-    if (!verifyTemp) {
-        Serial.println("❌ Cannot verify temp file");
-        SD.remove(tempPath);
+    // Verify file was written correctly
+    File verifyFile = SD.open(SAVE_FILE_PATH, FILE_READ);
+    if (!verifyFile) {
+        Serial.println("❌ Cannot verify save file");
         resumeAudio();
         return false;
     }
     
-    size_t tempSize = verifyTemp.size();
-    verifyTemp.close();
+    size_t fileSize = verifyFile.size();
+    verifyFile.close();
     
-    Serial.print("Temp file size: ");
-    Serial.print(tempSize);
+    Serial.print("Final file size: ");
+    Serial.print(fileSize);
     Serial.print("/");
     Serial.println(totalSize);
     
-    if (tempSize != totalSize) {
-        Serial.println("❌ Temp file size mismatch");
-        SD.remove(tempPath);
+    if (fileSize != totalSize) {
+        Serial.println("❌ File size mismatch");
+        if (SD.exists(SAVE_FILE_PATH)) {
+            SD.remove(SAVE_FILE_PATH);
+        }
         resumeAudio();
         return false;
     }
-    
-    // Remove old save file and rename
-    Serial.println("=== DELETING SAVE FILES ===");
-    stopAllAudio();  // Stop audio again for deletion
-    
-    bool mainDeleted = true;
-    if (SD.exists(SAVE_FILE_PATH)) {
-        mainDeleted = SD.remove(SAVE_FILE_PATH);
-        if (mainDeleted) {
-            Serial.println("✅ Main save file deleted");
-        } else {
-            Serial.println("❌ Could not delete main save file");
-        }
-        delay(50);
-    } else {
-        Serial.println("ℹ️ Main save file doesn't exist");
-    }
-    
-    // Rename temp to final
-    if (SD.rename(tempPath, SAVE_FILE_PATH)) {
-        Serial.println("✅ Rename successful");
-    } else {
-        Serial.println("❌ Rename failed - trying copy fallback");
-        
-        // Manual copy fallback
-        File src = SD.open(tempPath, FILE_READ);
-        File dst = SD.open(SAVE_FILE_PATH, FILE_WRITE);
-        
-        if (src && dst) {
-            uint8_t buffer[256];
-            size_t copied = 0;
-            
-            while (src.available()) {
-                size_t read = src.read(buffer, sizeof(buffer));
-                dst.write(buffer, read);
-                copied += read;
-                delay(5);
-            }
-            
-            dst.flush();
-            dst.close();
-            src.close();
-            delay(50);
-            
-            Serial.print("Copied: ");
-            Serial.print(copied);
-            Serial.print("/");
-            Serial.println(totalSize);
-            
-            if (copied == totalSize) {
-                Serial.println("✅ Copy fallback successful");
-                SD.remove(tempPath);
-            } else {
-                Serial.println("❌ Copy fallback failed - incomplete copy");
-                success = false;
-            }
-        } else {
-            Serial.println("❌ Cannot open files for copy fallback");
-            success = false;
-        }
-    }
-    
-    // Clean up any remaining temp files
-    cleanupTempFiles();
     
     // RESUME AUDIO only after ALL SD operations are complete
     resumeAudio();
     
-    Serial.println(success ? "✅ Save successful" : "❌ Save failed");
-    return success;
+    Serial.println("✅ Save successful");
+    return true;
 }
 
 bool loadGame(SaveData& outData) {
-    Serial.println("=== CHUNKED LOAD ===");
+    Serial.println("=== SIMPLE LOAD ===");
     
     // STOP AUDIO COMPLETELY before any SD operations
     stopAllAudio();
     
-    // Try main save file first, then limited temp files
-    const char* paths[] = {SAVE_FILE_PATH, "/save_temp0.dat", "/save_temp1.dat", "/save_temp2.dat"};
-    bool success = false;
-    
-    for (int pathIndex = 0; pathIndex < 4; pathIndex++) {
-        const char* currentPath = paths[pathIndex];
-        
-        if (!SD.exists(currentPath)) {
-            Serial.print("File doesn't exist: ");
-            Serial.println(currentPath);
-            continue;
-        }
-        
-        File f = SD.open(currentPath, FILE_READ);
-        if (!f) {
-            Serial.print("❌ Cannot open file for reading: ");
-            Serial.println(currentPath);
-            continue;
-        }
-        
-        size_t fileSize = f.size();
-        size_t expectedSize = sizeof(SaveData);
-        
-        Serial.print("Trying ");
-        Serial.print(currentPath);
-        Serial.print(" - Size: ");
-        Serial.print(fileSize);
-        Serial.print("/");
-        Serial.println(expectedSize);
-        
-        if (fileSize != expectedSize) {
-            Serial.println("❌ File size mismatch");
-            f.close();
-            continue;
-        }
-        
-        // Initialize outData to zeros first
-        memset(&outData, 0, sizeof(SaveData));
-        
-        // Load in chunks
-        uint8_t* dataPtr = (uint8_t*)&outData;
-        size_t chunks = (fileSize + SAVE_CHUNK_SIZE - 1) / SAVE_CHUNK_SIZE;
-        
-        Serial.print("Loading ");
-        Serial.print(fileSize);
-        Serial.print(" bytes in ");
-        Serial.print(chunks);
-        Serial.println(" chunks");
-        
-        success = true;
-        for (size_t i = 0; i < chunks; i++) {
-            size_t chunkSize = (i == chunks - 1) ? fileSize % SAVE_CHUNK_SIZE : SAVE_CHUNK_SIZE;
-            if (chunkSize == 0) chunkSize = SAVE_CHUNK_SIZE;
-            
-            size_t offset = i * SAVE_CHUNK_SIZE;
-            size_t read = f.read(dataPtr + offset, chunkSize);
-            
-            if (read != chunkSize) {
-                Serial.print("❌ Chunk ");
-                Serial.print(i);
-                Serial.print(" read failed: ");
-                Serial.print(read);
-                Serial.print("/");
-                Serial.println(chunkSize);
-                success = false;
-                break;
-            }
-            
-            Serial.print("✓ Chunk ");
-            Serial.print(i);
-            Serial.print(": ");
-            Serial.print(chunkSize);
-            Serial.println(" bytes");
-        }
-        
-        f.close();
-        
-        if (!success) {
-            Serial.println("❌ Chunk reading failed");
-            continue;
-        }
-        
-        // Verify checksum
-        uint32_t savedChecksum = outData.checksum;
-        uint32_t calculatedChecksum = calculateChecksum(outData);
-        
-        Serial.print("Checksum: ");
-        Serial.print(savedChecksum);
-        Serial.print(" == ");
-        Serial.println(calculatedChecksum);
-        
-        if (savedChecksum == calculatedChecksum) {
-            Serial.println("✅ Load successful");
-            // Clean up temp files after successful load
-            cleanupTempFiles();
-            resumeAudio();
-            return true;
-        } else {
-            Serial.println("❌ Checksum mismatch - file may be corrupted");
-            success = false;
-            
-            // Debug: print first few bytes to see what's wrong
-            Serial.print("First 4 bytes: ");
-            for (int i = 0; i < 4; i++) {
-                Serial.print(((uint8_t*)&outData)[i], HEX);
-                Serial.print(" ");
-            }
-            Serial.println();
-        }
+    // Check if save file exists
+    if (!SD.exists(SAVE_FILE_PATH)) {
+        Serial.println("❌ Save file doesn't exist");
+        resumeAudio();
+        return false;
     }
     
-    // RESUME AUDIO even if load failed
-    resumeAudio();
-    Serial.println("❌ Load failed from all paths");
-    return false;
+    File f = SD.open(SAVE_FILE_PATH, FILE_READ);
+    if (!f) {
+        Serial.println("❌ Cannot open save file for reading");
+        resumeAudio();
+        return false;
+    }
+    
+    size_t fileSize = f.size();
+    size_t expectedSize = sizeof(SaveData);
+    
+    Serial.print("File size: ");
+    Serial.print(fileSize);
+    Serial.print("/");
+    Serial.println(expectedSize);
+    
+    if (fileSize != expectedSize) {
+        Serial.println("❌ File size mismatch");
+        f.close();
+        resumeAudio();
+        return false;
+    }
+    
+    // Load in chunks
+    uint8_t* dataPtr = (uint8_t*)&outData;
+    size_t chunks = (fileSize + SAVE_CHUNK_SIZE - 1) / SAVE_CHUNK_SIZE;
+    
+    Serial.print("Loading ");
+    Serial.print(fileSize);
+    Serial.print(" bytes in ");
+    Serial.print(chunks);
+    Serial.println(" chunks");
+    
+    bool success = true;
+    for (size_t i = 0; i < chunks; i++) {
+        size_t chunkSize = (i == chunks - 1) ? fileSize % SAVE_CHUNK_SIZE : SAVE_CHUNK_SIZE;
+        if (chunkSize == 0) chunkSize = SAVE_CHUNK_SIZE;
+        
+        size_t offset = i * SAVE_CHUNK_SIZE;
+        size_t read = f.read(dataPtr + offset, chunkSize);
+        
+        if (read != chunkSize) {
+            Serial.print("❌ Chunk ");
+            Serial.print(i);
+            Serial.print(" read failed: ");
+            Serial.print(read);
+            Serial.print("/");
+            Serial.println(chunkSize);
+            success = false;
+            break;
+        }
+        
+        Serial.print("✓ Chunk ");
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.print(chunkSize);
+        Serial.println(" bytes");
+    }
+    
+    f.close();
+    
+    if (!success) {
+        Serial.println("❌ Chunk reading failed");
+        resumeAudio();
+        return false;
+    }
+    
+    // Verify checksum
+    uint32_t savedChecksum = outData.checksum;
+    uint32_t calculatedChecksum = calculateChecksum(outData);
+    
+    Serial.print("Checksum: ");
+    Serial.print(savedChecksum);
+    Serial.print(" == ");
+    Serial.println(calculatedChecksum);
+    
+    if (savedChecksum == calculatedChecksum) {
+        Serial.println("✅ Load successful");
+        // RESUME AUDIO only after successful load
+        resumeAudio();
+        return true;
+    } else {
+        Serial.println("❌ Checksum mismatch - file may be corrupted");
+        resumeAudio();
+        return false;
+    }
 }
 
 bool deleteSave() {
-    Serial.println("=== DELETING SAVE FILES ===");
+    Serial.println("=== DELETING SAVE FILE ===");
     
     // STOP AUDIO COMPLETELY before any SD operations
     stopAllAudio();
     
-    bool mainDeleted = true;
+    bool success = true;
     
-    // Delete main file
+    // Delete main file only
     if (SD.exists(SAVE_FILE_PATH)) {
-        mainDeleted = SD.remove(SAVE_FILE_PATH);
-        if (mainDeleted) {
-            Serial.println("✅ Main save file deleted");
+        success = SD.remove(SAVE_FILE_PATH);
+        if (success) {
+            Serial.println("✅ Save file deleted");
         } else {
-            Serial.println("❌ Could not delete main save file");
+            Serial.println("❌ Could not delete save file");
         }
-        delay(50);
+        delay(20);
     } else {
-        Serial.println("ℹ️ Main save file doesn't exist");
+        Serial.println("ℹ️ Save file doesn't exist");
     }
     
-    // Clean up all temp files
-    cleanupTempFiles();
-    
-    // RESUME AUDIO after all deletion attempts
+    // RESUME AUDIO after deletion attempt
     resumeAudio();
     
-    return mainDeleted;
+    return success;
 }
 
 bool saveExists() {
@@ -378,7 +271,7 @@ void stopAllAudio() {
         Serial.println("Stopped playWav2");
     }
     
-    delay(150); // Let audio fully stop
+    delay(100); // Let audio fully stop
     
     // Then disable audio interrupts
     AudioNoInterrupts();
