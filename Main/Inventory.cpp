@@ -334,6 +334,8 @@ void handleItemActionMenu() {
             }
             snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel as if someone is watching over you.");
             currentUIState = UI_ITEM_RESULT;
+        } else if (selectedItem.effectType == ScrollEmptyEffect) {
+          // special thing here?
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)

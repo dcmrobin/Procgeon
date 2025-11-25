@@ -10,11 +10,11 @@ need more armor, rings, and scrolls. ideas:
     6. scroll of aggravation- makes every enemy on the map instantly target you
     7. scroll of amnesia- makes you forget everything you knew from identifying things
     8. cursed ring that slowly drains health
-    9. denim jacket
+    9.
     10. ring mail armor
     11. scroll that sets hasMap to true
     12. suit of chaos- armor that randomly changes your armor value each frame
-    13. blank scroll
+    13.
     14. scroll of create monster- creates a random monster near you
     15. scroll of destroy armor- armor value of currently worn armor is set to 0
     16. ring of clarity- grants immunity to blindness
@@ -23,3 +23,6 @@ need more armor, rings, and scrolls. ideas:
     19. slow digestion ring- makes hunger decrease less
     20. ring of teleportation that randomly teleports the player around the map
     21. The One Ring- yep
+
+what if the blank scroll actually had a massively powerful thing on it- you can only activate that if you drink a see all potion. come to think of it, what if
+the see all potion basically upgraded scrolls?
