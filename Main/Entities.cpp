@@ -77,7 +77,7 @@ Dialogue ridiculeDialogue[] = {
   {"Nice move, man.", 400},
   {"You're so done for.", 400},
   {"You're pretty bad at this.", 400},
-  {"Incredibly bad performance.", 400},
+  {"Incredibly bad.", 400},
   {"Only stupid people drink that potion.", 400}
 };
 
