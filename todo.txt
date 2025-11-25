@@ -11,7 +11,7 @@ need more armor, rings, and scrolls. ideas:
     7. scroll of amnesia- makes you forget everything you knew from identifying things
     8. cursed ring that slowly drains health
     9.
-    10. ring mail armor
+    10.
     11.
     12. suit of chaos- armor that randomly changes your armor value each frame
     13.

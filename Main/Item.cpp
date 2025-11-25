@@ -33,11 +33,12 @@ GameItem itemList[] = {
   { WetScroll, ScrollsCategory, "Wet Scroll", 0,  0,  0, 0, 0, "A scroll that is too wet to read.", "Wet Scroll", "The scroll is too wet to read. Nothing happens.", 3, false},
   { Ring, EquipmentCategory, "Ring", 0,  0,  0, 0, 0, "Put it on to find out.", "Ring", "You equip the ring.", 3, false},
   { LeatherArmor, EquipmentCategory, "Leather Armor", 0,  0,  0, 0, 0, "Basic leather armor. Reduces damage taken.", "Leather Armor", "You equip the leather armor.", 3, false, ArmorEffect, 2, false, false, 2, false},
-  { IronArmor, EquipmentCategory, "Iron Armor", 0,  0,  0, 0, 0, "Sturdy iron armor. Reduces damage taken.", "Iron Armor", "You equip the iron armor.", 4, false, ArmorEffect, 3, false, false, 2, true},
+  { IronArmor, EquipmentCategory, "Iron Armor", 0,  0,  0, 0, 0, "Sturdy iron armor. Reduces damage taken.", "Iron Armor", "You equip the iron armor.", 4, false, ArmorEffect, 4, false, false, 2, true},
   { MagicRobe, EquipmentCategory, "Magic Robe", 0,  0,  0, 0, 0, "Enchanted robe. Reduces damage taken and increases magic resistance.", "Magic Robe", "You equip the magic robe.", 4, false, ArmorEffect, 1, false, false, 2, false},
   { Cloak, EquipmentCategory, "Cloak", 0,  0,  0, 0, 0, "A simple cloth cloak. Provides no protection but keeps you warm.", "Cloak", "You equip the cloak.", 4, false, ArmorEffect, 0, false, false, 2, false},
   { Trenchcoat, EquipmentCategory, "Trenchcoat", 0,  0,  0, 0, 0, "A trenchcoat and fedora. Provides no protection but looks cool.", "Trenchcoat", "You equip the trenchcoat.", 4, false, ArmorEffect, 0, false, false, 2, false},
   { DenimJacket, EquipmentCategory, "Denim Jacket", 0,  0,  0, 0, 0, "A simple denim jacket. Provides no protection but looks cool.", "Denim Jacket", "You equip the denim jacket.", 4, false, ArmorEffect, 0, false, false, 2, false},
+  { RingMailArmor, EquipmentCategory, "Ring Mail Armor", 0,  0,  0, 0, 0, "Ring mail armor. Reduces damage taken.", "Ring Mail Armor", "You equip the ring mail armor.", 4, false, ArmorEffect, 3, false, false, 2, true},
   { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, "", "Null", "", 5, false }
 };
 
