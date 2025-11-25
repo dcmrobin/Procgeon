@@ -821,6 +821,8 @@ void trySaveGame() {
   saveData.swiftnessRingsNum = swiftnessRingsNumber;
   saveData.succubusFriend = succubusIsFriend;
   saveData.worldSeed = worldSeed;
+  saveData.hungerRingsNumber = hungerRingsNumber;
+  saveData.regenRingsNumber = regenRingsNumber;
   if (!saveGame(saveData)) {
     Serial.println("saveGame() failed");
   }
@@ -874,5 +876,7 @@ void tryLoadGame() {
   weaknessRingsNumber = saveData.weaknessRingsNum;
   swiftnessRingsNumber = saveData.swiftnessRingsNum;
   succubusIsFriend = saveData.succubusFriend;
+  hungerRingsNumber = saveData.hungerRingsNumber;
+  regenRingsNumber = saveData.regenRingsNumber;
   randomSeed(saveData.worldSeed);
 }

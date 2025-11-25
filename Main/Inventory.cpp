@@ -513,9 +513,9 @@ void handleItemActionMenu() {
               } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
                 weaknessRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
-                ringOfHungerActive = false;
+                hungerRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
-                ringOfRegenActive = false;
+                regenRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -551,9 +551,9 @@ void handleItemActionMenu() {
               } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
                 weaknessRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
-                ringOfHungerActive = true;
+                hungerRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
-                ringOfRegenActive = true;
+                regenRingsNumber += 1;
               }
             }
             playRawSFX(2);

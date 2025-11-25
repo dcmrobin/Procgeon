@@ -117,8 +117,8 @@ void resetGame() {
   swiftnessRingsNumber = 0;
   strengthRingsNumber = 0;
   weaknessRingsNumber = 0;
-  ringOfHungerActive = false;
-  ringOfRegenActive = false;
+  hungerRingsNumber = 0;
+  hungerRingsNumber = 0;
   lastPotionSpeedModifier = 0;
   playerAttackDamage = 10;
 

@@ -55,8 +55,8 @@ int playerAttackDamage = 10; // Player's attack damage, can be increased by ench
 int swiftnessRingsNumber = 0;
 int strengthRingsNumber = 0;
 int weaknessRingsNumber = 0;
-bool ringOfHungerActive = false;
-bool ringOfRegenActive = false;
+int hungerRingsNumber = 0;
+int regenRingsNumber = 0;
 float lastPotionSpeedModifier = 0;
 bool ridiculed = false;
 int ridiculeTimer = 0;
@@ -580,13 +580,11 @@ int hungerTick = 0;
 void handleHungerAndEffects() {
   hungerTick += playerMoving || damsel[0].beingCarried ? 2 : 1;
 
-  if (hungerTick >= (starving ? 200 : 700)) {
+  if (hungerTick >= (starving ? 70 : 700)) {
     if (starving) {
-      playerHP -= 3;
+      playerHP -= 4;
     } else {
-      int hungerDrain = 1;
-      if (ringOfHungerActive) hungerDrain += 7; // Increase drain if hunger ring is active
-      if (ringOfRegenActive) hungerDrain += 3;
+      int hungerDrain = 2 + (hungerRingsNumber*7) + (regenRingsNumber*3);
       playerFood -= hungerDrain;
     }
     hungerTick = 0;
@@ -991,8 +989,8 @@ void handleRiddles() {
 
 void handleRingEffects() {
     static int regenCounter = 0;
-    if (ringOfRegenActive) {
-        regenCounter++;
+    if (regenRingsNumber > 0) {
+        regenCounter += regenRingsNumber;
         if (regenCounter >= 50) { // Regenerate every 50 ticks (adjust as needed)
             if (playerHP < playerMaxHP) playerHP++;
             regenCounter = 0;
