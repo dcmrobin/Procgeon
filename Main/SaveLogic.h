@@ -34,7 +34,7 @@ struct SaveData {
     uint32_t checksum;
     TileTypes dungeonMap[64][64];
     char scrollNames[7][20];
-    GameItem itemList[34];
+    GameItem itemList[35];
     bool hasMap;
     bool playerNearClockEnemy;
     bool knowsDamselName;

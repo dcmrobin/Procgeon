@@ -338,8 +338,8 @@ void handleInput() {
     }
   } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
     // Randomly choose an armor type
-    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
-    GameItems randomArmor = armorTypes[random(0, 4)];
+    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak, ChaosArmor, RingMailArmor, DenimJacket, Trenchcoat };
+    GameItems randomArmor = armorTypes[random(0, 8)];
     
     if (addToInventory(getItem(randomArmor), true)) {
       playRawSFX(3);
@@ -662,6 +662,10 @@ void handleHungerAndEffects() {
       paralysisTimer = 1000;
       paralyzed = false;
     }
+  }
+
+  if (equippedArmor.item == ChaosArmor) {
+    equippedArmorValue = random(0, 20 + equippedArmor.armorValue);
   }
 
   // If the player is close to a succubus, she slowly draws the player towards herself.

@@ -42,6 +42,7 @@ enum GameItems {
   Trenchcoat,
   DenimJacket,
   RingMailArmor,
+  ChaosArmor,
   Null
 };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };
@@ -136,7 +137,7 @@ extern const int NUM_ITEM_COMBINATIONS;
 
 extern char scrollNames[7][20];
 extern PotionEffect potionEffects[20];
-extern GameItem itemList[34];
+extern GameItem itemList[35];
 
 extern char ringTypes[NUM_RINGS][20];
 extern char ringEffects[NUM_RINGS][100];

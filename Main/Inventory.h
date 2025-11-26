@@ -17,7 +17,7 @@ struct InventoryPage {
 
 extern InventoryPage inventoryPages[];
 extern int selectedInventoryIndex; // Currently selected inventory item
-extern char itemResultMessage[100];
+extern char itemResultMessage[150];
 
 //extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;
