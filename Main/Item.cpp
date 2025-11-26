@@ -82,6 +82,7 @@ ScrollEffect scrollEffects[NUM_SCROLLS] = {
     {"Uncurse scroll", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect},
     {"Empty scroll", "It looks like it's just paper.", "You look at the empty scroll.", ScrollEmptyEffect},
     {"Mapping scroll", "It has a map on it.", "You study the map on the scroll.", ScrollMapEffect},
+    {"Amnesia scroll", "You feel like forgetting things when around this scroll.", "You feel as if you've forgotten something...", ScrollAmnesiaEffect},
 };
 
 // Define all possible item combinations (generalized from potions)
@@ -138,9 +139,12 @@ GameItem getItem(GameItems item) {
   if (item == Scroll) {
     int effectIndex = random(0, NUM_SCROLLS);
     newItem.scrollEffectIndex = effectIndex;
+    if (strcmp(newItem.name, "Scroll") == 0) {
+      snprintf(newItem.description, sizeof(newItem.description), "%s", "Read it to find out.");
+      newItem.isScrollRevealed = false;
+    }
     snprintf(newItem.name, sizeof(newItem.name), "%s", scrollNames[effectIndex]);
-    snprintf(newItem.description, sizeof(newItem.description), "%s", "Read it to find out.");
-    newItem.isScrollRevealed = false;
+    snprintf(newItem.originalName, sizeof(newItem.originalName), "%s", scrollNames[effectIndex]);
   }
   
   // Create a ring item: assign it a visible type now, but do NOT assign its effect until worn or identified
@@ -151,6 +155,7 @@ GameItem getItem(GameItems item) {
     newItem.isRingIdentified = false;
     newItem.isCursed = false; // curse status depends on the effect once assigned
     snprintf(newItem.name, sizeof(newItem.name), "%s", ringTypes[typeIndex]);
+    snprintf(newItem.originalName, sizeof(newItem.originalName), "%s", ringTypes[typeIndex]);
   }
   
   return newItem;

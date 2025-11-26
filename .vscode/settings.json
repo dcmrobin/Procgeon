@@ -6,6 +6,7 @@
         "iosfwd": "cpp",
         "cstdlib": "cpp",
         "limits": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "system_error": "cpp"
     }
 }

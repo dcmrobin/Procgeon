@@ -4,7 +4,7 @@
 #include <string.h>
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
-char itemResultMessage[100] = "";
+char itemResultMessage[150] = "";
 
 InventoryPage inventoryPages[] = {
   {{"Potions"}, PotionCategory},
@@ -32,7 +32,7 @@ void identifyItem(GameItem &item) {
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
   if (item.isCursed && strstr(item.description, "(Cursed)") == NULL) {// what the heck does strstr do
-    char temp[100];
+    char temp[110];
     snprintf(temp, sizeof(temp), "%s (Cursed)", item.description);
     snprintf(item.description, sizeof(item.description), "%s", temp);
   }
@@ -338,6 +338,26 @@ void handleItemActionMenu() {
           // special thing here?
         } else if (selectedItem.effectType == ScrollMapEffect) {
           hasMap = true;
+        } else if (selectedItem.effectType == ScrollAmnesiaEffect) {
+          resetPotionNames();
+          for (int i = 0; i < NUM_SCROLLS; i++)
+          {
+            snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", itemList[i].originalName);
+          }
+          for (int i = 0; i < NUM_RINGS; i++)
+          {
+            snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", itemList[i].originalName);
+          }
+
+          for (int i = 0; i < 8; i++) {
+            snprintf(inventoryPages[0].items[i].name, sizeof(inventoryPages[0].items[i].name), "%s", inventoryPages[0].items[i].originalName);
+            snprintf(inventoryPages[3].items[i].name, sizeof(inventoryPages[3].items[i].name), "%s", inventoryPages[3].items[i].originalName);
+            if (inventoryPages[2].items[i].item == Ring) {
+              snprintf(inventoryPages[2].items[i].name, sizeof(inventoryPages[2].items[i].name), "%s", inventoryPages[2].items[i].originalName);
+            }
+            snprintf(inventoryPages[0].items[i].description, sizeof(inventoryPages[0].items[i].description), "%s", "You don't remember what this does.");
+            snprintf(inventoryPages[3].items[i].description, sizeof(inventoryPages[3].items[i].description), "%s", "You don't remember what this does.");
+          }
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)

@@ -633,7 +633,7 @@ void showStatusScreen() {
               if (!knowsDamselName) {
                 u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
               } else {
-                char msg[30];
+                char msg[130];
                 snprintf(msg, sizeof(msg), "%s%s!", damselDeathMsg, damsel[0].name);
                 u8g2_for_adafruit_gfx.print(F(msg));
               }
