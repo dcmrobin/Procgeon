@@ -358,6 +358,8 @@ void handleItemActionMenu() {
             snprintf(inventoryPages[0].items[i].description, sizeof(inventoryPages[0].items[i].description), "%s", "You don't remember what this does.");
             snprintf(inventoryPages[3].items[i].description, sizeof(inventoryPages[3].items[i].description), "%s", "You don't remember what this does.");
           }
+        } else if (selectedItem.effectType == ScrollAggravateEffect) {
+          ambientNoiseLevel = 100000;
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)
