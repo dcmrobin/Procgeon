@@ -337,13 +337,53 @@ void handleInput() {
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
-    // Randomly choose an armor type
-    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak, ChaosArmor, RingMailArmor, DenimJacket, Trenchcoat };
-    GameItems randomArmor = armorTypes[random(0, 8)];
-    
-    if (addToInventory(getItem(randomArmor), true)) {
-      playRawSFX(3);
-      dungeonMap[rNewY][rNewX] = Floor;
+    GameItems armorTypes[] = { 
+        LeatherArmor,
+        IronArmor,
+        MagicRobe,
+        Cloak,
+        ChaosArmor,
+        RingMailArmor,
+        DenimJacket,
+        Trenchcoat
+    };
+
+    const int armorCount = sizeof(armorTypes) / sizeof(armorTypes[0]);
+    const int maxRarity = 5;
+
+    // 1. Compute total weight using inverted rarity
+    int totalWeight = 0;
+
+    for (int i = 0; i < armorCount; i++) {
+        int rarity = getItem(armorTypes[i]).rarity;   // 1 to 5
+        int weight = (maxRarity + 1) - rarity;        // invert rarity
+        totalWeight += weight;
+    }
+
+    // 2. Random number 0..totalWeight-1
+    int r = random(0, totalWeight);
+
+    GameItems chosenArmor = LeatherArmor; // fallback
+
+    // 3. Walk through weights and choose
+    int cumulative = 0;
+
+    for (int i = 0; i < armorCount; i++) {
+        int rarity = getItem(armorTypes[i]).rarity;
+        int weight = (maxRarity + 1) - rarity;
+
+        cumulative += weight;
+
+        if (r < cumulative) {
+            chosenArmor = armorTypes[i];
+            break;
+        }
+    }
+
+    // 4. Add to inventory
+    if (addToInventory(getItem(chosenArmor), true)) {
+        playRawSFX(3);
+        dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == ScrollTile) {    
     if (addToInventory(getItem(Scroll), false)) {
