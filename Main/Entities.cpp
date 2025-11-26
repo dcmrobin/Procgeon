@@ -623,8 +623,12 @@ void updateEnemies() {
           giveUpTimer++;
         }
         if (giveUpTimer >= 600) {
-          enemies[i].chasingPlayer = false;
-          giveUpTimer = 0;
+          if (aggravateRingsNumber > 0) {
+            giveUpTimer = 600;
+          } else {
+            enemies[i].chasingPlayer = false;
+            giveUpTimer = 0;
+          }
         }
       }
     }

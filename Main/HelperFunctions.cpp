@@ -824,6 +824,7 @@ void trySaveGame() {
   saveData.hungerRingsNumber = hungerRingsNumber;
   saveData.regenRingsNumber = regenRingsNumber;
   saveData.sicknessRingsNumber = sicknessRingsNumber;
+  saveData.aggravateRingsNumber = aggravateRingsNumber;
   if (!saveGame(saveData)) {
     Serial.println("saveGame() failed");
   }
@@ -880,5 +881,6 @@ void tryLoadGame() {
   hungerRingsNumber = saveData.hungerRingsNumber;
   regenRingsNumber = saveData.regenRingsNumber;
   sicknessRingsNumber = saveData.sicknessRingsNumber;
+  aggravateRingsNumber = saveData.aggravateRingsNumber;
   randomSeed(saveData.worldSeed);
 }

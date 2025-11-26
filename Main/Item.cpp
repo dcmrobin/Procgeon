@@ -108,8 +108,8 @@ ItemCombination itemCombinations[] = {
 
 const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinations[0]);
 
-char ringTypes[NUM_RINGS][20] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring", "Ruby ring", "Washer" };
-char ringEffects[NUM_RINGS][100] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration", "Ring", "Ring of Sickness" };
+char ringTypes[NUM_RINGS][20] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring", "Ruby ring", "Washer", "Azure ring" };
+char ringEffects[NUM_RINGS][100] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration", "Ring", "Ring of Sickness", "Ring Of Aggravation" };
 bool ringCursed[NUM_RINGS] = { false, false, true, true, false, false };
 
 void randomizePotionEffects() {
