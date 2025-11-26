@@ -43,6 +43,7 @@ struct SaveData {
     int levelOfDamselDeath;
     int hungerRingsNumber;
     int regenRingsNumber;
+    int sicknessRingsNumber;
 };
 
 bool saveGame(const SaveData& data);

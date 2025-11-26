@@ -383,7 +383,7 @@ void handleItemActionMenu() {
         playerFood += selectedItem.hungerRecoverAmount;
         playerFood = playerFood > 100 ? 100 : playerFood;
         playerHP += selectedItem.healthRecoverAmount;
-        playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
+        playerHP = playerHP > (playerMaxHP - (sicknessRingsNumber*20)) ? (playerMaxHP - (sicknessRingsNumber*20)) : playerHP;
 
         if (speeding) {
           speedTimer += 500;
@@ -451,7 +451,7 @@ void handleItemActionMenu() {
           }
           playerAttackDamage += 3;
           playerHP += 15;
-          playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
+          playerHP = playerHP > (playerMaxHP - (sicknessRingsNumber*20)) ? (playerMaxHP - (sicknessRingsNumber*20)) : playerHP;
           playerFood += 15;
           playerFood = playerFood > 100 ? 100 : playerFood;
         } else if (strcmp(selectedItem.itemResult, "You can't move!") == 0) {
@@ -518,6 +518,9 @@ void handleItemActionMenu() {
           if (selectedItem.isCursed) {
             snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't. It appears to be cursed.");
             currentUIState = UI_ITEM_RESULT;
+          } else if (strcmp(selectedItem.originalName, "Washer") == 0) {
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You try to remove the washer from your finger, but it fails to go past your knuckle.");
+            currentUIState = UI_ITEM_RESULT;
           } else {
             selectedItem.isEquipped = false;
             if (selectedItem.effectType == ArmorEffect) {
@@ -540,6 +543,8 @@ void handleItemActionMenu() {
                 hungerRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
                 regenRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Sickness") == 0) {
+                sicknessRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -578,6 +583,9 @@ void handleItemActionMenu() {
                 hungerRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
                 regenRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Sickness") == 0) {
+                sicknessRingsNumber += 1;
+                playerHP = playerMaxHP - (sicknessRingsNumber*20);
               }
             }
             playRawSFX(2);

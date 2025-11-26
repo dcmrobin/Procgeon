@@ -57,6 +57,7 @@ int strengthRingsNumber = 0;
 int weaknessRingsNumber = 0;
 int hungerRingsNumber = 0;
 int regenRingsNumber = 0;
+int sicknessRingsNumber = 0;
 float lastPotionSpeedModifier = 0;
 bool ridiculed = false;
 int ridiculeTimer = 0;

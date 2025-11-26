@@ -823,6 +823,7 @@ void trySaveGame() {
   saveData.worldSeed = worldSeed;
   saveData.hungerRingsNumber = hungerRingsNumber;
   saveData.regenRingsNumber = regenRingsNumber;
+  saveData.sicknessRingsNumber = sicknessRingsNumber;
   if (!saveGame(saveData)) {
     Serial.println("saveGame() failed");
   }
@@ -878,5 +879,6 @@ void tryLoadGame() {
   succubusIsFriend = saveData.succubusFriend;
   hungerRingsNumber = saveData.hungerRingsNumber;
   regenRingsNumber = saveData.regenRingsNumber;
+  sicknessRingsNumber = saveData.sicknessRingsNumber;
   randomSeed(saveData.worldSeed);
 }

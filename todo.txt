@@ -9,7 +9,7 @@ need more armor, rings, and scrolls. ideas:
     5.
     6. scroll of aggravation- makes every enemy on the map instantly target you
     7.
-    8. cursed ring that slowly drains health
+    8. cursed ring that caps health at a certain amount
     9.
     10.
     11.

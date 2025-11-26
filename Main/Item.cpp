@@ -106,8 +106,8 @@ ItemCombination itemCombinations[] = {
 
 const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinations[0]);
 
-char ringTypes[NUM_RINGS][20] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring", "Ruby ring" };
-char ringEffects[NUM_RINGS][100] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration", "Ring" };
+char ringTypes[NUM_RINGS][20] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring", "Ruby ring", "Washer" };
+char ringEffects[NUM_RINGS][100] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration", "Ring", "Ring of Sickness" };
 bool ringCursed[NUM_RINGS] = { false, false, true, true, false, false };
 
 void randomizePotionEffects() {
@@ -287,6 +287,13 @@ GameItem combineItems(GameItem item1, GameItem item2) {
       if (item1.item == EmptyBottle || item2.item == EmptyBottle) {
         GameItem item = item1.item == EmptyBottle ? item2 : item1;
         snprintf(item.itemResult, sizeof(item.itemResult), "The %s cannot fit inside the bottle.", item.name);
+        return item;
+      } else if (strcmp(item1.name, "Washer") == 0 || strcmp(item2.name, "Washer") == 0 ) {
+        GameItem item = item1.item == Ring ? item1 : item2;
+        snprintf(item.name, sizeof(item.name), "%s", "Wet Washer");
+        snprintf(item.originalName, sizeof(item.originalName), "%s", "Wet Washer");
+        snprintf(item.itemResult, sizeof(item.itemResult), "%s", "The washer is wet now, making it easy to remove.");
+        snprintf(item.description, sizeof(item.description), "%s", "A wet washer. It being wet prevents it from getting stuck on your finger.");
         return item;
       } else if (item1.category == EquipmentCategory ? item1.canRust : item2.canRust) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
