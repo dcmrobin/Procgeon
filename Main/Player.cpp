@@ -347,7 +347,8 @@ void handleInput() {
         ChaosArmor,
         RingMailArmor,
         DenimJacket,
-        Trenchcoat
+        Trenchcoat,
+        SpikyArmor
     };
 
     const int armorCount = sizeof(armorTypes) / sizeof(armorTypes[0]);
