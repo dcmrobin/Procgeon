@@ -354,6 +354,7 @@ void handleItemActionMenu() {
             snprintf(inventoryPages[3].items[i].name, sizeof(inventoryPages[3].items[i].name), "%s", inventoryPages[3].items[i].originalName);
             if (inventoryPages[2].items[i].item == Ring) {
               snprintf(inventoryPages[2].items[i].name, sizeof(inventoryPages[2].items[i].name), "%s", inventoryPages[2].items[i].originalName);
+              snprintf(inventoryPages[2].items[i].description, sizeof(inventoryPages[2].items[i].description), "%s", "You don't remember what this does.");
             }
             snprintf(inventoryPages[0].items[i].description, sizeof(inventoryPages[0].items[i].description), "%s", "You don't remember what this does.");
             snprintf(inventoryPages[3].items[i].description, sizeof(inventoryPages[3].items[i].description), "%s", "You don't remember what this does.");

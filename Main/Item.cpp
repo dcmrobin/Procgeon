@@ -111,6 +111,7 @@ const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinat
 char ringTypes[NUM_RINGS][20] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring", "Ruby ring", "Washer", "Azure ring" };
 char ringEffects[NUM_RINGS][100] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration", "Ring", "Ring of Sickness", "Ring Of Aggravation" };
 bool ringCursed[NUM_RINGS] = { false, false, true, true, false, false };
+char ringDescriptions[NUM_RINGS][100] = {"While wearing this ring, you move faster.", "While wearing this ring, you deal more damage.", "While wearing this ring, you deal less damage.", "Makes you starve quicker.", "Passively heals you.", "It's just a ring.", "Lowers your maximum HP.", "Makes enemies never stop chasing you."};
 
 void randomizePotionEffects() {
   // Shuffle the potion effects array
@@ -452,9 +453,8 @@ void updateRingName(GameItem &ring) {
   }
   if (ring.ringEffectIndex >= 0 && ring.ringEffectIndex < NUM_RINGS) {
     snprintf(ring.name, sizeof(ring.name), "%s", ringEffects[ring.ringEffectIndex]);
-    snprintf(ring.description, sizeof(ring.description), "%s", "A mysterious ring. Its power is now revealed.");
+    snprintf(ring.description, sizeof(ring.description), "%s", ringDescriptions[ring.ringEffectIndex]);
     ring.isRingIdentified = true;
-    // NOTE: identification is per-instance now — do NOT mark any global identification flags
   }
 }
 

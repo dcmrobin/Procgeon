@@ -143,6 +143,7 @@ extern GameItem itemList[35];
 extern char ringTypes[NUM_RINGS][20];
 extern char ringEffects[NUM_RINGS][100];
 extern bool ringCursed[NUM_RINGS];
+extern char ringDescriptions[NUM_RINGS][100];
 
 void randomizePotionEffects();  // Call this once at game start
 void randomizeScrollEffects();  // Call this once at game start
