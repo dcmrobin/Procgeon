@@ -16,7 +16,7 @@ need more armor, rings, and scrolls. ideas:
     12.
     13.
     14. scroll of create monster- creates a random monster near you
-    15. scroll of destroy armor- armor value of currently worn armor is set to 0
+    15.
     16. ring of clarity- grants immunity to blindness
     17. ring of freedom- makes player's speed not be able to go below base speed
     18. ring of maintain armor- makes your armor not be degraded by enemy attacks

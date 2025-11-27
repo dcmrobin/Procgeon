@@ -50,7 +50,8 @@ char scrollNames[NUM_SCROLLS][20] = {
     "Uncurse scroll",
     "Blank scroll",
     "Mapping scroll",
-    "Aggravate scroll"
+    "Aggravate scroll",
+    "Destroy scroll"
 };
 
 // Possible effect pool
@@ -85,7 +86,8 @@ ScrollEffect scrollEffects[NUM_SCROLLS] = {
     {"Blank scroll", "It looks like it's just a blank piece of paper.", "You look at the blank scroll.", ScrollEmptyEffect},
     {"Mapping scroll", "It has a map on it.", "You study the map on the scroll.", ScrollMapEffect},
     {"Amnesia scroll", "Makes you forget all discovered items.", "You feel as if you've forgotten something...", ScrollAmnesiaEffect},
-    {"Aggravate scroll" , "Makes all enemies on the current level target you.", "You hear a high-pitched humming noise.", ScrollAggravateEffect}
+    {"Aggravate scroll" , "Makes all enemies on the current level target you.", "You hear a high-pitched humming noise.", ScrollAggravateEffect},
+    {"Destroy scroll" , "Destroys the integrity of your armor.", "Your armor now feels like paper.", ScrollDestroyEffect}
 };
 
 ItemCombination itemCombinations[] = {

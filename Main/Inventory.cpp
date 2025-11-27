@@ -361,6 +361,9 @@ void handleItemActionMenu() {
           }
         } else if (selectedItem.effectType == ScrollAggravateEffect) {
           ambientNoiseLevel = 100000;
+        } else if (selectedItem.effectType == ScrollDestroyEffect) {
+          equippedArmor.armorValue = 0;
+          equippedArmorValue = 0;
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)
