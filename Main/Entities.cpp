@@ -773,6 +773,9 @@ void updateEnemies() {
         isAttacking = true;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
           int damage = enemies[i].damage - round(equippedArmorValue);
+          if (equippedArmor.item == SpikyArmor) {
+            enemies[i].hp -= damage;
+          }
           reduceArmorDurability(i);
           if (damage < 0) damage = 0;
           if (damage > 0) {
@@ -918,7 +921,7 @@ void moveDamselToPos(float posX, float posY) {
 
 void reduceArmorDurability(int i) {
   equippedArmor.armorValue -= ((float)enemies[i].damage / 100);
-  if (equippedArmor.armorValue < 0) {
+  if (equippedArmor.armorValue < 0 && equippedArmor.item != SpikyArmor) {
     equippedArmor.armorValue = 0;
     snprintf(equippedArmor.description, sizeof(equippedArmor.description), "%s", "Broken armor.");
   }

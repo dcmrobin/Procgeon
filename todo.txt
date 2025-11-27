@@ -4,7 +4,7 @@ but switch the b and a around, and you get a thing that has to do with a specifi
 need more armor, rings, and scrolls. ideas:
     1. a scroll that teleports you to random location
     2. ring of invisibility
-    3. spiky armor that damages the attacker
+    3.
     4.
     5.
     6.
