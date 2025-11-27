@@ -5,8 +5,9 @@
 #include "Dungeon.h"
 
 #define NUM_POTIONS 20
-#define NUM_SCROLLS 9
+#define NUM_SCROLLS 10
 #define NUM_RINGS 9
+#define NUM_ITEMS 36
 
 enum GameItems {
   RedPotion,
@@ -78,7 +79,8 @@ enum EffectType {
   ScrollMapEffect,
   ScrollAmnesiaEffect,
   ScrollAggravateEffect,
-  ScrollDestroyEffect
+  ScrollDestroyEffect,
+  ScrollTeleportEffect
 };
 
 struct GameItem {
@@ -139,8 +141,9 @@ extern ItemCombination itemCombinations[];
 extern const int NUM_ITEM_COMBINATIONS;
 
 extern char scrollNames[NUM_SCROLLS][20];
+extern char scrollNamesRevealed[NUM_SCROLLS][20];
 extern PotionEffect potionEffects[20];
-extern GameItem itemList[36];
+extern GameItem itemList[NUM_ITEMS];
 
 extern char ringTypes[NUM_RINGS][20];
 extern char ringEffects[NUM_RINGS][100];

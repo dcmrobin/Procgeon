@@ -798,12 +798,17 @@ void trySaveGame() {
       }
   }
 
-  for (int y = 0; y < 4; y++) {
+  for (int y = 0; y < NUM_SCROLLS; y++) {
     for (int x = 0; x < 20; x++) {
       saveData.scrollNames[y][x] = scrollNames[y][x];
     }
   }
-  for (int i = 0; i < 31; i++) {
+  for (int y = 0; y < NUM_SCROLLS; y++) {
+    for (int x = 0; x < 20; x++) {
+      saveData.scrollNamesRevealed[y][x] = scrollNamesRevealed[y][x];
+    }
+  }
+  for (int i = 0; i < NUM_ITEMS; i++) {
       saveData.itemList[i] = itemList[i];
   }
   saveData.hasMap = hasMap;
@@ -856,13 +861,17 @@ void tryLoadGame() {
           dungeonMap[y][x] = saveData.dungeonMap[y][x];
       }
   }
-
-  for (int y = 0; y < 4; y++) {
+  for (int y = 0; y < NUM_SCROLLS; y++) {
     for (int x = 0; x < 20; x++) {
       scrollNames[y][x] = saveData.scrollNames[y][x];
     }
   }
-  for (int i = 0; i < 31; i++) {
+  for (int y = 0; y < NUM_SCROLLS; y++) {
+    for (int x = 0; x < 20; x++) {
+      scrollNamesRevealed[y][x] = saveData.scrollNamesRevealed[y][x];
+    }
+  }
+  for (int i = 0; i < NUM_ITEMS; i++) {
       itemList[i] = saveData.itemList[i];
   }
   hasMap = saveData.hasMap;

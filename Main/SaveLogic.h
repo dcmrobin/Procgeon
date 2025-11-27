@@ -33,7 +33,8 @@ struct SaveData {
     int weaknessRingsNum;
     uint32_t checksum;
     TileTypes dungeonMap[64][64];
-    char scrollNames[9][20];
+    char scrollNames[10][20];
+    char scrollNamesRevealed[10][20];
     GameItem itemList[36];
     bool hasMap;
     bool playerNearClockEnemy;

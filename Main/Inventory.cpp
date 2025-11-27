@@ -342,11 +342,7 @@ void handleItemActionMenu() {
           resetPotionNames();
           for (int i = 0; i < NUM_SCROLLS; i++)
           {
-            snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", itemList[i].originalName);
-          }
-          for (int i = 0; i < NUM_RINGS; i++)
-          {
-            snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", itemList[i].originalName);
+            snprintf(scrollNamesRevealed[i], sizeof(scrollNamesRevealed[i]), "%s", scrollNames[i]);
           }
 
           for (int i = 0; i < 8; i++) {
@@ -364,6 +360,15 @@ void handleItemActionMenu() {
         } else if (selectedItem.effectType == ScrollDestroyEffect) {
           equippedArmor.armorValue = 0;
           equippedArmorValue = 0;
+        } else if (selectedItem.effectType == ScrollTeleportEffect) {
+          playRawSFX(14);
+          int newX, newY;
+          do {
+            newX = random(0, mapWidth);
+            newY = random(0, mapHeight);
+          } while (dungeonMap[newY][newX] != Floor);
+          playerX = newX;
+          playerY = newY;
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)

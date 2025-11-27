@@ -52,7 +52,19 @@ char scrollNames[NUM_SCROLLS][20] = {
     "Blank scroll",
     "Mapping scroll",
     "Aggravate scroll",
-    "Destroy scroll"
+    "Destroy scroll",
+    "Teleport scroll"
+};
+char scrollNamesRevealed[NUM_SCROLLS][20] = {
+    "Protect scroll",
+    "Identify scroll",
+    "Enchant scroll",
+    "Uncurse scroll",
+    "Blank scroll",
+    "Mapping scroll",
+    "Aggravate scroll",
+    "Destroy scroll",
+    "Teleport scroll"
 };
 
 // Possible effect pool
@@ -88,7 +100,8 @@ ScrollEffect scrollEffects[NUM_SCROLLS] = {
     {"Mapping scroll", "It has a map on it.", "You study the map on the scroll.", ScrollMapEffect},
     {"Amnesia scroll", "Makes you forget all discovered items.", "You feel as if you've forgotten something...", ScrollAmnesiaEffect},
     {"Aggravate scroll" , "Makes all enemies on the current level target you.", "You hear a high-pitched humming noise.", ScrollAggravateEffect},
-    {"Destroy scroll" , "Destroys the integrity of your armor.", "Your armor now feels like paper.", ScrollDestroyEffect}
+    {"Destroy scroll" , "Destroys the integrity of your armor.", "Your armor now feels like paper.", ScrollDestroyEffect},
+    {"Teleport scroll", "Teleports you to a random location on the map.", "You feel a wrenching sensation.", ScrollTeleportEffect}
 };
 
 ItemCombination itemCombinations[] = {
@@ -188,7 +201,7 @@ GameItem getItem(GameItems item) {
       snprintf(newItem.description, sizeof(newItem.description), "%s", "Read it to find out.");
       newItem.isScrollRevealed = false;
     }
-    snprintf(newItem.name, sizeof(newItem.name), "%s", scrollNames[effectIndex]);
+    snprintf(newItem.name, sizeof(newItem.name), "%s", scrollNamesRevealed[effectIndex]);
     snprintf(newItem.originalName, sizeof(newItem.originalName), "%s", scrollNames[effectIndex]);
   }
   
@@ -439,6 +452,7 @@ void randomizeScrollEffects() {
   // Generate random names for scrolls
   for (int i = 0; i < NUM_SCROLLS; i++) {
     generateScrollName(scrollNames[i], sizeof(scrollNames[i]));
+    generateScrollName(scrollNamesRevealed[i], sizeof(scrollNamesRevealed[i]));
   }
   
   // Shuffle the scroll effects array
@@ -463,7 +477,7 @@ void updateScrollName(GameItem &scroll) {
     scroll.isScrollRevealed = true;
     
     // Update the scrollNames array so future scrolls use the revealed name
-    snprintf(scrollNames[scroll.scrollEffectIndex], sizeof(scrollNames[scroll.scrollEffectIndex]), "%s", effect.effectName);
+    snprintf(scrollNamesRevealed[scroll.scrollEffectIndex], sizeof(scrollNamesRevealed[scroll.scrollEffectIndex]), "%s", effect.effectName);
     
     // Update all instances of this scroll in the inventory
     for (int p = 0; p < numInventoryPages; p++) {

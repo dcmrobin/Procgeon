@@ -2,8 +2,8 @@ add up up down down left right left right b a start for a secret at the splash s
 but switch the b and a around, and you get a thing that has to do with a specific enemy.
 
 need more armor, rings, and scrolls. ideas:
-    1. a scroll that teleports you to random location
-    2. ring of invisibility
+    1.
+    2.
     3.
     4.
     5.
@@ -17,14 +17,12 @@ need more armor, rings, and scrolls. ideas:
     13.
     14.
     15.
-    16. ring of clarity- grants immunity to blindness
-    17. ring of freedom- makes player's speed not be able to go below base speed
-    18. ring of maintain armor- makes your armor not be degraded by enemy attacks
+    16.
+    17.
+    18.
     19. slow digestion ring- makes hunger decrease less
     20. ring of teleportation that randomly teleports the player around the map
-    21. The One Ring- yep
+    21. ring of invisibility
 
 what if the blank scroll actually had a massively powerful thing on it- you can only activate that if you drink a see all potion. come to think of it, what if
 the see all potion basically upgraded scrolls?
-
-special dialogue for different armors?
