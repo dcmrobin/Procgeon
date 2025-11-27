@@ -48,7 +48,7 @@ char scrollNames[NUM_SCROLLS][20] = {
     "Identify scroll",
     "Enchant scroll",
     "Uncurse scroll",
-    "Empty scroll",
+    "Blank scroll",
     "Mapping scroll",
     "Aggravate scroll"
 };
@@ -80,12 +80,12 @@ PotionEffect potionEffects[] = {// do not change any of the effectresult strings
 ScrollEffect scrollEffects[NUM_SCROLLS] = {
     {"Protect scroll", "Protects your armor from rusting and raises its damage reduction.", "Your armor is covered by a shimmering gold shield!", ScrollProtectionEffect},
     {"Identify scroll", "Reveals the true name of an item and sees if it is cursed.", "Select an item to identify.", ScrollIdentifyEffect},
-    {"Enchant scroll", "Makes an item better than it used to be.", "Select an item to enchant.", ScrollEnchantEffect},
+    {"Enchant scroll", "Makes you do more damage.", "You do more damage.", ScrollEnchantEffect},
     {"Uncurse scroll", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect},
-    {"Empty scroll", "It looks like it's just paper.", "You look at the empty scroll.", ScrollEmptyEffect},
+    {"Blank scroll", "It looks like it's just a blank piece of paper.", "You look at the blank scroll.", ScrollEmptyEffect},
     {"Mapping scroll", "It has a map on it.", "You study the map on the scroll.", ScrollMapEffect},
-    {"Amnesia scroll", "You feel like forgetting things when around this scroll.", "You feel as if you've forgotten something...", ScrollAmnesiaEffect},
-    {"Aggravate scroll" , "You feel bothered around this scroll.", "You hear a high-pitched humming sound.", ScrollAggravateEffect}
+    {"Amnesia scroll", "Makes you forget all discovered items.", "You feel as if you've forgotten something...", ScrollAmnesiaEffect},
+    {"Aggravate scroll" , "Makes all enemies on the current level target you.", "You hear a high-pitched humming noise.", ScrollAggravateEffect}
 };
 
 ItemCombination itemCombinations[] = {
