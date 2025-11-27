@@ -551,8 +551,10 @@ void handleItemActionMenu() {
                 regenRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Sickness") == 0) {
                 sicknessRingsNumber -= 1;
-              } else if (strcmp(ringEffects[idx], "Ring Of Aggravation") == 0) {
+              } else if (strcmp(ringEffects[idx], "Ring of Aggravation") == 0) {
                 aggravateRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Armor") == 0) {
+                armorRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -594,8 +596,10 @@ void handleItemActionMenu() {
               } else if (strcmp(ringEffects[idx], "Ring of Sickness") == 0) {
                 sicknessRingsNumber += 1;
                 playerHP = playerMaxHP - (sicknessRingsNumber*20);
-              } else if (strcmp(ringEffects[idx], "Ring Of Aggravation") == 0) {
+              } else if (strcmp(ringEffects[idx], "Ring of Aggravation") == 0) {
                 aggravateRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Armor") == 0) {
+                armorRingsNumber += 1;
               }
             }
             playRawSFX(2);

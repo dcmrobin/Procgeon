@@ -772,11 +772,13 @@ void updateEnemies() {
       } else if (!enemies[i].isFriend) { // Only hostile enemies damage the player
         isAttacking = true;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
-          int damage = enemies[i].damage - round(equippedArmorValue);
+          int damage = enemies[i].damage - (round(equippedArmorValue) + armorRingsNumber);
           if (equippedArmor.item == SpikyArmor) {
             enemies[i].hp -= damage;
           }
-          reduceArmorDurability(i);
+          if (armorRingsNumber == 0) {
+            reduceArmorDurability(i);
+          }
           if (damage < 0) damage = 0;
           if (damage > 0) {
             playerHP -= damage;
@@ -901,8 +903,10 @@ void updateProjectiles() {
 
       // Also check for collision with player:
       if (projectiles[i].shotByPlayer == false && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, playerX, playerY)) {
-        int damage = projectiles[i].damage - round(equippedArmorValue);
-        reduceArmorDurability(i);
+        int damage = projectiles[i].damage - (round(equippedArmorValue) + armorRingsNumber);
+        if (armorRingsNumber == 0) {
+          reduceArmorDurability(i);
+        }
         if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
         playerHP -= damage;
         triggerScreenShake(2, 1);

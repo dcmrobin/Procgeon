@@ -45,6 +45,7 @@ struct SaveData {
     int regenRingsNumber;
     int sicknessRingsNumber;
     int aggravateRingsNumber;
+    int armorRingsNumber;
 };
 
 bool saveGame(const SaveData& data);

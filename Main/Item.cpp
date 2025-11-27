@@ -111,10 +111,50 @@ ItemCombination itemCombinations[] = {
 
 const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinations[0]);
 
-char ringTypes[NUM_RINGS][20] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring", "Ruby ring", "Washer", "Azure ring" };
-char ringEffects[NUM_RINGS][100] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration", "Ring", "Ring of Sickness", "Ring Of Aggravation" };
-bool ringCursed[NUM_RINGS] = { false, false, true, true, false, false };
-char ringDescriptions[NUM_RINGS][100] = {"While wearing this ring, you move faster.", "While wearing this ring, you deal more damage.", "While wearing this ring, you deal less damage.", "Makes you starve quicker.", "Passively heals you.", "It's just a ring.", "Lowers your maximum HP.", "Makes enemies never stop chasing you."};
+char ringTypes[NUM_RINGS][20] = {
+  "Wooden Ring",
+  "Emerald Ring",
+  "Diamond Ring",
+  "Clay Ring",
+  "Gold Ring",
+  "Ruby ring",
+  "Washer",
+  "Azure ring",
+  "Stone ring"
+};
+char ringEffects[NUM_RINGS][100] = {
+  "Ring of Swiftness",
+  "Ring of Strength",
+  "Ring of Weakness",
+  "Ring of Hunger",
+  "Ring of Regeneration",
+  "Ring",
+  "Ring of Sickness",
+  "Ring of Aggravation",
+  "Ring of Armor"
+};
+bool ringCursed[NUM_RINGS] = {
+  false,
+  false,
+  true,
+  true,
+  false,
+  false,
+  true,
+  true,
+  false
+};
+char ringDescriptions[NUM_RINGS][100] = {
+  "While wearing this ring, you move faster.",
+  "While wearing this ring, you deal more damage.",
+  "While wearing this ring, you deal less damage.",
+  "Makes you starve quicker.",
+  "Passively heals you.",
+  "It's just a ring.",
+  "Lowers your maximum HP.",
+  "Makes enemies never stop chasing you.",
+  "Prevents your armor from degrading while also slightly boosting its defence."
+};
 
 void randomizePotionEffects() {
   // Shuffle the potion effects array

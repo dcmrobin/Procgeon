@@ -6,7 +6,7 @@
 
 #define NUM_POTIONS 20
 #define NUM_SCROLLS 9
-#define NUM_RINGS 8
+#define NUM_RINGS 9
 
 enum GameItems {
   RedPotion,
