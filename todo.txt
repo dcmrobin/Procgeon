@@ -15,7 +15,7 @@ need more armor, rings, and scrolls. ideas:
     11.
     12.
     13.
-    14. scroll of create monster- creates a random monster near you
+    14.
     15.
     16. ring of clarity- grants immunity to blindness
     17. ring of freedom- makes player's speed not be able to go below base speed
