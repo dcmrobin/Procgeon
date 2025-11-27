@@ -273,7 +273,7 @@ void loop() {
         }
       } else {
         if (!deleteSV) {
-          trySaveGame();
+          deleteSave();
           deleteSV = true;
         }
         gameOver();
