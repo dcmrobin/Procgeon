@@ -286,7 +286,7 @@ void game_loop() {
   }
 
   if (!playWav2.isPlaying()) {
-    playWav2.play("12_8.wav");
+    playWav2.play("./Audio/12_8.wav");
   }
   if (currentUIState == UI_PAUSE) {
     setJukeboxVolume(0.0f);
@@ -352,7 +352,7 @@ void renderIntroScreen() {
   display.print("Presents");
   display.display();
   if (!playWav1.isPlaying()) {
-    playWav1.play("intro.wav");
+    playWav1.play("./Audio/intro.wav");
   }
   if (!playWav1.isPlaying() && introNum > 10) {
     playWav1.stop();
@@ -418,7 +418,7 @@ void renderSplashScreen() {
   }
 
   if (!playWav1.isPlaying()) {
-    playWav1.play("title_screen.wav");
+    playWav1.play("./Audio/title_screen.wav");
   }
 
   display.clearDisplay();
@@ -846,7 +846,7 @@ void showStatusScreen() {
       credits = true;
       bossStateTimer = 0;
       playWav1.stop();
-      bool played = playWav1.play("endCredits.wav");
+      bool played = playWav1.play("./Audio/endCredits.wav");
       ////Serial.print("DEBUG: play endCredits.wav returned ");
       ////Serial.println(played);
       if (!played) {
@@ -871,7 +871,7 @@ void updateBossfight() {
   if (enemies[0].hp <= 100 && enemies[0].hp > 0) {
     if (bossState != Enraged) {
       playWav1.stop();
-      playWav1.play("alternateBossfight.wav");
+      playWav1.play("./Audio/alternateBossfight.wav");
     }
     bossState = Enraged;
   } else if (enemies[0].hp <= 0) {
@@ -944,8 +944,8 @@ void updateBossfight() {
     case Floating: {
       enemies[0].damage = 20;
       if (!playWav1.isPlaying()) {
-        if (SD.exists("bossfight.wav")) {
-          if (!playWav1.play("bossfight.wav")) {
+        if (SD.exists("./Audio/bossfight.wav")) {
+          if (!playWav1.play("./Audio/bossfight.wav")) {
             //Serial.println("Failed to play bossfight.wav");
           }
         } else {
@@ -993,7 +993,7 @@ void updateBossfight() {
     case Shooting: {
       enemies[0].damage = 0;
       if (!playWav1.isPlaying()) {
-        playWav1.play("bossfight.wav");
+        playWav1.play("./Audio/bossfight.wav");
       }
 
       if (bossStateTimer % 20 == 0) {
@@ -1017,8 +1017,8 @@ void updateBossfight() {
     case Enraged: {
       enemies[0].damage = 40;
       if (!playWav1.isPlaying()) {
-        if (SD.exists("alternateBossfight.wav")) {
-          if (!playWav1.play("alternateBossfight.wav")) {
+        if (SD.exists("./Audio/alternateBossfight.wav")) {
+          if (!playWav1.play("./Audio/alternateBossfight.wav")) {
             //Serial.println("Failed to play alternateBossfight.wav");
           }
         } else {
@@ -1096,7 +1096,7 @@ void updateBossfight() {
     case Summoning: {
       enemies[0].damage = 0;
       if (!playWav1.isPlaying()) {
-        playWav1.play("bossfight.wav");
+        playWav1.play("./Audio/bossfight.wav");
       }
 
       // Summon minions every 60 frames (about once per second)
