@@ -52,6 +52,9 @@
 #define A0 0
 #endif
 
+class SerialClass;
+extern SerialClass Serial;
+
 inline int analogRead(int) {
     // simulate some noise (10-bit)
     return std::rand() % 1024;

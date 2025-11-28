@@ -1,4 +1,5 @@
 #include "GameAudio.h"
+#include "Translation.h"
 #include "Player.h"
 #include <algorithm>
 #include <cstring>

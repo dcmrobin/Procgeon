@@ -2,7 +2,6 @@
 #define SAVELOGIC_H
 
 #include "Translation.h"
-#include <SD.h>
 #include "Inventory.h"
 #include "Item.h"
 #include "Entities.h"
