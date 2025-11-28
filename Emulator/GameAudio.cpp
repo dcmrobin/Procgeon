@@ -6,43 +6,43 @@
 #include <vector>
 #include <algorithm>
 
-// Define the audio system objects
+// Define the audio system objects (as stubs for SDL2)
 AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
-AudioMixer4         mixer1;  // For queues 0-3
-AudioMixer4         mixer2;  // For queues 4-7
-AudioMixer4         musicMixer; // New mixer for music
+AudioMixer4         mixer1;
+AudioMixer4         mixer2;
+AudioMixer4         musicMixer;
 AudioOutputI2S      audioOutput;
 AudioPlaySdWav      playWav1;
-AudioPlaySdWav      playWav2;  // Jukebox music player
-//AudioAmplifier      amp1;
+AudioPlaySdWav      playWav2;
+AudioControlSGTL5000 sgtl5000_1;
 
-// Create audio connections
-// First mixer for queues 0-3
+// Audio connections (stubs)
 AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
 AudioConnection     patchCord2(queue[1], 0, mixer1, 1);
 AudioConnection     patchCord3(queue[2], 0, mixer1, 2);
 AudioConnection     patchCord4(queue[3], 0, mixer1, 3);
-// Second mixer for queues 4-7
 AudioConnection     patchCord5(queue[4], 0, mixer2, 0);
 AudioConnection     patchCord6(queue[5], 0, mixer2, 1);
 AudioConnection     patchCord7(queue[6], 0, mixer2, 2);
 AudioConnection     patchCord8(queue[7], 0, mixer2, 3);
-// Mix both SFX mixers and music into final mixer
-AudioConnection     patchCord9(mixer1, 0, musicMixer, 0); // SFX mixer1 to musicMixer
-AudioConnection     patchCord10(mixer2, 0, musicMixer, 1); // SFX mixer2 to musicMixer
-AudioConnection     patchCord11(playWav1, 0, musicMixer, 2); // WAV music to musicMixer
-AudioConnection     patchCord12(playWav2, 0, musicMixer, 3); // Jukebox music to musicMixer (moved to input 3)
+AudioConnection     patchCord9(mixer1, 0, musicMixer, 0);
+AudioConnection     patchCord10(mixer2, 0, musicMixer, 1);
+AudioConnection     patchCord11(playWav1, 0, musicMixer, 2);
+AudioConnection     patchCord12(playWav2, 0, musicMixer, 3);
 AudioConnection     patchCord13(musicMixer, 0, audioOutput, 0);
 AudioConnection     patchCord14(musicMixer, 0, audioOutput, 1);
-AudioControlSGTL5000 sgtl5000_1;
 
 int ambientNoiseLevel = 0;
-int masterVolume = 10; // Default volume (1..10). sgtl5000_1.volume will be masterVolume/10.0
+int masterVolume = 10;
 float jukeboxVolume = 0.0f;
 
 // RAM-loaded sound effect storage
 uint8_t* sfxData[NUM_SFX] = { nullptr };
 size_t sfxLength[NUM_SFX] = { 0 };
+
+// SDL2 audio storage
+Mix_Chunk* sfxChunks[NUM_SFX] = { nullptr };
+std::vector<int> activeChannels;
 
 const char* sfxFilenames[NUM_SFX] = {
   "player_hurt.raw",//        0
@@ -75,83 +75,45 @@ const char* sfxFilenames[NUM_SFX] = {
 // Array of currently playing sound effects
 RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 
-// Initialize the audio system
+// Initialize the audio system with SDL2
 void initAudio() {
-    // Enable the audio shield
-    // Increased AudioMemory to handle more simultaneous sounds
-    AudioMemory(150);
-    sgtl5000_1.enable();
-    // Apply master volume (1..10 mapped to 0.0..1.0)
+    // SDL2 audio is initialized in main.cpp, just set up volumes
     float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
     sgtl5000_1.volume(vol);
-    // Set mixer levels for each channel, scaled by master volume
-    // Mixer1 (queues 0-3)
-    mixer1.gain(0, 0.5 * vol);
-    mixer1.gain(1, 0.5 * vol);
-    mixer1.gain(2, 0.5 * vol);
-    mixer1.gain(3, 0.5 * vol);
-    // Mixer2 (queues 4-7)
-    mixer2.gain(0, 0.5 * vol);
-    mixer2.gain(1, 0.5 * vol);
-    mixer2.gain(2, 0.5 * vol);
-    mixer2.gain(3, 0.5 * vol);
-    // Final musicMixer - combine both SFX mixers and music
-    musicMixer.gain(0, vol); // SFX mixer1 scaled by master volume
-    musicMixer.gain(1, vol); // SFX mixer2 scaled by master volume
-    musicMixer.gain(2, 0.2 * vol); // WAV music (main) scaled by master volume
-    musicMixer.gain(3, 0.0); // jukebox channel (starts at 0, controlled by setJukeboxVolume)
-    Serial.println("Audio initialized");
+    
+    // Pre-load all sound effects
+    loadSFXtoRAM();
+    
+    Serial.println("Audio initialized with SDL2");
 }
 
 void setJukeboxVolume(float v) {
     jukeboxVolume = constrain(v, 0.0f, 0.23f);
-    // Scale jukebox volume by master volume so it respects the volume control
     float masterVol = masterVolume / 10.0f;
-    musicMixer.gain(3, jukeboxVolume * masterVol); // Changed to input 3 (was 2)
+    // SDL2 volume control for music
+    if (playWav2.isPlaying()) {
+        playWav2.volume(jukeboxVolume * masterVol);
+    }
 }
 
 bool playRawSFX(int sfxIndex) {
     ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
     
-    // Find an available playback slot
-    int slot = -1;
-    for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        if (!activeSFX[i].isPlaying) {
-            slot = i;
-            break;
+    // Use SDL2 mixer to play the sound
+    if (sfxChunks[sfxIndex]) {
+        int channel = Mix_PlayChannel(-1, sfxChunks[sfxIndex], 0);
+        if (channel != -1) {
+            // Set volume based on master volume
+            float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
+            Mix_Volume(channel, static_cast<int>(vol * MIX_MAX_VOLUME));
+            activeChannels.push_back(channel);
+            return true;
         }
     }
-    
-    // If all slots are in use, return false or optionally replace the oldest sound
-    if (slot == -1) {
-        // Option 1: Fail to play the new sound
-        return false;
-        
-        // Option 2: Replace the sound that's played the most
-        /*
-        int maxPlayedSamples = 0;
-        for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-            if (activeSFX[i].samplesPlayed > maxPlayedSamples) {
-                maxPlayedSamples = activeSFX[i].samplesPlayed;
-                slot = i;
-            }
-        }
-        */
-    }
-    
-    // Initialize the sound in the chosen slot
-    activeSFX[slot].data = (const int16_t*)sfxData[sfxIndex];
-    activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / 2;
-    activeSFX[slot].samplesPlayed = 0;
-    activeSFX[slot].isPlaying = true;
-    activeSFX[slot].volume = constrain(1, 0.0f, 1.0f);
-    
-    return true;
+    return false;
 }
 
-// Play a sound effect with 3D positioning
 bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
     // Calculate distance from player to sound source
     float dx = soundX - playerX;
@@ -172,101 +134,109 @@ bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
     
     ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
     
-    // Find an available playback slot
-    int slot = -1;
-    for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        if (!activeSFX[i].isPlaying) {
-            slot = i;
-            break;
+    // Use SDL2 mixer to play the sound with 3D positioning
+    if (sfxChunks[sfxIndex]) {
+        int channel = Mix_PlayChannel(-1, sfxChunks[sfxIndex], 0);
+        if (channel != -1) {
+            // Apply distance-based volume and master volume
+            float masterVol = masterVolume / 10.0f;
+            float finalVolume = (sfxIndex == 23 ? volume / 2.0f : volume) * masterVol;
+            Mix_Volume(channel, static_cast<int>(finalVolume * MIX_MAX_VOLUME));
+            activeChannels.push_back(channel);
+            return true;
         }
     }
-    
-    // If all slots are in use, return false
-    if (slot == -1) {
-        return false;
-    }
-    
-    // Initialize the sound in the chosen slot with calculated volume
-    activeSFX[slot].data = (const int16_t*)sfxData[sfxIndex];
-    activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / 2;
-    activeSFX[slot].samplesPlayed = 0;
-    activeSFX[slot].isPlaying = true;
-    activeSFX[slot].volume = sfxIndex == 23 ? volume / 2.0f : volume;
-    
-    return true;
+    return false;
 }
 
 void serviceRawSFX() {
-    // Process each active sound effect
-    for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        RawSFXPlayback& sfx = activeSFX[i];
-        
-        if (!sfx.isPlaying) continue;
-        if (!queue[i].available()) continue;
-
-        int16_t* block = queue[i].getBuffer();
-        if (!block) continue;
-
-        size_t remaining = sfx.samplesTotal - sfx.samplesPlayed;
-        size_t samplesToCopy = min(remaining, static_cast<size_t>(AUDIO_BLOCK_SAMPLES));
-
-        // Copy and apply volume
-        if (sfx.volume == 1.0f) {
-            // At full volume, just copy
-            memcpy(block, sfx.data + sfx.samplesPlayed, samplesToCopy * 2);
-        } else {
-            // Apply volume scaling
-            for (size_t j = 0; j < samplesToCopy; j++) {
-                block[j] = sfx.data[sfx.samplesPlayed + j] * sfx.volume;
-            }
-        }
-
-        // Clear the rest of the buffer if needed
-        if (samplesToCopy < AUDIO_BLOCK_SAMPLES) {
-            memset(((uint8_t*)block) + samplesToCopy * 2, 0, (AUDIO_BLOCK_SAMPLES - samplesToCopy) * 2);
-        }
-
-        queue[i].playBuffer();
-        sfx.samplesPlayed += samplesToCopy;
-
-        if (sfx.samplesPlayed >= sfx.samplesTotal) {
-            sfx.isPlaying = false;
-        }
-    }
+    // SDL2 handles this automatically, but we can clean up finished channels
+    activeChannels.erase(
+        std::remove_if(activeChannels.begin(), activeChannels.end(),
+            [](int channel) { return Mix_Playing(channel) == 0; }),
+        activeChannels.end()
+    );
 }
 
 void freeSFX() {
+    // Free SDL2 chunks
     for (int i = 0; i < NUM_SFX; i++) {
+        if (sfxChunks[i]) {
+            Mix_FreeChunk(sfxChunks[i]);
+            sfxChunks[i] = nullptr;
+        }
         if (sfxData[i]) {
             free(sfxData[i]);
             sfxData[i] = nullptr;
         }
     }
+    
+    // Stop all channels
+    for (int channel : activeChannels) {
+        Mix_HaltChannel(channel);
+    }
+    activeChannels.clear();
 }
 
 bool loadSFXtoRAM() {
     for (int i = 0; i < NUM_SFX; i++) {
-        File f = SD.open(sfxFilenames[i]);
-        if (!f) {
-            Serial.printf("Failed to open %s\n", sfxFilenames[i]);
-            return false;
+        std::string filename = std::string("Audio/") + sfxFilenames[i];
+        
+        // Try to load as WAV first (SDL2 preferred format)
+        std::string wavFilename = filename;
+        size_t dotPos = wavFilename.find_last_of('.');
+        if (dotPos != std::string::npos) {
+            wavFilename = wavFilename.substr(0, dotPos) + ".wav";
         }
+        
+        sfxChunks[i] = Mix_LoadWAV(wavFilename.c_str());
+        if (!sfxChunks[i]) {
+            // Fall back to raw file loading if WAV not found
+            SDClass::File f = SD.open(filename.c_str());
+            if (!f) {
+                Serial.printf("Failed to open %s\n", filename.c_str());
+                continue;
+            }
 
-        size_t len = f.size();
-        if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
+            size_t len = f.size();
+            if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
 
-        sfxData[i] = (uint8_t*)malloc(len);
-        if (!sfxData[i]) {
-            Serial.printf("Failed to allocate memory for %s\n", sfxFilenames[i]);
+            sfxData[i] = (uint8_t*)malloc(len);
+            if (!sfxData[i]) {
+                Serial.printf("Failed to allocate memory for %s\n", filename.c_str());
+                f.close();
+                continue;
+            }
+
+            f.read(sfxData[i], len);
+            sfxLength[i] = len;
             f.close();
-            return false;
+            
+            // Convert raw to WAV chunk for SDL2
+            // Note: You'll need to know the raw format (sample rate, channels, etc.)
+            // This is a simplified version - you may need to adjust based on your raw format
+            SDL_AudioSpec spec;
+            spec.freq = 44100;
+            spec.format = AUDIO_S16;
+            spec.channels = 1;
+            spec.silence = 0;
+            spec.samples = 4096;
+            spec.callback = nullptr;
+            spec.userdata = nullptr;
+            
+            SDL_AudioCVT cvt;
+            if (SDL_BuildAudioCVT(&cvt, AUDIO_S16, 1, 44100, spec.format, spec.channels, spec.freq) > 0) {
+                cvt.len = len;
+                cvt.buf = (Uint8*)malloc(cvt.len * cvt.len_mult);
+                memcpy(cvt.buf, sfxData[i], len);
+                if (SDL_ConvertAudio(&cvt) == 0) {
+                    sfxChunks[i] = Mix_QuickLoad_RAW(cvt.buf, cvt.len_cvt);
+                }
+            }
+        } else {
+            Serial.printf("Loaded WAV: %s\n", wavFilename.c_str());
         }
-
-        f.read(sfxData[i], len);
-        sfxLength[i] = len;
-        f.close();
     }
     return true;
 }

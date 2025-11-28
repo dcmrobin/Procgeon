@@ -1,7 +1,6 @@
 #ifndef INVENTORY_H 
 #define INVENTORY_H
 
-#include <Arduino.h>
 #include "Item.h"
 #include "HelperFunctions.h"
 #include "Translation.h"

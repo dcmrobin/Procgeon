@@ -1,6 +1,6 @@
+#include "Translation.h"
 #include "Puzzles.h"
 #include "Sprites.h"
-#include "Player.h"
 #include "HelperFunctions.h"
 
 bool picrossSolution[PICROSS_SIZE][PICROSS_SIZE];
@@ -79,32 +79,28 @@ void drawPicrossPuzzle() {
             }
         }
     }
-    display.setFont(Adafruit_GFX::profont10_font);
-    display.setTextColor(15);
-    display.setTextSize(1);
     // Draw simple clues: just one number per row/col
     for (int y = 0; y < PICROSS_SIZE; y++) {
         int count = 0;
         for (int x = 0; x < PICROSS_SIZE; x++)
             if (picrossSolution[y][x]) count++;
         display.setCursor(gridX - 18, gridY + y * cellSize + 4);
-        display.print(std::to_string(count));
+        display.print(count);
     }
     for (int x = 0; x < PICROSS_SIZE; x++) {
         int count = 0;
         for (int y = 0; y < PICROSS_SIZE; y++)
             if (picrossSolution[y][x]) count++;
         display.setCursor(gridX + x * cellSize + 4, gridY - 10);
-        display.print(std::to_string(count));
+        display.print(count);
     }
     display.setCursor(0, 120);
     display.print("Picross puzzle");
     display.display();
-    display.setFont(Adafruit_GFX::builtin_font);
 }
 
 void handlePicrossInput() {
-    //updateButtonStates(); // Ensure button states are current
+    updateButtonStates(); // Ensure button states are current
     if (buttons.upPressed && !buttons.upPressedPrev) {
         if (picrossCursorY > 0) picrossCursorY--;
     } else if (buttons.downPressed && !buttons.downPressedPrev) {
@@ -143,23 +139,27 @@ bool isPicrossSolved() {
     return true;
 }
 
-bool updatePicrossPuzzle() {
-    if (!isPicrossSolved()) {
+bool launchPicrossPuzzle() {
+    resetPicrossPuzzle();
+    while (!isPicrossSolved() && !(buttons.aPressed && !buttons.aPressedPrev)) {
         drawPicrossPuzzle();
         handlePicrossInput();
-        delay(20);
-        return false;
-    } else {
-        display.clearDisplay();
-        display.setTextSize(2);
-        display.setTextColor(15);
-        display.setCursor(20, 50);
-        display.print("Solved!");
-        display.display();
-        delay(800);
-        currentUIState = UI_NORMAL;
-        return true;
+        delay(20); // Frame sync
     }
+    if (!isPicrossSolved()) {
+        currentUIState = UI_NORMAL;
+        return false;
+    }
+    // Optionally show a "Solved!" message
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(15);
+    display.setCursor(20, 50);
+    display.print("Solved!");
+    display.display();
+    delay(800);
+    currentUIState = UI_NORMAL; // Return to normal UI
+    return true;
 }
 
 void resetLightsOutPuzzle() {
@@ -220,7 +220,7 @@ void drawLightsOutPuzzle() {
 }
 
 void handleLightsOutInput() {
-    //updateButtonStates();
+    updateButtonStates();
     if (buttons.upPressed && !buttons.upPressedPrev) {
         if (lightsOutCursorY > 0) lightsOutCursorY--;
     } else if (buttons.downPressed && !buttons.downPressedPrev) {
@@ -250,59 +250,32 @@ bool isLightsOutSolved() {
     return true;
 }
 
-bool updateLightsOutPuzzle() {
-    if (!isLightsOutSolved()) {
+bool launchLightsOutPuzzle() {
+    resetLightsOutPuzzle();
+    while (!isLightsOutSolved() && !(buttons.aPressed && !buttons.aPressedPrev)) {
         drawLightsOutPuzzle();
         handleLightsOutInput();
         delay(20);
-        return false;
-    } else {
-        display.clearDisplay();
-        display.setTextSize(2);
-        display.setTextColor(15);
-        display.setCursor(20, 50);
-        display.print("Solved!");
-        display.display();
-        delay(800);
+    }
+    if (!isLightsOutSolved()) {
         currentUIState = UI_NORMAL;
-        return true;
+        return false;
     }
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(15);
+    display.setCursor(20, 50);
+    display.print("Solved!");
+    display.display();
+    delay(800);
+    currentUIState = UI_NORMAL;
+    return true;
 }
 
-bool updateRandomPuzzle() {
-    static int puzzleType = -1;
-    static bool initialized = false;
-    
-    if (!initialized) {
-        puzzleType = random(0, 2);
-        if (puzzleType == 0) {
-            resetPicrossPuzzle();
-        } else {
-            resetLightsOutPuzzle();
-        }
-        initialized = true;
-    }
-    
-    bool puzzleSolved = false;
-    if (puzzleType == 0) {
-        puzzleSolved = updatePicrossPuzzle();
+bool launchRandomPuzzle() {
+    if (random(0, 2) == 0) {
+        return launchPicrossPuzzle();
     } else {
-        puzzleSolved = updateLightsOutPuzzle();
+        return launchLightsOutPuzzle();
     }
-    
-    // Reset initialization when puzzle is solved
-    if (puzzleSolved) {
-        initialized = false;
-    }
-    
-    return puzzleSolved;
-}
-
-void launchRandomPuzzle(int cy, int cx, int dx) {
-    // Just set the state - the actual puzzle will be handled in game loop
-    currentUIState = UI_PUZZLE;
-    // Store chest coordinates for later
-    puzzleChestY = cy;
-    puzzleChestX = cx;
-    puzzleChestDx = dx;
 }

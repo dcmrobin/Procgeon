@@ -34,6 +34,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <type_traits>
+#include <cmath>
 
 // SDL includes
 #include <SDL2/SDL.h>
@@ -73,13 +74,7 @@ inline unsigned long millis() {
     );
 }
 
-// Fixed: Remove inline to avoid multiple definition issues
-/*int random(int min, int max);
-int random(int max);
-void randomSeed(unsigned long seed);
-float constrain(float val, float min, float max);*/
-
-// Implementations (keep inline for header-only use)
+// Random functions
 inline int random(int min, int max) { 
     return (max > min) ? min + std::rand() % (max - min) : min; 
 }
@@ -244,19 +239,78 @@ public:
 inline String operator+(const char* lhs, const String& rhs) { return String(lhs ? lhs : "") + rhs; }
 inline String operator+(const std::string& lhs, const String& rhs) { return String(lhs) + rhs; }
 
-// --- Swap / Max ---
+// --- Swap / Max / Min ---
 template<typename T> inline void swap(T& a, T& b) { T tmp = a; a = b; b = tmp; }
 template<typename T> inline T max(T a, T b) { return (a > b) ? a : b; }
+template<typename T> inline T min(T a, T b) { return (a < b) ? a : b; }
+
+// --- Audio System Stubs for SDL2 ---
+class AudioPlayQueue {
+private:
+    bool bufferReady = true;
+public:
+    bool available() { return bufferReady; }
+    int16_t* getBuffer() { 
+        static int16_t buffer[AUDIO_BLOCK_SAMPLES]; 
+        bufferReady = false;
+        return buffer; 
+    }
+    void playBuffer() { 
+        bufferReady = true; 
+    }
+};
+
+class AudioMixer4 {
+public:
+    void gain(int channel, float volume) {
+        // Store volume per channel for SDL2 implementation
+    }
+};
+
+class AudioOutputI2S {
+    // Empty stub - SDL2 handles output
+};
+
+class AudioControlSGTL5000 {
+public:
+    void enable() {}
+    void volume(float volume) {
+        // Set master volume in SDL2
+        Mix_Volume(-1, static_cast<int>(volume * MIX_MAX_VOLUME));
+    }
+};
+
+// Stub AudioConnection (does nothing in SDL2)
+class AudioConnection {
+public:
+    template<typename... Args>
+    AudioConnection(Args&&...) {} // Accept any parameters
+};
+
+// Stub AudioMemory
+inline void AudioMemory(int) {}
+
+// U8G2 emulation
+class U8G2_FOR_ADAFRUIT_GFX {
+public:
+    void setFont(const uint8_t* font) {}
+    void setCursor(int x, int y) {}
+    void print(const char* text) {}
+    void println(const char* text) {}
+};
+
+extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 // --- Audio (SDL_mixer-backed stubs) ---
-constexpr int MAX_SIMULTANEOUS_SFX = 4;
-constexpr int NUM_SFX = 16;
+constexpr int MAX_SIMULTANEOUS_SFX = 8;
+constexpr int NUM_SFX = 25;
 
 class AudioPlaySdWav {
 private:
     Mix_Chunk* chunk = nullptr;
     int channel = -1;
     static inline std::unordered_map<std::string, Mix_Chunk*> loadedChunks;
+    float currentVolume = 1.0f;
 public:
     AudioPlaySdWav() = default;
     bool play(const char* filename) {
@@ -269,22 +323,28 @@ public:
         }
         chunk = loadedChunks[fname];
         channel = Mix_PlayChannel(-1, chunk, 0);
+        if (channel != -1) {
+            Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
+        }
         return channel != -1;
     }
-    void play() { if (chunk) channel = Mix_PlayChannel(-1, chunk, 0); }
+    void play() { 
+        if (chunk) {
+            channel = Mix_PlayChannel(-1, chunk, 0); 
+            if (channel != -1) {
+                Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
+            }
+        }
+    }
     void stop() { if (channel != -1) Mix_HaltChannel(channel); channel = -1; }
     bool isPlaying() { return channel != -1 && Mix_Playing(channel) != 0; }
     void volume(float level) {
-        // level should be between 0.0 (silent) and 1.0 (full volume)
-        int mixVolume = static_cast<int>(level * MIX_MAX_VOLUME);
-        mixVolume = constrain(mixVolume, 0, MIX_MAX_VOLUME);
-        
+        currentVolume = constrain(level, 0.0f, 1.0f);
         if (chunk) {
-            Mix_VolumeChunk(chunk, mixVolume);
+            Mix_VolumeChunk(chunk, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
         }
-        // Also set volume for currently playing channel
         if (channel != -1) {
-            Mix_Volume(channel, mixVolume);
+            Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
         }
     }
     
@@ -296,8 +356,14 @@ inline AudioPlaySdWav musicPlayer;
 
 // SDL2 helper wrappers
 inline bool initSDL2Audio(int freq = 44100, Uint16 format = MIX_DEFAULT_FORMAT, int channels = 2, int chunksize = 1024) {
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) return false;
-    if (Mix_OpenAudio(freq, format, channels, chunksize) < 0) return false;
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+        std::printf("SDL audio init failed: %s\n", SDL_GetError());
+        return false;
+    }
+    if (Mix_OpenAudio(freq, format, channels, chunksize) < 0) {
+        std::printf("Mix_OpenAudio failed: %s\n", Mix_GetError());
+        return false;
+    }
     Mix_AllocateChannels(MAX_SIMULTANEOUS_SFX * 2);
     return true;
 }
@@ -312,6 +378,7 @@ inline void closeSDL2TTF() {
 
 inline void closeSDL2Audio() {
     Mix_CloseAudio();
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 inline Mix_Chunk* loadWav(const std::string& path) { 
@@ -319,5 +386,27 @@ inline Mix_Chunk* loadWav(const std::string& path) {
     if (!c) std::printf("Failed to load WAV: %s\n", path.c_str()); 
     return c; 
 }
+
+// Raw SFX playback structure for SDL2 compatibility
+struct RawSFXPlayback {
+    const int16_t* data = nullptr;
+    size_t samplesTotal = 0;
+    size_t samplesPlayed = 0;
+    bool isPlaying = false;
+    float volume = 1.0f;
+};
+
+// Forward declarations for GameAudio compatibility
+extern int ambientNoiseLevel;
+extern int masterVolume;
+extern float jukeboxVolume;
+void setJukeboxVolume(float v);
+bool playRawSFX(int sfxIndex);
+bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
+void serviceRawSFX();
+void initAudio();
+void freeSFX();
+bool loadSFXtoRAM();
+
 // end include guard
 #endif // TRANSLATION_H
