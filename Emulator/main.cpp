@@ -3,7 +3,6 @@
 #undef main
 #endif
 
-#include "SDL_fix.h"
 #include "Adafruit_SSD1327_emu.h"
 #include "game.h"
 #include "Translation.h"

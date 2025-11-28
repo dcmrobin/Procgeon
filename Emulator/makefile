@@ -4,17 +4,39 @@ CXX := g++
 # Default build type (release)
 BUILD_TYPE ?= release
 
-# Conditional flags based on build type
+# Check what SDL libraries exist
+SDL_MIXER_EXISTS := $(shell [ -f "./SDL2/include/SDL_mixer.h" ] && echo "YES" || echo "NO")
+SDL_TTF_EXISTS := $(shell [ -f "./SDL2/include/SDL_ttf.h" ] && echo "YES" || echo "NO")
+
+# Conditional flags based on build type and library availability
 ifeq ($(BUILD_TYPE), debug)
-    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -DSDL_MAIN_HANDLED -I./SDL2/include -I.
+    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -I./SDL2/include -I.
+    ifeq ($(SDL_MIXER_EXISTS), YES)
+        CXXFLAGS += -DHAS_SDL_MIXER
+    endif
+    ifeq ($(SDL_TTF_EXISTS), YES)
+        CXXFLAGS += -DHAS_SDL_TTF
+    endif
     EXEC := build/emulator-debug.exe
 else
-    CXXFLAGS := -Wall -std=c++17 -O2 -DSDL_MAIN_HANDLED -I./SDL2/include -I.
+    CXXFLAGS := -Wall -std=c++17 -O2 -I./SDL2/include -I.
+    ifeq ($(SDL_MIXER_EXISTS), YES)
+        CXXFLAGS += -DHAS_SDL_MIXER
+    endif
+    ifeq ($(SDL_TTF_EXISTS), YES)
+        CXXFLAGS += -DHAS_SDL_TTF
+    endif
     EXEC := build/emulator.exe
 endif
 
 LDFLAGS := -L./SDL2/lib
-LDLIBS := -lSDL2 -lSDL2_ttf -lSDL2_mixer
+LDLIBS := -lSDL2
+ifeq ($(SDL_MIXER_EXISTS), YES)
+    LDLIBS += -lSDL2_mixer
+endif
+ifeq ($(SDL_TTF_EXISTS), YES)
+    LDLIBS += -lSDL2_ttf
+endif
 
 # Directories
 SRC_DIR := .

@@ -1,8 +1,7 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
 
-// Add SDL macro protection at the VERY TOP
-#define SDL_MAIN_HANDLED
+#include "SDL_wrapper.h"
 #ifdef main
 #undef main
 #endif
