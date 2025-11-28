@@ -4,13 +4,17 @@ CXX := g++
 # Default build type (release)
 BUILD_TYPE ?= release
 
-# Check what SDL libraries exist
-SDL_MIXER_EXISTS := $(shell [ -f "./SDL2/include/SDL_mixer.h" ] && echo "YES" || echo "NO")
-SDL_TTF_EXISTS := $(shell [ -f "./SDL2/include/SDL_ttf.h" ] && echo "YES" || echo "NO")
+# Use system SDL2 paths (MSYS2 installation)
+SDL2_INCLUDE := /mingw64/include/SDL2
+SDL2_LIB := /mingw64/lib
+
+# Check what SDL libraries exist in system paths
+SDL_MIXER_EXISTS := $(shell [ -f "$(SDL2_INCLUDE)/SDL_mixer.h" ] && echo "YES" || echo "NO")
+SDL_TTF_EXISTS := $(shell [ -f "$(SDL2_INCLUDE)/SDL_ttf.h" ] && echo "YES" || echo "NO")
 
 # Conditional flags based on build type and library availability
 ifeq ($(BUILD_TYPE), debug)
-    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -I./SDL2/include -I.
+    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -I$(SDL2_INCLUDE) -I.
     ifeq ($(SDL_MIXER_EXISTS), YES)
         CXXFLAGS += -DHAS_SDL_MIXER
     endif
@@ -19,7 +23,7 @@ ifeq ($(BUILD_TYPE), debug)
     endif
     EXEC := build/emulator-debug.exe
 else
-    CXXFLAGS := -Wall -std=c++17 -O2 -I./SDL2/include -I.
+    CXXFLAGS := -Wall -std=c++17 -O2 -I$(SDL2_INCLUDE) -I.
     ifeq ($(SDL_MIXER_EXISTS), YES)
         CXXFLAGS += -DHAS_SDL_MIXER
     endif
@@ -29,7 +33,7 @@ else
     EXEC := build/emulator.exe
 endif
 
-LDFLAGS := -L./SDL2/lib
+LDFLAGS := -L$(SDL2_LIB)
 LDLIBS := -lSDL2
 ifeq ($(SDL_MIXER_EXISTS), YES)
     LDLIBS += -lSDL2_mixer
@@ -42,10 +46,10 @@ endif
 SRC_DIR := .
 BUILD_DIR := build
 
-# DLL paths
-SDL_DLL_SOURCE := SDL2/bin/SDL2.dll
-SDL_TTF_DLL_SOURCE := SDL2/bin/SDL2_ttf.dll
-SDL_MIXER_DLL_SOURCE := SDL2/bin/SDL2_mixer.dll
+# DLL paths - using system DLLs from MSYS2
+SDL_DLL_SOURCE := /mingw64/bin/SDL2.dll
+SDL_TTF_DLL_SOURCE := /mingw64/bin/SDL2_ttf.dll
+SDL_MIXER_DLL_SOURCE := /mingw64/bin/SDL2_mixer.dll
 GCC_DLL_SOURCE := /mingw64/bin/libgcc_s_seh-1.dll
 STDCPP_DLL_SOURCE := /mingw64/bin/libstdc++-6.dll
 PTHREAD_DLL_SOURCE := /mingw64/bin/libwinpthread-1.dll
@@ -79,12 +83,16 @@ debug:
 # Combined copy targets
 copy_resources: copy_dll copy_fonts copy_audio
 
-# Copy necessary DLLs to build directory
+# Copy necessary DLLs to build directory from system paths
 copy_dll:
 	@echo "Copying DLLs to $(BUILD_DIR)..."
 	@cp "$(SDL_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2.dll not found"
-	@cp "$(SDL_TTF_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_ttf.dll not found"
-	@cp "$(SDL_MIXER_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_mixer.dll not found"
+	@if [ "$(SDL_MIXER_EXISTS)" = "YES" ]; then \
+		cp "$(SDL_MIXER_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_mixer.dll not found"; \
+	fi
+	@if [ "$(SDL_TTF_EXISTS)" = "YES" ]; then \
+		cp "$(SDL_TTF_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_ttf.dll not found"; \
+	fi
 	@cp "$(GCC_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libgcc_s_seh-1.dll not found"
 	@cp "$(STDCPP_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libstdc++-6.dll not found"
 	@cp "$(PTHREAD_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libwinpthread-1.dll not found"
@@ -129,6 +137,19 @@ gdb: debug
 	@echo "Running debug emulator with gdb..."
 	cd $(BUILD_DIR) && gdb ./emulator-debug.exe
 
+# Test SDL2 installation
+test-sdl:
+	@echo "Testing SDL2 installation..."
+	@echo "SDL2 include path: $(SDL2_INCLUDE)"
+	@echo "SDL2 lib path: $(SDL2_LIB)"
+	@echo "SDL_mixer available: $(SDL_MIXER_EXISTS)"
+	@echo "SDL_ttf available: $(SDL_TTF_EXISTS)"
+	@if [ -f "$(SDL_DLL_SOURCE)" ]; then \
+		echo "SDL2.dll found: YES"; \
+	else \
+		echo "SDL2.dll found: NO"; \
+	fi
+
 # Help command - display all available targets
 help:
 	@echo "Available make targets:"
@@ -148,6 +169,7 @@ help:
 	@echo ""
 	@echo "  Utility targets:"
 	@echo "    make help     - Show this help message"
+	@echo "    make test-sdl - Test SDL2 installation"
 	@echo ""
 	@echo "  Build directory:"
 	@echo "    build/"
@@ -160,10 +182,14 @@ help:
 	@echo "    - Fonts/ -> build/Fonts/"
 	@echo "    - Audio/ -> build/Audio/"
 	@echo ""
+	@echo "  SDL2 paths:"
+	@echo "    Include: $(SDL2_INCLUDE)"
+	@echo "    Library: $(SDL2_LIB)"
+	@echo ""
 	@echo "  Debug features:"
 	@echo "    - Debug builds include -g flag for debug symbols"
 	@echo "    - Debug builds define DEBUG macro for debug prints"
 	@echo "    - Use #ifdef DEBUG in code for debug-only sections"
 
 # Phony targets
-.PHONY: all release debug clean run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources
+.PHONY: all release debug clean run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources test-sdl
