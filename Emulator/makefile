@@ -89,6 +89,15 @@ copy_dll:
 	@cp "$(SDL_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2.dll not found"
 	@if [ "$(SDL_MIXER_EXISTS)" = "YES" ]; then \
 		cp "$(SDL_MIXER_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_mixer.dll not found"; \
+		cp "/mingw64/bin/libopusfile-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopusfile-0.dll not found"; \
+		cp "/mingw64/bin/libmpg123-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libmpg123-0.dll not found"; \
+		cp "/mingw64/bin/libFLAC.dll" "$(BUILD_DIR)/" || echo "WARNING: libFLAC.dll not found"; \
+		cp "/mingw64/bin/libvorbisfile-3.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbisfile-3.dll not found"; \
+		cp "/mingw64/bin/libogg-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libogg-0.dll not found"; \
+		cp "/mingw64/bin/libvorbis-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbis-0.dll not found"; \
+		cp "/mingw64/bin/libwavpack-1.dll" "$(BUILD_DIR)/" || echo "WARNING: libwavpack-1.dll not found"; \
+		cp "/mingw64/bin/libopus-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopus-0.dll not found"; \
+		cp "/mingw64/bin/libxmp.dll" "$(BUILD_DIR)/" || echo "WARNING: libxmp.dll not found"; \
 	fi
 	@if [ "$(SDL_TTF_EXISTS)" = "YES" ]; then \
 		cp "$(SDL_TTF_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_ttf.dll not found"; \
