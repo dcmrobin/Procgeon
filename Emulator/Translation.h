@@ -386,41 +386,72 @@ private:
     int channel = -1;
     static inline std::unordered_map<std::string, Mix_Chunk*> loadedChunks;
     float currentVolume = 1.0f;
+    bool playing = false;  // Track playing state internally
+    
 public:
     AudioPlaySdWav() = default;
+    
     bool play(const char* filename) {
         if (!filename) return false;
         std::string fname = filename;
         if (loadedChunks.find(fname) == loadedChunks.end()) {
             Mix_Chunk* c = Mix_LoadWAV(fname.c_str());
-            if (!c) { std::printf("Failed to load WAV: %s\n", fname.c_str()); return false; }
+            if (!c) { 
+                std::printf("Failed to load WAV: %s\n", fname.c_str()); 
+                return false; 
+            }
             loadedChunks[fname] = c;
         }
         chunk = loadedChunks[fname];
         channel = Mix_PlayChannel(-1, chunk, 0);
         if (channel != -1) {
             Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
+            playing = true;
+            
+            // Set up a callback to detect when this sound finishes
+            Mix_ChannelFinished([](int finished_channel) {
+                // This would need to be more sophisticated to track multiple instances
+                // For now, we'll use a simpler approach
+            });
         }
         return channel != -1;
     }
+    
     void play() { 
         if (chunk) {
             channel = Mix_PlayChannel(-1, chunk, 0); 
             if (channel != -1) {
                 Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
+                playing = true;
             }
         }
     }
-    void stop() { if (channel != -1) Mix_HaltChannel(channel); channel = -1; }
-    bool isPlaying() { return channel != -1 && Mix_Playing(channel) != 0; }
-    int getChannel() const { return channel; }
+    
+    void stop() { 
+        if (channel != -1) {
+            Mix_HaltChannel(channel); 
+        }
+        channel = -1;
+        playing = false;
+    }
+    
+    bool isPlaying() { 
+        // More robust checking: if we think we're playing, verify the channel is still active
+        if (playing && channel != -1) {
+            playing = (Mix_Playing(channel) != 0);
+        }
+        return playing;
+    }
+    
     void volume(float level) {
         currentVolume = constrain(level, 0.0f, 1.0f);
-        // Only set volume on the channel, not the chunk
-        if (channel != -1) {
+        // Set volume on our specific channel if we're playing
+        if (channel != -1 && playing) {
             Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
         }
     }
+
+    int getChannel() const { return channel; }
     
     void setVolume(float level) {
         volume(level);

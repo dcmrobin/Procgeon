@@ -122,13 +122,14 @@ void setJukeboxVolume(float v) {
     Serial.printf("Setting jukebox volume: jukeboxVol=%.2f, masterVol=%.2f, final=%.2f\n", 
                   jukeboxVolume, masterVol, finalVolume);
     
-    // SDL2 volume control for music
-    if (playWav2.isPlaying()) {
-        playWav2.volume(finalVolume);
-        Serial.printf("Volume set on playWav2 (channel: %d)\n", playWav2.getChannel()); // You might want to add a getChannel() method
-    } else {
-        Serial.println("playWav2 is not playing");
-    }
+    // Always set the volume, don't check isPlaying()
+    playWav2.volume(finalVolume);
+    
+    // Debug: force check what's happening
+    Serial.printf("playWav2 state: channel=%d, internal_playing=%d, Mix_Playing=%d\n", 
+                  playWav2.getChannel(), 
+                  playWav2.isPlaying(),
+                  (playWav2.getChannel() != -1) ? Mix_Playing(playWav2.getChannel()) : -1);
 }
 
 bool playRawSFX(int sfxIndex) {
