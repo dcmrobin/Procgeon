@@ -28,7 +28,7 @@ const unsigned long frameDelay = 20; // Update every 100ms
 bool deleteSV = false;
 
 // SD card chip select pin for Teensy Audio Board
-const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
+//const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
   deleteSV = false;

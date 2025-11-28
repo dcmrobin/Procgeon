@@ -1,6 +1,10 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
 
+#ifdef main
+#undef main
+#endif
+
 // --- Arduino compatibility shims for SDL2 build ---
 #ifndef ARDUINO
     // Define PROGMEM as empty for desktop builds
@@ -345,7 +349,7 @@ inline void AudioMemory(int) {}
 // Audio interrupt stubs (for SaveLogic compatibility)
 inline void AudioNoInterrupts() {}
 inline void AudioInterrupts() {}
-
+class Adafruit_SSD1327;
 // U8G2 emulation
 class U8G2_FOR_ADAFRUIT_GFX {
 public:

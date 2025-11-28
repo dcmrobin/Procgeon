@@ -7,7 +7,6 @@
 #define SAVE_FILE_PATH "savegame.dat"
 #define FILE_WRITE "wb"
 #define FILE_READ "rb"
-#define SAVE_CHUNK_SIZE 512
 
 // Add checksum field to SaveData struct (if not already in header)
 struct SaveDataWithChecksum {

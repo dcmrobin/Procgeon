@@ -13,8 +13,6 @@ AudioMixer4         mixer1;
 AudioMixer4         mixer2;
 AudioMixer4         musicMixer;
 AudioOutputI2S      audioOutput;
-AudioPlaySdWav      playWav1;
-AudioPlaySdWav      playWav2;
 AudioControlSGTL5000 sgtl5000_1;
 
 // Audio connections (stubs)
