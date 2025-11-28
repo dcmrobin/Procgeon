@@ -49,6 +49,7 @@ struct SaveData {
     int armorRingsNumber;
     int indigestionRingsNumber;
     int teleportRingsNumber;
+    int invisibleRingsNumber;
 };
 
 bool saveGame(const SaveData& data);

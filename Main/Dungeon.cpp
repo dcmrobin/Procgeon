@@ -467,17 +467,29 @@ void drawMinimap() {
 
 // Render the visible portion of the dungeon
 void renderDungeon() {
-  for (int y = 1; y < viewportHeight + 1; y++) {  // +1 to handle partial tiles at edges
+  for (int y = 1; y < viewportHeight + 1; y++) {
     for (int x = 1; x < viewportWidth + 1; x++) {
+
       float mapX = x + offsetX;
       float mapY = y + offsetY;
 
       if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
-        // Calculate screen position based on fractional offsets
+
+        // ---- Distance Check (only draw within 3 tiles of player) ----
+        float dx = mapX - playerX;
+        float dy = mapY - playerY;
+        float dist = sqrt(dx * dx + dy * dy);
+
+        if (invisibleRingsNumber > 0 && !seeAll) {
+          if (dist > 3.0f) {
+            continue;  // Skip rendering this tile
+          }
+        }
+        // --------------------------------------------------------------
+
         float screenX = (x - (offsetX - (int)offsetX)) * tileSize;
         float screenY = (y - (offsetY - (int)offsetY)) * tileSize;
 
-        // Draw the tile
         drawTile((int)mapX, (int)mapY, screenX, screenY);
       }
     }
@@ -603,6 +615,14 @@ int computeTileBrightness(int mapX, int mapY) {
   // Define a falloff range (adjust this for better results)
   float falloffStart = 5.0f;  // Distance at which brightness starts decreasing
   float falloffEnd = 10.0f;   // Maximum distance where brightness reaches min
+
+  if (invisibleRingsNumber > 0 && !seeAll) {
+    falloffStart = 0.0f;
+    falloffEnd = 3.0f;
+  } else {
+    falloffStart = 5.0f;
+    falloffEnd = 10.0f;
+  }
 
   // Compute brightness based on visibility of neighbors
   for (int dx = -1; dx <= 1; dx++) {

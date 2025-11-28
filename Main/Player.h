@@ -61,6 +61,7 @@ extern int aggravateRingsNumber;
 extern int armorRingsNumber;
 extern int indigestionRingsNumber;
 extern int teleportRingsNumber;
+extern int invisibleRingsNumber;
 extern float lastPotionSpeedModifier;
 extern bool ridiculed;
 extern int ridiculeTimer;

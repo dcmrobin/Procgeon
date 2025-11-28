@@ -135,7 +135,8 @@ char ringTypes[NUM_RINGS][20] = {
   "Azure ring",
   "Stone ring",
   "Opal ring",
-  "Copper ring"
+  "Copper ring",
+  "Silver ring"
 };
 char ringEffects[NUM_RINGS][100] = {
   "Ring of Swiftness",
@@ -148,7 +149,8 @@ char ringEffects[NUM_RINGS][100] = {
   "Ring of Aggravation",
   "Ring of Armor",
   "Ring of Indigestion",
-  "Ring of Teleport"
+  "Ring of Teleport",
+  "Ring of Invisibility"
 };
 bool ringCursed[NUM_RINGS] = {
   false,
@@ -161,6 +163,7 @@ bool ringCursed[NUM_RINGS] = {
   true,
   false,
   false,
+  true,
   true
 };
 char ringDescriptions[NUM_RINGS][100] = {
@@ -174,7 +177,8 @@ char ringDescriptions[NUM_RINGS][100] = {
   "Makes enemies never stop chasing you.",
   "Prevents your armor from degrading while also slightly boosting its defence.",
   "Makes you get hungry slower.",
-  "Makes you randomly teleport all over the map."
+  "Makes you randomly teleport all over the map.",
+  "Makes you invisible to all, including yourself, meaning you become partially blind."
 };
 
 void randomizePotionEffects() {
@@ -362,7 +366,7 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         snprintf(item.itemResult, sizeof(item.itemResult), "%s", "The washer is wet now, making it easy to remove.");
         snprintf(item.description, sizeof(item.description), "%s", "A wet washer. It being wet prevents it from getting stuck on your finger.");
         return item;
-      } else if (item1.category == EquipmentCategory ? item1.canRust : item2.canRust) {
+      } else if ((item1.category == EquipmentCategory ? item1.canRust : item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
         bool cursed = random(0, 10) < 3 ? true : false;
         GameItem rustedItem = item; // Copy the entire struct first
@@ -377,7 +381,7 @@ GameItem combineItems(GameItem item1, GameItem item2) {
           equippedArmorValue = item.armorValue;
         }
         return rustedItem;
-      } else if (item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) {
+      } else if ((item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
         GameItem unrustedItem = item; // Copy the entire struct
         snprintf(unrustedItem.itemResult, sizeof(unrustedItem.itemResult), "You pour the %s over the %s, but nothing happens.", (item1.category == PotionCategory ? item1.name : item2.name), item.name);

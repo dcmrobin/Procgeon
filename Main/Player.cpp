@@ -62,6 +62,7 @@ int aggravateRingsNumber = 0;
 int armorRingsNumber = 0;
 int indigestionRingsNumber = 0;
 int teleportRingsNumber = 0;
+int invisibleRingsNumber = 0;
 float lastPotionSpeedModifier = 0;
 bool ridiculed = false;
 int ridiculeTimer = 0;
@@ -85,7 +86,9 @@ void renderPlayer() {
 
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
-    display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
+    if (invisibleRingsNumber == 0 || seeAll) {
+      display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
+    }
 
     // --- Show 'carry [b]' prompt if player can carry damsel ---
     float dx = playerX - damsel[0].x;

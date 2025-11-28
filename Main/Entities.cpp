@@ -248,10 +248,15 @@ void updateDamsel() {
   }
 
   // Check if the damsel should follow the player
-  if (distanceSquared <= 25 + (damsel[0].levelOfLove*2)) { // Follow if within 5 tiles (distance^2 = 25) + the love level
-    damsel[0].followingPlayer = true;
-    damsel[0].speed = 0.3;
-  } else {
+  if (invisibleRingsNumber == 0) {
+    if (distanceSquared <= 25 + (damsel[0].levelOfLove*2)) { // Follow if within 5 tiles (distance^2 = 25) + the love level
+      damsel[0].followingPlayer = true;
+      damsel[0].speed = 0.3;
+    } else {
+      damsel[0].followingPlayer = false;
+      damsel[0].speed = 0.1;
+    }
+  } else if (invisibleRingsNumber > 0) {
     damsel[0].followingPlayer = false;
     damsel[0].speed = 0.1;
   }
@@ -263,6 +268,9 @@ void updateDamsel() {
   for (int i = 0; i < maxEnemies; i++) {
     if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && enemies[i].chasingPlayer && !enemies[i].isFriend) {
       succubusChasing = true;
+      break;
+    } else if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && !enemies[i].chasingPlayer && !enemies[i].isFriend) {
+      succubusChasing = false;
       break;
     }
   }
@@ -593,43 +601,52 @@ void updateEnemies() {
     
     // Different behavior for friendly vs hostile enemies
     if (enemies[i].isFriend) {
-      // Friendly enemies try to stay near the player
-      if (gridDistanceSquared > 4) { // If more than 2 tiles away
-        enemies[i].chasingPlayer = true;
-      } else {
-        enemies[i].chasingPlayer = false;
-        // Look for nearby hostile enemies to attack
-        for (int j = 0; j < maxEnemies; j++) {
-          if (j != i && enemies[j].hp > 0 && !enemies[j].isFriend) {
-            int targetDx = round(enemies[j].x) - enemyGridX;
-            int targetDy = round(enemies[j].y) - enemyGridY;
-            int targetDistSq = targetDx * targetDx + targetDy * targetDy;
-            if (targetDistSq <= 25) { // Within 5 tiles
-              enemies[i].chasingPlayer = true;
-              // Override player position with enemy position for chasing
-              playerGridX = round(enemies[j].x);
-              playerGridY = round(enemies[j].y);
-              break;
+      if (invisibleRingsNumber == 0) {
+        // Friendly enemies try to stay near the player
+        if (gridDistanceSquared > 4) { // If more than 2 tiles away
+          enemies[i].chasingPlayer = true;
+        } else {
+          enemies[i].chasingPlayer = false;
+          // Look for nearby hostile enemies to attack
+          for (int j = 0; j < maxEnemies; j++) {
+            if (j != i && enemies[j].hp > 0 && !enemies[j].isFriend) {
+              int targetDx = round(enemies[j].x) - enemyGridX;
+              int targetDy = round(enemies[j].y) - enemyGridY;
+              int targetDistSq = targetDx * targetDx + targetDy * targetDy;
+              if (targetDistSq <= 25) { // Within 5 tiles
+                enemies[i].chasingPlayer = true;
+                // Override player position with enemy position for chasing
+                playerGridX = round(enemies[j].x);
+                playerGridY = round(enemies[j].y);
+                break;
+              }
             }
           }
         }
+      } else if (invisibleRingsNumber > 0) {
+        enemies[i].chasingPlayer = false;
       }
     } else {
       // Regular hostile enemy behavior
-      if (gridDistanceSquared <= (25 + (ambientNoiseLevel))) { // Chase if within 5 tiles + noise factor
-        enemies[i].chasingPlayer = true;
-      } else {
-        if (enemies[i].chasingPlayer) {
-          giveUpTimer++;
-        }
-        if (giveUpTimer >= 600) {
-          if (aggravateRingsNumber > 0) {
-            giveUpTimer = 600;
-          } else {
-            enemies[i].chasingPlayer = false;
-            giveUpTimer = 0;
+      if (invisibleRingsNumber == 0) {
+        if (gridDistanceSquared <= (25 + (ambientNoiseLevel))) { // Chase if within 5 tiles + noise factor
+          enemies[i].chasingPlayer = true;
+        } else {
+          if (enemies[i].chasingPlayer) {
+            giveUpTimer++;
+          }
+          if (giveUpTimer >= 600) {
+            if (aggravateRingsNumber > 0) {
+              giveUpTimer = 600;
+            } else {
+              enemies[i].chasingPlayer = false;
+              giveUpTimer = 0;
+            }
           }
         }
+      } else if (invisibleRingsNumber > 0) {
+        enemies[i].chasingPlayer = false;
+        giveUpTimer = 0;
       }
     }
     
@@ -769,7 +786,7 @@ void updateEnemies() {
           playerX = newX;
           playerY = newY;
         }
-      } else if (!enemies[i].isFriend) { // Only hostile enemies damage the player
+      } else if (!enemies[i].isFriend && invisibleRingsNumber == 0) { // Only hostile enemies damage the player
         isAttacking = true;
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
           int damage = enemies[i].damage - (round(equippedArmorValue) + armorRingsNumber);
@@ -970,7 +987,7 @@ void renderEnemies() {
       int dx = enemyTileX - playerTileX;
       int dy = enemyTileY - playerTileY;
       int distSq = dx*dx + dy*dy;
-      if (distSq > 200) continue;
+      if (distSq > (200 - (invisibleRingsNumber*50))) continue;
 
       // Line-of-sight check
       if (seeAll || isVisible(playerTileX, playerTileY, enemyTileX, enemyTileY)) {

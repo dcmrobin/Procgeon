@@ -564,6 +564,8 @@ void handleItemActionMenu() {
                 indigestionRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Teleport") == 0) {
                 teleportRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) {
+                invisibleRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -613,6 +615,8 @@ void handleItemActionMenu() {
                 indigestionRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Teleport") == 0) {
                 teleportRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) {
+                invisibleRingsNumber += 1;
               }
             }
             playRawSFX(2);
