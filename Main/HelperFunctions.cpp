@@ -832,6 +832,7 @@ void trySaveGame() {
   saveData.aggravateRingsNumber = aggravateRingsNumber;
   saveData.armorRingsNumber = armorRingsNumber;
   saveData.indigestionRingsNumber = indigestionRingsNumber;
+  saveData.teleportRingsNumber = teleportRingsNumber;
   if (!saveGame(saveData)) {
     Serial.println("saveGame() failed");
   }
@@ -895,5 +896,6 @@ void tryLoadGame() {
   aggravateRingsNumber = saveData.aggravateRingsNumber;
   armorRingsNumber = saveData.armorRingsNumber;
   indigestionRingsNumber = saveData.indigestionRingsNumber;
+  teleportRingsNumber = saveData.teleportRingsNumber;
   randomSeed(saveData.worldSeed);
 }

@@ -61,6 +61,7 @@ int sicknessRingsNumber = 0;
 int aggravateRingsNumber = 0;
 int armorRingsNumber = 0;
 int indigestionRingsNumber = 0;
+int teleportRingsNumber = 0;
 float lastPotionSpeedModifier = 0;
 bool ridiculed = false;
 int ridiculeTimer = 0;
@@ -1038,14 +1039,32 @@ void handleRiddles() {
 
 void handleRingEffects() {
     static int regenCounter = 0;
+    static int teleportCounter = 0;
     if (regenRingsNumber > 0) {
         regenCounter += regenRingsNumber;
-        if (regenCounter >= 50) { // Regenerate every 50 ticks (adjust as needed)
+        if (regenCounter >= 70) { // Regenerate every 50 ticks (adjust as needed)
             if (playerHP < playerMaxHP) playerHP++;
             regenCounter = 0;
         }
     } else {
         regenCounter = 0;
+    }
+
+    if (teleportRingsNumber > 0) {
+        teleportCounter += teleportRingsNumber;
+        if (teleportCounter >= 130) {
+            playRawSFX(14);
+            int newX, newY;
+            do {
+              newX = random(0, mapWidth);
+              newY = random(0, mapHeight);
+            } while (dungeonMap[newY][newX] != Floor);
+            playerX = newX;
+            playerY = newY;
+            teleportCounter = 0;
+        }
+    } else {
+        teleportCounter = 0;
     }
 }
 

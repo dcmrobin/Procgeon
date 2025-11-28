@@ -134,7 +134,8 @@ char ringTypes[NUM_RINGS][20] = {
   "Washer",
   "Azure ring",
   "Stone ring",
-  "Opal ring"
+  "Opal ring",
+  "Copper ring"
 };
 char ringEffects[NUM_RINGS][100] = {
   "Ring of Swiftness",
@@ -146,7 +147,8 @@ char ringEffects[NUM_RINGS][100] = {
   "Ring of Sickness",
   "Ring of Aggravation",
   "Ring of Armor",
-  "Ring of Indigestion"
+  "Ring of Indigestion",
+  "Ring of Teleport"
 };
 bool ringCursed[NUM_RINGS] = {
   false,
@@ -158,7 +160,8 @@ bool ringCursed[NUM_RINGS] = {
   true,
   true,
   false,
-  false
+  false,
+  true
 };
 char ringDescriptions[NUM_RINGS][100] = {
   "While wearing this ring, you move faster.",
@@ -170,7 +173,8 @@ char ringDescriptions[NUM_RINGS][100] = {
   "Lowers your maximum HP.",
   "Makes enemies never stop chasing you.",
   "Prevents your armor from degrading while also slightly boosting its defence.",
-  "Makes you get hungry slower."
+  "Makes you get hungry slower.",
+  "Makes you randomly teleport all over the map."
 };
 
 void randomizePotionEffects() {

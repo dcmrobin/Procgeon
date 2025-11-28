@@ -562,6 +562,8 @@ void handleItemActionMenu() {
                 armorRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Indigestion") == 0) {
                 indigestionRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Teleport") == 0) {
+                teleportRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -609,6 +611,8 @@ void handleItemActionMenu() {
                 armorRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Indigestion") == 0) {
                 indigestionRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Teleport") == 0) {
+                teleportRingsNumber += 1;
               }
             }
             playRawSFX(2);

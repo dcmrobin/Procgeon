@@ -21,7 +21,7 @@ need more armor, rings, and scrolls. ideas:
     17.
     18.
     19.
-    20. ring of teleportation that randomly teleports the player around the map
+    20.
     21. ring of invisibility
 
 what if the blank scroll actually had a massively powerful thing on it- you can only activate that if you drink a see all potion. come to think of it, what if
