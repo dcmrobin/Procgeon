@@ -851,6 +851,7 @@ void trySaveGame() {
   if (!saveGame(saveData)) {
     Serial.println("saveGame() failed");
   }
+  currentUIState = UI_NORMAL;
 }
 
 void tryLoadGame() {
@@ -914,4 +915,5 @@ void tryLoadGame() {
   teleportRingsNumber = saveData.teleportRingsNumber;
   invisibleRingsNumber = saveData.invisibleRingsNumber;
   randomSeed(saveData.worldSeed);
+  currentUIState = UI_NORMAL;
 }
