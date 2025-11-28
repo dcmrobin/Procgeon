@@ -7,6 +7,7 @@
 #endif
 
 // Include SDL headers FIRST
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
