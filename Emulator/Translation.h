@@ -40,11 +40,6 @@
 #include <type_traits>
 #include <cmath>
 
-// SDL includes
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
-
 // --- Arduino macros / stubs ---
 #define F(x) x
 #define u8g2_font_profont10_mf nullptr
@@ -169,9 +164,6 @@ public:
     }
     // Remove this duplicate: File open(const std::string& path) { return File(path, "rb"); }
 };
-
-// global instance so you can call SD.begin(), SD.exists(), SD.open(), etc.
-inline SDClass SD;
 
 // global instance so you can call SD.begin(), SD.exists(), SD.open(), etc.
 inline SDClass SD;

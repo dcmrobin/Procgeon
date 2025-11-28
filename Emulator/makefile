@@ -6,10 +6,10 @@ BUILD_TYPE ?= release
 
 # Conditional flags based on build type
 ifeq ($(BUILD_TYPE), debug)
-    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -I. -I./SDL2/include
+    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -DSDL_MAIN_HANDLED -I./SDL2/include -I.
     EXEC := build/emulator-debug.exe
 else
-    CXXFLAGS := -Wall -std=c++17 -O2 -I. -I./SDL2/include
+    CXXFLAGS := -Wall -std=c++17 -O2 -DSDL_MAIN_HANDLED -I./SDL2/include -I.
     EXEC := build/emulator.exe
 endif
 

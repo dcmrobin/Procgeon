@@ -1,8 +1,9 @@
+#define SDL_MAIN_HANDLED
 #ifdef main
 #undef main
 #endif
-#define SDL_MAIN_HANDLED
-#include "SDL.h"
+
+#include "SDL_fix.h"
 #include "Adafruit_SSD1327_emu.h"
 #include "game.h"
 #include "Translation.h"

@@ -2,7 +2,6 @@
 #define GAMEAUDIO_H
 
 #include <cstdint>
-#include <SDL.h>
 #include "Translation.h"
 
 #define NUM_SFX 25
