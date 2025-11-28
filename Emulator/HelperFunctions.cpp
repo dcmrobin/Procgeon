@@ -10,7 +10,7 @@
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
 
-Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
+Adafruit_SSD1327 display(-1);
 U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
@@ -693,7 +693,8 @@ void drawWrappedText(int x, int y, int maxWidth, const char *text) {
       // Check if adding this word would exceed maxWidth
       char testLine[400];
       snprintf(testLine, sizeof(testLine), "%s%s ", currentLine, word);
-      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width(testLine);
+      //int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width(testLine);
+      int wordWidth = strlen(testLine) * 6;
 
       if (wordWidth > maxWidth) {
         // Print the current line before adding a new word
@@ -850,14 +851,14 @@ void trySaveGame() {
   saveData.teleportRingsNumber = teleportRingsNumber;
   saveData.invisibleRingsNumber = invisibleRingsNumber;
   if (!saveGame(saveData)) {
-    Serial.println("saveGame() failed");
+    //Serial.println("saveGame() failed");
   }
   currentUIState = UI_NORMAL;
 }
 
 void tryLoadGame() {
   if (!loadGame(saveData)) {
-    Serial.println("loadGame() failed — not applying saveData");
+    //Serial.println("loadGame() failed — not applying saveData");
     return;
   }
   equippedArmorValue = saveData.armorValue;

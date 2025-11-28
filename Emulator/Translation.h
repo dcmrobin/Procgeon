@@ -47,13 +47,26 @@
 #define u8g2_font_profont12_tr nullptr
 #define INPUT_PULLUP 0
 
+// --- Arduino constants ---
+#define OUTPUT 0
+#define INPUT 1  
+#define HIGH 1
+#define LOW 0
+#define BUILTIN_SDCARD 0 // Dummy value
+
+// --- File mode constants ---
+#ifndef FILE_WRITE
+#define FILE_WRITE "wb"
+#endif
+
+#ifndef FILE_READ  
+#define FILE_READ "rb"
+#endif
+
 // --- Arduino analog/digital stubs ---
 #ifndef A0
 #define A0 0
 #endif
-
-class SerialClass;
-extern SerialClass Serial;
 
 inline int analogRead(int) {
     // simulate some noise (10-bit)
@@ -130,6 +143,10 @@ public:
             if (!fp) return 0;
             return std::fread(buffer, 1, len, fp);
         }
+        size_t write(const void* buffer, size_t len) {
+            if (!fp) return 0;
+            return std::fwrite(buffer, 1, len, fp);
+        }
         void close() {
             if (fp) {
                 std::fclose(fp);
@@ -141,6 +158,7 @@ public:
 
     bool begin(int) { return true; }
     bool exists(const std::string& path) { return std::filesystem::exists(path); }
+    File open(const std::string& path, const char* mode = "rb") { return File(path, mode); }
     File open(const std::string& path) { return File(path, "rb"); }
 };
 
@@ -175,6 +193,7 @@ public:
     void flush() {
         // Clear any buffered data
         inputBuffer.clear();
+        std::cout << std::flush;
     }
     // End of new methods
 
@@ -189,7 +208,11 @@ public:
         std::snprintf(buf, sizeof(buf), fmt, args...);
         std::cout << buf;
     }
+    
+    // Add operator! for compatibility
+    bool operator!() const { return false; } // Serial is always "available" in emulation
 };
+inline SerialClass Serial;
 
 // --- EEPROM (simple in-memory storage) ---
 struct EEPROMClass {
@@ -319,6 +342,10 @@ public:
 // Stub AudioMemory
 inline void AudioMemory(int) {}
 
+// Audio interrupt stubs (for SaveLogic compatibility)
+inline void AudioNoInterrupts() {}
+inline void AudioInterrupts() {}
+
 // U8G2 emulation
 class U8G2_FOR_ADAFRUIT_GFX {
 public:
@@ -326,8 +353,15 @@ public:
     void setCursor(int x, int y) {}
     void print(const char* text) {}
     void println(const char* text) {}
+    
+    // Add missing methods for compatibility
+    void begin(Adafruit_SSD1327& display) {} // Dummy implementation
+    void setForegroundColor(uint16_t color) {} // Dummy implementation
+    int getUTF8Width(const char* text) { 
+        // Simple approximation - 6 pixels per character
+        return strlen(text) * 6; 
+    }
 };
-
 extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 // --- Audio (SDL_mixer-backed stubs) ---
@@ -381,7 +415,8 @@ public:
         volume(level);
     }
 };
-inline AudioPlaySdWav musicPlayer;
+inline AudioPlaySdWav playWav1;
+inline AudioPlaySdWav playWav2;
 
 // SDL2 helper wrappers
 inline bool initSDL2Audio(int freq = 44100, Uint16 format = MIX_DEFAULT_FORMAT, int channels = 2, int chunksize = 1024) {

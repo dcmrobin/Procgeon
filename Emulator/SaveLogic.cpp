@@ -1,11 +1,25 @@
 #include "SaveLogic.h"
 #include "GameAudio.h"
+#include "Translation.h"
+#include <cstring>
+#include <cstdio>
+
+#define SAVE_FILE_PATH "savegame.dat"
+#define FILE_WRITE "wb"
+#define FILE_READ "rb"
+#define SAVE_CHUNK_SIZE 512
+
+// Add checksum field to SaveData struct (if not already in header)
+struct SaveDataWithChecksum {
+    SaveData data;
+    uint32_t checksum;
+};
 
 // Calculate checksum of entire struct except checksum field
 static uint32_t calculateChecksum(const SaveData& data) {
     const uint8_t* bytes = (const uint8_t*)&data;
     uint32_t sum = 0;
-    for (size_t i = 0; i < sizeof(SaveData) - sizeof(uint32_t); i++) {
+    for (size_t i = 0; i < sizeof(SaveData); i++) {
         sum = (sum << 3) ^ bytes[i];
     }
     return sum;
@@ -19,16 +33,14 @@ bool saveGame(const SaveData& data) {
     
     // Delete existing save file if it exists
     if (SD.exists(SAVE_FILE_PATH)) {
-        if (!SD.remove(SAVE_FILE_PATH)) {
-            Serial.println("❌ Could not delete existing save file");
-            resumeAudio();
-            return false;
-        }
+        // Note: Our SD emulation doesn't have remove, but we'll overwrite
+        // For SDL2, we can just try to delete using filesystem
+        std::remove(SAVE_FILE_PATH);
         delay(50);
     }
     
-    // Create new save file
-    File f = SD.open(SAVE_FILE_PATH, FILE_WRITE);
+    // Create new save file using our SD emulation
+    SDClass::File f = SD.open(SAVE_FILE_PATH, FILE_WRITE);
     if (!f) {
         Serial.println("❌ Cannot open save file for writing");
         resumeAudio();
@@ -39,9 +51,9 @@ bool saveGame(const SaveData& data) {
     
     // Calculate and add checksum
     SaveData tempData = data;
-    tempData.checksum = calculateChecksum(data);
+    uint32_t checksum = calculateChecksum(tempData);
     
-    // Save in chunks
+    // Write the data first
     const uint8_t* dataPtr = (const uint8_t*)&tempData;
     size_t totalSize = sizeof(SaveData);
     size_t chunks = (totalSize + SAVE_CHUNK_SIZE - 1) / SAVE_CHUNK_SIZE;
@@ -71,7 +83,7 @@ bool saveGame(const SaveData& data) {
             break;
         }
         
-        f.flush();
+        // f.flush(); // Our SD emulation doesn't have flush
         delay(10);
         
         Serial.print("✓ Chunk ");
@@ -81,21 +93,28 @@ bool saveGame(const SaveData& data) {
         Serial.println(" bytes");
     }
     
+    // Write checksum after the data
+    if (success) {
+        size_t checksumWritten = f.write((const uint8_t*)&checksum, sizeof(checksum));
+        if (checksumWritten != sizeof(checksum)) {
+            Serial.println("❌ Failed to write checksum");
+            success = false;
+        }
+    }
+    
     f.close();
     delay(50);
     
     if (!success) {
         Serial.println("❌ Save failed during chunk writing");
         // Clean up partial file
-        if (SD.exists(SAVE_FILE_PATH)) {
-            SD.remove(SAVE_FILE_PATH);
-        }
+        std::remove(SAVE_FILE_PATH);
         resumeAudio();
         return false;
     }
     
     // Verify file was written correctly
-    File verifyFile = SD.open(SAVE_FILE_PATH, FILE_READ);
+    SDClass::File verifyFile = SD.open(SAVE_FILE_PATH, FILE_READ);
     if (!verifyFile) {
         Serial.println("❌ Cannot verify save file");
         resumeAudio();
@@ -108,13 +127,11 @@ bool saveGame(const SaveData& data) {
     Serial.print("Final file size: ");
     Serial.print(fileSize);
     Serial.print("/");
-    Serial.println(totalSize);
+    Serial.println(totalSize + sizeof(uint32_t));
     
-    if (fileSize != totalSize) {
+    if (fileSize != totalSize + sizeof(uint32_t)) {
         Serial.println("❌ File size mismatch");
-        if (SD.exists(SAVE_FILE_PATH)) {
-            SD.remove(SAVE_FILE_PATH);
-        }
+        std::remove(SAVE_FILE_PATH);
         resumeAudio();
         return false;
     }
@@ -139,7 +156,7 @@ bool loadGame(SaveData& outData) {
         return false;
     }
     
-    File f = SD.open(SAVE_FILE_PATH, FILE_READ);
+    SDClass::File f = SD.open(SAVE_FILE_PATH, FILE_READ);
     if (!f) {
         Serial.println("❌ Cannot open save file for reading");
         resumeAudio();
@@ -147,7 +164,7 @@ bool loadGame(SaveData& outData) {
     }
     
     size_t fileSize = f.size();
-    size_t expectedSize = sizeof(SaveData);
+    size_t expectedSize = sizeof(SaveData) + sizeof(uint32_t);
     
     Serial.print("File size: ");
     Serial.print(fileSize);
@@ -161,19 +178,20 @@ bool loadGame(SaveData& outData) {
         return false;
     }
     
-    // Load in chunks
+    // Load data in chunks
     uint8_t* dataPtr = (uint8_t*)&outData;
-    size_t chunks = (fileSize + SAVE_CHUNK_SIZE - 1) / SAVE_CHUNK_SIZE;
+    size_t dataSize = sizeof(SaveData);
+    size_t chunks = (dataSize + SAVE_CHUNK_SIZE - 1) / SAVE_CHUNK_SIZE;
     
     Serial.print("Loading ");
-    Serial.print(fileSize);
+    Serial.print(dataSize);
     Serial.print(" bytes in ");
     Serial.print(chunks);
     Serial.println(" chunks");
     
     bool success = true;
     for (size_t i = 0; i < chunks; i++) {
-        size_t chunkSize = (i == chunks - 1) ? fileSize % SAVE_CHUNK_SIZE : SAVE_CHUNK_SIZE;
+        size_t chunkSize = (i == chunks - 1) ? dataSize % SAVE_CHUNK_SIZE : SAVE_CHUNK_SIZE;
         if (chunkSize == 0) chunkSize = SAVE_CHUNK_SIZE;
         
         size_t offset = i * SAVE_CHUNK_SIZE;
@@ -197,6 +215,16 @@ bool loadGame(SaveData& outData) {
         Serial.println(" bytes");
     }
     
+    // Read checksum
+    uint32_t savedChecksum = 0;
+    if (success) {
+        size_t checksumRead = f.read((uint8_t*)&savedChecksum, sizeof(savedChecksum));
+        if (checksumRead != sizeof(savedChecksum)) {
+            Serial.println("❌ Failed to read checksum");
+            success = false;
+        }
+    }
+    
     f.close();
     
     if (!success) {
@@ -206,7 +234,6 @@ bool loadGame(SaveData& outData) {
     }
     
     // Verify checksum
-    uint32_t savedChecksum = outData.checksum;
     uint32_t calculatedChecksum = calculateChecksum(outData);
     
     Serial.print("Checksum: ");
@@ -236,7 +263,7 @@ bool deleteSave() {
     
     // Delete main file only
     if (SD.exists(SAVE_FILE_PATH)) {
-        success = SD.remove(SAVE_FILE_PATH);
+        success = (std::remove(SAVE_FILE_PATH) == 0);
         if (success) {
             Serial.println("✅ Save file deleted");
         } else {
@@ -272,13 +299,13 @@ void stopAllAudio() {
     
     delay(100); // Let audio fully stop
     
-    // Then disable audio interrupts
-    AudioNoInterrupts();
+    // SDL2 doesn't need audio interrupts, so we just stop the channels
+    // AudioNoInterrupts(); // Remove this
     delay(50);
 }
 
 void resumeAudio() {
-    AudioInterrupts();
+    // AudioInterrupts(); // Remove this - SDL2 doesn't need it
     delay(50);
     Serial.println("Audio resumed");
 }

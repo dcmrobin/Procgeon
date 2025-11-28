@@ -610,7 +610,7 @@ extern DECLSPEC Uint16 SDLCALL SDL_JoystickGetFirmwareVersion(SDL_Joystick *joys
  *
  * \since This function is available since SDL 2.0.14.
  */
-extern DECLSPEC const char * SDLCALL SDL_JoystickGetSerial(SDL_Joystick *joystick);
+extern DECLSPEC const char * SDLCALL SDL_JoystickGet//Serial(SDL_Joystick *joystick);
 
 /**
  * Get the type of an opened joystick.

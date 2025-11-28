@@ -85,7 +85,7 @@ void initAudio() {
     // Pre-load all sound effects
     loadSFXtoRAM();
     
-    Serial.println("Audio initialized with SDL2");
+    //Serial.println("Audio initialized with SDL2");
 }
 
 void setJukeboxVolume(float v) {
@@ -196,7 +196,7 @@ bool loadSFXtoRAM() {
             // Fall back to raw file loading if WAV not found
             SDClass::File f = SD.open(filename.c_str());
             if (!f) {
-                Serial.printf("Failed to open %s\n", filename.c_str());
+                //Serial.printf("Failed to open %s\n", filename.c_str());
                 continue;
             }
 
@@ -205,7 +205,7 @@ bool loadSFXtoRAM() {
 
             sfxData[i] = (uint8_t*)malloc(len);
             if (!sfxData[i]) {
-                Serial.printf("Failed to allocate memory for %s\n", filename.c_str());
+                //Serial.printf("Failed to allocate memory for %s\n", filename.c_str());
                 f.close();
                 continue;
             }
@@ -236,7 +236,7 @@ bool loadSFXtoRAM() {
                 }
             }
         } else {
-            Serial.printf("Loaded WAV: %s\n", wavFilename.c_str());
+            //Serial.printf("Loaded WAV: %s\n", wavFilename.c_str());
         }
     }
     return true;

@@ -37,8 +37,8 @@ void resetGame() {
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
   //amp1.gain(0.01);
-  pinMode(8, OUTPUT);
-  digitalWrite(8, HIGH);
+  //pinMode(8, OUTPUT);
+  //digitalWrite(8, HIGH);
 
   playWav1.stop();// Stop any currently playing music
   // Reset player stats
@@ -126,54 +126,54 @@ void resetGame() {
 }
 
 void game_setup() {
-  Serial.begin(9600);
-  while (!Serial && millis() < 4000); // Wait for Serial Monitor
-  if (CrashReport) {
-    Serial.print(CrashReport);
-  }
+  ////Serial.begin(9600);
+  //while (!//Serial && millis() < 4000); // Wait for //Serial Monitor
+  //if (CrashReport) {
+  //  //Serial.print(CrashReport);
+  //}
 
   initAudio();
 
   // Initialize SD card
   if (!SD.begin(SD_CS)) {
-    Serial.println("SD initialization failed!");
+    ////Serial.println("SD initialization failed!");
     while (1);  // Stop execution
   }
-  Serial.println("SD initialization done.");
+  ////Serial.println("SD initialization done.");
 
   // Play a sound effect from memory
   if (!loadSFXtoRAM()) {
-    Serial.println("Failed to load SFX to RAM");
+    ////Serial.println("Failed to load SFX to RAM");
   } else {
-    Serial.println("SFX loaded successfully");
+    ////Serial.println("SFX loaded successfully");
   }
 
-  Serial.println("type 8: teleport damsel to player if damsel is available");
-  Serial.println("type 7: make tile player is on into the exit");
-  Serial.println("type 6: add potion to inventory");
-  Serial.println("type 5: make tile player is on into a riddlestone");
-  Serial.println("type 4: make tile player is on into a mushroom");
-  Serial.println("type 3: make tile player is on into an armor");
-  Serial.println("type 2: make tile player is on into a scroll");
-  Serial.println("type 1: make tile player is on into a ring");
+  ////Serial.println("type 8: teleport damsel to player if damsel is available");
+  ////Serial.println("type 7: make tile player is on into the exit");
+  ////Serial.println("type 6: add potion to inventory");
+  ////Serial.println("type 5: make tile player is on into a riddlestone");
+  ////Serial.println("type 4: make tile player is on into a mushroom");
+  ////Serial.println("type 3: make tile player is on into an armor");
+  ////Serial.println("type 2: make tile player is on into a scroll");
+  ////Serial.println("type 1: make tile player is on into a ring");
 
   // Play a WAV file
   /*if (playWav1.play("bossfight.wav")) {
-    Serial.println("bossfight.wav played successfully");
+    //Serial.println("bossfight.wav played successfully");
   } else {
-    Serial.println("bossfight.wav failed to play");
+    //Serial.println("bossfight.wav failed to play");
   }
 
   if (!playWav1.isPlaying()) {
-      Serial.println("bossfight.wav is not playing");
+      //Serial.println("bossfight.wav is not playing");
   } else {
-      Serial.println("bossfight.wav is playing");
+      //Serial.println("bossfight.wav is playing");
   }*/
 
   //if (SD.exists("bossfight.wav")) {
-  //  Serial.println("bossfight.wav does exist");
+  //  //Serial.println("bossfight.wav does exist");
   //} else {
-  //  Serial.println("bossfight.wav does not exist");
+  //  //Serial.println("bossfight.wav does not exist");
   //}
   worldSeed = generateRandomSeed();
   randomSeed(worldSeed);
@@ -184,9 +184,9 @@ void game_setup() {
   generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
 
   display.begin();
-  u8g2_for_adafruit_gfx.begin(display);
-  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
-  u8g2_for_adafruit_gfx.setForegroundColor(15);
+  //u8g2_for_adafruit_gfx.begin(display);
+  //u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+  //u8g2_for_adafruit_gfx.setForegroundColor(15);
   display.setContrast(100);
 
   pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
@@ -809,16 +809,16 @@ void showStatusScreen() {
         }
       }
       
-      /*Serial.print("DEBUG: rescued=");
-      Serial.print(rescued);
-      Serial.print(", followingPlayer=");
-      Serial.print(damsel[0].followingPlayer);
-      Serial.print(", active=");
-      Serial.print(damsel[0].active);
-      Serial.print(", dead=");
-      Serial.print(damsel[0].dead);
-      Serial.print(", levelOfLove=");
-      Serial.println(damsel[0].levelOfLove);*/
+      /*//Serial.print("DEBUG: rescued=");
+      //Serial.print(rescued);
+      //Serial.print(", followingPlayer=");
+      //Serial.print(damsel[0].followingPlayer);
+      //Serial.print(", active=");
+      //Serial.print(damsel[0].active);
+      //Serial.print(", dead=");
+      //Serial.print(damsel[0].dead);
+      //Serial.print(", levelOfLove=");
+      //Serial.println(damsel[0].levelOfLove);*/
       
       damselGotTaken = rescued ? false : damselGotTaken;
       if (damsel[0].dead) {
@@ -847,10 +847,10 @@ void showStatusScreen() {
       bossStateTimer = 0;
       playWav1.stop();
       bool played = playWav1.play("endCredits.wav");
-      //Serial.print("DEBUG: play endCredits.wav returned ");
-      //Serial.println(played);
+      ////Serial.print("DEBUG: play endCredits.wav returned ");
+      ////Serial.println(played);
       if (!played) {
-        //Serial.println("DEBUG: endCredits.wav failed to start (file missing or busy)");
+        ////Serial.println("DEBUG: endCredits.wav failed to start (file missing or busy)");
       }
     }
   }
@@ -946,10 +946,10 @@ void updateBossfight() {
       if (!playWav1.isPlaying()) {
         if (SD.exists("bossfight.wav")) {
           if (!playWav1.play("bossfight.wav")) {
-            Serial.println("Failed to play bossfight.wav");
+            //Serial.println("Failed to play bossfight.wav");
           }
         } else {
-          Serial.println("bossfight.wav not found");
+          //Serial.println("bossfight.wav not found");
         }
       }
 
@@ -1019,10 +1019,10 @@ void updateBossfight() {
       if (!playWav1.isPlaying()) {
         if (SD.exists("alternateBossfight.wav")) {
           if (!playWav1.play("alternateBossfight.wav")) {
-            Serial.println("Failed to play alternateBossfight.wav");
+            //Serial.println("Failed to play alternateBossfight.wav");
           }
         } else {
-          Serial.println("alternateBossfight.wav not found");
+          //Serial.println("alternateBossfight.wav not found");
         }
       }
       if (strcmp(currentDialogue, "AAGH! DIE, PEST!") != 0) {

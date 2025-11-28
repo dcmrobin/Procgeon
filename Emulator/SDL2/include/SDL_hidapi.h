@@ -88,7 +88,7 @@ typedef struct SDL_hid_device_info
     unsigned short vendor_id;
     /** Device Product ID */
     unsigned short product_id;
-    /** Serial Number */
+    /** //Serial Number */
     wchar_t *serial_number;
     /** Device Release Number in binary-coded decimal,
         also known as Device Version Number */
@@ -219,7 +219,7 @@ extern DECLSPEC void SDLCALL SDL_hid_free_enumeration(SDL_hid_device_info *devs)
  *
  * \param vendor_id The Vendor ID (VID) of the device to open.
  * \param product_id The Product ID (PID) of the device to open.
- * \param serial_number The Serial Number of the device to open (Optionally
+ * \param serial_number The //Serial Number of the device to open (Optionally
  *                      NULL).
  * \returns a pointer to a SDL_hid_device object on success or NULL on
  *          failure.
@@ -407,7 +407,7 @@ extern DECLSPEC int SDLCALL SDL_hid_get_manufacturer_string(SDL_hid_device *dev,
 extern DECLSPEC int SDLCALL SDL_hid_get_product_string(SDL_hid_device *dev, wchar_t *string, size_t maxlen);
 
 /**
- * Get The Serial Number String from a HID device.
+ * Get The //Serial Number String from a HID device.
  *
  * \param dev A device handle returned from SDL_hid_open().
  * \param string A wide string buffer to put the data into.

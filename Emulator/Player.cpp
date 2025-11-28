@@ -291,17 +291,17 @@ void handleInput() {
     }
   }
 
-  if (Serial.available() > 0) {// for debug purposes
-    char input = Serial.read();
+  if (//Serial.available() > 0) {// for debug purposes
+    char input = //Serial.read();
     if (input == '7') {
       setTile((int)playerX, (int)playerY, Exit);
     } else if (input == '8') {
       moveDamselToPos(playerX, playerY);
       if (!damsel[0].active) {
         if (succubusIsFriend) {
-          Serial.println("The damsel is deactivated because succubus is friend.");
+          //Serial.println("The damsel is deactivated because succubus is friend.");
         } else {
-          Serial.println("The damsel is not active.");
+          //Serial.println("The damsel is not active.");
         }
       }
     } else if (input == '6') {

@@ -950,10 +950,10 @@ void reduceArmorDurability(int i) {
   
   equippedArmorValue = equippedArmor.armorValue;
 
-  //Serial.print("Armor durability reduced to: ");
-  //Serial.println(equippedArmor.armorValue);
-  //Serial.print("EquippedArmorvalue is now: ");
-  //Serial.println(equippedArmorValue);
+  ////Serial.print("Armor durability reduced to: ");
+  ////Serial.println(equippedArmor.armorValue);
+  ////Serial.print("EquippedArmorvalue is now: ");
+  ////Serial.println(equippedArmorValue);
 }
 
 void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId) {

@@ -521,7 +521,7 @@ extern DECLSPEC Uint16 SDLCALL SDL_GameControllerGetFirmwareVersion(SDL_GameCont
  *
  * \since This function is available since SDL 2.0.14.
  */
-extern DECLSPEC const char * SDLCALL SDL_GameControllerGetSerial(SDL_GameController *gamecontroller);
+extern DECLSPEC const char * SDLCALL SDL_GameControllerGet//Serial(SDL_GameController *gamecontroller);
 
 /**
  * Check if a controller has been opened and is currently connected.

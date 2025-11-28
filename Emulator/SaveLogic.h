@@ -7,8 +7,10 @@
 #include "Entities.h"
 #include "Dungeon.h"
 
-#define SAVE_FILE_PATH "/save.dat"
+#define SAVE_FILE_PATH "savegame.dat"
 #define SAVE_CHUNK_SIZE 256
+#define FILE_WRITE "wb"
+#define FILE_READ "rb"
 
 struct SaveData {
     uint32_t worldSeed;
