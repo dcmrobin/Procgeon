@@ -10,7 +10,7 @@
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
 
-Adafruit_SSD1327 display(-1);
+//Adafruit_SSD1327 display(-1);
 U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
