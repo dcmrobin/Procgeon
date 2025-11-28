@@ -119,17 +119,17 @@ void setJukeboxVolume(float v) {
     float masterVol = masterVolume / 10.0f;
     float finalVolume = jukeboxVolume * masterVol;
     
-    Serial.printf("Setting jukebox volume: jukeboxVol=%.2f, masterVol=%.2f, final=%.2f\n", 
-                  jukeboxVolume, masterVol, finalVolume);
+    /*Serial.printf("Setting jukebox volume: jukeboxVol=%.2f, masterVol=%.2f, final=%.2f\n", 
+                  jukeboxVolume, masterVol, finalVolume);*/
     
     // Always set the volume, don't check isPlaying()
     playWav2.volume(finalVolume);
     
     // Debug: force check what's happening
-    Serial.printf("playWav2 state: channel=%d, internal_playing=%d, Mix_Playing=%d\n", 
+    /*Serial.printf("playWav2 state: channel=%d, internal_playing=%d, Mix_Playing=%d\n", 
                   playWav2.getChannel(), 
                   playWav2.isPlaying(),
-                  (playWav2.getChannel() != -1) ? Mix_Playing(playWav2.getChannel()) : -1);
+                  (playWav2.getChannel() != -1) ? Mix_Playing(playWav2.getChannel()) : -1);*/
 }
 
 bool playRawSFX(int sfxIndex) {

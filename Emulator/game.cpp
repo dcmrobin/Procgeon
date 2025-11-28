@@ -24,7 +24,7 @@ int introNum = 0;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
-const unsigned long frameDelay = 20; // Update every 100ms
+const unsigned long frameDelay = 15;
 bool deleteSV = false;
 
 // SD card chip select pin for Teensy Audio Board
@@ -32,6 +32,8 @@ bool deleteSV = false;
 
 void resetGame() {
   setJukeboxVolume(0.0f);
+  masterVolume = 3;
+  playWav2.volume(masterVolume/10);//TEEESTTT THIISISISISIIISISIIISSS
   deleteSV = false;
   introNum = 0;
   snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "You killed ");
@@ -352,7 +354,7 @@ void renderIntroScreen() {
   display.setCursor(38, 60);
   display.print("Presents");
   display.display();
-  if (!playWav1.isPlaying()) {
+  if (!playWav1.isPlaying() && introNum <= 10) {
     playWav1.play("./Audio/intro.wav");
   }
   if (!playWav1.isPlaying() && introNum > 10) {
