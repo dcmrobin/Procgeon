@@ -146,8 +146,35 @@ inline SDClass SD;
 
 // --- Serial (prints to stdout) ---
 class SerialClass {
+private:
+    std::vector<char> inputBuffer;
 public:
     void begin(int) {}
+    
+    // Add these missing methods:
+    int available() { 
+        // For simulation, always return 0 (no serial input)
+        return 0; 
+    }
+    
+    char read() {
+        if (inputBuffer.empty()) return -1;
+        char c = inputBuffer.back();
+        inputBuffer.pop_back();
+        return c;
+    }
+    
+    void write(char c) {
+        // For simulation, just print
+        std::cout << c;
+    }
+    
+    void flush() {
+        // Clear any buffered data
+        inputBuffer.clear();
+    }
+    // End of new methods
+
     template<typename T> void print(const T& val) { std::cout << val; }
     template<typename T> void println(const T& val) { std::cout << val << std::endl; }
     void println() { std::cout << std::endl; }
@@ -160,7 +187,6 @@ public:
         std::cout << buf;
     }
 };
-inline SerialClass Serial;
 
 // --- EEPROM (simple in-memory storage) ---
 struct EEPROMClass {

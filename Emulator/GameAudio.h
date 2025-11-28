@@ -19,7 +19,6 @@ extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
 extern AudioPlaySdWav      playWav1;
 extern AudioPlaySdWav      playWav2;  // Jukebox music player
-//extern AudioAmplifier      amp1;
 
 extern int ambientNoiseLevel;
 extern int masterVolume; // 1..10
@@ -33,14 +32,6 @@ extern AudioControlSGTL5000 sgtl5000_1;
 extern uint8_t* sfxData[NUM_SFX];
 extern size_t sfxLength[NUM_SFX];
 extern const char* sfxFilenames[NUM_SFX];
-
-struct RawSFXPlayback {
-    const int16_t* data = nullptr;
-    size_t samplesTotal = 0;
-    size_t samplesPlayed = 0;
-    bool isPlaying = false;
-    float volume = 1.0f;  // Volume for this sound (0.0 to 1.0)
-};
 
 // Array of currently playing sound effects
 extern RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];

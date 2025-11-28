@@ -10,7 +10,7 @@
 
 // Add fontWidth and fontHeight member initialization
 Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h)
-    : _width(w), _height(h), fontWidth(5), fontHeight(7) {
+  : fontWidth(6), _width(w), _height(h) {
     // Ensure default font is set
     font = builtin_font;
 }

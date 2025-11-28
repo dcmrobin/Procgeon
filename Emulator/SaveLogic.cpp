@@ -1,6 +1,6 @@
 #include "SaveLogic.h"
 #include "GameAudio.h"
-#include <Audio.h>
+#include "Translation.h"
 
 // Calculate checksum of entire struct except checksum field
 static uint32_t calculateChecksum(const SaveData& data) {

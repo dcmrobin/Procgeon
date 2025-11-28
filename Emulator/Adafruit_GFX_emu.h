@@ -7,6 +7,7 @@ class Adafruit_GFX {
 public:
     int fontWidth;
     int fontHeight;
+    int16_t _width, _height;
     Adafruit_GFX(int16_t w, int16_t h);
     virtual ~Adafruit_GFX() = default;
     
@@ -70,7 +71,6 @@ public:
     static const uint8_t builtin_font[];
     
 protected:
-    int16_t _width, _height;
     int16_t cursor_x = 0, cursor_y = 0;
     uint16_t textcolor = 15, textbgcolor = 0;
     uint8_t textsize = 1;

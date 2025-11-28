@@ -1,7 +1,7 @@
 #ifndef SAVELOGIC_H
 #define SAVELOGIC_H
 
-#include <Arduino.h>
+#include "Translation.h"
 #include <SD.h>
 #include "Inventory.h"
 #include "Item.h"
