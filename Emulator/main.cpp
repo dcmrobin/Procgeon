@@ -1,3 +1,6 @@
+#ifdef main
+#undef main
+#endif
 #define SDL_MAIN_HANDLED
 #include "SDL.h"
 #include "Adafruit_SSD1327_emu.h"

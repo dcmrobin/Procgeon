@@ -162,9 +162,16 @@ public:
 
     bool begin(int) { return true; }
     bool exists(const std::string& path) { return std::filesystem::exists(path); }
-    File open(const std::string& path, const char* mode = "rb") { return File(path, mode); }
-    File open(const std::string& path) { return File(path, "rb"); }
+    
+    // SIMPLIFY: Remove one of the overloaded open functions
+    File open(const std::string& path, const char* mode = "rb") { 
+        return File(path, mode); 
+    }
+    // Remove this duplicate: File open(const std::string& path) { return File(path, "rb"); }
 };
+
+// global instance so you can call SD.begin(), SD.exists(), SD.open(), etc.
+inline SDClass SD;
 
 // global instance so you can call SD.begin(), SD.exists(), SD.open(), etc.
 inline SDClass SD;

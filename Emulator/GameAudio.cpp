@@ -182,60 +182,29 @@ bool loadSFXtoRAM() {
     for (int i = 0; i < NUM_SFX; i++) {
         std::string filename = std::string("Audio/") + sfxFilenames[i];
         
-        // Try to load as WAV first (SDL2 preferred format)
-        std::string wavFilename = filename;
-        size_t dotPos = wavFilename.find_last_of('.');
-        if (dotPos != std::string::npos) {
-            wavFilename = wavFilename.substr(0, dotPos) + ".wav";
-        }
+        // FIX: Specify the mode explicitly to resolve ambiguity
+        SDClass::File f = SD.open(filename, FILE_READ); // Use FILE_READ constant
         
-        sfxChunks[i] = Mix_LoadWAV(wavFilename.c_str());
-        if (!sfxChunks[i]) {
-            // Fall back to raw file loading if WAV not found
-            SDClass::File f = SD.open(filename.c_str());
-            if (!f) {
-                //Serial.printf("Failed to open %s\n", filename.c_str());
-                continue;
-            }
-
-            size_t len = f.size();
-            if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
-
-            sfxData[i] = (uint8_t*)malloc(len);
-            if (!sfxData[i]) {
-                //Serial.printf("Failed to allocate memory for %s\n", filename.c_str());
-                f.close();
-                continue;
-            }
-
-            f.read(sfxData[i], len);
-            sfxLength[i] = len;
-            f.close();
-            
-            // Convert raw to WAV chunk for SDL2
-            // Note: You'll need to know the raw format (sample rate, channels, etc.)
-            // This is a simplified version - you may need to adjust based on your raw format
-            SDL_AudioSpec spec;
-            spec.freq = 44100;
-            spec.format = AUDIO_S16;
-            spec.channels = 1;
-            spec.silence = 0;
-            spec.samples = 4096;
-            spec.callback = nullptr;
-            spec.userdata = nullptr;
-            
-            SDL_AudioCVT cvt;
-            if (SDL_BuildAudioCVT(&cvt, AUDIO_S16, 1, 44100, spec.format, spec.channels, spec.freq) > 0) {
-                cvt.len = len;
-                cvt.buf = (Uint8*)malloc(cvt.len * cvt.len_mult);
-                memcpy(cvt.buf, sfxData[i], len);
-                if (SDL_ConvertAudio(&cvt) == 0) {
-                    sfxChunks[i] = Mix_QuickLoad_RAW(cvt.buf, cvt.len_cvt);
-                }
-            }
-        } else {
-            //Serial.printf("Loaded WAV: %s\n", wavFilename.c_str());
+        if (!f) {
+            Serial.printf("Failed to open %s\n", filename.c_str());
+            continue;
         }
+
+        size_t len = f.size();
+        if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
+
+        sfxData[i] = (uint8_t*)malloc(len);
+        if (!sfxData[i]) {
+            Serial.printf("Failed to allocate memory for %s\n", filename.c_str());
+            f.close();
+            continue;
+        }
+
+        f.read(sfxData[i], len);
+        sfxLength[i] = len;
+        f.close();
+        
+        Serial.printf("Loaded SFX: %s (%zu bytes)\n", filename.c_str(), len);
     }
     return true;
 }
