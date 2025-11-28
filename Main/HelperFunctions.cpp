@@ -14,6 +14,17 @@ U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
 
+const KonamiInput konamiCode[] = {
+  K_UP, K_UP,
+  K_DOWN, K_DOWN,
+  K_LEFT, K_RIGHT,
+  K_LEFT, K_RIGHT,
+  K_B, K_A
+};
+
+const int konamiLength = sizeof(konamiCode) / sizeof(konamiCode[0]);
+int konamiIndex = 0;
+
 // Add action selection tracking
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
@@ -423,6 +434,9 @@ void handleUIStateTransitions() {
         break;
       case UI_INTRO:
         currentUIState = UI_INTRO;
+        break;
+      case UI_SECRET:
+        currentUIState = UI_SPLASH;
         break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {

@@ -267,6 +267,10 @@ void loop() {
             case UI_INTRO:
               renderIntroScreen();
               break;
+
+            case UI_SECRET:
+              renderSecretScreen();
+              break;
           }
         } else {
           showStatusScreen();
@@ -358,8 +362,62 @@ void renderIntroScreen() {
   }
 }
 
+void renderSecretScreen() {
+  display.clearDisplay();
+  drawWrappedText(1, 7, 128, "Hah! You bet I had to add the Konami sequence. Minus the start button. Anyway, yeah here's some hints. Equip the Riddle Stone. Read some of the scrolls right after drinking a See-All potion. Lastly, don't try to see if the washer fits on your finger. Just don't.");
+  display.display();
+}
+
 void renderSplashScreen() {
-  // add up up down down left right left right b a start for a secret
+  // KONAMI CODE CHECK
+  KonamiInput expected = konamiCode[konamiIndex];
+  bool matched = false;
+
+  switch (expected) {
+    case K_UP:
+      matched = (buttons.upPressed && !buttons.upPressedPrev);
+      break;
+    case K_DOWN:
+      matched = (buttons.downPressed && !buttons.downPressedPrev);
+      break;
+    case K_LEFT:
+      matched = (buttons.leftPressed && !buttons.leftPressedPrev);
+      break;
+    case K_RIGHT:
+      matched = (buttons.rightPressed && !buttons.rightPressedPrev);
+      break;
+    case K_B:
+      matched = (buttons.bPressed && !buttons.bPressedPrev);
+      break;
+    case K_A:
+      matched = (buttons.aPressed && !buttons.aPressedPrev);
+      break;
+    case K_START:
+      matched = (buttons.startPressed && !buttons.startPressedPrev);
+      break;
+  }
+
+  if (matched) {
+    konamiIndex++;
+
+    if (konamiIndex >= konamiLength) {
+      currentUIState = UI_SECRET;   // success
+      konamiIndex = 0;              // reset
+    }
+  } 
+  else {
+    // reset if any other button is pressed
+    if ((buttons.upPressed && !buttons.upPressedPrev) ||
+        (buttons.downPressed && !buttons.downPressedPrev) ||
+        (buttons.leftPressed && !buttons.leftPressedPrev) ||
+        (buttons.rightPressed && !buttons.rightPressedPrev) ||
+        (buttons.aPressed && !buttons.aPressedPrev) ||
+        (buttons.bPressed && !buttons.bPressedPrev) ||
+        (buttons.startPressed && !buttons.startPressedPrev)) {
+
+      konamiIndex = 0;
+    }
+  }
 
   if (!playWav1.isPlaying()) {
     playWav1.play("title_screen.wav");

@@ -28,6 +28,21 @@
 extern Adafruit_SSD1327 display;
 extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
+enum KonamiInput {
+  K_UP,
+  K_DOWN,
+  K_LEFT,
+  K_RIGHT,
+  K_B,
+  K_A,
+  K_START
+};
+
+extern const KonamiInput konamiCode[];
+
+extern const int konamiLength;
+extern int konamiIndex;
+
 struct ButtonStates {
   bool upPressed;
   bool upPressedPrev;
@@ -57,7 +72,8 @@ enum UIState {
   UI_PAUSE,       // Pause screen
   UI_RIDDLE,      // Riddle screen
   UI_SPLASH,      // Title screen
-  UI_INTRO        // Intro screen
+  UI_INTRO,       // Intro screen
+  UI_SECRET       // Hehe secretz
 };
 
 struct GeneratedRiddle {
