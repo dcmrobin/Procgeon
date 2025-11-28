@@ -7,7 +7,7 @@
 #define NUM_POTIONS 20
 #define NUM_SCROLLS 10
 #define NUM_RINGS 12
-#define NUM_ITEMS 36
+#define NUM_ITEMS 37
 
 enum GameItems {
   RedPotion,
@@ -45,6 +45,7 @@ enum GameItems {
   RingMailArmor,
   ChaosArmor,
   SpikyArmor,
+  KingArmor,
   Null
 };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };

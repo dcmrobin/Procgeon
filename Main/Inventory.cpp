@@ -297,20 +297,38 @@ void handleItemActionMenu() {
             }
             equippedArmor.armorValue += 1;
             equippedArmorValue += 1; // Increase armor protection
+            if (seeAll) {
+              equippedArmor.armorValue += 9;
+              equippedArmorValue += 9;
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your armor is covered by a very bright shimmering gold shield!");
+            }
           } else {
             snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "The scroll disappears.");
           }
         } else if (selectedItem.effectType == ScrollIdentifyEffect) {
-          // Start identify flow
-          identifyingItem = true;
-          identifyScrollPage = currentInventoryPageIndex;
-          identifyScrollIndex = selectedInventoryIndex;
-          currentUIState = UI_INVENTORY;
-          return;
+          if (!seeAll) {
+            // Start identify flow
+            identifyingItem = true;
+            identifyScrollPage = currentInventoryPageIndex;
+            identifyScrollIndex = selectedInventoryIndex;
+            currentUIState = UI_INVENTORY;
+            return;
+          } else {
+            for (int x = 0; x < numInventoryPages; x++) {
+              for (int y = 0; y < 8; y++) {
+                identifyItem(inventoryPages[x].items[y]);
+              }
+            }
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your entire inventory is revealed!");
+          }
         } else if (selectedItem.effectType == ScrollEnchantEffect) {
           // Enchant scroll: increase player attack damage
           playerAttackDamage += 2; // Increase by 2, adjust as desired
           snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel more powerful! Your attacks do more damage.");
+          if (seeAll) {
+            playerAttackDamage += 8;
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your attacks do much more damage!");
+          }
           // Destroy the enchant scroll
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
@@ -320,7 +338,7 @@ void handleItemActionMenu() {
             for (int p = 0; p < numInventoryPages; p++) {
                 for (int i = 0; i < inventorySize; i++) {
                     GameItem &item = inventoryPages[p].items[i];
-                    if (item.isEquipped && item.isCursed) {
+                    if ((item.isEquipped || seeAll) && item.isCursed) {
                         item.isCursed = false;
                         char *cursedPos = strstr(item.description, " (Cursed)");
                         if (cursedPos != NULL) {
@@ -333,9 +351,35 @@ void handleItemActionMenu() {
                 }
             }
             snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel as if someone is watching over you.");
+            if (seeAll) {
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your entire inventory is uncursed!");
+            }
             currentUIState = UI_ITEM_RESULT;
-        } else if (selectedItem.effectType == ScrollEmptyEffect) {
-          // special thing here?
+        } else if (selectedItem.effectType == ScrollEmptyEffect && seeAll) {
+          addToInventory(getItem(KingArmor), false);
+          addToInventory(getItem(RiddleStone), false);
+          blinded = false;
+          blindnessTimer = 0;
+          confused = false;
+          confusionTimer = 0;
+          if (ridiculed) {
+            ridiculed = false;
+            ridiculeTimer = 0;
+            showDialogue = false;
+          }
+          paralyzed = false;
+          paralysisTimer = 0;
+          if (currentSpeedMultiplier < 1) {
+            currentSpeedMultiplier = 0;
+            speedTimer = 0;
+            speeding = false;
+            lastPotionSpeedModifier = 0;
+          }
+          playerAttackDamage += 10;
+          playerHP = playerMaxHP;
+          playerFood = 100;
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read the invisible text on the scroll. You feel restored! You have gained something!");
+          currentUIState = UI_ITEM_RESULT;
         } else if (selectedItem.effectType == ScrollMapEffect) {
           hasMap = true;
         } else if (selectedItem.effectType == ScrollAmnesiaEffect) {
@@ -372,11 +416,11 @@ void handleItemActionMenu() {
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)
-        if (selectedItem.effectType != ScrollIdentifyEffect && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
+        if ((selectedItem.effectType != ScrollIdentifyEffect || seeAll) && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
         }
-        if (selectedItem.effectType != ScrollIdentifyEffect) {
+        if (selectedItem.effectType != ScrollIdentifyEffect || seeAll) {
           currentUIState = UI_ITEM_RESULT;
         }
         buttons.bPressedPrev = true;

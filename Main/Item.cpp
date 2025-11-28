@@ -41,6 +41,7 @@ GameItem itemList[] = {
   { RingMailArmor, EquipmentCategory, "Ring Mail Armor", 0,  0,  0, 0, 0, "Ring mail armor. Reduces damage taken.", "Ring Mail Armor", "You equip the ring mail armor.", 4, false, ArmorEffect, 3, false, false, 2, true},
   { ChaosArmor, EquipmentCategory, "Chaos Armor", 0,  0,  0, 0, 0, "This physical state of this armor is not stable.", "Chaos Armor", "The chaos armor clings to you.", 5, false, ArmorEffect, 0, false, true, 2, false},
   { SpikyArmor, EquipmentCategory, "Spiky Armor", 0,  0,  0, 0, 0, "This armor hurts all who touch it, meaning it increases the damage dealt to yourself.", "Spiky Armor", "You equip the spiky armor.", 4, false, ArmorEffect, -1, false, true, 2, true},
+  { KingArmor, EquipmentCategory, "King Armor", 0,  0,  0, 0, 0, "Armor fit for a king. Bestowed upon you by unnatural means.", "King Armor", "You equip the king armor.", 5, false, ArmorEffect, 50, false, false, 2, false},
   { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, "", "Null", "", 5, false }
 };
 
