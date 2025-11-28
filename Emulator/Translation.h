@@ -413,11 +413,10 @@ public:
     }
     void stop() { if (channel != -1) Mix_HaltChannel(channel); channel = -1; }
     bool isPlaying() { return channel != -1 && Mix_Playing(channel) != 0; }
+    int getChannel() const { return channel; }
     void volume(float level) {
         currentVolume = constrain(level, 0.0f, 1.0f);
-        if (chunk) {
-            Mix_VolumeChunk(chunk, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
-        }
+        // Only set volume on the channel, not the chunk
         if (channel != -1) {
             Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
         }

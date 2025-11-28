@@ -105,12 +105,29 @@ void initAudio() {
     Serial.println("Audio initialized with SDL2");
 }
 
-void setJukeboxVolume(float v) {
+/*void setJukeboxVolume(float v) {
     jukeboxVolume = constrain(v, 0.0f, 0.23f);
     float masterVol = masterVolume / 10.0f;
     // SDL2 volume control for music
     if (playWav2.isPlaying()) {
         playWav2.volume(jukeboxVolume * masterVol);
+    }
+}*/
+
+void setJukeboxVolume(float v) {
+    jukeboxVolume = constrain(v, 0.0f, 0.23f);
+    float masterVol = masterVolume / 10.0f;
+    float finalVolume = jukeboxVolume * masterVol;
+    
+    Serial.printf("Setting jukebox volume: jukeboxVol=%.2f, masterVol=%.2f, final=%.2f\n", 
+                  jukeboxVolume, masterVol, finalVolume);
+    
+    // SDL2 volume control for music
+    if (playWav2.isPlaying()) {
+        playWav2.volume(finalVolume);
+        Serial.printf("Volume set on playWav2 (channel: %d)\n", playWav2.getChannel()); // You might want to add a getChannel() method
+    } else {
+        Serial.println("playWav2 is not playing");
     }
 }
 

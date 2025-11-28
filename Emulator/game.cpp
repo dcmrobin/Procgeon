@@ -31,6 +31,7 @@ bool deleteSV = false;
 //const int SD_CS = BUILTIN_SDCARD;  // For Teensy 4.1 with built-in SD slot
 
 void resetGame() {
+  setJukeboxVolume(0.0f);
   deleteSV = false;
   introNum = 0;
   snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "You killed ");
