@@ -20,7 +20,7 @@ need more armor, rings, and scrolls. ideas:
     16.
     17.
     18.
-    19. slow digestion ring- makes hunger decrease less
+    19.
     20. ring of teleportation that randomly teleports the player around the map
     21. ring of invisibility
 

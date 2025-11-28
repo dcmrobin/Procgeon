@@ -560,6 +560,8 @@ void handleItemActionMenu() {
                 aggravateRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Armor") == 0) {
                 armorRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Indigestion") == 0) {
+                indigestionRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -605,6 +607,8 @@ void handleItemActionMenu() {
                 aggravateRingsNumber += 1;
               } else if (strcmp(ringEffects[idx], "Ring of Armor") == 0) {
                 armorRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Indigestion") == 0) {
+                indigestionRingsNumber += 1;
               }
             }
             playRawSFX(2);

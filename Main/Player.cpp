@@ -60,6 +60,7 @@ int regenRingsNumber = 0;
 int sicknessRingsNumber = 0;
 int aggravateRingsNumber = 0;
 int armorRingsNumber = 0;
+int indigestionRingsNumber = 0;
 float lastPotionSpeedModifier = 0;
 bool ridiculed = false;
 int ridiculeTimer = 0;
@@ -628,7 +629,7 @@ void handleHungerAndEffects() {
     if (starving) {
       playerHP -= 4;
     } else {
-      int hungerDrain = 2 + (hungerRingsNumber*7) + (regenRingsNumber*3);
+      int hungerDrain = 2 + (hungerRingsNumber*7) + (regenRingsNumber*3) - (indigestionRingsNumber*2);
       playerFood -= hungerDrain;
     }
     hungerTick = 0;
