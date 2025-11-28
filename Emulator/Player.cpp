@@ -6,10 +6,12 @@
 #include "GameAudio.h"
 #include "Item.h"
 #include "Puzzles.h"
+#include <string.h>
 #include "Translation.h"
 
-String deathCause = "";
-String currentDialogue = "";
+char deathCause[50] = "";
+char currentDialogue[200] = "";
+bool DIDNOTRESCUEDAMSEL = false;
 float playerX = 0;
 float playerY = 0;
 float currentSpeedMultiplier = 1;
@@ -25,12 +27,12 @@ int ingredient1index = 0;
 int playerFood = 100;
 int dialogueTimeLength = 1000;
 int timeTillNextDialogue = 1000;
+bool shouldRestartGame = false;
 bool speeding = false;
 bool hasMap = false;
 bool paused = false;
 bool nearSuccubus = false;
 bool succubusIsFriend = false;
-bool carryingDamsel = false;
 bool damselGotTaken = false;
 bool damselSayThanksForRescue = false;
 bool knowsDamselName = false;
@@ -47,15 +49,21 @@ int confusionTimer = 0;  // Timer for confusion effect
 bool damselWasFollowing = false;  // Track if damsel was following last frame
 int damselWaitUpTimer = 0;  // Timer to prevent spam of "wait up" messages
 bool damselSaidWaitUp = false;  // Track if damsel has said "wait up" recently
-int equippedArmorValue = 0;  // Current armor value (damage reduction)
+float equippedArmorValue = 0.0f;  // Current armor value (damage reduction)
 GameItem equippedArmor = {};  // Currently equipped armor item
 bool equippedRiddleStone = false;
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
-bool ringOfSwiftnessActive = false;
-bool ringOfStrengthActive = false;
-bool ringOfWeaknessActive = false;
-bool ringOfHungerActive = false;
-bool ringOfRegenActive = false;
+int swiftnessRingsNumber = 0;
+int strengthRingsNumber = 0;
+int weaknessRingsNumber = 0;
+int hungerRingsNumber = 0;
+int regenRingsNumber = 0;
+int sicknessRingsNumber = 0;
+int aggravateRingsNumber = 0;
+int armorRingsNumber = 0;
+int indigestionRingsNumber = 0;
+int teleportRingsNumber = 0;
+int invisibleRingsNumber = 0;
 float lastPotionSpeedModifier = 0;
 bool ridiculed = false;
 int ridiculeTimer = 0;
@@ -70,21 +78,24 @@ int paralysisTimer = 0;
 bool playerNearClockEnemy = false;
 int shootDelay = 0;
 bool reloading;
+char damselDeathMsg[100] = "You killed ";
+bool endlessMode = false;
 
 void renderPlayer() {
-  display.setFont(Adafruit_GFX::builtin_font);
   float screenX = (playerX - offsetX) * tileSize;
   float screenY = (playerY - offsetY) * tileSize;
 
   // Ensure the player is within the viewport
   if (screenX >= 0 && screenX < SCREEN_WIDTH && screenY >= 0 && screenY < SCREEN_HEIGHT) {
-    display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
+    if (invisibleRingsNumber == 0 || seeAll) {
+      display.drawBitmap((screenX + tileSize / 2) - tileSize/2, (screenY + tileSize / 2) - tileSize/2, playerSprite, tileSize, tileSize, 15);
+    }
 
-    // --- Show 'carry [x]' prompt if player can carry damsel ---
+    // --- Show 'carry [b]' prompt if player can carry damsel ---
     float dx = playerX - damsel[0].x;
     float dy = playerY - damsel[0].y;
     float distanceSquared = dx * dx + dy * dy;
-    if (!carryingDamsel && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
+    if (!damsel[0].beingCarried && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
       display.setTextSize(1);
       display.setTextColor(15);
       // Center the text under the player sprite (estimate 6px per char, 9 chars)
@@ -92,41 +103,45 @@ void renderPlayer() {
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 2;
       display.setCursor(textX, textY);
-      display.print("Carry [X]");
+      display.print("Carry [B]");
     }
 
-    // --- Show 'Open Chest [X]' prompt only if player is facing a chest ---
+    // --- Show 'Open Chest [B]' prompt only if player is facing a chest ---
     int facingX = round(playerX) + playerDX;
     int facingY = round(playerY) + playerDY;
     bool facingChest = false;
     bool facingClosedDoor = false;
     bool facingOpenDoor = false;
     bool facingOpenExit = false;
+    bool facingFreedom = false;
     if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
       facingChest = (dungeonMap[facingY][facingX] == ChestTile);
       facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
       facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
       facingOpenExit = (dungeonMap[facingY][facingX] == Exit);
+      facingFreedom = (dungeonMap[facingY][facingX] == Freedom);
     }
-    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit) {
+    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit || facingFreedom) {
       // Prevent player from shooting while opening chest or door
       reloading = true;
       shootDelay = 0;
 
       display.setTextSize(1);
       display.setTextColor(15);
-      int textWidth = 14 * 6; // "Open Chest [X]" is 14 chars
+      int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
       if (facingChest) {
-        display.print("Open Chest [X]");
+        display.print("Open Chest [B]");
       } else if (facingClosedDoor) {
-        display.print("Open Door [X]");
+        display.print("Open Door [B]");
       } else if (facingOpenDoor) {
-        display.print("Close Door [X]");
+        display.print("Close Door [B]");
       } else if (facingOpenExit) {
-        display.print("Descend [X]");
+        display.print("Descend [B]");
+      } else if (facingFreedom) {
+        display.print("Escape [B]");
       }
     }
   }
@@ -144,6 +159,7 @@ float baseSpeed = 0.1;
 void handleInput() {
   float newX = playerX;
   float newY = playerY;
+  baseSpeed = 0.1 + (swiftnessRingsNumber * 0.05);// Apply speed effect per ring of swiftness equipped
 
   float speed = speeding ? baseSpeed * currentSpeedMultiplier : baseSpeed;
 
@@ -190,7 +206,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = -1;
       playerDY = 0;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
       newX -= speed; // Move left
     }
     playerActed = true;
@@ -198,7 +214,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = 1;
       playerDY = 0;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteRight : playerSpriteRight;
       newX += speed; // Move right
     }
     playerActed = true;
@@ -206,7 +222,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDY = -1;
       playerDX = -1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
       newY -= diagSpeed; // Move up & left
       newX -= diagSpeed; // Move up & left
     }
@@ -215,7 +231,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDY = -1;
       playerDX = 1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteRight : playerSpriteRight;
       newY -= diagSpeed; // Move up & right
       newX += diagSpeed; // Move up & left
     }
@@ -224,7 +240,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = -1;
       playerDY = 1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteLeft : playerSpriteLeft;
       newX -= diagSpeed; // Move left & down
       newY += diagSpeed; // Move up & left
     }
@@ -233,7 +249,7 @@ void handleInput() {
     if (!paralyzed) {
       playerDX = 1;
       playerDY = 1;
-      playerSprite = carryingDamsel ? playerCarryingDamselSpriteRight : playerSpriteRight;
+      playerSprite = damsel[0].beingCarried ? playerCarryingDamselSpriteRight : playerSpriteRight;
       newX += diagSpeed; // Move right & down
       newY += diagSpeed; // Move up & left
     }
@@ -257,7 +273,7 @@ void handleInput() {
   }
 
   if (buttons.bPressed) {
-    if (!reloading && !carryingDamsel && distanceSquared > 0.3) {
+    if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3) {
       shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
       playRawSFX(1);
       reloading = true;
@@ -275,7 +291,7 @@ void handleInput() {
     }
   }
 
-  /*if (Serial.available() > 0) {// for debug purposes
+  if (Serial.available() > 0) {// for debug purposes
     char input = Serial.read();
     if (input == '7') {
       setTile((int)playerX, (int)playerY, Exit);
@@ -301,13 +317,13 @@ void handleInput() {
     } else if (input == '1') {
       setTile((int)playerX, (int)playerY, RingTile);
     }
-  }*/
+  }
 
   int rNewX = round(newX);
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == DoorOpen) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
@@ -330,13 +346,54 @@ void handleInput() {
       dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == ArmorTile) {
-    // Randomly choose an armor type
-    GameItems armorTypes[] = { LeatherArmor, IronArmor, MagicRobe, Cloak };
-    GameItems randomArmor = armorTypes[random(0, 4)];
-    
-    if (addToInventory(getItem(randomArmor), true)) {
-      playRawSFX(3);
-      dungeonMap[rNewY][rNewX] = Floor;
+    GameItems armorTypes[] = { 
+        LeatherArmor,
+        IronArmor,
+        MagicRobe,
+        Cloak,
+        ChaosArmor,
+        RingMailArmor,
+        DenimJacket,
+        Trenchcoat,
+        SpikyArmor
+    };
+
+    const int armorCount = sizeof(armorTypes) / sizeof(armorTypes[0]);
+    const int maxRarity = 5;
+
+    // 1. Compute total weight using inverted rarity
+    int totalWeight = 0;
+
+    for (int i = 0; i < armorCount; i++) {
+        int rarity = getItem(armorTypes[i]).rarity;   // 1 to 5
+        int weight = (maxRarity + 1) - rarity;        // invert rarity
+        totalWeight += weight;
+    }
+
+    // 2. Random number 0..totalWeight-1
+    int r = random(0, totalWeight);
+
+    GameItems chosenArmor = LeatherArmor; // fallback
+
+    // 3. Walk through weights and choose
+    int cumulative = 0;
+
+    for (int i = 0; i < armorCount; i++) {
+        int rarity = getItem(armorTypes[i]).rarity;
+        int weight = (maxRarity + 1) - rarity;
+
+        cumulative += weight;
+
+        if (r < cumulative) {
+            chosenArmor = armorTypes[i];
+            break;
+        }
+    }
+
+    // 4. Add to inventory
+    if (addToInventory(getItem(chosenArmor), true)) {
+        playRawSFX(3);
+        dungeonMap[rNewY][rNewX] = Floor;
     }
   } else if (dungeonMap[rNewY][rNewX] == ScrollTile) {    
     if (addToInventory(getItem(Scroll), false)) {
@@ -367,7 +424,7 @@ void handleInput() {
           if (cx >= 0 && cx < mapWidth && cy >= 0 && cy < mapHeight) {
             if (dungeonMap[cy][cx] == ChestTile) {
               playRawSFX(12);
-              OpenChest(cy, cx, dy, false);
+              OpenChest(cy, cx, dy);
               return;
             }
           }
@@ -387,14 +444,42 @@ void handleInput() {
           playRawSFX(13);
         } else if (dungeonMap[ty][tx] == ChestTile) {
           playRawSFX(12);
-          OpenChest(ty, tx, targetDY, false);
+          OpenChest(ty, tx, targetDY);
         } else if (dungeonMap[ty][tx] == Exit) {
           playRawSFX(11);
-          if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
-            levelOfDamselDeath = dungeon;
-            damsel[0].active = false;
+          if (dungeon != bossfightLevel) {
+            if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
+              levelOfDamselDeath = dungeon;
+              damsel[0].active = false;
+            }
+            statusScreen = true;
+          } else {
+            if (damsel[0].levelOfLove >= 8 && !damsel[0].dead) {
+              // Damsel does not let player go deeper in the dungeon
+              currentDamselPortrait = damselPortraitScared;
+              snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Please don't go- come be free, free with me!");
+              showDialogue = true;
+              dialogueTimeLength = 400;
+            } else if (damsel[0].levelOfLove < 8) {
+              playRawSFX(11);
+              statusScreen = true;
+              endlessMode = true;
+              damsel[0].active = false;
+              damsel[0].levelOfLove = 0;
+              damsel[0].x = -3000;
+              damsel[0].y = -3000;
+              damsel[0].beingCarried = false;
+              damsel[0].followingPlayer = false;
+              damsel[0].completelyRescued = false;
+            }
           }
+        } else if (dungeonMap[ty][tx] == Freedom) {
+          playRawSFX(11);
           statusScreen = true;
+          finalStatusScreen = true;
+          bossStateTimer = 0;
+          // Clear succubus flags when showing final status screen
+          nearSuccubus = false;
         }
       }
     }
@@ -406,12 +491,12 @@ void startCarryingDamsel() {
   display.fillRect(0, 0, carryingDelay, 15, (int)(carryingDelay/8));
   display.display();
   if (carryingDelay >= SCREEN_WIDTH) {
-    carryingDamsel = !carryingDamsel;
+    damsel[0].beingCarried = !damsel[0].beingCarried;
 
-    if (carryingDamsel) {
+    if (damsel[0].beingCarried) {
       currentDamselPortrait = damselPortraitCarrying;
       dialogueTimeLength = 300;
-      currentDialogue = "Oh! Thanks...";
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Oh! Thanks...");
       showDialogue = true;
       playRawSFX(20);
       playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
@@ -425,27 +510,131 @@ void startCarryingDamsel() {
 }
 
 void handlePauseScreen() {
+  static int pauseSelection = 0; // 0 = Volume, 1 = Restart, 2 = Save, 3 = Load
   display.clearDisplay();
   display.setTextSize(2);
-  display.setCursor(27, 40);
+  display.setCursor(27, 16);
   display.setTextColor(15);
   display.print("PAUSED");
   display.setTextSize(1);
-  display.setCursor(24, 65);
-  display.print("Press [Enter]");
+
+  // Draw menu entries using highlighted background for selection
+  int baseY = 46;
+  // Volume entry
+  if (pauseSelection == 0) {
+    display.fillRect(10, baseY - 2, 108, 12, 15); // white background
+    display.setTextColor(0); // black text on highlight
+  } else {
+    display.setTextColor(15); // white text on black
+  }
+  display.setCursor(18, baseY);
+  display.print("Volume:");
+  // Draw left chevron, value, right chevron
+  int vol = masterVolume; // 1..10
+  char volStr[20];
+  snprintf(volStr, sizeof(volStr), "<%d>", vol);
+  display.setCursor(80, baseY);
+  display.print(volStr);
+
+  // Restart entry
+  baseY += 14;
+  if (pauseSelection == 1) {
+    display.fillRect(10, baseY - 2, 108, 12, 15);
+    display.setTextColor(0);
+  } else {
+    display.setTextColor(15);
+  }
+  display.setCursor(18, baseY);
+  display.print("Restart Game");
+
+  baseY += 14;
+  if (pauseSelection == 2) {
+    display.fillRect(10, baseY - 2, 108, 12, 15);
+    display.setTextColor(0);
+  } else {
+    display.setTextColor(15);
+  }
+  display.setCursor(18, baseY);
+  display.print("Save game");
+
+  baseY += 14;
+  if (pauseSelection == 3) {
+    display.fillRect(10, baseY - 2, 108, 12, 15);
+    display.setTextColor(0);
+  } else {
+    display.setTextColor(15);
+  }
+  display.setCursor(18, baseY);
+  display.print("Load game");
+
+  // Reset text color to white for footer
+  display.setTextColor(15);
+
+  display.setCursor(24, 110);
+  display.print("Press [START]");
   display.display();
+
+  // Handle navigation input: up/down to move selection, left/right to change volume
+  if (buttons.upPressed && !buttons.upPressedPrev) {
+      pauseSelection = (pauseSelection + 3) % 4;  // goes up and wraps from 0 -> 3
+      playRawSFX(8);
+  }
+
+  if (buttons.downPressed && !buttons.downPressedPrev) {
+      pauseSelection = (pauseSelection + 1) % 4;  // goes down and wraps from 3 -> 0
+      playRawSFX(8);
+  }
+
+  if (pauseSelection == 0) {
+    if (buttons.leftPressed && !buttons.leftPressedPrev) {
+      masterVolume = max(1, masterVolume - 1);
+      float volf = masterVolume / 10.0f;
+      sgtl5000_1.volume(volf);
+      // Also scale mixer gains so playRawSFX and music levels respect master volume
+      mixer1.gain(0, 0.5 * volf);
+      mixer1.gain(1, 0.5 * volf);
+      mixer1.gain(2, 0.5 * volf);
+      mixer1.gain(3, 0.5 * volf);
+      musicMixer.gain(0, volf); // SFX master
+      musicMixer.gain(1, 0.2 * volf); // music
+      playRawSFX(7);
+    }
+    if (buttons.rightPressed && !buttons.rightPressedPrev) {
+      masterVolume = min(10, masterVolume + 1);
+      float volf = masterVolume / 10.0f;
+      sgtl5000_1.volume(volf);
+      mixer1.gain(0, 0.5 * volf);
+      mixer1.gain(1, 0.5 * volf);
+      mixer1.gain(2, 0.5 * volf);
+      mixer1.gain(3, 0.5 * volf);
+      musicMixer.gain(0, volf);
+      musicMixer.gain(1, 0.2 * volf);
+      playRawSFX(7);
+    }
+  }
+
+  // Restart: press B to confirm
+  if (buttons.bPressed && !buttons.bPressedPrev) {
+    if (pauseSelection == 1) {
+      playRawSFX(9);
+      currentUIState = UI_SPLASH;
+    } else if (pauseSelection == 2) {
+      trySaveGame();
+    } else if (pauseSelection == 3) {
+      tryLoadGame();
+    }
+  }
 }
 
 int hungerTick = 0;
 void handleHungerAndEffects() {
-  hungerTick += playerMoving || carryingDamsel ? 2 : 1;
+  hungerTick += playerMoving || damsel[0].beingCarried ? 2 : 1;
 
-  if (hungerTick >= (starving ? 200 : 700)) {
+  if (hungerTick >= (starving ? 70 : 700)) {
     if (starving) {
-      playerHP -= 3;
+      playerHP -= 4;
     } else {
-      int hungerDrain = 1;
-      if (ringOfHungerActive) hungerDrain += 4; // Increase drain if hunger ring is active
+      int hungerDrain = 2 + (hungerRingsNumber*7) + (regenRingsNumber*3) - (indigestionRingsNumber*2);
       playerFood -= hungerDrain;
     }
     hungerTick = 0;
@@ -481,7 +670,7 @@ void handleHungerAndEffects() {
     }
   }
 
-  if (carryingDamsel) {
+  if (damsel[0].beingCarried) {
     damselHealDelay++;
     if (damselHealDelay >= 200) {
       damselHealDelay = 0;
@@ -525,54 +714,70 @@ void handleHungerAndEffects() {
     }
   }
 
+  if (equippedArmor.item == ChaosArmor) {
+    equippedArmorValue = random(0, 20 + equippedArmor.armorValue);
+  }
+
   // If the player is close to a succubus, she slowly draws the player towards herself.
-  if (!carryingDamsel && !succubusIsFriend) {
+  if (!damsel[0].beingCarried && !succubusIsFriend) {
     for (int i = 0; i < maxEnemies; i++) {
-      if (enemies[i].hp > 0 && enemies[i].name == "succubus" && enemies[i].chasingPlayer) {
+      if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && enemies[i].chasingPlayer) {
         float sdx = enemies[i].x - playerX;
         float sdy = enemies[i].y - playerY;
         float succubusDistanceSquared = sdx * sdx + sdy * sdy;
-        if (succubusDistanceSquared < 40.0) {
-          nearSuccubus = true;
-          // While pulling, dialogue pops up
-          currentDialogue = "Hey there, handsome...";
-          currentDamselPortrait = succubusPortrait;
-          showDialogue = true;
-          if (dialogueTimeLength != 373) {
-            playRawSFX(24);
+        if (damsel[0].levelOfLove < 6 || !damsel[0].followingPlayer || damsel[0].dead || !damsel[0].active) {
+          if (succubusDistanceSquared < 40.0) {
+            nearSuccubus = true;
+            // While pulling, dialogue pops up
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Hey there, handsome...");
+            damsel[0].followingPlayer = false;
+            currentDamselPortrait = succubusPortrait;
+            showDialogue = true;
+            if (dialogueTimeLength != 373) {
+              playRawSFX3D(24, enemies[i].x, enemies[i].y);
+            }
+            dialogueTimeLength = 373;
+            float pullStrength = 0.05; // Adjust this value to change pull strength
+            playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+            playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+            // Ensure the player doesn't move into walls due to the pull
+            int rPullX = round(playerX);
+            int rPullY = round(playerY);
+            if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
+              playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
+              playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
+            }
+          } else {
+            nearSuccubus = false;
           }
-          dialogueTimeLength = 373;
-          float pullStrength = 0.05; // Adjust this value to change pull strength
-          playerX += (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
-          playerY += (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
-          // Ensure the player doesn't move into walls due to the pull
-          int rPullX = round(playerX);
-          int rPullY = round(playerY);
-          if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
-            playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
-            playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
-          }
-        } else {
+        } else if (damsel[0].levelOfLove >= 6 && damsel[0].followingPlayer && !damsel[0].dead && damsel[0].active) {
           nearSuccubus = false;
+          damsel[0].beingCarried = true;
+          currentDamselPortrait = damselPortraitCarrying;
+          dialogueTimeLength = 400;
+          //currentDialogue = "You get away from him! He's mine!";
+          snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Stay away from her- you're mine!");
+          showDialogue = true;
+          playRawSFX(21);
+          playerSprite = playerSprite == playerSpriteRight ? playerCarryingDamselSpriteRight : playerCarryingDamselSpriteLeft;
         }
       }
     }
   }
 }
 
-void playDamselSFX(String tone) {
-  if (tone == "normal") {
-    playRawSFX(16);
-  } else if (tone == "annoying") {
-    playRawSFX(21);
-  } else if (tone == "alone") {
-    playRawSFX(16);
+void playDamselSFX(const char *tone) {
+  if (strcmp(tone, "normal") == 0) {
+    playRawSFX3D(16, damsel[0].x, damsel[0].y);
+  } else if (strcmp(tone, "annoying") == 0) {
+    playRawSFX3D(21, damsel[0].x, damsel[0].y);
+  } else if (strcmp(tone, "alone") == 0) {
+    playRawSFX3D(16, damsel[0].x, damsel[0].y);
   }
 }
 
 int dialogueTimer = 0;
 void handleDialogue() {
-  display.setFont(Adafruit_GFX::profont10_font);
   static int dialogueDelayTimer = 0;
   
   // Glamour dialogue system
@@ -587,7 +792,7 @@ void handleDialogue() {
       }
       lastGlamourIndex = index;
       dialogueTimeLength = glamourDialogue[index].duration;
-      currentDialogue = glamourDialogue[index].message;
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", glamourDialogue[index].message);
       showDialogue = true;
       isRidiculeDialogue = true; // Reuse this to hide portrait
       dialogueDelayTimer = 50; // Add delay before next dialogue
@@ -605,7 +810,7 @@ void handleDialogue() {
       }
       lastRidiculeIndex = index;
       dialogueTimeLength = ridiculeDialogue[index].duration;
-      currentDialogue = ridiculeDialogue[index].message;
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", ridiculeDialogue[index].message);
       showDialogue = true;
       isRidiculeDialogue = true;
       dialogueDelayTimer = 50; // Add delay before next dialogue
@@ -627,13 +832,12 @@ void handleDialogue() {
       }
       showDialogue = false;
     }
-    //display.setFont(u8g2_font_profont10_mf);
+    u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
-    display.setCursor(27, 12);
-    //drawWrappedText(27, 19, 96, currentDialogue);
-    display.print(currentDialogue);
+    u8g2_for_adafruit_gfx.setCursor(27, 19);
+    drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
-    if (!isRidiculeDialogue || currentDialogue == "Hey! Wait up!") {
+    if (!isRidiculeDialogue || strcmp(currentDialogue, "Hey! Wait up!") == 0) {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);
       display.drawRect(8, 10, 18, 34, 15);
     }
@@ -666,13 +870,13 @@ void handleDialogue() {
 
       // Carrying damsel dialogue branch.
       if (!damsel[0].completelyRescued) {
-        if (carryingDamsel) {
+        if (damsel[0].beingCarried) {
           int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
           int index = pickDialogue(damselCarryDialogue, length);
           currentDamselPortrait = damselPortraitCarrying;
           dialogueTimeLength = damselCarryDialogue[index].duration;
           isRidiculeDialogue = false;
-          currentDialogue = damselCarryDialogue[index].message;
+          snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselCarryDialogue[index].message);
           if (!damselCarryDialogue[index].alreadyBeenSaid) {
             playRawSFX(18);
           }
@@ -685,14 +889,14 @@ void handleDialogue() {
             if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
               playDamselSFX(damselAnnoyingDialogue[index].tone);
             }
-            currentDamselPortrait = (damselAnnoyingDialogue[index].tone == "annoying") ? 
+            currentDamselPortrait = (strcmp(damselAnnoyingDialogue[index].tone, "annoying") == 0) ? 
                                     damselPortraitScared : 
-                                    (damselAnnoyingDialogue[index].tone == "alone") ? 
+                                    (strcmp(damselAnnoyingDialogue[index].tone, "alone") == 0) ? 
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
             dialogueTimeLength = damselAnnoyingDialogue[index].duration;
             isRidiculeDialogue = false;
-            currentDialogue = damselAnnoyingDialogue[index].message;
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselAnnoyingDialogue[index].message);
             damselAnnoyingDialogue[index].alreadyBeenSaid = true;
           } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
             int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
@@ -700,14 +904,14 @@ void handleDialogue() {
             if (!damselPassiveDialogue[index].alreadyBeenSaid) {
               playDamselSFX(damselPassiveDialogue[index].tone);
             }
-            currentDamselPortrait = (damselPassiveDialogue[index].tone == "annoying") ? 
+            currentDamselPortrait = (strcmp(damselPassiveDialogue[index].tone, "annoying") == 0) ? 
                                     damselPortraitScared : 
-                                    (damselPassiveDialogue[index].tone == "alone") ? 
+                                    (strcmp(damselPassiveDialogue[index].tone, "alone") == 0) ? 
                                     damselPortraitAlone : 
                                     damselPortraitNormal;
             dialogueTimeLength = damselPassiveDialogue[index].duration;
             isRidiculeDialogue = false;
-            currentDialogue = damselPassiveDialogue[index].message;
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselPassiveDialogue[index].message);
             damselPassiveDialogue[index].alreadyBeenSaid = true;
           } else if (damsel[0].levelOfLove >= 6) {
             if (!knowsDamselName) {
@@ -715,7 +919,7 @@ void handleDialogue() {
               if (!knowsDamselName) {
                 playDamselSFX("normal");
               }
-              currentDialogue = "By the way, my name is " + damsel[0].name + "...";
+              snprintf(currentDialogue, sizeof(currentDialogue), "By the way, my name is %s...", damsel[0].name);
               knowsDamselName = true;
             } else {
               int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
@@ -723,14 +927,14 @@ void handleDialogue() {
               if (!damselGoodDialogue[index].alreadyBeenSaid) {
                 playDamselSFX(damselGoodDialogue[index].tone);
               }
-              currentDamselPortrait = (damselGoodDialogue[index].tone == "annoying") ? 
+              currentDamselPortrait = (strcmp(damselGoodDialogue[index].tone, "annoying") == 0) ? 
                                       damselPortraitScared : 
-                                      (damselGoodDialogue[index].tone == "alone") ? 
+                                      (strcmp(damselGoodDialogue[index].tone, "alone") == 0) ? 
                                       damselPortraitAlone : 
                                       damselPortraitNormal;
               dialogueTimeLength = damselGoodDialogue[index].duration;
               isRidiculeDialogue = false;
-              currentDialogue = damselGoodDialogue[index].message;
+              snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselGoodDialogue[index].message);
               damselGoodDialogue[index].alreadyBeenSaid = true;
             }
           }
@@ -744,7 +948,6 @@ void handleDialogue() {
 }
 
 void handleRiddles() {
-  display.setFont(Adafruit_GFX::profont10_font);
   // Generate the riddle only once per riddle screen
   if (!riddleGenerated) {
     generateRiddleUI();
@@ -777,7 +980,6 @@ void handleRiddles() {
   }
   
   display.display();
-  display.setFont(Adafruit_GFX::builtin_font);
 
   // --- Handle button scrolling and selection ---
   // (Assume updateButtonStates() is being called elsewhere in your main loop)
@@ -799,11 +1001,10 @@ void handleRiddles() {
       playRawSFX(6);
       display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
       if (playerHP > 0) {
-        itemResultMessage = "Correct! You are rewarded.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "Correct! You are rewarded.");
       } else {
-        itemResultMessage = "Correct! You are revived.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "Correct! You are revived.");
         playerHP = (int)(playerMaxHP / 2);
-        return;
       }
       // Give three random items as a reward
       for (int i = 0; i < 3; i++) {
@@ -828,8 +1029,9 @@ void handleRiddles() {
         }
       }
     } else {
+      display.setTextColor(SSD1327_WHITE, SSD1327_BLACK);
       playRawSFX(13);
-      itemResultMessage = "Wrong answer! You suffer.";
+      snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "Wrong answer! You suffer.");
       playerHP -= 10;
       checkIfDeadFrom("stupidity");
     }
@@ -841,36 +1043,55 @@ void handleRiddles() {
 
 void handleRingEffects() {
     static int regenCounter = 0;
-    if (ringOfRegenActive) {
-        regenCounter++;
-        if (regenCounter >= 50) { // Regenerate every 50 ticks (adjust as needed)
+    static int teleportCounter = 0;
+    if (regenRingsNumber > 0) {
+        regenCounter += regenRingsNumber;
+        if (regenCounter >= 70) { // Regenerate every 50 ticks (adjust as needed)
             if (playerHP < playerMaxHP) playerHP++;
             regenCounter = 0;
         }
     } else {
         regenCounter = 0;
     }
+
+    if (teleportRingsNumber > 0) {
+        teleportCounter += teleportRingsNumber;
+        if (teleportCounter >= 130) {
+            playRawSFX(14);
+            int newX, newY;
+            do {
+              newX = random(0, mapWidth);
+              newY = random(0, mapHeight);
+            } while (dungeonMap[newY][newX] != Floor);
+            playerX = newX;
+            playerY = newY;
+            teleportCounter = 0;
+        }
+    } else {
+        teleportCounter = 0;
+    }
 }
 
-void OpenChest(int cy, int cx, int dx, bool solved) {
-    if (!solved) {
-        // Launch puzzle but don't wait for it - let game loop handle it
-        launchRandomPuzzle(cy, cx, dx);
-        return;
-    }
-    
-    // Open the chest: remove chest and spawn loot in 3x3 area
-    playRawSFX(3); // Play pickup sound
-    dungeonMap[cy][cx] = Floor;
-    for (int ldx = -1; ldx <= 1; ldx++) {
-        for (int ldy = -1; ldy <= 1; ldy++) {
-            int lx = cx + ldx;
-            int ly = cy + ldy;
-            if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-                if (random(0, 100) < 85) {
-                    dungeonMap[ly][lx] = getRandomLootTile(5);
-                }
-            }
+void OpenChest(int cy, int cx, int dx) {
+  // Require solving a random puzzle before opening
+  if (!launchRandomPuzzle()) {
+    return; // Player did not solve puzzle, do not open chest
+  }
+  // Open the chest: remove chest and spawn loot in 3x3 area
+  playRawSFX(3); // Play pickup sound
+  dungeonMap[cy][cx] = Floor;
+  for (int ldx = -1; ldx <= 1; ldx++) {
+    for (int ldy = -1; ldy <= 1; ldy++) {
+      int lx = cx + ldx;
+      int ly = cy + ldy;
+      if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
+        // Use rarity-based loot spawning - chests can contain items up to rarity 4
+        // This allows for better loot from chests compared to random dungeon spawns
+        if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
+          dungeonMap[ly][lx] = getRandomLootTile(5); // Max rarity 5 for chest loot
         }
+      }
     }
+  }
+  dx = 2; // break outer loop
 }

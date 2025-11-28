@@ -1,15 +1,15 @@
 #ifndef INVENTORY_H 
 #define INVENTORY_H
 
+#include <Arduino.h>
 #include "Item.h"
 #include "HelperFunctions.h"
-#include "Entities.h"
 #include "Translation.h"
 
 #define inventorySize 8
 
 struct InventoryPage {
-  String name;
+  char name[30];
   ItemCategory category;
   GameItem items[8]; // Each tab holds up to 8 items
   int itemCount = 0; // Track how many items are in this tab
@@ -17,7 +17,7 @@ struct InventoryPage {
 
 extern InventoryPage inventoryPages[];
 extern int selectedInventoryIndex; // Currently selected inventory item
-extern String itemResultMessage;
+extern char itemResultMessage[150];
 
 //extern InventoryPage inventoryPages[];
 extern int currentInventoryPageIndex;

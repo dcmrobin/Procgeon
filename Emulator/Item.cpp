@@ -7,78 +7,105 @@
 extern int numInventoryPages;
 
 GameItem itemList[] = {
-  { RedPotion, PotionCategory, String("Red Potion"),  0,  0,  0, 0, 0, String("Drink it to find out."), String("Red Potion"), String("Nothing happens.")},
-  { GreenPotion, PotionCategory, String("Green Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Green Potion"), String("Nothing happens.")},
-  { BluePotion,  PotionCategory, String("Blue Potion"),  0,  0,  0, 0, 0, String("Drink it to find out."), String("Blue Potion"), String("Nothing happens.")},
-  { BlackPotion, PotionCategory, String("Black Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Black Potion"), String("Nothing happens.")},
-  { WhitePotion, PotionCategory, String("White Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("White Potion"), String("Nothing happens.")},
-  { YellowPotion, PotionCategory, String("Yellow Potion"), 0,  0,  0, 0, 0, String("Drink it to find out."), String("Yellow Potion"), String("Nothing happens.")},
-  { OrangePotion, PotionCategory, String("Orange Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Orange Potion"), String("Nothing happens.")},
-  { PurplePotion, PotionCategory, String("Purple Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Purple Potion"), String("Nothing happens.")},
-  { CyanPotion, PotionCategory, String("Cyan Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Cyan Potion"), String("Nothing happens.")},
-  { MaroonPotion, PotionCategory, String("Maroon Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Maroon Potion"), String("Nothing happens.")},
-  { DarkGreenPotion, PotionCategory, String("DarkGreen Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("DarkGreen Potion"), String("Nothing happens.")},
-  { LimePotion, PotionCategory, String("Lime Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Lime Potion"), String("Nothing happens.")},
-  { GreyPotion, PotionCategory, String("Grey Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Grey Potion"), String("Nothing happens.")},
-  { OlivePotion, PotionCategory, String("Olive Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Olive Potion"), String("Nothing happens.")},
-  { CreamPotion, PotionCategory, String("Cream Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Cream Potion"), String("Nothing happens.")},
-  { NavyPotion, PotionCategory, String("Navy Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Navy Potion"), String("Nothing happens.")},
-  { AzurePotion, PotionCategory, String("Azure Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Azure Potion"), String("Nothing happens.")},
-  { MintPotion, PotionCategory, String("Mint Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Mint Potion"), String("Nothing happens.")},
-  { SalmonPotion, PotionCategory, String("Salmon Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Salmon Potion"), String("Nothing happens.")},
-  { BrownPotion, PotionCategory, String("Brown Potion"), 0,  0,  0,  0, 0, String("Drink it to find out."), String("Brown Potion"), String("Nothing happens.")},
-  { Mushroom, FoodCategory, String("Mushroom"), 0,  20,  0, 0, 0, String("It is edible."), String("Mushroom"), String("You become less hungry."), 1},
-  { EmptyBottle, PotionCategory, String("Empty Bottle"), 0,  20,  0, 0, 0, String("It is an empty bottle."), String("Empty Bottle"), String("Nothing happens. It's an empty bottle."), 4, false},
-  { RiddleStone, EquipmentCategory, String("Riddle Stone"), 0,  0,  0, 0, 0, String("Looks like it could be used for many things..."), String("Riddle Stone"), String("Solve this riddle!"), 5, true, DefaultEffect, 0, false, false, 2, false},
-  { Scroll, ScrollsCategory, String("Scroll"), 0,  0,  0, 0, 0, String("Read it to find out."), String("Scroll"), String("Nothing happens."), 4},
-  { WetScroll, ScrollsCategory, String("Wet Scroll"), 0,  0,  0, 0, 0, String("A scroll that is too wet to read."), String("Wet Scroll"), String("The scroll is too wet to read. Nothing happens."), 3, false},
-  { Ring, EquipmentCategory, String("Ring"), 0,  0,  0, 0, 0, String("Put it on to find out."), String("Ring"), String("You equip the ring."), 3, false},
-  { LeatherArmor, EquipmentCategory, String("Leather Armor"), 0,  0,  0, 0, 0, String("Basic leather armor. Reduces damage by 2."), String("Leather Armor"), String("You equip the leather armor."), 3, false, ArmorEffect, 2, false, false, 2, false},
-  { IronArmor, EquipmentCategory, String("Iron Armor"), 0,  0,  0, 0, 0, String("Sturdy iron armor. Reduces damage by 3."), String("Iron Armor"), String("You equip the iron armor."), 4, false, ArmorEffect, 3, false, false, 2, true},
-  { MagicRobe, EquipmentCategory, String("Magic Robe"), 0,  0,  0, 0, 0, String("Enchanted robe. Reduces damage by 1 and increases magic resistance."), String("Magic Robe"), String("You equip the magic robe."), 4, false, ArmorEffect, 1, false, false, 2, false},
-  { Cloak, EquipmentCategory, String("Cloak"), 0,  0,  0, 0, 0, String("A simple cloth cloak. Provides no protection but keeps you warm."), String("Cloak"), String("You equip the cloak."), 4, false, ArmorEffect, 0, false, false, 2, false},
-  { Null, PotionCategory, String("Null"), 0, 0, 0, 0, 0, String(""), String("Null"), String(""), 5, false }
+  { RedPotion, PotionCategory, "Red Potion",  0,  0,  0, 0, 0, "Drink it to find out.", "Red Potion", "Nothing happens."},
+  { GreenPotion, PotionCategory, "Green Potion", 0,  0,  0, 0, 0, "Drink it to find out.", "Green Potion", "Nothing happens."},
+  { BluePotion,  PotionCategory, "Blue Potion",  0,  0,  0, 0, 0, "Drink it to find out.", "Blue Potion", "Nothing happens."},
+  { BlackPotion, PotionCategory, "Black Potion", 0,  0,  0, 0, 0, "Drink it to find out.", "Black Potion", "Nothing happens."},
+  { WhitePotion, PotionCategory, "White Potion", 0,  0,  0, 0, 0, "Drink it to find out.", "White Potion", "Nothing happens."},
+  { YellowPotion, PotionCategory, "Yellow Potion", 0,  0,  0, 0, 0, "Drink it to find out.", "Yellow Potion", "Nothing happens."},
+  { OrangePotion, PotionCategory, "Orange Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Orange Potion", "Nothing happens."},
+  { PurplePotion, PotionCategory, "Purple Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Purple Potion", "Nothing happens."},
+  { CyanPotion, PotionCategory, "Cyan Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Cyan Potion", "Nothing happens."},
+  { MaroonPotion, PotionCategory, "Maroon Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Maroon Potion", "Nothing happens."},
+  { DarkGreenPotion, PotionCategory, "DarkGreen Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "DarkGreen Potion", "Nothing happens."},
+  { LimePotion, PotionCategory, "Lime Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Lime Potion", "Nothing happens."},
+  { GreyPotion, PotionCategory, "Grey Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Grey Potion", "Nothing happens."},
+  { OlivePotion, PotionCategory, "Olive Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Olive Potion", "Nothing happens."},
+  { CreamPotion, PotionCategory, "Cream Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Cream Potion", "Nothing happens."},
+  { NavyPotion, PotionCategory, "Navy Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Navy Potion", "Nothing happens."},
+  { AzurePotion, PotionCategory, "Azure Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Azure Potion", "Nothing happens."},
+  { MintPotion, PotionCategory, "Mint Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Mint Potion", "Nothing happens."},
+  { SalmonPotion, PotionCategory, "Salmon Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Salmon Potion", "Nothing happens."},
+  { BrownPotion, PotionCategory, "Brown Potion", 0,  0,  0,  0, 0, "Drink it to find out.", "Brown Potion", "Nothing happens."},
+  { Mushroom, FoodCategory, "Mushroom", 0,  20,  0, 0, 0, "It is edible.", "Mushroom", "You become less hungry.", 1},
+  { EmptyBottle, PotionCategory, "Empty Bottle", 0,  20,  0, 0, 0, "It is an empty bottle.", "Empty Bottle", "Nothing happens. It's an empty bottle.", 4, false},
+  { RiddleStone, EquipmentCategory, "Riddle Stone", 0,  0,  0, 0, 0, "Looks like it could be used for many things...", "Riddle Stone", "Solve this riddle!", 5, true, DefaultEffect, 0, false, false, 2, false},
+  { Scroll, ScrollsCategory, "Scroll", 0,  0,  0, 0, 0, "Read it to find out.", "Scroll", "Nothing happens.", 4},
+  { WetScroll, ScrollsCategory, "Wet Scroll", 0,  0,  0, 0, 0, "A scroll that is too wet to read.", "Wet Scroll", "The scroll is too wet to read. Nothing happens.", 3, false},
+  { Ring, EquipmentCategory, "Ring", 0,  0,  0, 0, 0, "Put it on to find out.", "Ring", "You equip the ring.", 3, false},
+  { LeatherArmor, EquipmentCategory, "Leather Armor", 0,  0,  0, 0, 0, "Basic leather armor. Reduces damage taken.", "Leather Armor", "You equip the leather armor.", 3, false, ArmorEffect, 2, false, false, 2, false},
+  { IronArmor, EquipmentCategory, "Iron Armor", 0,  0,  0, 0, 0, "Sturdy iron armor. Reduces damage taken.", "Iron Armor", "You equip the iron armor.", 4, false, ArmorEffect, 4, false, false, 2, true},
+  { MagicRobe, EquipmentCategory, "Magic Robe", 0,  0,  0, 0, 0, "Enchanted robe. Reduces damage taken and increases magic resistance.", "Magic Robe", "You equip the magic robe.", 4, false, ArmorEffect, 1, false, false, 2, false},
+  { Cloak, EquipmentCategory, "Cloak", 0,  0,  0, 0, 0, "A simple cloth cloak. Provides no protection but keeps you warm.", "Cloak", "You equip the cloak.", 4, false, ArmorEffect, 0, false, false, 2, false},
+  { Trenchcoat, EquipmentCategory, "Trenchcoat", 0,  0,  0, 0, 0, "A trenchcoat and fedora. Provides no protection but looks cool.", "Trenchcoat", "You equip the trenchcoat.", 3, false, ArmorEffect, 0, false, false, 2, false},
+  { DenimJacket, EquipmentCategory, "Denim Jacket", 0,  0,  0, 0, 0, "A simple denim jacket. Provides no protection but looks cool.", "Denim Jacket", "You equip the denim jacket.", 3, false, ArmorEffect, 0, false, false, 2, false},
+  { RingMailArmor, EquipmentCategory, "Ring Mail Armor", 0,  0,  0, 0, 0, "Ring mail armor. Reduces damage taken.", "Ring Mail Armor", "You equip the ring mail armor.", 4, false, ArmorEffect, 3, false, false, 2, true},
+  { ChaosArmor, EquipmentCategory, "Chaos Armor", 0,  0,  0, 0, 0, "This physical state of this armor is not stable.", "Chaos Armor", "The chaos armor clings to you.", 5, false, ArmorEffect, 0, false, true, 2, false},
+  { SpikyArmor, EquipmentCategory, "Spiky Armor", 0,  0,  0, 0, 0, "This armor hurts all who touch it, meaning it increases the damage dealt to yourself.", "Spiky Armor", "You equip the spiky armor.", 4, false, ArmorEffect, -1, false, true, 2, true},
+  { KingArmor, EquipmentCategory, "King Armor", 0,  0,  0, 0, 0, "Armor fit for a king. Bestowed upon you by unnatural means.", "King Armor", "You equip the king armor.", 5, false, ArmorEffect, 50, false, false, 2, false},
+  { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, "", "Null", "", 5, false }
 };
 
-String scrollNames[NUM_SCROLLS] = {
+char scrollNames[NUM_SCROLLS][20] = {
     "Protect scroll",
     "Identify scroll",
     "Enchant scroll",
-    "Uncurse scroll"
+    "Uncurse scroll",
+    "Blank scroll",
+    "Mapping scroll",
+    "Aggravate scroll",
+    "Destroy scroll",
+    "Teleport scroll"
+};
+char scrollNamesRevealed[NUM_SCROLLS][20] = {
+    "Protect scroll",
+    "Identify scroll",
+    "Enchant scroll",
+    "Uncurse scroll",
+    "Blank scroll",
+    "Mapping scroll",
+    "Aggravate scroll",
+    "Destroy scroll",
+    "Teleport scroll"
 };
 
 // Possible effect pool
 PotionEffect potionEffects[] = {// do not change any of the effectresult strings, as they are used for comparing effects
-  { 20,  0,  0, 0, String("Healing Potion"), String("Healing. Heals 20 of your HP."), String("You feel better."), HealingEffect },
-  { -20, 0,  0, 0, String("Diluted Poison"), String("Deducts 20 of your HP. Don't drink."), String("You feel a bit sick."), PoisonEffect },
-  { 0,   4, 40, 0, String("Explosion Potion"), String("Bomb. Deals 40 damage to enemies around you."), String("The enemies around you lose 40 HP."), ExplosionEffect },
-  { 40,   4, -30, 0, String("Buffing Potion"), String("Heals 40 of your HP, but also heals 30 HP of enemies around you."), String("You feel better, but so do the enemies close to you."), BuffingEffect },
-  { 70,  0,  0, 0, String("Mega Heal Potion"), String("Healing, but mega. Heals 70 of your HP."), String("You feel much better."), MegaHealEffect },
-  { -50,  4,  -20, 0, String("Bad Potion"), String("It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this."), String("You lose 50 HP, and the enemies around you gain 20 HP."), BadEffect },
-  { 0,  0,  0, 1, String("Speed Potion"), String("Drink this, and you'll go twice as fast."), String("Your are faster now, but only for a limited amount of time."), SpeedEffect },
-  { 0,  0,  0, -0.4, String("Slowing Potion"), String("Drink this, and you'll go half as fast."), String("Your are slower now, but only for a limited amount of time."), SlowEffect },
-  { 0,  0,  0, 0, String("Hunger Potion"), String("Makes you more hungry."), String("You are now more hungry."), HungerEffect },
-  { 0,  0,  0, 0, String("See-all Potion"), String("Opens your eyes to the unseen."), String("You can now see that which was unseen for a limited time."), SeeAllEffect },
-  { 0,  0,  0, 0, String("Confusion Potion"), String("You go in the opposite direction to the direction you want to go."), String("What is going on?"), ConfusionEffect },
-  { 0,  0,  0, 0, String("Ridicule Potion"), String("Drinking this makes you feel stupid."), String("You feel stupid."), RidiculeEffect },
-  { 0,  0,  0, 0, String("Bland Potion"), String("Colored liquid that does nothing."), String("Nothing happens."), NoEffect },
-  { 0,  0,  0, 0, String("Glamour Potion"), String("Drinking this makes you feel awesome."), String("You feel fabulous!"), GlamourEffect},
-  { 0,  0,  0, 0, String("Chaos Potion"), String("The effect of this potion is random."), String("A lot happens."), ChaosEffect},
-  { 0,  0,  0, 0, String("Blindness Potion"), String("Makes you blind for a time. Do not drink this potion."), String("A cloak of darkness falls around you."), BlindnessEffect},
-  { 0,  0,  0, 0, String("Strength Potion"), String("Makes you do more damage."), String("You feel stronger."), StrengthEffect},
-  { 0,  0,  0, 0, String("Restore Potion"), String("Cures all your ailments."), String("You feel restored!"), RestoreEffect},
-  { 0,  0,  0, 0, String("Paralysis Potion"), String("Paralyzes you for a time."), String("You can't move!"), ParalysisEffect},
-  { -40, 0, 0, 0, String("Poison"), String("Deducts 40 of your HP."), String("You feel very sick."), VeryPoisonEffect },
+  { 20,  0,  0, 0, "Healing Potion", "Healing. Heals 20 of your HP.", "You feel better.", HealingEffect },
+  { -20, 0,  0, 0, "Diluted Poison", "Deducts 20 of your HP. Don't drink.", "You feel a bit sick.", PoisonEffect },
+  { 0,   4, 40, 0, "Explosion Potion", "Bomb. Deals 40 damage to enemies around you.", "The enemies around you lose 40 HP.", ExplosionEffect },
+  { 40,   4, -30, 0, "Buffing Potion", "Heals 40 of your HP, but also heals 30 HP of enemies around you.", "You feel better, but so do the enemies close to you.", BuffingEffect },
+  { 70,  0,  0, 0, "Mega Heal Potion", "Healing, but mega. Heals 70 of your HP.", "You feel much better.", MegaHealEffect },
+  { -50,  4,  -20, 0, "Bad Potion", "It deducts 50 of your HP, and gives enemies around you 20 HP. Maybe don't drink this.", "You lose 50 HP, and the enemies around you gain 20 HP.", BadEffect },
+  { 0,  0,  0, 1, "Speed Potion", "Drink this, and you'll go twice as fast.", "Your are faster now, but only for a limited amount of time.", SpeedEffect },
+  { 0,  0,  0, -0.4, "Slowing Potion", "Drink this, and you'll go half as fast.", "Your are slower now, but only for a limited amount of time.", SlowEffect },
+  { 0,  0,  0, 0, "Hunger Potion", "Makes you more hungry.", "You are now more hungry.", HungerEffect },
+  { 0,  0,  0, 0, "See-all Potion", "Opens your eyes to the unseen.", "You can now see that which was unseen for a limited time.", SeeAllEffect },
+  { 0,  0,  0, 0, "Confusion Potion", "You go in the opposite direction to the direction you want to go.", "What is going on?", ConfusionEffect },
+  { 0,  0,  0, 0, "Ridicule Potion", "Drinking this makes you feel stupid.", "You feel stupid.", RidiculeEffect },
+  { 0,  0,  0, 0, "Bland Potion", "Colored liquid that does nothing.", "Nothing happens.", NoEffect },
+  { 0,  0,  0, 0, "Glamour Potion", "Drinking this makes you feel awesome.", "You feel fabulous!", GlamourEffect},
+  { 0,  0,  0, 0, "Chaos Potion", "The effect of this potion is random.", "A lot happens.", ChaosEffect},
+  { 0,  0,  0, 0, "Blindness Potion", "Makes you blind for a time. Do not drink this potion.", "A cloak of darkness falls around you.", BlindnessEffect},
+  { 0,  0,  0, 0, "Strength Potion", "Makes you do more damage.", "You feel stronger.", StrengthEffect},
+  { 0,  0,  0, 0, "Restore Potion", "Cures all your ailments.", "You feel restored!", RestoreEffect},
+  { 0,  0,  0, 0, "Paralysis Potion", "Paralyzes you for a time.", "You can't move!", ParalysisEffect},
+  { -40, 0, 0, 0, "Poison", "Deducts 40 of your HP.", "You feel very sick.", VeryPoisonEffect },
 };
 
 ScrollEffect scrollEffects[NUM_SCROLLS] = {
-    {String("Protect scroll"), String("Protects your armor from rusting and raises its damage reduction."), String("Your armor is covered by a shimmering gold shield!"), ScrollProtectionEffect},
-    {String("Identify scroll"), String("Reveals the true name of an item and sees if it is cursed."), String("Select an item to identify."), ScrollIdentifyEffect},
-    {String("Enchant scroll"), String("Makes an item better than it used to be."), String("Select an item to enchant."), ScrollEnchantEffect},
-    {String("Uncurse scroll"), String("Removes curses from all equipped items."), String("You feel as if someone is watching over you."), ScrollUncurseEffect}
+    {"Protect scroll", "Protects your armor from rusting and raises its damage reduction.", "Your armor is covered by a shimmering gold shield!", ScrollProtectionEffect},
+    {"Identify scroll", "Reveals the true name of an item and sees if it is cursed.", "Select an item to identify.", ScrollIdentifyEffect},
+    {"Enchant scroll", "Makes you do more damage.", "You do more damage.", ScrollEnchantEffect},
+    {"Uncurse scroll", "Removes curses from all equipped items.", "You feel as if someone is watching over you.", ScrollUncurseEffect},
+    {"Blank scroll", "It looks like it's just a blank piece of paper.", "You look at the blank scroll.", ScrollEmptyEffect},
+    {"Mapping scroll", "It has a map on it.", "You study the map on the scroll.", ScrollMapEffect},
+    {"Amnesia scroll", "Makes you forget all discovered items.", "You feel as if you've forgotten something...", ScrollAmnesiaEffect},
+    {"Aggravate scroll" , "Makes all enemies on the current level target you.", "You hear a high-pitched humming noise.", ScrollAggravateEffect},
+    {"Destroy scroll" , "Destroys the integrity of your armor.", "Your armor now feels like paper.", ScrollDestroyEffect},
+    {"Teleport scroll", "Teleports you to a random location on the map.", "You feel a wrenching sensation.", ScrollTeleportEffect}
 };
 
-// Define all possible item combinations (generalized from potions)
 ItemCombination itemCombinations[] = {
     {BluePotion, YellowPotion, GreenPotion},
     {RedPotion, GreenPotion, YellowPotion},
@@ -95,15 +122,66 @@ ItemCombination itemCombinations[] = {
     {BluePotion, WhitePotion, AzurePotion},
     {GreenPotion, WhitePotion, MintPotion},
     {RedPotion, WhitePotion, SalmonPotion}
-    // Add more general item combinations here
 };
 
 const int NUM_ITEM_COMBINATIONS = sizeof(itemCombinations) / sizeof(itemCombinations[0]);
 
-String ringTypes[NUM_RINGS] = { "Wooden Ring", "Emerald Ring", "Diamond Ring", "Clay Ring", "Gold Ring" };
-String ringEffects[NUM_RINGS] = { "Ring of Swiftness", "Ring of Strength", "Ring of Weakness", "Ring of Hunger", "Ring of Regeneration" };
-bool ringCursed[NUM_RINGS] = { false, false, true, true, false };
-bool ringIdentified[NUM_RINGS] = { false, false, false, false, false };
+char ringTypes[NUM_RINGS][20] = {
+  "Wooden Ring",
+  "Emerald Ring",
+  "Diamond Ring",
+  "Clay Ring",
+  "Gold Ring",
+  "Ruby ring",
+  "Washer",
+  "Azure ring",
+  "Stone ring",
+  "Opal ring",
+  "Copper ring",
+  "Silver ring"
+};
+char ringEffects[NUM_RINGS][100] = {
+  "Ring of Swiftness",
+  "Ring of Strength",
+  "Ring of Weakness",
+  "Ring of Hunger",
+  "Ring of Regeneration",
+  "Ring",
+  "Ring of Sickness",
+  "Ring of Aggravation",
+  "Ring of Armor",
+  "Ring of Indigestion",
+  "Ring of Teleport",
+  "Ring of Invisibility"
+};
+bool ringCursed[NUM_RINGS] = {
+  false,
+  false,
+  true,
+  true,
+  false,
+  false,
+  true,
+  true,
+  false,
+  false,
+  true,
+  true
+};
+char ringDescriptions[NUM_RINGS][100] = {
+  "While wearing this ring, you move faster.",
+  "While wearing this ring, you deal more damage.",
+  "While wearing this ring, you deal less damage.",
+  "Makes you starve quicker.",
+  "Passively heals you.",
+  "It's just a ring.",
+  "Lowers your maximum HP.",
+  "Makes enemies never stop chasing you.",
+  "Prevents your armor from degrading while also slightly boosting its defence.",
+  "Makes you get hungry slower.",
+  "Makes you randomly teleport all over the map.",
+  "Makes you invisible to all, including yourself, meaning you become partially blind."
+};
 
 void randomizePotionEffects() {
   // Shuffle the potion effects array
@@ -121,7 +199,7 @@ void randomizePotionEffects() {
     itemList[i].AOEsize = potionEffects[i].AOEsize;
     itemList[i].AOEdamage = potionEffects[i].AOEdamage;
     itemList[i].SpeedMultiplier = potionEffects[i].SpeedMultiplier;
-    itemList[i].itemResult = potionEffects[i].effectResult;
+    snprintf(itemList[i].itemResult, sizeof(itemList[i].itemResult), "%s", potionEffects[i].effectResult);
     itemList[i].effectType = potionEffects[i].effectType;
   }
 }
@@ -133,23 +211,23 @@ GameItem getItem(GameItems item) {
   if (item == Scroll) {
     int effectIndex = random(0, NUM_SCROLLS);
     newItem.scrollEffectIndex = effectIndex;
-    newItem.name = scrollNames[effectIndex];
-    newItem.description = "Read it to find out.";
-    newItem.isScrollRevealed = false;
+    if (strcmp(newItem.name, "Scroll") == 0) {
+      snprintf(newItem.description, sizeof(newItem.description), "%s", "Read it to find out.");
+      newItem.isScrollRevealed = false;
+    }
+    snprintf(newItem.name, sizeof(newItem.name), "%s", scrollNamesRevealed[effectIndex]);
+    snprintf(newItem.originalName, sizeof(newItem.originalName), "%s", scrollNames[effectIndex]);
   }
   
-  // Assign a random effect to rings
+  // Create a ring item: assign it a visible type now, but do NOT assign its effect until worn or identified
   if (item == Ring) {
-    int effectIndex = random(0, NUM_RINGS);
-    newItem.ringEffectIndex = effectIndex;
-    newItem.isCursed = ringCursed[effectIndex];
-    if (ringIdentified[effectIndex]) {
-      newItem.isRingIdentified = true;
-      newItem.name = ringEffects[effectIndex];
-    } else {
-      newItem.isRingIdentified = false;
-      newItem.name = ringTypes[effectIndex];
-    }
+    int typeIndex = random(0, NUM_RINGS);
+    newItem.ringTypeIndex = typeIndex;
+    newItem.ringEffectIndex = -1; // effect not yet assigned
+    newItem.isRingIdentified = false;
+    newItem.isCursed = false; // curse status depends on the effect once assigned
+    snprintf(newItem.name, sizeof(newItem.name), "%s", ringTypes[typeIndex]);
+    snprintf(newItem.originalName, sizeof(newItem.originalName), "%s", ringTypes[typeIndex]);
   }
   
   return newItem;
@@ -160,16 +238,16 @@ void updatePotionName(GameItem &potion) {
     if (potion.effectType == effect.effectType) {
       for (int i = 0; i < NUM_POTIONS; i++) {
         if (itemList[i].item == potion.item) {  
-          itemList[i].name = effect.effectName;
-          itemList[i].description = effect.effectDescription;
+          snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", effect.effectName);
+          snprintf(itemList[i].description, sizeof(itemList[i].description), "%s", effect.effectDescription);
         }
       }
 
       // Update all instances of the potion in the inventory
       for (int i = 0; i < inventorySize; i++) {
         if (inventoryPages[0].items[i].item == potion.item) {
-          inventoryPages[0].items[i].name = effect.effectName;
-          inventoryPages[0].items[i].description = effect.effectDescription;
+          snprintf(inventoryPages[0].items[i].name, sizeof(inventoryPages[0].items[i].name), "%s", effect.effectName);
+          snprintf(inventoryPages[0].items[i].description, sizeof(inventoryPages[0].items[i].description), "%s", effect.effectDescription);
         }
       }
 
@@ -182,7 +260,7 @@ void updatePotionName(GameItem &potion) {
 void resetPotionNames() {
   for (int i = 0; i < NUM_POTIONS; i++)
   {
-    itemList[i].name = itemList[i].originalName;
+    snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", itemList[i].originalName);
   }
 }
 
@@ -226,7 +304,7 @@ void renderItemResult() {
   display.clearDisplay();
   
   // Message text
-  //display.setFont(u8g2_font_profont12_tr);
+  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont12_tr);
   display.setCursor(15, 65);
   display.print(itemResultMessage);
   
@@ -240,10 +318,10 @@ bool areItemsEqual(GameItem item1, GameItem item2) {
         (item1.AOEsize == item2.AOEsize) &&
         (item1.AOEdamage == item2.AOEdamage) &&
         (item1.SpeedMultiplier == item2.SpeedMultiplier) &&
-        (item1.name.equals(item2.name)) &&
-        (item1.description.equals(item2.description)) &&
-        (item1.originalName.equals(item2.originalName)) &&
-        (item1.itemResult.equals(item2.itemResult));
+        (strcmp(item1.name, item2.name) == 0) &&
+        (strcmp(item1.description, item2.description) == 0) &&
+        (strcmp(item1.originalName, item2.originalName) == 0) &&
+        (strcmp(item1.itemResult, item2.itemResult) == 0);
 }
 
 // Generalized combination function
@@ -270,6 +348,10 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         } else if (item1Empty && item2Empty) {
             return getItem(EmptyBottle);
         }
+        // Prevent combining an item with itself
+        if (item1.item == item2.item) {
+            return getItem(Null);
+        }
         // If either is non-primary, return BrownPotion
         if (!item1Primary || !item2Primary) {
             return getItem(BrownPotion);
@@ -277,57 +359,40 @@ GameItem combineItems(GameItem item1, GameItem item2) {
     } else if ((item1.category == PotionCategory && item2.category == EquipmentCategory) || (item1.category == EquipmentCategory && item2.category == PotionCategory)) {
       if (item1.item == EmptyBottle || item2.item == EmptyBottle) {
         GameItem item = item1.item == EmptyBottle ? item2 : item1;
-        item.itemResult = "The " + item.name + " cannot fit inside the bottle.";
+        snprintf(item.itemResult, sizeof(item.itemResult), "The %s cannot fit inside the bottle.", item.name);
         return item;
-      } else if (item1.category == EquipmentCategory ? item1.canRust : item2.canRust) {
+      } else if (strcmp(item1.name, "Washer") == 0 || strcmp(item2.name, "Washer") == 0 ) {
+        GameItem item = item1.item == Ring ? item1 : item2;
+        snprintf(item.name, sizeof(item.name), "%s", "Wet Washer");
+        snprintf(item.originalName, sizeof(item.originalName), "%s", "Wet Washer");
+        snprintf(item.itemResult, sizeof(item.itemResult), "%s", "The washer is wet now, making it easy to remove.");
+        snprintf(item.description, sizeof(item.description), "%s", "A wet washer. It being wet prevents it from getting stuck on your finger.");
+        return item;
+      } else if ((item1.category == EquipmentCategory ? item1.canRust : item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
         bool cursed = random(0, 10) < 3 ? true : false;
-        GameItem rustedItem = {
-          item.item,
-          item.category,
-          item.AOEdamage != 123 ? "Rusty " + item.name : item.name,
-          item.healthRecoverAmount,
-          item.hungerRecoverAmount,
-          item.AOEsize,
-          123,// This is to make sure "rusty"s don't get added more than necessary to the name
-          item.SpeedMultiplier,
-          "A " + item.name + ". It looks degraded" + (cursed ? ", and you feel a sense of unease around it." : "."),
-          item.originalName,
-          "You pour the " + (item1.category == PotionCategory ? item1.name : item2.name) + " over the " + item.name + ". It rusts" + (cursed ? ", becomes less durable, and shimmers slightly red for a moment." : " and becomes less durable."),
-          item.rarity,
-          item.oneTimeUse,
-          item.effectType,
-          item.armorValue - (item.armorValue < 0 ? 0 : 1),
-          item.isEquipped,
-          cursed,
-          item.curseChance,
-          true
-        };
+        GameItem rustedItem = item; // Copy the entire struct first
+        rustedItem.AOEdamage = 123; // This is to make sure "rusty"s don't get added more than necessary to the name
+        rustedItem.armorValue = item.armorValue - (item.armorValue < 0 ? 0 : 1);
+        rustedItem.isCursed = cursed;
+        rustedItem.canRust = true;
+        snprintf(rustedItem.description, sizeof(rustedItem.description), "A Rusty %s. It looks degraded%s.", item.name, (cursed ? ", and you feel a sense of unease around it." : ""));
+        snprintf(rustedItem.name, sizeof(rustedItem.name), "Rusty %s", item.name);
+        snprintf(rustedItem.itemResult, sizeof(rustedItem.itemResult), "You pour the %s over the %s. It rusts%s.", (item1.category == PotionCategory ? item1.name : item2.name), item.name, (cursed ? ", becomes less durable, and shimmers slightly red for a moment" : " and becomes less durable"));
         if (item.isEquipped) {
           equippedArmorValue = item.armorValue;
         }
         return rustedItem;
-      } else if (item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) {
+      } else if ((item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
-        GameItem unrustedItem = {
-          item.item,
-          item.category,
-          item.name,
-          item.healthRecoverAmount,
-          item.hungerRecoverAmount,
-          item.AOEsize,
-          item.AOEdamage,
-          item.SpeedMultiplier,
-          item.name,
-          item.originalName,
-          "You pour the " + (item1.category == PotionCategory ? item1.name : item2.name) + " over the " + item.name + ", but nothing happens."
-        };
+        GameItem unrustedItem = item; // Copy the entire struct
+        snprintf(unrustedItem.itemResult, sizeof(unrustedItem.itemResult), "You pour the %s over the %s, but nothing happens.", (item1.category == PotionCategory ? item1.name : item2.name), item.name);
         return unrustedItem;
       }
     } else if ((item1.category == PotionCategory && item2.category == FoodCategory) || (item2.category == PotionCategory && item1.category == FoodCategory)) {
       if (item1.item == EmptyBottle || item2.item == EmptyBottle) {
         GameItem item = item1.item == EmptyBottle ? item2 : item1;
-        item.itemResult = "The " + item.name + " cannot fit inside the bottle.";
+        snprintf(item.itemResult, sizeof(item.itemResult), "The %s cannot fit inside the bottle.", item.name);
         return item;
       }
       GameItem potion = item1.category == PotionCategory ? item1 : item2;
@@ -337,7 +402,7 @@ GameItem combineItems(GameItem item1, GameItem item2) {
       food.AOEsize = potion.AOEsize;
       food.AOEdamage = potion.AOEdamage;
       food.SpeedMultiplier = potion.SpeedMultiplier;
-      food.name = "Odd " + (item1.category == FoodCategory ? item1.name : item2.name);
+      snprintf(food.name, sizeof(food.name), "Odd %s", (item1.category == FoodCategory ? item1.name : item2.name));
       return food;
     }
     // Try to find a matching combination
@@ -367,38 +432,41 @@ GameItem CombineTwoItemsToGetItem(GameItem item1, GameItem item2) {
     }
     // No valid combination
     GameItem nullItem = getItem(Null);
-    nullItem.name = "Null";
+    snprintf(nullItem.name, sizeof(nullItem.name), "%s", "Null");
     return nullItem;
 }
 
 // Generate a random scroll name using a simple algorithm
-String generateScrollName() {
+void generateScrollName(char *name, size_t nameSize) {
   const char* consonants[] = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
   const char* vowels[] = {"a", "e", "i", "o", "u"};
   
-  String name = "";
+  char baseName[20] = "";
   int length = random(4, 8); // Random length between 4-7 characters
   
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length && i < (int)(sizeof(baseName) - 1); i++) {
     if (i % 2 == 0) {
       // Even positions get consonants
-      name += consonants[random(0, sizeof(consonants)/sizeof(consonants[0]))];
+      strcat(baseName, consonants[random(0, sizeof(consonants)/sizeof(consonants[0]))]);
     } else {
       // Odd positions get vowels
-      name += vowels[random(0, sizeof(vowels)/sizeof(vowels[0]))];
+      strcat(baseName, vowels[random(0, sizeof(vowels)/sizeof(vowels[0]))]);
     }
   }
   
   // Capitalize first letter
-  name.setCharAt(0, toupper(name.charAt(0)));
+  if (strlen(baseName) > 0) {
+    baseName[0] = toupper(baseName[0]);
+  }
   
-  return "Scroll: " + name;
+  snprintf(name, nameSize, "Scroll: %s", baseName);
 }
 
 void randomizeScrollEffects() {
   // Generate random names for scrolls
   for (int i = 0; i < NUM_SCROLLS; i++) {
-    scrollNames[i] = generateScrollName();
+    generateScrollName(scrollNames[i], sizeof(scrollNames[i]));
+    generateScrollName(scrollNamesRevealed[i], sizeof(scrollNamesRevealed[i]));
   }
   
   // Shuffle the scroll effects array
@@ -416,23 +484,22 @@ void updateScrollName(GameItem &scroll) {
     ScrollEffect effect = scrollEffects[scroll.scrollEffectIndex];
     
     // Update the scroll's name and description
-    scroll.name = effect.effectName;
-    scroll.description = effect.effectDescription;
-    scroll.itemResult = effect.effectResult;
+    snprintf(scroll.name, sizeof(scroll.name), "%s", effect.effectName);
+    snprintf(scroll.description, sizeof(scroll.description), "%s", effect.effectDescription);
+    snprintf(scroll.itemResult, sizeof(scroll.itemResult), "%s", effect.effectResult);
     scroll.effectType = effect.effectType;
     scroll.isScrollRevealed = true;
     
     // Update the scrollNames array so future scrolls use the revealed name
-    scrollNames[scroll.scrollEffectIndex] = effect.effectName;
+    snprintf(scrollNamesRevealed[scroll.scrollEffectIndex], sizeof(scrollNamesRevealed[scroll.scrollEffectIndex]), "%s", effect.effectName);
     
     // Update all instances of this scroll in the inventory
     for (int p = 0; p < numInventoryPages; p++) {
       for (int i = 0; i < inventorySize; i++) {
-        if (inventoryPages[p].items[i].item == Scroll && 
-            inventoryPages[p].items[i].scrollEffectIndex == scroll.scrollEffectIndex) {
-          inventoryPages[p].items[i].name = effect.effectName;
-          inventoryPages[p].items[i].description = effect.effectDescription;
-          inventoryPages[p].items[i].itemResult = effect.effectResult;
+        if (inventoryPages[p].items[i].item == Scroll && inventoryPages[p].items[i].scrollEffectIndex == scroll.scrollEffectIndex) {
+          snprintf(inventoryPages[p].items[i].name, sizeof(inventoryPages[p].items[i].name), "%s", effect.effectName);
+          snprintf(inventoryPages[p].items[i].description, sizeof(inventoryPages[p].items[i].description), "%s", effect.effectDescription);
+          snprintf(inventoryPages[p].items[i].itemResult, sizeof(inventoryPages[p].items[i].itemResult), "%s", effect.effectResult);
           inventoryPages[p].items[i].effectType = effect.effectType;
           inventoryPages[p].items[i].isScrollRevealed = true;
         }
@@ -444,19 +511,22 @@ void updateScrollName(GameItem &scroll) {
 void randomizeRingEffects() {
     for (int i = NUM_RINGS - 1; i > 0; i--) {
         int j = random(i + 1);
-        swap(ringEffects[i], ringEffects[j]);
-        swap(ringCursed[i], ringCursed[j]);
+        std::swap(ringEffects[i], ringEffects[j]);
+        std::swap(ringCursed[i], ringCursed[j]);
     }
 }
 
 void updateRingName(GameItem &ring) {
-    if (ring.ringEffectIndex >= 0 && ring.ringEffectIndex < NUM_RINGS) {
-        ring.name = ringEffects[ring.ringEffectIndex];
-        ring.description = "A mysterious ring. Its power is now revealed.";
-        ring.isRingIdentified = true;
-        ringIdentified[ring.ringEffectIndex] = true; // Mark globally as identified
-        ring.isCursed = ringCursed[ring.ringEffectIndex];
-    }
+  // If this ring doesn't yet have an assigned effect, assign one now for this instance
+  if (ring.ringEffectIndex < 0 || ring.ringEffectIndex >= NUM_RINGS) {
+    ring.ringEffectIndex = random(0, NUM_RINGS);
+    ring.isCursed = ringCursed[ring.ringEffectIndex];
+  }
+  if (ring.ringEffectIndex >= 0 && ring.ringEffectIndex < NUM_RINGS) {
+    snprintf(ring.name, sizeof(ring.name), "%s", ringEffects[ring.ringEffectIndex]);
+    snprintf(ring.description, sizeof(ring.description), "%s", ringDescriptions[ring.ringEffectIndex]);
+    ring.isRingIdentified = true;
+  }
 }
 
 // Rarity-based item selection functions

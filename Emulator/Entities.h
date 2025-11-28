@@ -16,8 +16,9 @@ struct Damsel {
   bool followingPlayer;
   bool active;
   int levelOfLove;
-  String name;
+  char name[30];
   bool completelyRescued;
+  bool beingCarried;
 };
 extern Damsel damsel[1];
 
@@ -26,9 +27,9 @@ struct PathNode {
 };
 
 struct Dialogue {
-  String message = "";
+  char message[200] = "";
   int duration;
-  String tone = "normal";
+  char tone[20] = "normal";
   bool alreadyBeenSaid = false;
 };
 extern Dialogue damselAnnoyingDialogue[10];
@@ -52,7 +53,7 @@ struct Enemy {
   int hp;
   bool chasingPlayer;
   float moveAmount;
-  String name;
+  char name[30];
   int attackDelay;
   int damage;
   bool hasWanderPath;
@@ -92,5 +93,6 @@ void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer
 void renderEnemies();
 void renderDamsel();
 void renderProjectiles();
+void reduceArmorDurability(int i);
 
 #endif

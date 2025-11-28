@@ -2,20 +2,36 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Inventory.h"
+#include "SaveLogic.h"
+#include "Item.h"
+#include <string.h>
 #include "Translation.h"
 
 #define MAX_LETTERS 26
 #define NAME_BUFFER_SIZE 10  // Maximum length for generated names
 
-//Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
-//display display;
+Adafruit_SSD1327 display(128, 128, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RST, OLED_CS);
+U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
 
 ButtonStates buttons = {false};
+
+const KonamiInput konamiCode[] = {
+  K_UP, K_UP,
+  K_DOWN, K_DOWN,
+  K_LEFT, K_RIGHT,
+  K_LEFT, K_RIGHT,
+  K_B, K_A
+};
+
+const int konamiLength = sizeof(konamiCode) / sizeof(konamiCode[0]);
+int konamiIndex = 0;
 
 // Add action selection tracking
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
 
 UIState currentUIState = UI_NORMAL; // Current UI state
+
+SaveData saveData = {0};
 
 bool statusScreen = false;
 bool finalStatusScreen = false;
@@ -24,13 +40,14 @@ bool credits = false;
 
 const int viewportWidth = SCREEN_WIDTH / tileSize;
 const int viewportHeight = SCREEN_HEIGHT / tileSize - 2;
-int puzzleChestY = 0, puzzleChestX = 0, puzzleChestDx = 0;
 
 float offsetX = 0;
 float offsetY = 0;
 
 int shakeDuration = 0;   // How many frames to shake for
 int shakeIntensity = 1;  // How strong the shake is
+
+uint32_t worldSeed = 0;
 
 const float scrollSpeed = 0.25f;
 
@@ -106,7 +123,7 @@ void generateRiddleUI() {
   int templateIndex = random(numTemplates);
   char riddleBuffer[128];  // Buffer for the formatted riddle.
   snprintf(riddleBuffer, sizeof(riddleBuffer), templates[templateIndex], attr1, attr2);
-  currentRiddle.riddle = String(riddleBuffer);
+  snprintf(currentRiddle.riddle, sizeof(currentRiddle.riddle), "%s", riddleBuffer);
 
   // Prepare a list of indices for the answer options.
   const int totalOptions = 4;
@@ -137,7 +154,7 @@ void generateRiddleUI() {
 
   // Fill in the answer options and record the index of the correct answer.
   for (int i = 0; i < totalOptions; i++) {
-    currentRiddle.options[i] = String(possibleAnswers[optionIndices[i]].word);
+    snprintf(currentRiddle.options[i], sizeof(currentRiddle.options[i]), "%s", possibleAnswers[optionIndices[i]].word);
     if (optionIndices[i] == answerIndex) {
       currentRiddle.correctOption = i;
     }
@@ -171,17 +188,17 @@ void trainFemaleMarkov() {
 }
 
 // --- Generate a female name using the Markov chain ---
-String generateFemaleName() {
-  char name[NAME_BUFFER_SIZE + 1];
+void generateFemaleName(char *name, size_t nameSize) {
+  char tempName[NAME_BUFFER_SIZE + 1];
   // Start with a random letter (a–z)
   int startLetter = random(0, MAX_LETTERS);
-  name[0] = 'a' + startLetter;
+  tempName[0] = 'a' + startLetter;
   
   // Randomly choose a length between 4 and NAME_BUFFER_SIZE
   int length = random(4, NAME_BUFFER_SIZE);
   
   for (int i = 1; i < length; i++) {
-    int prev = name[i - 1] - 'a';
+    int prev = tempName[i - 1] - 'a';
     
     // Calculate the total weight from the transition table for the previous letter
     int total = 0;
@@ -204,24 +221,24 @@ String generateFemaleName() {
         }
       }
     }
-    name[i] = 'a' + nextLetter;
+    tempName[i] = 'a' + nextLetter;
   }
-  name[length] = '\0';
+  tempName[length] = '\0';
   
   // Capitalize the first letter
-  name[0] = toupper(name[0]);
+  tempName[0] = toupper(tempName[0]);
   
   bool hasBadLetter = false;
   for (int i = 0; i < length; i++) {
-    if (name[i] == 'z' || name[i] == 'Z' || name[i] == 'x' || name[i] == 'X' || name[i] == 'q' || name[i] == 'Q') {
+    if (tempName[i] == 'z' || tempName[i] == 'Z' || tempName[i] == 'x' || tempName[i] == 'X' || tempName[i] == 'q' || tempName[i] == 'Q') {
       hasBadLetter = true;
     }
   }
 
   if (!hasBadLetter) {
-    return String(name);
+    snprintf(name, nameSize, "%s", tempName);
   } else {
-    return String(sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
+    snprintf(name, nameSize, "%s", sampleFemaleNames[random(0, sizeof(sampleFemaleNames) / sizeof(sampleFemaleNames[0]))]);
   }
 }
 
@@ -318,7 +335,7 @@ int predictYtile(float y) {
 bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
     int ptx = predictXtile(newX);
     int cty = round(newY);
-    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] != Wall && dungeonMap[cty][ptx] != Bars);
+    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] != Wall && dungeonMap[cty][ptx] != Bars && dungeonMap[cty][ptx] != ChestTile);
     if (!xValid) {
         newX = currentX;
     }
@@ -327,7 +344,7 @@ bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX) {
     int pty = predictYtile(newY);
     int ctx = round(newX);
-    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] != Wall && dungeonMap[pty][ctx] != Bars);
+    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] != Wall && dungeonMap[pty][ctx] != Bars && dungeonMap[pty][ctx] != ChestTile);
     if (!yValid) {
         newY = currentY;
     }
@@ -353,21 +370,13 @@ void updateButtonStates() {
   buttons.startPressedPrev = buttons.startPressed;
 
   // Read current states
-  /*buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
+  buttons.upPressed = !digitalRead(BUTTON_UP_PIN);
   buttons.downPressed = !digitalRead(BUTTON_DOWN_PIN);
   buttons.aPressed = !digitalRead(BUTTON_A_PIN);
   buttons.bPressed = !digitalRead(BUTTON_B_PIN);
   buttons.leftPressed = !digitalRead(BUTTON_LEFT_PIN);
   buttons.rightPressed = !digitalRead(BUTTON_RIGHT_PIN);
-  buttons.startPressed = !digitalRead(BUTTON_START_PIN);*/
-  const Uint8* keystate = SDL_GetKeyboardState(NULL);
-  buttons.upPressed = keystate[SDL_SCANCODE_UP];
-  buttons.downPressed = keystate[SDL_SCANCODE_DOWN];
-  buttons.leftPressed = keystate[SDL_SCANCODE_LEFT];
-  buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT];
-  buttons.aPressed = keystate[SDL_SCANCODE_Z]; // Example: Z for A
-  buttons.bPressed = keystate[SDL_SCANCODE_X]; // Example: X for B
-  buttons.startPressed = keystate[SDL_SCANCODE_RETURN]; // Enter for Start
+  buttons.startPressed = !digitalRead(BUTTON_START_PIN);
 }
 
 void handleUIStateTransitions() {
@@ -421,13 +430,23 @@ void handleUIStateTransitions() {
       case UI_RIDDLE:
         currentUIState = UI_RIDDLE;
         break;
-      case UI_PUZZLE:
-        currentUIState = UI_PUZZLE;
+      case UI_SPLASH:
+        currentUIState = UI_SPLASH;
+        break;
+      case UI_INTRO:
+        currentUIState = UI_INTRO;
+        break;
+      case UI_SECRET:
+        currentUIState = UI_SPLASH;
         break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     playRawSFX(9);
-    currentUIState = currentUIState == UI_PAUSE ? UI_NORMAL : UI_PAUSE;
+    if (currentUIState == UI_SPLASH) {
+      playWav1.stop();
+      shouldRestartGame = true;
+    }
+    currentUIState = currentUIState == UI_PAUSE || currentUIState == UI_SPLASH ? UI_NORMAL : currentUIState == UI_NORMAL ? UI_PAUSE : currentUIState;
   }
 }
 
@@ -447,22 +466,25 @@ void updateAnimations() {
     Enemy& e = enemies[i];
     int animLength = 1;
     const Frame* anim = nullptr;
-    if (e.name == "blob") {
+    if (strcmp(e.name, "blob") == 0) {
       anim = blobAnimation;
       animLength = blobAnimationLength;
-    } else if (e.name == "teleporter") {
+    } else if (strcmp(e.name, "teleporter") == 0) {
       anim = teleporterAnimation;
       animLength = teleporterAnimationLength;
-    } else if (e.name == "batguy") {
+    } else if (strcmp(e.name, "batguy") == 0) {
       anim = batguyAnimation;
       animLength = batguyAnimationLength;
-    } else if (e.name == "shooter") {
+    } else if (strcmp(e.name, "shooter") == 0) {
       anim = shooterAnimation;
       animLength = shooterAnimationLength;
-    } else if (e.name == "clock") {
+    } else if (strcmp(e.name, "clock") == 0) {
       anim = clockAnimation;
       animLength = clockAnimationLength;
-    } else if (e.name == "boss") {
+    } else if (strcmp(e.name, "jukebox") == 0) {
+      anim = jukeboxAnimation;
+      animLength = jukeboxAnimationLength;
+    } else if (strcmp(e.name, "boss") == 0) {
       if (bossState == Idle) {
         if (playerX < enemies[0].x) {
           anim = bossIdleAnimationFlipped;
@@ -516,7 +538,6 @@ void updateAnimations() {
 int blinkTick = 0;
 int textColor = 3;
 void renderUI() {
-  display.setFont(Adafruit_GFX::builtin_font);
   char HP[4];
   char FOOD[7];
   snprintf(HP, sizeof(HP), "%d", playerHP);
@@ -599,54 +620,121 @@ bool isWalkable(int x, int y) {
   if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
   TileTypes tile = dungeonMap[y][x];
   // Walkable if floor or items/stairs/exits (adjust as needed)
-  return (tile == Floor || tile == StartStairs || tile == Exit ||
+  return (tile == Floor || tile == StartStairs || tile == Exit || tile == Freedom ||
           tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
-          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen);
+          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen || tile == RiddleStoneTile);
 }
 
-void drawWrappedText(int x, int y, int maxWidth, const String &text) {
-  display.setCursor(x, y);
+void unstuckEnemy(Enemy &enemy) {
+  // Check if the enemy is stuck inside a wall
+  int enemyGridX = round(enemy.x);
+  int enemyGridY = round(enemy.y);
+  
+  if (!isWalkable(enemyGridX, enemyGridY)) {
+    // Enemy is stuck in a wall, try to find a nearby walkable tile
+    bool found = false;
+    
+    // Search in expanding radius (3x3, 5x5, 7x7 areas)
+    for (int radius = 1; radius <= 3 && !found; radius++) {
+      for (int dx = -radius; dx <= radius && !found; dx++) {
+        for (int dy = -radius; dy <= radius; dy++) {
+          // Only check tiles on the perimeter of the square
+          if (abs(dx) != radius && abs(dy) != radius) continue;
+          
+          int checkX = enemyGridX + dx;
+          int checkY = enemyGridY + dy;
+          
+          if (isWalkable(checkX, checkY)) {
+            // Found a walkable tile, move enemy there
+            enemy.x = (float)checkX;
+            enemy.y = (float)checkY;
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    // If still stuck, do a wider search in a larger area
+    if (!found) {
+      for (int dx = -5; dx <= 5 && !found; dx++) {
+        for (int dy = -5; dy <= 5 && !found; dy++) {
+          int checkX = enemyGridX + dx;
+          int checkY = enemyGridY + dy;
+          
+          if (isWalkable(checkX, checkY)) {
+            enemy.x = (float)checkX;
+            enemy.y = (float)checkY;
+            found = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+void drawWrappedText(int x, int y, int maxWidth, const char *text) {
+  u8g2_for_adafruit_gfx.setCursor(x, y);
 
   int lineHeight = 10; // Adjust based on font size
   int cursorX = x;
   int cursorY = y;
-  String currentLine = "";
-  String word = "";
+  char currentLine[300] = "";
+  char word[100] = "";
+  size_t wordLen = 0;
+  size_t currentLineLen = 0;
+  size_t textLen = strlen(text);
 
-  for (unsigned int i = 0; i < text.length(); i++) {
+  for (size_t i = 0; i < textLen; i++) {
     char c = text[i];
 
     if (c == ' ' || c == '\n') {
-      //int wordWidth = display.getUTF8Width((currentLine + word).c_str());
-      int wordWidth = 0;// temp
+      // Check if adding this word would exceed maxWidth
+      char testLine[400];
+      snprintf(testLine, sizeof(testLine), "%s%s ", currentLine, word);
+      int wordWidth = u8g2_for_adafruit_gfx.getUTF8Width(testLine);
 
       if (wordWidth > maxWidth) {
         // Print the current line before adding a new word
-        display.setCursor(cursorX, cursorY);
-        display.print(currentLine);
+        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+        u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
-        currentLine = word + ' '; // Move the word to the new line
+        // Move the word to the new line
+        snprintf(currentLine, sizeof(currentLine), "%s ", word);
+        currentLineLen = strlen(currentLine);
       } else {
-        currentLine += word + ' ';
+        // Append word to current line
+        snprintf(currentLine + currentLineLen, sizeof(currentLine) - currentLineLen, "%s ", word);
+        currentLineLen = strlen(currentLine);
       }
 
-      word = "";
+      word[0] = '\0';
+      wordLen = 0;
 
       if (c == '\n') {  // Force a new line on explicit newline characters
-        display.setCursor(cursorX, cursorY);
-        display.print(currentLine);
+        u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+        u8g2_for_adafruit_gfx.print(currentLine);
         cursorY += lineHeight;
-        currentLine = "";
+        currentLine[0] = '\0';
+        currentLineLen = 0;
       }
     } else {
-      word += c;
+      // Append character to word
+      if (wordLen < sizeof(word) - 1) {
+        word[wordLen] = c;
+        wordLen++;
+        word[wordLen] = '\0';
+      }
     }
   }
 
   // Print the remaining text
-  if (currentLine.length() > 0 || word.length() > 0) {
-    display.setCursor(cursorX, cursorY);
-    display.print(currentLine + word);
+  if (currentLineLen > 0 || wordLen > 0) {
+    char finalLine[400];
+    snprintf(finalLine, sizeof(finalLine), "%s%s", currentLine, word);
+    u8g2_for_adafruit_gfx.setCursor(cursorX, cursorY);
+    u8g2_for_adafruit_gfx.print(finalLine);
   }
 }
 
@@ -679,23 +767,154 @@ bool nearTile(TileTypes tile) {
   return isNear;
 }
 
-void checkIfDeadFrom(const String &cause) {
+void checkIfDeadFrom(const char *cause) {
   if (playerHP <= 0) {
-    if (!equippedRiddleStone) {
-      playRawSFX(10);
-      deathCause = cause;
-      buttons.bPressedPrev = true;
-      buttons.aPressedPrev = true;
-      showDeathScreen = true;
-    } else {
+    // If the riddle stone is equipped, trigger the riddle instead of death
+    if (equippedRiddleStone) {
       currentUIState = UI_RIDDLE;
       equippedRiddleStone = false;
       for (int i = 0; i < inventorySize; i++) {
-        if (inventoryPages[2].items[i].itemResult == "Solve this riddle!") {
+        if (strcmp(inventoryPages[2].items[i].itemResult, "Solve this riddle!") == 0) {
           removeItemFromInventory(2, i);
           break;
         }
       }
+      return; // Exit early to prevent showing death screen
+    }
+    
+    // No riddle stone, show death screen
+    playRawSFX(10);
+    snprintf(deathCause, sizeof(deathCause), "%s", cause);
+    buttons.bPressedPrev = true;
+    buttons.aPressedPrev = true;
+    showDeathScreen = true;
+  }
+}
+
+void trySaveGame() {
+  saveData.armorValue = equippedArmorValue;
+  saveData.attackDamage = playerAttackDamage;
+  saveData.currentDungeon = dungeon;
+  saveData.damsel = damsel[0];
+  saveData.endlessMode = endlessMode;
+  saveData.equippedArmor = equippedArmor;
+  saveData.equippedRiddleStone = equippedRiddleStone;
+  saveData.food = playerFood;
+  saveData.hp = playerHP;
+  for (int i = 0; i < numInventoryPages; i++) {
+      saveData.savedInventory[i] = inventoryPages[i];
+  }
+  for (int i = 0; i < 30; i++) {
+      saveData.savedEnemies[i] = enemies[i];
+  }
+  for (int y = 0; y < 64; y++) {
+      for (int x = 0; x < 64; x++) {
+          saveData.dungeonMap[y][x] = dungeonMap[y][x];
+      }
+  }
+
+  for (int y = 0; y < NUM_SCROLLS; y++) {
+    for (int x = 0; x < 20; x++) {
+      saveData.scrollNames[y][x] = scrollNames[y][x];
     }
   }
+  for (int y = 0; y < NUM_SCROLLS; y++) {
+    for (int x = 0; x < 20; x++) {
+      saveData.scrollNamesRevealed[y][x] = scrollNamesRevealed[y][x];
+    }
+  }
+  for (int i = 0; i < NUM_ITEMS; i++) {
+      saveData.itemList[i] = itemList[i];
+  }
+  saveData.hasMap = hasMap;
+  saveData.playerNearClockEnemy = playerNearClockEnemy;
+  saveData.knowsDamselName = knowsDamselName;
+  saveData.damselSayThanksForRescue = damselSayThanksForRescue;
+  saveData.damselGotTaken = damselGotTaken;
+  saveData.levelOfDamselDeath = levelOfDamselDeath;
+
+  saveData.kills = kills;
+  saveData.playerX = playerX;
+  saveData.playerY = playerY;
+  saveData.strengthRingsNum = strengthRingsNumber;
+  saveData.weaknessRingsNum = weaknessRingsNumber;
+  saveData.swiftnessRingsNum = swiftnessRingsNumber;
+  saveData.succubusFriend = succubusIsFriend;
+  saveData.worldSeed = worldSeed;
+  saveData.hungerRingsNumber = hungerRingsNumber;
+  saveData.regenRingsNumber = regenRingsNumber;
+  saveData.sicknessRingsNumber = sicknessRingsNumber;
+  saveData.aggravateRingsNumber = aggravateRingsNumber;
+  saveData.armorRingsNumber = armorRingsNumber;
+  saveData.indigestionRingsNumber = indigestionRingsNumber;
+  saveData.teleportRingsNumber = teleportRingsNumber;
+  saveData.invisibleRingsNumber = invisibleRingsNumber;
+  if (!saveGame(saveData)) {
+    Serial.println("saveGame() failed");
+  }
+  currentUIState = UI_NORMAL;
+}
+
+void tryLoadGame() {
+  if (!loadGame(saveData)) {
+    Serial.println("loadGame() failed — not applying saveData");
+    return;
+  }
+  equippedArmorValue = saveData.armorValue;
+  playerAttackDamage = saveData.attackDamage;
+  dungeon = saveData.currentDungeon;
+  damsel[0] = saveData.damsel;
+  endlessMode = saveData.endlessMode;
+  equippedArmor = saveData.equippedArmor;
+  equippedRiddleStone = saveData.equippedRiddleStone;
+  playerFood = saveData.food;
+  playerHP = saveData.hp;
+  for (int i = 0; i < numInventoryPages; i++) {
+      inventoryPages[i] = saveData.savedInventory[i];
+  }
+  for (int i = 0; i < 30; i++) {
+      enemies[i] = saveData.savedEnemies[i];
+  }
+  for (int y = 0; y < 64; y++) {
+      for (int x = 0; x < 64; x++) {
+          dungeonMap[y][x] = saveData.dungeonMap[y][x];
+      }
+  }
+  for (int y = 0; y < NUM_SCROLLS; y++) {
+    for (int x = 0; x < 20; x++) {
+      scrollNames[y][x] = saveData.scrollNames[y][x];
+    }
+  }
+  for (int y = 0; y < NUM_SCROLLS; y++) {
+    for (int x = 0; x < 20; x++) {
+      scrollNamesRevealed[y][x] = saveData.scrollNamesRevealed[y][x];
+    }
+  }
+  for (int i = 0; i < NUM_ITEMS; i++) {
+      itemList[i] = saveData.itemList[i];
+  }
+  hasMap = saveData.hasMap;
+  playerNearClockEnemy = saveData.playerNearClockEnemy;
+  knowsDamselName = saveData.knowsDamselName;
+  damselSayThanksForRescue = saveData.damselSayThanksForRescue;
+  damselGotTaken = saveData.damselGotTaken;
+  levelOfDamselDeath = saveData.levelOfDamselDeath;
+
+  kills = saveData.kills;
+  playerX = saveData.playerX;
+  playerY = saveData.playerY;
+  strengthRingsNumber = saveData.strengthRingsNum;
+  weaknessRingsNumber = saveData.weaknessRingsNum;
+  swiftnessRingsNumber = saveData.swiftnessRingsNum;
+  succubusIsFriend = saveData.succubusFriend;
+  hungerRingsNumber = saveData.hungerRingsNumber;
+  regenRingsNumber = saveData.regenRingsNumber;
+  sicknessRingsNumber = saveData.sicknessRingsNumber;
+  aggravateRingsNumber = saveData.aggravateRingsNumber;
+  armorRingsNumber = saveData.armorRingsNumber;
+  indigestionRingsNumber = saveData.indigestionRingsNumber;
+  teleportRingsNumber = saveData.teleportRingsNumber;
+  invisibleRingsNumber = saveData.invisibleRingsNumber;
+  randomSeed(saveData.worldSeed);
+  currentUIState = UI_NORMAL;
 }

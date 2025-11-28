@@ -17,11 +17,14 @@ extern bool leftDamsel;
 // Game functions
 void resetGame();
 void updateGame();
+void handleAmbientNoiseLevel();
 void renderGame();
+void renderIntroScreen();
+void renderSecretScreen();
+void renderSplashScreen();
+void renderCredits();
 void gameOver();
 void showStatusScreen();
-void renderCredits();
-void handleAmbientNoiseLevel();
 void updateBossfight();
 
 #endif

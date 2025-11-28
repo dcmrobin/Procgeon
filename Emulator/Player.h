@@ -7,8 +7,8 @@
 
 #define RIDICULE_DURATION 1000
 
-extern String deathCause;
-extern String currentDialogue;
+extern char deathCause[50];
+extern char currentDialogue[200];
 extern float playerX;
 extern float playerY;
 extern float currentSpeedMultiplier;
@@ -24,10 +24,11 @@ extern int ingredient1index;
 extern int playerFood;
 extern int dialogueTimeLength;
 extern int timeTillNextDialogue;
+extern bool shouldRestartGame;
 extern bool speeding;
 extern bool hasMap;
 extern bool paused;
-extern bool carryingDamsel;
+extern bool DIDNOTRESCUEDAMSEL;
 extern bool damselGotTaken;
 extern bool damselSayThanksForRescue;
 extern bool knowsDamselName;
@@ -46,15 +47,21 @@ extern bool nearSuccubus;
 extern bool damselWasFollowing;
 extern int damselWaitUpTimer;
 extern bool damselSaidWaitUp;
-extern int equippedArmorValue;
+extern float equippedArmorValue;
 extern GameItem equippedArmor;
 extern bool equippedRiddleStone;
 extern int playerAttackDamage;
-extern bool ringOfSwiftnessActive;
-extern bool ringOfStrengthActive;
-extern bool ringOfWeaknessActive;
-extern bool ringOfHungerActive;
-extern bool ringOfRegenActive;
+extern int swiftnessRingsNumber;
+extern int strengthRingsNumber;
+extern int weaknessRingsNumber;
+extern int hungerRingsNumber;
+extern int regenRingsNumber;
+extern int sicknessRingsNumber;
+extern int aggravateRingsNumber;
+extern int armorRingsNumber;
+extern int indigestionRingsNumber;
+extern int teleportRingsNumber;
+extern int invisibleRingsNumber;
 extern float lastPotionSpeedModifier;
 extern bool ridiculed;
 extern int ridiculeTimer;
@@ -65,6 +72,8 @@ extern int blindnessTimer;
 extern bool paralyzed;
 extern int paralysisTimer;
 extern bool playerNearClockEnemy;
+extern char damselDeathMsg[100];
+extern bool endlessMode;
 
 void renderPlayer();
 void handleInput();
@@ -73,8 +82,8 @@ void handlePauseScreen();
 void handleHungerAndEffects();
 void handleDialogue();
 void handleRiddles();
-void playDamselSFX(String tone);
+void playDamselSFX(const char *tone);
 void handleRingEffects();
-void OpenChest(int cy, int cx, int dx, bool solved);
+void OpenChest(int cy, int cx, int dx);
 
 #endif

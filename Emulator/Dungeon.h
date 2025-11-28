@@ -5,7 +5,6 @@
 #include <cmath>
 #include "Entities.h"
 
-//constexpr int mapWidth = 64;   // Total map width in tiles
 #define mapWidth 64   // Total map width in tiles
 #define mapHeight 64  // Total map height in tiles
 #define tileSize 8    // Size of each tile (in pixels)
@@ -18,6 +17,7 @@ enum TileTypes {
   DoorClosed,
   DoorOpen,
   Exit,
+  Freedom,
   Potion,
   Map,
   MushroomTile,

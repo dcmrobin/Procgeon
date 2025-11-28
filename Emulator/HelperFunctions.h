@@ -3,11 +3,9 @@
 
 #include "Adafruit_SSD1327_emu.h"
 #include "Adafruit_GFX_emu.h"
-//#include <display.h>
 #include "Dungeon.h"
 #include "Entities.h"
 #include "Sprites.h"
-#include "Translation.h"
 
 #define OLED_MOSI 11
 #define OLED_CLK 13
@@ -26,7 +24,22 @@
 #define SCREEN_HEIGHT 128
 
 extern Adafruit_SSD1327 display;
-//extern display display;
+extern U8G2_FOR_ADAFRUIT_GFX u8g2_for_adafruit_gfx;
+
+enum KonamiInput {
+  K_UP,
+  K_DOWN,
+  K_LEFT,
+  K_RIGHT,
+  K_B,
+  K_A,
+  K_START
+};
+
+extern const KonamiInput konamiCode[];
+
+extern const int konamiLength;
+extern int konamiIndex;
 
 struct ButtonStates {
   bool upPressed;
@@ -56,12 +69,14 @@ enum UIState {
   UI_ITEM_RESULT, // Item result screen
   UI_PAUSE,       // Pause screen
   UI_RIDDLE,      // Riddle screen
-  UI_PUZZLE       // Puzzles
+  UI_SPLASH,      // Title screen
+  UI_INTRO,       // Intro screen
+  UI_SECRET       // Hehe secretz
 };
 
 struct GeneratedRiddle {
-  String riddle;       // The riddle text (with inserted attributes)
-  String options[4];   // Four answer options (one is correct)
+  char riddle[300];       // The riddle text (with inserted attributes)
+  char options[4][50];   // Four answer options (one is correct)
   int correctOption;   // Index (0-3) of the correct answer in options[]
 };
 
@@ -69,6 +84,10 @@ struct RiddleAnswer {
   const char* word;
   const char* attributes[4];  // 4 attributes per answer for variety
 };
+
+extern uint32_t worldSeed;
+
+//extern SaveData saveData;
 
 extern GeneratedRiddle currentRiddle;
 extern int selectedRiddleOption; 
@@ -83,7 +102,6 @@ extern bool statusScreen;
 extern bool finalStatusScreen;
 extern bool showDeathScreen;
 extern bool credits;
-extern int puzzleChestY, puzzleChestX, puzzleChestDx;
 
 extern const int viewportWidth;
 extern const int viewportHeight;
@@ -98,7 +116,7 @@ extern const float scrollSpeed;
 
 void generateRiddleUI();
 void trainFemaleMarkov();
-String generateFemaleName();
+void generateFemaleName(char *name, size_t nameSize);
 uint32_t generateRandomSeed();
 void carveHorizontalCorridor(int x1, int x2, int y);
 void carveVerticalCorridor(int y1, int y2, int x);
@@ -116,10 +134,13 @@ void updateAnimations();
 void renderUI();
 bool isVisible(int x0, int y0, int x1, int y1);
 bool isWalkable(int x, int y);
-void drawWrappedText(int x, int y, int maxWidth, const String &text);
+void unstuckEnemy(Enemy &enemy);
+void drawWrappedText(int x, int y, int maxWidth, const char *text);
 void updateScreenShake();
 void triggerScreenShake(int duration, int intensity);
 bool nearTile(TileTypes tile);
-void checkIfDeadFrom(const String &cause);
+void checkIfDeadFrom(const char *cause);
+void trySaveGame();
+void tryLoadGame();
 
 #endif

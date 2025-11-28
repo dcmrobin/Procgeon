@@ -2,11 +2,14 @@
 #include "Sprites.h"
 #include "HelperFunctions.h"
 #include "Player.h"
+#include "Item.h"
+#include "GameAudio.h"
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
 #include <vector>
 #include "Translation.h"
+#include "Entities.h"
 
 TileTypes dungeonMap[mapHeight][mapWidth];
 
@@ -15,6 +18,7 @@ bool generatedMapItem;
 bool generatedClockEnemy = false;
 bool generatedSuccubusFriend = false;
 void generateDungeon(bool isBossfight) {
+  ambientNoiseLevel = 0;
   generatedMapItem = false;
 
   // Initialize map with walls
@@ -29,11 +33,12 @@ void generateDungeon(bool isBossfight) {
   }
 
   if (isBossfight) {
-    playerX = mapWidth / 2;
+    playerX = (mapWidth / 2) - 3;
     playerY = mapHeight / 2;
 
-    // Only create the damsel's cell if she was following the player and we don't have a friendly succubus
-    if (damsel[0].followingPlayer && !damsel[0].dead && !succubusIsFriend && damsel[0].active) {
+    // Only create the damsel's cell if she was following the player (or the player carried her)
+    // and we don't have a friendly succubus
+    if ((damsel[0].followingPlayer || damsel[0].beingCarried) && !damsel[0].dead && !succubusIsFriend && damsel[0].active) {
       // Create a small cell in the top-right corner of the boss room
       int cellX = playerX;
       int cellY = playerY - 10;
@@ -62,7 +67,10 @@ void generateDungeon(bool isBossfight) {
       damsel[0].x = cellX + (cellWidth / 2);
       damsel[0].y = cellY + (cellHeight / 2);
       damsel[0].followingPlayer = false; // She's trapped now
+      damsel[0].beingCarried = false; // Ensure she's no longer flagged as carried
       damsel[0].completelyRescued = true;
+    } else {
+      DIDNOTRESCUEDAMSEL = true;
     }
     
     return; // Skip regular room generation
@@ -73,8 +81,7 @@ void generateDungeon(bool isBossfight) {
   const int minRoomSize = 4;            // Minimum room size (tiles)
   const int maxRoomSize = 8;            // Maximum room size (tiles)
 
-  std::vector<Room> rooms(maxRooms);
-  //Room rooms[maxRooms];
+  Room rooms[maxRooms];
   int roomCount = 0;
 
   // Guarantee a starting room at the center of the map
@@ -178,7 +185,7 @@ void generateDungeon(bool isBossfight) {
     }
   }
 
-  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend) {
+  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend && !endlessMode) {
     // Generate the damsel's cell
     int damselRoomWidth = 7;
     int damselRoomHeight = 5;
@@ -221,14 +228,23 @@ void generateDungeon(bool isBossfight) {
     dungeonMap[centerY][centerX] = ChestTile;
     damsel[0].speed = 0.1;
     damsel[0].followingPlayer = false;
+    damsel[0].beingCarried = false;
     damsel[0].dead = false;
     damsel[0].active = true;
     damsel[0].completelyRescued = false;
+    // Only initialize levelOfLove if this is the first time encountering her
+    // If she was recaptured (damselGotTaken), preserve her level of love
+    /*if (!damselGotTaken) {
+      damsel[0].levelOfLove = 0;  // First encounter
+    }*/
+    // If damselGotTaken is true, her levelOfLove is preserved from before
   } else {
     // Deactivate damsel if succubus is friend or damsel is dead
-    damsel[0].x = 3000;
-    damsel[0].y = 3000;
+    damsel[0].x = -3000;
+    damsel[0].y = -3000;
     damsel[0].active = false;
+    damsel[0].beingCarried = false;
+    damsel[0].followingPlayer = false;
     damsel[0].completelyRescued = false;
   }
 
@@ -326,10 +342,11 @@ void spawnEnemies(bool isBossfight) {
     if (succubusIsFriend && !generatedSuccubusFriend) {
       generatedSuccubusFriend = true;
       currentDamselPortrait = succubusPortrait;
-      currentDialogue = "You didn't try to kill me. I'll return the favour.";
+      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "You didn't try to kill me. I'll return the favour.");
+      playRawSFX(24);
       showDialogue = true;
       dialogueTimeLength = 600;
-      enemies[0] = { (float)playerX, (float)playerY - 1, 400, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
+      enemies[0] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
       enemies[0].sprite = succubusIdleSprite;
       enemies[0].isFriend = true;
     }
@@ -341,52 +358,49 @@ void spawnEnemies(bool isBossfight) {
         int ey = random(0, mapHeight);
         if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
           if (random(0, 5) == 1 && dungeon > 1) {
-            enemies[i] = { (float)ex, (float)ey, 20, false, 0.05, "blob", 20, 2, false, 0, 0, false, false };
+            enemies[i] = { (float)ex, (float)ey, 20 + (endlessMode ? (dungeon-11) : 0), false, 0.05, "blob", 20, 2 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
-          } else if (random(0, 4) == 2 && dungeon > 2) {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.11, "teleporter", 20, 0, false, 0, 0, false, false };
+          } else if (random(0, 4) == 2 && dungeon > 3) {
+            enemies[i] = { (float)ex, (float)ey, 10 + (endlessMode ? (dungeon-11) : 0), false, 0.11, "teleporter", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
           } else if (random(0, 6) == 4 && dungeon > 4) {
-            enemies[i] = { (float)ex, (float)ey, 15, false, 0.06, "shooter", 20, 0, false, 0, 0, false, false };
+            enemies[i] = { (float)ex, (float)ey, 15 + (endlessMode ? (dungeon-11) : 0), false, 0.06, "shooter", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
           } else if (random(0, 10) == 5 && dungeon > 6) {
-            enemies[i] = { (float)ex, (float)ey, 30, false, 0.02, "succubus", 50, 110, false, 0, 0, false, false };
+            enemies[i] = { (float)ex, (float)ey, 30 + (endlessMode ? (dungeon-11) : 0), false, 0.02, "succubus", 50, 110 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 50, false, false };
             enemies[i].sprite = succubusIdleSprite;
+          } else if (random(0, 100) > 92 && dungeon > 2) {
+            enemies[i] = { (float)ex, (float)ey, 25 + (endlessMode ? (dungeon-11) : 0), false, 0.07, "jukebox", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
+            enemies[i].sprite = jukeboxAnimation[random(0, jukeboxAnimationLength)].frame;
           } else if (random(0, 12) == 11 && dungeon > 6) {
             if (!generatedClockEnemy) {
-              enemies[i] = { (float)ex, (float)ey, 30, false, 0.07, "clock", 20, 0, false, 0, 0, false, false };
+              enemies[i] = { (float)ex, (float)ey, 30 + (endlessMode ? (dungeon-11) : 0), false, 0.07, "clock", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
               enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
               generatedClockEnemy = true;
             }
           } else {
-            enemies[i] = { (float)ex, (float)ey, 10, false, 0.08, "batguy", 20, 1, false, 0, 0, false, false };
+            enemies[i] = { (float)ex, (float)ey, 10 + (endlessMode ? (dungeon-11) : 0), false, 0.08, "batguy", 20, 1 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
             enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
           }
-
-          /*if (random(0, 30) > 27) {
-            enemies[i] = { (float)ex, (float)ey, 50, false, 0.04, "brute", 50, 50, false, 0, 0, false, false };
-          }*/
           break;
         }
       }
     }
   } else {
     for (int i = 0; i < maxEnemies; i++) {
-      enemies[i] = { (float)0, (float)0, 0, false, 0, "null", 0, 0, false, 0, 0, false, false };
+      enemies[i] = { (float)0, (float)0, 0, false, 0, "null", 0, 0, false, 0, 0, {}, nullptr, 0, false, false };
       enemies[i].sprite = batguyAnimation[0].frame;
     }
 
     // Spawn the boss
-    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0, false, false };
+    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0, {}, nullptr, 30, false, false };
     
     // If we have a friendly succubus, spawn her near the player
     if (succubusIsFriend) {
-      enemies[1] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, false, true };
+      enemies[1] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
       enemies[1].isFriend = true;
       enemies[1].sprite = succubusIdleSprite;
     }
-
-    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0, false, false };
     if (bossState == Idle || bossState == Shooting) {
       enemies[0].sprite = bossIdleAnimation[random(0, bossIdleAnimationLength)].frame;
     } else if (bossState == Floating || bossState == Summoning || bossState == Enraged) {
@@ -419,32 +433,36 @@ void drawMinimap() {
   display.clearDisplay();
   int mapScale = 2;
 
-  for (int y = 0; y < mapHeight; y++) {
-    for (int x = 0; x < mapWidth; x++) {
-      TileTypes tile = dungeonMap[y][x];
-      int drawX = x * mapScale;
-      int drawY = y * mapScale;
+  if (!blinded) {
+    for (int y = 0; y < mapHeight; y++) {
+      for (int x = 0; x < mapWidth; x++) {
+        TileTypes tile = dungeonMap[y][x];
+        int drawX = x * mapScale;
+        int drawY = y * mapScale;
 
-      if (tile == Floor) continue;
-      if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
-      if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
-      if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
+        if (tile == Floor) continue;
+        if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
+        if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
+        if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
+      }
     }
-  }
 
-  int playerMinimapX = (playerX)*mapScale;
-  int playerMinimapY = (playerY)*mapScale;
-  display.drawCircle(playerMinimapX, playerMinimapY, 1, 10);
+    int playerMinimapX = (playerX)*mapScale;
+    int playerMinimapY = (playerY)*mapScale;
+    display.drawCircle(playerMinimapX, playerMinimapY, 1, 10);
 
-  if (seeAll) {
-    for (int i = 0; i < maxEnemies; i++) {
-      int enemyMinimapX = (enemies[i].x)*mapScale;
-      int enemyMinimapY = (enemies[i].y)*mapScale;
-      display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
+    if (seeAll) {
+      for (int i = 0; i < maxEnemies; i++) {
+        int enemyMinimapX = (enemies[i].x)*mapScale;
+        int enemyMinimapY = (enemies[i].y)*mapScale;
+        display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
+      }
+      int damselMinimapX = (damsel[0].x)*mapScale;
+      int damselMinimapY = (damsel[0].y)*mapScale;
+      display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
     }
-    int damselMinimapX = (damsel[0].x)*mapScale;
-    int damselMinimapY = (damsel[0].y)*mapScale;
-    display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
+  } else {
+    drawWrappedText(10, 10, 100, "You can't see the map while blinded!");
   }
 
   display.display();
@@ -452,17 +470,29 @@ void drawMinimap() {
 
 // Render the visible portion of the dungeon
 void renderDungeon() {
-  for (int y = 1; y < viewportHeight + 1; y++) {  // +1 to handle partial tiles at edges
+  for (int y = 1; y < viewportHeight + 1; y++) {
     for (int x = 1; x < viewportWidth + 1; x++) {
+
       float mapX = x + offsetX;
       float mapY = y + offsetY;
 
       if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
-        // Calculate screen position based on fractional offsets
+
+        // ---- Distance Check (only draw within 3 tiles of player) ----
+        float dx = mapX - playerX;
+        float dy = mapY - playerY;
+        float dist = sqrt(dx * dx + dy * dy);
+
+        if (invisibleRingsNumber > 0 && !seeAll) {
+          if (dist > 3.0f) {
+            continue;  // Skip rendering this tile
+          }
+        }
+        // --------------------------------------------------------------
+
         float screenX = (x - (offsetX - (int)offsetX)) * tileSize;
         float screenY = (y - (offsetY - (int)offsetY)) * tileSize;
 
-        // Draw the tile
         drawTile((int)mapX, (int)mapY, screenX, screenY);
       }
     }
@@ -510,6 +540,12 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
         display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
     case Exit:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
+      break;
+    case Freedom:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
@@ -582,6 +618,14 @@ int computeTileBrightness(int mapX, int mapY) {
   // Define a falloff range (adjust this for better results)
   float falloffStart = 5.0f;  // Distance at which brightness starts decreasing
   float falloffEnd = 10.0f;   // Maximum distance where brightness reaches min
+
+  if (invisibleRingsNumber > 0 && !seeAll) {
+    falloffStart = 0.0f;
+    falloffEnd = 3.0f;
+  } else {
+    falloffStart = 5.0f;
+    falloffEnd = 10.0f;
+  }
 
   // Compute brightness based on visibility of neighbors
   for (int dx = -1; dx <= 1; dx++) {

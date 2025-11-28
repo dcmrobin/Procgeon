@@ -1,16 +1,17 @@
 #include "Inventory.h"
 #include "Player.h"
 #include "GameAudio.h"
+#include <string.h>
 #include "Translation.h"
 
 int selectedInventoryIndex = 0; // Currently selected inventory item
-String itemResultMessage = "";
+char itemResultMessage[150] = "";
 
 InventoryPage inventoryPages[] = {
-  {"Potions", PotionCategory},
-  {"Food", FoodCategory},
-  {"Equipment", EquipmentCategory},
-  {"Scrolls", ScrollsCategory}
+  {{"Potions"}, PotionCategory},
+  {{"Food"}, FoodCategory},
+  {{"Equipment"}, EquipmentCategory},
+  {{"Scrolls"}, ScrollsCategory}
 };
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
@@ -31,8 +32,10 @@ void identifyItem(GameItem &item) {
   }
   //item.name = item.originalName;
   // If the description already contains (Cursed), don't append again
-  if (item.isCursed && item.description.indexOf("(Cursed)") == -1) {
-    item.description += " (Cursed)";
+  if (item.isCursed && strstr(item.description, "(Cursed)") == NULL) {// what the heck does strstr do
+    char temp[110];
+    snprintf(temp, sizeof(temp), "%s (Cursed)", item.description);
+    snprintf(item.description, sizeof(item.description), "%s", temp);
   }
 }
 
@@ -140,9 +143,9 @@ void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && identifyingItem && currentUIState == UI_INVENTORY) {
     // Select item to identify
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    if (selectedItem.name != "Empty" && selectedItem.name != "") {
+    if (strcmp(selectedItem.name, "Empty") != 0 && strlen(selectedItem.name) > 0) {
       identifyItem(selectedItem);
-      itemResultMessage = "Identified: " + selectedItem.name + (selectedItem.isCursed ? ". It is cursed!" : ". Not cursed.");
+      snprintf(itemResultMessage, sizeof(itemResultMessage), "Identified: %s%s", selectedItem.name, selectedItem.isCursed ? ". It is cursed!" : ". Not cursed.");
       // Remove the scroll
       if (identifyScrollPage >= 0 && identifyScrollIndex >= 0) {
         inventoryPages[identifyScrollPage].items[identifyScrollIndex] = { Null, PotionCategory, "Empty"};
@@ -159,7 +162,7 @@ void handleInventoryItemUsage() {
   if (buttons.bPressed && !buttons.bPressedPrev && !identifyingItem && currentUIState == UI_INVENTORY) {
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
   
-    if (selectedItem.name != "Empty" && selectedItem.name != "") {
+    if (strcmp(selectedItem.name, "Empty") != 0 && strlen(selectedItem.name) > 0) {
       playRawSFX(7);
       if (!combiningTwoItems) {
         currentUIState = UI_ITEM_ACTION;
@@ -168,7 +171,7 @@ void handleInventoryItemUsage() {
         combiningItem2 = selectedItem;
         GameItem resultItem = CombineTwoItemsToGetItem(combiningItem1, combiningItem2);
 
-        if (resultItem.name != "Null") {
+        if (strcmp(resultItem.name, "Null") != 0) {
           bool ingredient1IsPotion = combiningItem1.category == PotionCategory;
           bool ingredient2IsPotion = combiningItem2.category == PotionCategory;
 
@@ -182,7 +185,7 @@ void handleInventoryItemUsage() {
           for (int p = 0; p < numInventoryPages; p++) {
             for (int i = 0; i < inventorySize; i++) {
               if (inventoryPages[p].items[i].item == combiningItem1.item && 
-                  inventoryPages[p].items[i].name == combiningItem1.name) {
+                  strcmp(inventoryPages[p].items[i].name, combiningItem1.name) == 0) {
                 ingredient1Page = p;
                 ingredient1Index = i;
                 break;
@@ -195,7 +198,7 @@ void handleInventoryItemUsage() {
           for (int p = 0; p < numInventoryPages; p++) {
             for (int i = 0; i < inventorySize; i++) {
               if (inventoryPages[p].items[i].item == combiningItem2.item && 
-                  inventoryPages[p].items[i].name == combiningItem2.name) {
+                  strcmp(inventoryPages[p].items[i].name, combiningItem2.name) == 0) {
                 ingredient2Page = p;
                 ingredient2Index = i;
                 break;
@@ -229,9 +232,13 @@ void handleInventoryItemUsage() {
         }
         currentUIState = UI_ITEM_RESULT;
         if (resultItem.category != EquipmentCategory) {
-          itemResultMessage = resultItem.name == "Null" ? "These two items cannot be combined." : "Combined two items! The result was: " + resultItem.name;
+          if (strcmp(resultItem.name, "Null") == 0) {
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "These two items cannot be combined.");
+          } else {
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "Combined two items! The result was: %s", resultItem.name);
+          }
         } else {
-          itemResultMessage = resultItem.itemResult;
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", resultItem.itemResult);
         }
         combiningTwoItems = false;
       }
@@ -265,7 +272,7 @@ void handleItemActionMenu() {
     if (selectedActionIndex == 0) { // Use/Read/Drink
       if (selectedItem.category == ScrollsCategory) {
         if (blinded) {
-          itemResultMessage = "You can't read while blind!";
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't read while blind!");
           currentUIState = UI_ITEM_RESULT;
           buttons.bPressedPrev = true;
           return;
@@ -281,27 +288,48 @@ void handleItemActionMenu() {
         }
 
         playRawSFX(2);
-        itemResultMessage = selectedItem.itemResult;
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
         
         // Apply scroll effects based on type
         if (selectedItem.effectType == ScrollProtectionEffect) {
           if (equippedArmor.item != Null) {
+            if (equippedArmor.armorValue == 0) {
+              snprintf(equippedArmor.description, sizeof(equippedArmor.description), "%s", "Restored armor.");
+            }
             equippedArmor.armorValue += 1;
             equippedArmorValue += 1; // Increase armor protection
+            if (seeAll) {
+              equippedArmor.armorValue += 9;
+              equippedArmorValue += 9;
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your armor is covered by a very bright shimmering gold shield!");
+            }
           } else {
-            itemResultMessage = "The scroll disappears.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "The scroll disappears.");
           }
         } else if (selectedItem.effectType == ScrollIdentifyEffect) {
-          // Start identify flow
-          identifyingItem = true;
-          identifyScrollPage = currentInventoryPageIndex;
-          identifyScrollIndex = selectedInventoryIndex;
-          currentUIState = UI_INVENTORY;
-          return;
+          if (!seeAll) {
+            // Start identify flow
+            identifyingItem = true;
+            identifyScrollPage = currentInventoryPageIndex;
+            identifyScrollIndex = selectedInventoryIndex;
+            currentUIState = UI_INVENTORY;
+            return;
+          } else {
+            for (int x = 0; x < numInventoryPages; x++) {
+              for (int y = 0; y < 8; y++) {
+                identifyItem(inventoryPages[x].items[y]);
+              }
+            }
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your entire inventory is revealed!");
+          }
         } else if (selectedItem.effectType == ScrollEnchantEffect) {
           // Enchant scroll: increase player attack damage
           playerAttackDamage += 2; // Increase by 2, adjust as desired
-          itemResultMessage = "You feel more powerful! Your attacks do more damage.";
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel more powerful! Your attacks do more damage.");
+          if (seeAll) {
+            playerAttackDamage += 8;
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your attacks do much more damage!");
+          }
           // Destroy the enchant scroll
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
@@ -311,30 +339,94 @@ void handleItemActionMenu() {
             for (int p = 0; p < numInventoryPages; p++) {
                 for (int i = 0; i < inventorySize; i++) {
                     GameItem &item = inventoryPages[p].items[i];
-                    if (item.isEquipped && item.isCursed) {
+                    if ((item.isEquipped || seeAll) && item.isCursed) {
                         item.isCursed = false;
-                        int pos = item.description.indexOf(" (Cursed)");
-                        if (pos != -1) {
-                            item.description.remove(pos, 9);
+                        char *cursedPos = strstr(item.description, " (Cursed)");
+                        if (cursedPos != NULL) {
+                            // Remove " (Cursed)" by shifting the remaining string left
+                            size_t removeLen = 9; // length of " (Cursed)"
+                            size_t remainingLen = strlen(cursedPos + removeLen);
+                            memmove(cursedPos, cursedPos + removeLen, remainingLen + 1); // +1 for null terminator
                         }
                     }
                 }
             }
-            itemResultMessage = "You feel as if someone is watching over you.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You feel as if someone is watching over you.");
+            if (seeAll) {
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your entire inventory is uncursed!");
+            }
             currentUIState = UI_ITEM_RESULT;
+        } else if (selectedItem.effectType == ScrollEmptyEffect && seeAll) {
+          addToInventory(getItem(KingArmor), false);
+          addToInventory(getItem(RiddleStone), false);
+          blinded = false;
+          blindnessTimer = 0;
+          confused = false;
+          confusionTimer = 0;
+          if (ridiculed) {
+            ridiculed = false;
+            ridiculeTimer = 0;
+            showDialogue = false;
+          }
+          paralyzed = false;
+          paralysisTimer = 0;
+          if (currentSpeedMultiplier < 1) {
+            currentSpeedMultiplier = 0;
+            speedTimer = 0;
+            speeding = false;
+            lastPotionSpeedModifier = 0;
+          }
+          playerAttackDamage += 10;
+          playerHP = playerMaxHP;
+          playerFood = 100;
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read the invisible text on the scroll. You feel restored! You have gained something!");
+          currentUIState = UI_ITEM_RESULT;
+        } else if (selectedItem.effectType == ScrollMapEffect) {
+          hasMap = true;
+        } else if (selectedItem.effectType == ScrollAmnesiaEffect) {
+          resetPotionNames();
+          for (int i = 0; i < NUM_SCROLLS; i++)
+          {
+            snprintf(scrollNamesRevealed[i], sizeof(scrollNamesRevealed[i]), "%s", scrollNames[i]);
+          }
+
+          for (int i = 0; i < 8; i++) {
+            snprintf(inventoryPages[0].items[i].name, sizeof(inventoryPages[0].items[i].name), "%s", inventoryPages[0].items[i].originalName);
+            snprintf(inventoryPages[3].items[i].name, sizeof(inventoryPages[3].items[i].name), "%s", inventoryPages[3].items[i].originalName);
+            if (inventoryPages[2].items[i].item == Ring) {
+              snprintf(inventoryPages[2].items[i].name, sizeof(inventoryPages[2].items[i].name), "%s", inventoryPages[2].items[i].originalName);
+              snprintf(inventoryPages[2].items[i].description, sizeof(inventoryPages[2].items[i].description), "%s", "You don't remember what this does.");
+            }
+            snprintf(inventoryPages[0].items[i].description, sizeof(inventoryPages[0].items[i].description), "%s", "You don't remember what this does.");
+            snprintf(inventoryPages[3].items[i].description, sizeof(inventoryPages[3].items[i].description), "%s", "You don't remember what this does.");
+          }
+        } else if (selectedItem.effectType == ScrollAggravateEffect) {
+          ambientNoiseLevel = 100000;
+        } else if (selectedItem.effectType == ScrollDestroyEffect) {
+          equippedArmor.armorValue = 0;
+          equippedArmorValue = 0;
+        } else if (selectedItem.effectType == ScrollTeleportEffect) {
+          playRawSFX(14);
+          int newX, newY;
+          do {
+            newX = random(0, mapWidth);
+            newY = random(0, mapHeight);
+          } while (dungeonMap[newY][newX] != Floor);
+          playerX = newX;
+          playerY = newY;
         }
         
         // Destroy the scroll after reading (unless it's identify, which is handled after identification)
-        if (selectedItem.effectType != ScrollIdentifyEffect && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
+        if ((selectedItem.effectType != ScrollIdentifyEffect || seeAll) && inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex].oneTimeUse) {
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;
         }
-        if (selectedItem.effectType != ScrollIdentifyEffect) {
+        if (selectedItem.effectType != ScrollIdentifyEffect || seeAll) {
           currentUIState = UI_ITEM_RESULT;
         }
         buttons.bPressedPrev = true;
       } else if ((selectedItem.category == PotionCategory || selectedItem.category == FoodCategory) && selectedItem.item != EmptyBottle) {
-        if (selectedItem.itemResult == "A lot happens.") { // random effect applied to the potion before anything else so that all the effects can be applied after
+        if (strcmp(selectedItem.itemResult, "A lot happens.") == 0) { // random effect applied to the potion before anything else so that all the effects can be applied after
           selectedItem.healthRecoverAmount = random(-90, 101); // -90 to +100
           selectedItem.hungerRecoverAmount = random(-90, 101); // -90 to +100
           selectedItem.AOEsize = random(0, 11); // 0 to 10
@@ -347,7 +439,7 @@ void handleItemActionMenu() {
         playerFood += selectedItem.hungerRecoverAmount;
         playerFood = playerFood > 100 ? 100 : playerFood;
         playerHP += selectedItem.healthRecoverAmount;
-        playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
+        playerHP = playerHP > (playerMaxHP - (sicknessRingsNumber*20)) ? (playerMaxHP - (sicknessRingsNumber*20)) : playerHP;
 
         if (speeding) {
           speedTimer += 500;
@@ -365,36 +457,36 @@ void handleItemActionMenu() {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
         }
 
-        if (selectedItem.itemResult == "You are now more hungry.") {
+        if (strcmp(selectedItem.itemResult, "You are now more hungry.") == 0) {
           playerFood -= 51;//heheheh u want it to be 50 don't u >:D
-        } else if (selectedItem.itemResult == "You can now see that which was unseen for a limited time.") {
+        } else if (strcmp(selectedItem.itemResult, "You can now see that which was unseen for a limited time.") == 0) {
           seeAll = true;
           seeAllTimer = 1000;
           blinded = false;
           blindnessTimer = 0;
-        } else if (selectedItem.itemResult == "What is going on?") {
+        } else if (strcmp(selectedItem.itemResult, "What is going on?") == 0) {
           confused = true;
           confusionTimer = 1000;
-        } else if (selectedItem.itemResult == "You feel fabulous!") {
+        } else if (strcmp(selectedItem.itemResult, "You feel fabulous!") == 0) {
           if (ridiculed) {
             ridiculed = false;
             ridiculeTimer = 0;
           }
           glamoured = true;
           glamourTimer = 1000;
-        } else if (selectedItem.itemResult == "You feel stupid.") {
+        } else if (strcmp(selectedItem.itemResult, "You feel stupid.") == 0) {
           if (glamoured) {
             glamoured = false;
             glamourTimer = 0;
           }
           ridiculed = true;
           ridiculeTimer = RIDICULE_DURATION;
-        } else if (selectedItem.itemResult == "A cloak of darkness falls around you.") {
+        } else if (strcmp(selectedItem.itemResult, "A cloak of darkness falls around you.") == 0) {
           blinded = true;
           blindnessTimer = 700;
-        } else if (selectedItem.itemResult == "You feel stronger.") {
+        } else if (strcmp(selectedItem.itemResult, "You feel stronger.") == 0) {
           playerAttackDamage += 3;
-        } else if (selectedItem.itemResult == "You feel restored!") {
+        } else if (strcmp(selectedItem.itemResult, "You feel restored!") == 0) {
           //cures blindness, confusion, ridicule, and glamoured, and restores speed, and raises player attack damage, and restores player hp and food
           blinded = false;
           blindnessTimer = 0;
@@ -415,10 +507,10 @@ void handleItemActionMenu() {
           }
           playerAttackDamage += 3;
           playerHP += 15;
-          playerHP = playerHP > playerMaxHP ? playerMaxHP : playerHP;
+          playerHP = playerHP > (playerMaxHP - (sicknessRingsNumber*20)) ? (playerMaxHP - (sicknessRingsNumber*20)) : playerHP;
           playerFood += 15;
           playerFood = playerFood > 100 ? 100 : playerFood;
-        } else if (selectedItem.itemResult == "You can't move!") {
+        } else if (strcmp(selectedItem.itemResult, "You can't move!") == 0) {
           paralyzed = true;
           paralysisTimer = 1000;
         }
@@ -429,10 +521,10 @@ void handleItemActionMenu() {
           }
         }
 
-        itemResultMessage = selectedItem.itemResult;
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
 
         if (selectedItem.effectType == ArmorEffect) {
-          itemResultMessage = "You can't use this, Try equipping it.";
+          snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't use this, Try equipping it.");
         }
 
         currentUIState = UI_ITEM_RESULT; // Change to result screen
@@ -448,7 +540,7 @@ void handleItemActionMenu() {
 
         buttons.bPressedPrev = true;
       } else if (selectedItem.effectType == ArmorEffect || selectedItem.item == Ring) {
-        itemResultMessage = "You can't use this, try equipping it.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't use this, try equipping it.");
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
       } else if (selectedItem.item == RiddleStone) {
@@ -457,7 +549,7 @@ void handleItemActionMenu() {
         inventoryPages[currentInventoryPageIndex].itemCount--;
       } else {
         playRawSFX(2);
-        itemResultMessage = selectedItem.itemResult;
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
       }
@@ -465,7 +557,7 @@ void handleItemActionMenu() {
       // Prevent dropping equipped items
       if (selectedItem.isEquipped) {
         playRawSFX(13);
-        itemResultMessage = "You need to unequip it first.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip it first.");
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
       } else {
@@ -480,7 +572,10 @@ void handleItemActionMenu() {
         if (selectedItem.isEquipped) {
           // Unequip the item
           if (selectedItem.isCursed) {
-            itemResultMessage = "You can't. It appears to be cursed.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't. It appears to be cursed.");
+            currentUIState = UI_ITEM_RESULT;
+          } else if (strcmp(selectedItem.originalName, "Washer") == 0) {
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You try to remove the washer from your finger, but it fails to go past your knuckle.");
             currentUIState = UI_ITEM_RESULT;
           } else {
             selectedItem.isEquipped = false;
@@ -494,19 +589,28 @@ void handleItemActionMenu() {
             // --- Remove ring effects when unequipped ---
             if (selectedItem.item == Ring) {
               int idx = selectedItem.ringEffectIndex;
-              if (ringEffects[idx] == "Ring of Swiftness") {
-                ringOfSwiftnessActive = false;
-                currentSpeedMultiplier -= 0.5;
-              } else if (ringEffects[idx] == "Ring of Strength") {
-                ringOfStrengthActive = false;
-                playerAttackDamage -= 5;
-              } else if (ringEffects[idx] == "Ring of Weakness") {
-                ringOfWeaknessActive = false;
-                playerAttackDamage += 5;
-              } else if (ringEffects[idx] == "Ring of Hunger") {
-                ringOfHungerActive = false;
-              } else if (ringEffects[idx] == "Ring of Regeneration") {
-                ringOfRegenActive = false;
+              if (strcmp(ringEffects[idx], "Ring of Swiftness") == 0) {
+                swiftnessRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Strength") == 0) {
+                strengthRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
+                weaknessRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
+                hungerRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
+                regenRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Sickness") == 0) {
+                sicknessRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Aggravation") == 0) {
+                aggravateRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Armor") == 0) {
+                armorRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Indigestion") == 0) {
+                indigestionRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Teleport") == 0) {
+                teleportRingsNumber -= 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) {
+                invisibleRingsNumber -= 1;
               }
             }
             playRawSFX(2);
@@ -516,7 +620,7 @@ void handleItemActionMenu() {
           // Check if trying to equip armor when armor is already equipped
           if (selectedItem.effectType == ArmorEffect && equippedArmor.item != Null) {
             playRawSFX(13);
-            itemResultMessage = "You need to unequip the armor first.";
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip the armor first.");
             currentUIState = UI_ITEM_RESULT;
             buttons.bPressedPrev = true;
           } else {
@@ -528,31 +632,51 @@ void handleItemActionMenu() {
             }
             // --- Apply ring effects when equipped ---
             if (selectedItem.item == Ring) {
+              // If this ring has not yet been assigned an effect, assign one now for this instance
+              if (selectedItem.ringEffectIndex < 0 || selectedItem.ringEffectIndex >= NUM_RINGS) {
+                int assignIdx = random(0, NUM_RINGS);
+                selectedItem.ringEffectIndex = assignIdx;
+                selectedItem.isCursed = ringCursed[assignIdx];
+              }
               int idx = selectedItem.ringEffectIndex;
-              if (ringEffects[idx] == "Ring of Swiftness") {
-                ringOfSwiftnessActive = true;
-                currentSpeedMultiplier += 0.5;
-              } else if (ringEffects[idx] == "Ring of Strength") {
-                ringOfStrengthActive = true;
-                playerAttackDamage += 5;
-              } else if (ringEffects[idx] == "Ring of Weakness") {
-                ringOfWeaknessActive = true;
-                playerAttackDamage -= 5;
-              } else if (ringEffects[idx] == "Ring of Hunger") {
-                ringOfHungerActive = true;
-              } else if (ringEffects[idx] == "Ring of Regeneration") {
-                ringOfRegenActive = true;
+              if (strcmp(ringEffects[idx], "Ring of Swiftness") == 0) {
+                swiftnessRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Strength") == 0) {
+                strengthRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Weakness") == 0) {
+                weaknessRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Hunger") == 0) {
+                hungerRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) {
+                regenRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Sickness") == 0) {
+                sicknessRingsNumber += 1;
+                playerHP = playerMaxHP - (sicknessRingsNumber*20);
+              } else if (strcmp(ringEffects[idx], "Ring of Aggravation") == 0) {
+                aggravateRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Armor") == 0) {
+                armorRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Indigestion") == 0) {
+                indigestionRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Teleport") == 0) {
+                teleportRingsNumber += 1;
+              } else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) {
+                invisibleRingsNumber += 1;
               }
             }
             playRawSFX(2);
-            itemResultMessage = selectedItem.itemResult == "Solve this riddle!" ? "You equip the riddle stone." : "You equip the " + selectedItem.name + "."; // override riddle stone text
-            equippedRiddleStone = selectedItem.itemResult == "Solve this riddle!" ? true : equippedRiddleStone;
+            if (strcmp(selectedItem.itemResult, "Solve this riddle!") == 0) {
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You equip the riddle stone.");
+              equippedRiddleStone = true;
+            } else {
+              snprintf(itemResultMessage, sizeof(itemResultMessage), "You equip the %s.", selectedItem.name);
+            }
             currentUIState = UI_ITEM_RESULT;
           }
         }
       } else {
         playRawSFX(2);
-        itemResultMessage = "This item cannot be equipped.";
+        snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "This item cannot be equipped.");
         currentUIState = UI_ITEM_RESULT;
       }
       buttons.bPressedPrev = true;
@@ -567,7 +691,6 @@ void handleItemActionMenu() {
 
 bool showTooltip = true;
 void renderInventory() {
-  display.setFont(Adafruit_GFX::builtin_font);
   display.clearDisplay();
   display.setTextSize(1);
 
@@ -577,10 +700,11 @@ void renderInventory() {
     display.println(combiningTwoItems ? "Select second item tocombine..." : identifyingItem ? "Select item to identify..." : "Inventory");
     display.setTextSize(1);
     display.setCursor(10, 20);
-    display.setTextColor(0, 15);
+    display.setTextColor(0);
     display.fillRect(0, 19, 128, 9, 15);
-    String pageName = "<" + inventoryPages[currentInventoryPageIndex].name + ">";
-    display.println(pageName.c_str());
+    char pageName[40];
+    snprintf(pageName, sizeof(pageName), "<%s>", inventoryPages[currentInventoryPageIndex].name);
+    display.println(pageName);
     display.setTextColor(15);
 
     int yPos = 30;
@@ -593,15 +717,19 @@ void renderInventory() {
       display.setCursor(15, yPos);
       if (i == selectedInventoryIndex) display.print("> ");
       // Highlight combinable items when combiningTwoItems is true
+      const char* displayName = item.name;
       if (combiningTwoItems) {
         GameItem result = CombineTwoItemsToGetItem(combiningItem1, item);
         if (result.item != Null) {
-          display.print(">>"); // Marker for combinable
+          if (i == selectedInventoryIndex) {
+            displayName = result.name; // Show result name only when selected
+            display.print(">>"); // Marker for combinable
+          }
         } else {
           display.print("");
         }
       }
-      display.print(item.name);
+      display.print(displayName);
       
       // Add equipped indicator
       if (item.isEquipped) {
@@ -643,17 +771,17 @@ void renderInventory() {
     display.fillRect(50, 40, 65, 12, 15);
 
     // Title
-    display.setTextColor(0, 15);
+    display.setTextColor(0);
     display.setCursor(55, 42);
     display.println("Options:");
     display.setTextColor(15);
 
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    String equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+    const char* equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
     
     // Determine the use text based on item type
-    String useText = "Use";
+    const char* useText = "Use";
     if (selectedItem.item == Scroll) {
       useText = "Read";
     } else if (selectedItem.category == PotionCategory && selectedItem.item != EmptyBottle) {
@@ -663,14 +791,17 @@ void renderInventory() {
     }
 
     // Options
+    char useLine[20], equipLine[20];
+    snprintf(useLine, sizeof(useLine), "%s %s", (selectedActionIndex == 0 ? ">" : ""), useText);
+    snprintf(equipLine, sizeof(equipLine), "%s %s", (selectedActionIndex == 3 ? ">" : ""), equipText);
     display.setCursor(55, 60);
-    display.println(selectedActionIndex == 0 ? "> " + useText : " " + useText);
+    display.println(useLine);
     display.setCursor(55, 70);
     display.println(selectedActionIndex == 1 ? "> Drop" : " Drop");
     display.setCursor(55, 80);
     display.println(selectedActionIndex == 2 ? "> Info" : " Info");
     display.setCursor(55, 90);
-    display.println(selectedActionIndex == 3 ? "> " + equipText : " " + equipText);
+    display.println(equipLine);
     display.setCursor(55, 100);
     display.println(selectedActionIndex == 4 ? "> Combine" : " Combine");
   }

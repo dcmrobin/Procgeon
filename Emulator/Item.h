@@ -6,8 +6,9 @@
 #include "Translation.h"
 
 #define NUM_POTIONS 20
-#define NUM_SCROLLS 4
-#define NUM_RINGS 5
+#define NUM_SCROLLS 10
+#define NUM_RINGS 12
+#define NUM_ITEMS 37
 
 enum GameItems {
   RedPotion,
@@ -40,6 +41,12 @@ enum GameItems {
   IronArmor,
   MagicRobe,
   Cloak,
+  Trenchcoat,
+  DenimJacket,
+  RingMailArmor,
+  ChaosArmor,
+  SpikyArmor,
+  KingArmor,
   Null
 };
 enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };
@@ -69,25 +76,31 @@ enum EffectType {
   ScrollProtectionEffect,
   ScrollIdentifyEffect,
   ScrollEnchantEffect,
-  ScrollUncurseEffect
+  ScrollUncurseEffect,
+  ScrollEmptyEffect,
+  ScrollMapEffect,
+  ScrollAmnesiaEffect,
+  ScrollAggravateEffect,
+  ScrollDestroyEffect,
+  ScrollTeleportEffect
 };
 
 struct GameItem {
   GameItems item = Null;
   ItemCategory category = PotionCategory;
-  String name = "Null";
+  char name[40] = "Null";
   int healthRecoverAmount = 0;
   int hungerRecoverAmount = 0;
   int AOEsize = 0;
   int AOEdamage = 0;
   float SpeedMultiplier = 0;
-  String description = "";
-  String originalName = "";
-  String itemResult = "";
+  char description[110] = "";
+  char originalName[20] = "";
+  char itemResult[150] = "";
   int rarity = 2;
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
-  int armorValue = 0;  // Damage reduction when equipped
+  float armorValue = 0.0f;  // Damage reduction when equipped
   bool isEquipped = false;  // Whether this item is currently equipped
   bool isCursed = false;
   int curseChance = 0;
@@ -96,6 +109,7 @@ struct GameItem {
   int scrollEffectIndex = -1;  // Index of the assigned scroll effect
   // --- Ring support ---
   int ringEffectIndex = -1; // Index of the assigned ring effect
+  int ringTypeIndex = -1; // Index of the ring's visible type (Wooden, Diamond, etc.)
   bool isRingIdentified = false;
 };
 
@@ -105,16 +119,16 @@ struct PotionEffect {
   int AOEsize;
   int AOEdamage;
   float SpeedMultiplier;
-  String effectName;
-  String effectDescription;
-  String effectResult;
+  char effectName[20];
+  char effectDescription[100];
+  char effectResult[100];
   EffectType effectType;
 };
 
 struct ScrollEffect {
-  String effectName;
-  String effectDescription;
-  String effectResult;
+  char effectName[20];
+  char effectDescription[100];
+  char effectResult[100];
   EffectType effectType;
 };
 
@@ -128,17 +142,19 @@ struct ItemCombination {
 extern ItemCombination itemCombinations[];
 extern const int NUM_ITEM_COMBINATIONS;
 
-extern String scrollNames[];
-extern PotionEffect potionEffects[];
+extern char scrollNames[NUM_SCROLLS][20];
+extern char scrollNamesRevealed[NUM_SCROLLS][20];
+extern PotionEffect potionEffects[20];
+extern GameItem itemList[NUM_ITEMS];
 
-extern String ringTypes[NUM_RINGS];
-extern String ringEffects[NUM_RINGS];
+extern char ringTypes[NUM_RINGS][20];
+extern char ringEffects[NUM_RINGS][100];
 extern bool ringCursed[NUM_RINGS];
-extern bool ringIdentified[NUM_RINGS];
+extern char ringDescriptions[NUM_RINGS][100];
 
 void randomizePotionEffects();  // Call this once at game start
 void randomizeScrollEffects();  // Call this once at game start
-String generateScrollName();  // Generate a random scroll name
+void generateScrollName(char *name, size_t nameSize);  // Generate a random scroll name
 GameItem getItem(GameItems item);
 void updatePotionName(GameItem &potion);  // Changes potion name when used
 void updateScrollName(GameItem &scroll);  // Reveals scroll's true name when read
