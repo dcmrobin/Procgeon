@@ -1,9 +1,16 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
 
+// Add SDL macro protection at the VERY TOP
+#define SDL_MAIN_HANDLED
 #ifdef main
 #undef main
 #endif
+
+// Include SDL headers FIRST
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 // --- Arduino compatibility shims for SDL2 build ---
 #ifndef ARDUINO
@@ -39,6 +46,7 @@
 #include <cstdint>
 #include <type_traits>
 #include <cmath>
+#include <cstring>  // ADD THIS for strlen, strcmp, etc.
 
 // --- Arduino macros / stubs ---
 #define F(x) x
@@ -158,11 +166,9 @@ public:
     bool begin(int) { return true; }
     bool exists(const std::string& path) { return std::filesystem::exists(path); }
     
-    // SIMPLIFY: Remove one of the overloaded open functions
     File open(const std::string& path, const char* mode = "rb") { 
         return File(path, mode); 
     }
-    // Remove this duplicate: File open(const std::string& path) { return File(path, "rb"); }
 };
 
 // global instance so you can call SD.begin(), SD.exists(), SD.open(), etc.
@@ -348,7 +354,10 @@ inline void AudioMemory(int) {}
 // Audio interrupt stubs (for SaveLogic compatibility)
 inline void AudioNoInterrupts() {}
 inline void AudioInterrupts() {}
+
+// Forward declaration
 class Adafruit_SSD1327;
+
 // U8G2 emulation
 class U8G2_FOR_ADAFRUIT_GFX {
 public:

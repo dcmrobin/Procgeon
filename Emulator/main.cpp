@@ -1,4 +1,4 @@
-#define SDL_MAIN_HANDLED
+
 #ifdef main
 #undef main
 #endif
