@@ -103,7 +103,7 @@ void renderPlayer() {
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 2;
       display.setCursor(textX, textY);
-      display.print("Carry [B]");
+      display.print("Carry [X]");
     }
 
     // --- Show 'Open Chest [B]' prompt only if player is facing a chest ---
@@ -133,15 +133,15 @@ void renderPlayer() {
       int textY = (screenY + tileSize) + 12;
       display.setCursor(textX, textY);
       if (facingChest) {
-        display.print("Open Chest [B]");
+        display.print("Open Chest [X]");
       } else if (facingClosedDoor) {
-        display.print("Open Door [B]");
+        display.print("Open Door [X]");
       } else if (facingOpenDoor) {
-        display.print("Close Door [B]");
+        display.print("Close Door [X]");
       } else if (facingOpenExit) {
-        display.print("Descend [B]");
+        display.print("Descend [X]");
       } else if (facingFreedom) {
-        display.print("Escape [B]");
+        display.print("Escape [X]");
       }
     }
   }
@@ -571,7 +571,7 @@ void handlePauseScreen() {
   display.setTextColor(15, 0);
 
   display.setCursor(24, 110);
-  display.print("Press [START]");
+  display.print("Press [ENTER]");
   display.display();
 
   // Handle navigation input: up/down to move selection, left/right to change volume
@@ -835,7 +835,9 @@ void handleDialogue() {
     u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
     u8g2_for_adafruit_gfx.setCursor(27, 19);
-    drawWrappedText(27, 19, 96, currentDialogue);
+    display.setCursor(17, 19);
+    display.print(currentDialogue);
+    //drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
     if (!isRidiculeDialogue || strcmp(currentDialogue, "Hey! Wait up!") == 0) {
       display.drawBitmap(9, 11, currentDamselPortrait, 16, 32, 15);

@@ -348,9 +348,9 @@ void renderIntroScreen() {
   display.clearDisplay();
   display.setTextColor(15, 0);
   display.setTextSize(1);
-  display.setCursor(41, 50);
+  display.setCursor(45, 50);
   display.print("Paladin");
-  display.setCursor(38, 60);
+  display.setCursor(42, 60);
   display.print("Presents");
   display.display();
   if (!playWav1.isPlaying() && introNum <= 10) {
@@ -364,7 +364,10 @@ void renderIntroScreen() {
 
 void renderSecretScreen() {
   display.clearDisplay();
-  drawWrappedText(1, 7, 128, "Hah! You bet I had to add the Konami sequence. Minus the start button. Anyway, yeah here's some hints. Equip the Riddle Stone. Read some of the scrolls right after drinking a See-All potion. Lastly, don't try to see if the washer fits on your finger. Just don't.");
+  display.setTextColor(15, 0);
+  display.setCursor(1, 7);
+  display.print("Hah! You bet I had to add the Konami sequence. Minus the start button. Anyway, yeah here's some hints. Equip the Riddle Stone. Read some of the scrolls right after drinking a See-All potion. Try leading a succubus through an exit. Lastly, don't try to see if the washer fits on your finger. Just don't.");
+  //drawWrappedText(1, 7, 128, "Hah! You bet I had to add the Konami sequence. Minus the start button. Anyway, yeah here's some hints. Equip the Riddle Stone. Read some of the scrolls right after drinking a See-All potion. Lastly, don't try to see if the washer fits on your finger. Just don't.");
   display.display();
 }
 
@@ -425,6 +428,8 @@ void renderSplashScreen() {
 
   display.clearDisplay();
   display.drawBitmap(0, 0, splashScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+  display.setCursor(61, 110);
+  display.print("[ENTER]");
   display.display();
 }
 
@@ -532,7 +537,7 @@ void gameOver() {
   display.print("Game over!");
   display.setTextSize(1);
   display.setCursor(5, 30);
-  display.print("Press [B] to restart");
+  display.print("Press [X] to restart");
 
   display.drawRect(8, 41, 110, 72, 15);
 

@@ -54,7 +54,7 @@ Dialogue damselPassiveDialogue[] = {
 Dialogue damselGoodDialogue[] = {
   {"Actually, I do kind of like you.", 400, "alone"},
   {"I'm sorry if I was annoying you.", 400},
-  {"Do you mind... carrying me? (Hold B next to me)", 400, "alone"},
+  {"Do you mind... carrying me? (Hold X next to me)", 400, "alone"},
   {"Does that staff ever run out?", 350},
   {"I'm glad I'm with you.", 300},
   {"I don't want to die.", 300, "annoying"},

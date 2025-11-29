@@ -462,7 +462,8 @@ void drawMinimap() {
       display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
     }
   } else {
-    drawWrappedText(10, 10, 100, "You can't see the map while blinded!");
+    display.setCursor(10, 10);
+    display.print("You can't see the map while blinded!");
   }
 
   display.display();
