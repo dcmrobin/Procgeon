@@ -141,14 +141,14 @@ bool playRawSFX(int sfxIndex) {
     
     // Use SDL2 mixer to play the sound
     if (sfxChunks[sfxIndex]) {
-        Serial.printf("Playing SFX %d: %s\n", sfxIndex, sfxFilenames[sfxIndex]);
+        //Serial.printf("Playing SFX %d: %s\n", sfxIndex, sfxFilenames[sfxIndex]);
         int channel = Mix_PlayChannel(-1, sfxChunks[sfxIndex], 0);
         if (channel != -1) {
             // Set volume based on master volume
             float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
             Mix_Volume(channel, static_cast<int>(vol * MIX_MAX_VOLUME));
             activeChannels.push_back(channel);
-            Serial.printf("SFX playing on channel %d\n", channel);
+            //Serial.printf("SFX playing on channel %d\n", channel);
             return true;
         } else {
             Serial.printf("Mix_PlayChannel failed: %s\n", Mix_GetError());

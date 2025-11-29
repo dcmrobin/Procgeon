@@ -97,7 +97,7 @@ void renderPlayer() {
     float distanceSquared = dx * dx + dy * dy;
     if (!damsel[0].beingCarried && !damsel[0].dead && damsel[0].levelOfLove >= 6 && distanceSquared <= 0.4) {
       display.setTextSize(1);
-      display.setTextColor(15);
+      display.setTextColor(15, 0);
       // Center the text under the player sprite (estimate 6px per char, 9 chars)
       int textWidth = 9 * 6;
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
@@ -127,7 +127,7 @@ void renderPlayer() {
       shootDelay = 0;
 
       display.setTextSize(1);
-      display.setTextColor(15);
+      display.setTextColor(15, 0);
       int textWidth = 14 * 6; // "Open Chest [B]" is 14 chars
       int textX = (screenX + tileSize / 2) - (textWidth / 2);
       int textY = (screenY + tileSize) + 12;
@@ -514,7 +514,7 @@ void handlePauseScreen() {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(27, 16);
-  display.setTextColor(15);
+  display.setTextColor(15, 0);
   display.print("PAUSED");
   display.setTextSize(1);
 
@@ -523,9 +523,9 @@ void handlePauseScreen() {
   // Volume entry
   if (pauseSelection == 0) {
     display.fillRect(10, baseY - 2, 108, 12, 15); // white background
-    display.setTextColor(0); // black text on highlight
+    display.setTextColor(0, 15); // black text on highlight
   } else {
-    display.setTextColor(15); // white text on black
+    display.setTextColor(15, 0); // white text on black
   }
   display.setCursor(18, baseY);
   display.print("Volume:");
@@ -540,9 +540,9 @@ void handlePauseScreen() {
   baseY += 14;
   if (pauseSelection == 1) {
     display.fillRect(10, baseY - 2, 108, 12, 15);
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
   } else {
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
   }
   display.setCursor(18, baseY);
   display.print("Restart Game");
@@ -550,9 +550,9 @@ void handlePauseScreen() {
   baseY += 14;
   if (pauseSelection == 2) {
     display.fillRect(10, baseY - 2, 108, 12, 15);
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
   } else {
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
   }
   display.setCursor(18, baseY);
   display.print("Save game");
@@ -560,15 +560,15 @@ void handlePauseScreen() {
   baseY += 14;
   if (pauseSelection == 3) {
     display.fillRect(10, baseY - 2, 108, 12, 15);
-    display.setTextColor(0);
+    display.setTextColor(0, 15);
   } else {
-    display.setTextColor(15);
+    display.setTextColor(15, 0);
   }
   display.setCursor(18, baseY);
   display.print("Load game");
 
   // Reset text color to white for footer
-  display.setTextColor(15);
+  display.setTextColor(15, 0);
 
   display.setCursor(24, 110);
   display.print("Press [START]");
@@ -955,7 +955,7 @@ void handleRiddles() {
   
   display.clearDisplay();
   display.setTextSize(1);
-  display.setTextColor(SSD1327_WHITE);
+  display.setTextColor(SSD1327_WHITE, 0);
   
   // Display the riddle prompt.
   display.setCursor(0, 10);

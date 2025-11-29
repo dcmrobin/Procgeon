@@ -340,12 +340,13 @@ void renderGame() {
 }
 
 void renderIntroScreen() {
+  display.setFont(Adafruit_GFX::profont10_font);
   introNum++;
   if (introNum > 50) {
     introNum = 50;
   }
   display.clearDisplay();
-  display.setTextColor(15);
+  display.setTextColor(15, 0);
   display.setTextSize(1);
   display.setCursor(41, 50);
   display.print("Paladin");
@@ -447,7 +448,7 @@ void renderCredits() {
     }
     display.setTextSize(2);
     display.setCursor(22, 50);
-    display.setTextColor(bossStateTimer);
+    display.setTextColor(bossStateTimer, 0);
     display.print("The End");
   }
   display.display();

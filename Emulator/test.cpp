@@ -42,7 +42,7 @@ void testgame_loop() {
     
     // Draw score
     display.setTextSize(1);
-    display.setTextColor(SSD1327_WHITE);
+    display.setTextColor(SSD1327_WHITE, 0);
     display.setCursor(5, 5);
     display.print("Score: 42");
     
