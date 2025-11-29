@@ -32,8 +32,6 @@ bool deleteSV = false;
 
 void resetGame() {
   setJukeboxVolume(0.0f);
-  masterVolume = 3;
-  playWav2.volume(masterVolume/10);//TEEESTTT THIISISISISIIISISIIISSS
   deleteSV = false;
   introNum = 0;
   snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "You killed ");
