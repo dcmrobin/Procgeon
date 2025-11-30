@@ -621,6 +621,13 @@ void handlePauseScreen() {
       trySaveGame();
     } else if (pauseSelection == 3) {
       tryLoadGame();
+      // Use integer indices for dungeonMap (playerX/playerY are floats).
+      int rPx = round(playerX);
+      int rPy = round(playerY);
+      // Bounds-check before writing to the map
+      if (rPy >= 0 && rPy < mapHeight && rPx >= 0 && rPx < mapWidth) {
+        dungeonMap[rPy][rPx] = Floor;
+      }
     }
   }
 }
