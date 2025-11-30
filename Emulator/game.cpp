@@ -191,9 +191,9 @@ void game_setup() {
   generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
 
   display.begin();
-  //u8g2_for_adafruit_gfx.begin(display);
-  //u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
-  //u8g2_for_adafruit_gfx.setForegroundColor(15);
+  //display.begin(display);
+  //display.setFont(u8g2_font_profont10_mf);
+  //display.setForegroundColor(15);
   display.setContrast(100);
 
   pinMode(BUTTON_UP_PIN, INPUT_PULLUP);
@@ -490,7 +490,7 @@ void renderCredits() {
 int page = 1;
 static const char* chosenMessage = nullptr;
 void gameOver() {
-  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+  display.setFont(u8g2_font_profont10_mf);
   
   // Reset chosen message when death screen is dismissed
   if (showDeathScreen && ((buttons.bPressed && !buttons.bPressedPrev) || (buttons.aPressed && !buttons.aPressedPrev))) {
@@ -498,30 +498,30 @@ void gameOver() {
   }
   if (showDeathScreen) {
     display.clearDisplay();
-    u8g2_for_adafruit_gfx.setCursor(0, 125);
+    display.setCursor(0, 117);
     if (strcmp(deathCause, "blob") == 0) {
       display.drawBitmap(0, 0, wizardDeath_blob, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("Slain by a blob!"));
+      display.print("Slain by a blob!");
     } else if (strcmp(deathCause, "batguy") == 0) {
       display.drawBitmap(0, 0, wizardDeath_batguy, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("Slain by a batguy!"));
+      display.print("Slain by a batguy!");
     } else if (strcmp(deathCause, "succubus") == 0) {
       display.drawBitmap(0, 0, wizardDeath_succubus, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("Slain by a succubus!"));
+      display.print("Slain by a succubus!");
     } else if (strcmp(deathCause, "shooter") == 0) {
       display.drawBitmap(-10, 0, wizardDeath_shooter, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("Slain by a shooter!"));
+      display.print("Slain by a shooter!");
     } else if (strcmp(deathCause, "hunger") == 0 || strcmp(deathCause, "poison") == 0) {
       display.drawBitmap(0, 0, wizardDeath_hunger, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F(strcmp(deathCause, "poison") == 0 ? "You died from poison!" : "You starved!"));
+      display.print(strcmp(deathCause, "poison") == 0 ? "You died from poison!" : "You starved!");
     } else if (strcmp(deathCause, "stupidity") == 0) {
       display.drawBitmap(0, 0, wizardDeath_stupidity, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("You died of pure stupidity."));
+      display.print("You died of pure stupidity.");
     } else if (strcmp(deathCause, "boss") == 0) {
       display.drawBitmap(0, 0, wizardDeath_boss, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.print(F("You failed."));
+      display.print("You failed.");
     } else {
-      u8g2_for_adafruit_gfx.print(F("Yeah, idk what killed you."));
+      display.print("Yeah, idk what killed you.");
     }
     display.display();
     if ((buttons.bPressed && !buttons.bPressedPrev) || (buttons.aPressed && !buttons.aPressedPrev)) {
@@ -697,7 +697,7 @@ void showStatusScreen() {
 
   display.clearDisplay();
 
-  u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
+  //display.setFont(u8g2_font_profont10_mf);
 
   // Only show regular status screens if not final status screen
   if (!nearSuccubus && !endlessMode) {
@@ -711,90 +711,90 @@ void showStatusScreen() {
               } else {
                 display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
               }
-              u8g2_for_adafruit_gfx.setCursor(0, 125);
-              u8g2_for_adafruit_gfx.print(F("You rescued the Damsel!"));
+              display.setCursor(0, 117);
+              display.print("You rescued the Damsel!");
             } else {
-              u8g2_for_adafruit_gfx.setCursor(0, 125);
-              u8g2_for_adafruit_gfx.print(F("Error."));
+              display.setCursor(0, 117);
+              display.print("Error.");
             }
           } else if (dungeon == levelOfDamselDeath) {
             if (damsel[0].dead) {
               display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-              u8g2_for_adafruit_gfx.setCursor(0, 105);
+              display.setCursor(0, 77);
               if (!knowsDamselName) {
-                u8g2_for_adafruit_gfx.print(F("The Damsel died!"));
+                display.print("The Damsel died!");
               } else {
                 char msg[130];
                 snprintf(msg, sizeof(msg), "%s%s!", damselDeathMsg, damsel[0].name);
-                u8g2_for_adafruit_gfx.print(F(msg));
+                display.print(msg);
               }
-              u8g2_for_adafruit_gfx.setCursor(0, 115);
-              u8g2_for_adafruit_gfx.print(F(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!"));
+              display.setCursor(0, 107);
+              display.print(damsel[0].levelOfLove >= 2 ? "She trusted you!" : "How could you!");
               if (damsel[0].levelOfLove >= 5) {
-                u8g2_for_adafruit_gfx.setCursor(0, 125);
-                u8g2_for_adafruit_gfx.print(F("She loved you!"));
+                display.setCursor(0, 117);
+                display.print("She loved you!");
               }
             } else if (!damsel[0].dead && !damsel[0].followingPlayer && !damsel[0].beingCarried) {
               display.drawBitmap(0, 0, leftDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-              u8g2_for_adafruit_gfx.setCursor(0, 125);
+              display.setCursor(0, 117);
               if (!knowsDamselName) {
-                u8g2_for_adafruit_gfx.print(F("You left the Damsel!"));
+                display.print("You left the Damsel!");
               } else {
                 char msg[100];
                 snprintf(msg, sizeof(msg), "You left %s!", damsel[0].name);
-                u8g2_for_adafruit_gfx.print(F(msg));
+                display.print(msg);
               }
               leftDamsel = true;
             }
           } else {
             display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-            u8g2_for_adafruit_gfx.setCursor(0, 125);
-            u8g2_for_adafruit_gfx.print(F("You progress. Alone."));
+            display.setCursor(0, 117);
+            display.print("You progress. Alone.");
           }
         } else {
           display.drawBitmap(0, 0, capturedDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-          u8g2_for_adafruit_gfx.setCursor(0, 10);
-          u8g2_for_adafruit_gfx.print(F("The Damsel was captured!"));
+          display.setCursor(0, 2);
+          display.print("The Damsel was captured!");
         }
       }
     }
   } else if (endlessMode) {
     display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-    u8g2_for_adafruit_gfx.setCursor(0, 125);
-    u8g2_for_adafruit_gfx.print(F("You progress. Alone."));
+    display.setCursor(0, 117);
+    display.print("You progress. Alone.");
   }
   if (nearSuccubus && !finalStatusScreen) {
     if (!succubusIsFriend) {
       display.drawBitmap(0, 0, succubusFollowScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 115);
-      u8g2_for_adafruit_gfx.print(F("Why didn't you kill her?"));
-      u8g2_for_adafruit_gfx.setCursor(0, 125);
-      u8g2_for_adafruit_gfx.print(F("She tried to kill you..."));
+      display.setCursor(0, 117);
+      display.print("Why didn't you kill her?");
+      display.setCursor(0, 117);
+      display.print("She tried to kill you...");
     } else {
       display.drawBitmap(0, 0, succubusFollowScreen2, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 120);
-      u8g2_for_adafruit_gfx.print(F("The succubus follows."));
+      display.setCursor(0, 118);
+      display.print("The succubus follows.");
     }
   }
   if (finalStatusScreen) {
     if (succubusIsFriend) {
       display.drawBitmap(0, 0, endScreenSuccubus, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 115);
-      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
-      u8g2_for_adafruit_gfx.setCursor(0, 125);
-      u8g2_for_adafruit_gfx.print(F("Have fun... ;)"));
+      display.setCursor(0, 107);
+      display.print("You defeated the master!");
+      display.setCursor(0, 117);
+      display.print("Have fun... ;)");
     } else if (!damsel[0].dead && damsel[0].active) {
       display.drawBitmap(0, 0, endScreenDamsel, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 115);
-      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
-      u8g2_for_adafruit_gfx.setCursor(0, 125);
-      u8g2_for_adafruit_gfx.print(F("And rescued the damsel!"));
+      display.setCursor(0, 107);
+      display.print("You defeated the master!");
+      display.setCursor(0, 117);
+      display.print("And rescued the damsel!");
     } else {
       display.drawBitmap(0, 0, aloneWizardScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-      u8g2_for_adafruit_gfx.setCursor(0, 115);
-      u8g2_for_adafruit_gfx.print(F("You defeated the master!"));
-      u8g2_for_adafruit_gfx.setCursor(0, 125);
-      u8g2_for_adafruit_gfx.print(F("But are still alone."));
+      display.setCursor(0, 107);
+      display.print("You defeated the master!");
+      display.setCursor(0, 117);
+      display.print("But are still alone.");
     }
   }
 
