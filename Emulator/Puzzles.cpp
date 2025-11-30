@@ -89,17 +89,19 @@ void drawPicrossPuzzle() {
         for (int x = 0; x < PICROSS_SIZE; x++)
             if (picrossSolution[y][x]) count++;
         display.setCursor(gridX - 18, gridY + y * cellSize + 4);
-        display.print(count);
+        display.print(std::to_string(count).c_str());
     }
     for (int x = 0; x < PICROSS_SIZE; x++) {
         int count = 0;
         for (int y = 0; y < PICROSS_SIZE; y++)
             if (picrossSolution[y][x]) count++;
         display.setCursor(gridX + x * cellSize + 4, gridY - 10);
-        display.print(count);
+        display.print(std::to_string(count).c_str());
     }
     display.setCursor(0, 120);
     display.print("Picross puzzle");
+    display.setCursor(0, 100);
+    display.print("Satisfy all columns and rows.");
     display.display();
 }
 
@@ -219,6 +221,8 @@ void drawLightsOutPuzzle() {
     }
     display.setCursor(0, 120);
     display.print("Lights Out puzzle");
+    display.setCursor(0, 2);
+    display.print("Make all squares black.");
     display.display();
 }
 

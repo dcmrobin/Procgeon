@@ -446,6 +446,10 @@ void handleUIStateTransitions() {
       case UI_SECRET:
         currentUIState = UI_SPLASH;
         break;
+      case UI_PICROSS:
+        break;
+      case UI_LIGHTSOUT:
+        break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     playRawSFX(9);

@@ -840,7 +840,7 @@ void handleDialogue() {
     u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
     u8g2_for_adafruit_gfx.setCursor(27, 19);
-    display.setCursor(24, 13);
+    display.setCursor(28, 13);
     display.print(currentDialogue);
     //drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
