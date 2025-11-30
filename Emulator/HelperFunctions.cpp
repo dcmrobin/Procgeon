@@ -383,9 +383,9 @@ void updateButtonStates() {
 
 void handleUIStateTransitions() {
   // Skip UI transitions if in a puzzle state (puzzles handle their own input)
-  //if (currentUIState == UI_PICROSS || currentUIState == UI_LIGHTSOUT) {
-  //  return;
-  //}
+  if (currentUIState == UI_PICROSS || currentUIState == UI_LIGHTSOUT) {
+    return;
+  }
 
   if (buttons.aPressed && !buttons.aPressedPrev) {
     switch (currentUIState) {
@@ -445,12 +445,6 @@ void handleUIStateTransitions() {
         break;
       case UI_SECRET:
         currentUIState = UI_SPLASH;
-        break;
-      case UI_PICROSS:
-        currentUIState = UI_NORMAL;
-        break;
-      case UI_LIGHTSOUT:
-        currentUIState = UI_NORMAL;
         break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
