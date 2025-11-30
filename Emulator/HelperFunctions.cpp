@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Inventory.h"
+#include "Puzzles.h"
 #include "SaveLogic.h"
 #include "Item.h"
 #include <string.h>
@@ -381,6 +382,11 @@ void updateButtonStates() {
 }
 
 void handleUIStateTransitions() {
+  // Skip UI transitions if in a puzzle state (puzzles handle their own input)
+  //if (currentUIState == UI_PICROSS || currentUIState == UI_LIGHTSOUT) {
+  //  return;
+  //}
+
   if (buttons.aPressed && !buttons.aPressedPrev) {
     switch (currentUIState) {
       case UI_NORMAL: 
@@ -440,6 +446,12 @@ void handleUIStateTransitions() {
       case UI_SECRET:
         currentUIState = UI_SPLASH;
         break;
+      case UI_PICROSS:
+        currentUIState = UI_NORMAL;
+        break;
+      case UI_LIGHTSOUT:
+        currentUIState = UI_NORMAL;
+        break;
     }
   } else if (buttons.startPressed && !buttons.startPressedPrev) {
     playRawSFX(9);
@@ -448,6 +460,13 @@ void handleUIStateTransitions() {
       shouldRestartGame = true;
     }
     currentUIState = currentUIState == UI_PAUSE || currentUIState == UI_SPLASH ? UI_NORMAL : currentUIState == UI_NORMAL ? UI_PAUSE : currentUIState;
+  }
+
+  // If a non-blocking puzzle finished while we were in UI flow, handle pending chest resolution
+  if (puzzleFinished && pendingChestActive) {
+    finishPendingChest(puzzleSuccess);
+    // Reset puzzle finished flag so we don't re-handle
+    puzzleFinished = false;
   }
 }
 

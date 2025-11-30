@@ -86,4 +86,10 @@ void playDamselSFX(const char *tone);
 void handleRingEffects();
 void OpenChest(int cy, int cx, int dx);
 
+// Pending chest handling for non-blocking puzzles
+extern bool pendingChestActive;
+extern int pendingChestX;
+extern int pendingChestY;
+void finishPendingChest(bool success);
+
 #endif

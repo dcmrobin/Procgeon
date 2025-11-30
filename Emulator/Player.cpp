@@ -81,6 +81,11 @@ bool reloading;
 char damselDeathMsg[100] = "You killed ";
 bool endlessMode = false;
 
+// Pending chest state used when opening a chest starts a puzzle
+bool pendingChestActive = false;
+int pendingChestX = -1;
+int pendingChestY = -1;
+
 void renderPlayer() {
   float screenX = (playerX - offsetX) * tileSize;
   float screenY = (playerY - offsetY) * tileSize;
@@ -835,7 +840,7 @@ void handleDialogue() {
     u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
     display.fillRect(25, 10, 100, 34, 0);
     u8g2_for_adafruit_gfx.setCursor(27, 19);
-    display.setCursor(17, 19);
+    display.setCursor(24, 13);
     display.print(currentDialogue);
     //drawWrappedText(27, 19, 96, currentDialogue);
     display.drawRect(25, 10, 100, 34, 15);
@@ -1075,25 +1080,51 @@ void handleRingEffects() {
 }
 
 void OpenChest(int cy, int cx, int dx) {
-  // Require solving a random puzzle before opening
-  if (!launchRandomPuzzle()) {
-    return; // Player did not solve puzzle, do not open chest
+  // Start a puzzle and defer actual chest opening until puzzle completes
+  if (pendingChestActive) return; // already handling a chest
+  pendingChestActive = true;
+  pendingChestX = cx;
+  pendingChestY = cy;
+
+  // Randomly pick a puzzle to start
+  if (random(0, 2) == 0) {
+    startPicrossPuzzle();
+  } else {
+    startLightsOutPuzzle();
   }
-  // Open the chest: remove chest and spawn loot in 3x3 area
+  return;
+}
+
+void finishPendingChest(bool success) {
+  if (!pendingChestActive) return;
+  int cx = pendingChestX;
+  int cy = pendingChestY;
+  pendingChestActive = false;
+  pendingChestX = -1;
+  pendingChestY = -1;
+
+  if (!success) {
+    // Player failed/cancelled puzzle; play a deny sfx and do nothing
+    playRawSFX(13);
+    return;
+  }
+
+  // Successful: spawn loot safely
   playRawSFX(3); // Play pickup sound
-  dungeonMap[cy][cx] = Floor;
-  for (int ldx = -1; ldx <= 1; ldx++) {
-    for (int ldy = -1; ldy <= 1; ldy++) {
-      int lx = cx + ldx;
-      int ly = cy + ldy;
-      if (lx >= 0 && lx < mapWidth && ly >= 0 && ly < mapHeight && dungeonMap[ly][lx] == Floor) {
-        // Use rarity-based loot spawning - chests can contain items up to rarity 4
-        // This allows for better loot from chests compared to random dungeon spawns
-        if (random(0, 100) < 85) { // 85% chance to spawn loot in each valid tile
-          dungeonMap[ly][lx] = getRandomLootTile(5); // Max rarity 5 for chest loot
-        }
+  if (cy >= 0 && cy < mapHeight && cx >= 0 && cx < mapWidth) {
+    dungeonMap[cy][cx] = Floor;
+    for (int ldx = -1; ldx <= 1; ldx++) {
+      for (int ldy = -1; ldy <= 1; ldy++) {
+        int lx = cx + ldx;
+        int ly = cy + ldy;
+        if (lx < 0 || lx >= mapWidth || ly < 0 || ly >= mapHeight) continue;
+        if (dungeonMap[ly][lx] != Floor) continue;
+        if (random(0, 100) >= 85) continue;
+        TileTypes loot = getRandomLootTile(5);
+        bool isItemTile = (loot == Potion || loot == Map || loot == MushroomTile || loot == RiddleStoneTile || loot == ArmorTile || loot == ScrollTile || loot == RingTile);
+        if (!isItemTile) loot = Potion;
+        dungeonMap[ly][lx] = loot;
       }
     }
   }
-  dx = 2; // break outer loop
 }

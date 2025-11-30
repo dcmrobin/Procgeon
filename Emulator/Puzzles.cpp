@@ -15,6 +15,10 @@ bool lightsOutGrid[LIGHTSOUT_SIZE][LIGHTSOUT_SIZE];
 int lightsOutCursorX = 0;
 int lightsOutCursorY = 0;
 
+// Non-blocking puzzle status
+bool puzzleFinished = false;
+bool puzzleSuccess = false;
+
 void resetPicrossPuzzle() {
     generatePicrossPuzzle();
     for (int y = 0; y < PICROSS_SIZE; y++)
@@ -100,7 +104,6 @@ void drawPicrossPuzzle() {
 }
 
 void handlePicrossInput() {
-    updateButtonStates(); // Ensure button states are current
     if (buttons.upPressed && !buttons.upPressedPrev) {
         if (picrossCursorY > 0) picrossCursorY--;
     } else if (buttons.downPressed && !buttons.downPressedPrev) {
@@ -220,7 +223,6 @@ void drawLightsOutPuzzle() {
 }
 
 void handleLightsOutInput() {
-    updateButtonStates();
     if (buttons.upPressed && !buttons.upPressedPrev) {
         if (lightsOutCursorY > 0) lightsOutCursorY--;
     } else if (buttons.downPressed && !buttons.downPressedPrev) {
@@ -277,5 +279,53 @@ bool launchRandomPuzzle() {
         return launchPicrossPuzzle();
     } else {
         return launchLightsOutPuzzle();
+    }
+}
+
+// Non-blocking API: start and per-frame update
+void startPicrossPuzzle() {
+    resetPicrossPuzzle();
+    puzzleFinished = false;
+    puzzleSuccess = false;
+    currentUIState = UI_PICROSS;
+}
+
+void updatePicrossPuzzle() {
+    drawPicrossPuzzle();
+    handlePicrossInput();
+    // Cancel with A
+    if (buttons.aPressed && !buttons.aPressedPrev) {
+        puzzleFinished = true;
+        puzzleSuccess = false;
+        currentUIState = UI_NORMAL;
+        return;
+    }
+    if (isPicrossSolved()) {
+        puzzleFinished = true;
+        puzzleSuccess = true;
+        currentUIState = UI_NORMAL;
+    }
+}
+
+void startLightsOutPuzzle() {
+    resetLightsOutPuzzle();
+    puzzleFinished = false;
+    puzzleSuccess = false;
+    currentUIState = UI_LIGHTSOUT;
+}
+
+void updateLightsOutPuzzle() {
+    drawLightsOutPuzzle();
+    handleLightsOutInput();
+    if (buttons.aPressed && !buttons.aPressedPrev) {
+        puzzleFinished = true;
+        puzzleSuccess = false;
+        currentUIState = UI_NORMAL;
+        return;
+    }
+    if (isLightsOutSolved()) {
+        puzzleFinished = true;
+        puzzleSuccess = true;
+        currentUIState = UI_NORMAL;
     }
 }

@@ -276,6 +276,28 @@ void game_loop() {
             case UI_SECRET:
               renderSecretScreen();
               break;
+
+            case UI_PICROSS:
+              updatePicrossPuzzle();
+              if (buttons.aPressed && !buttons.aPressedPrev) {
+                // Player pressed A to back out
+                puzzleFinished = true;
+                puzzleSuccess = false;
+                pendingChestActive = false;
+                currentUIState = UI_NORMAL;
+              }
+              break;
+
+            case UI_LIGHTSOUT:
+              updateLightsOutPuzzle();
+              if (buttons.aPressed && !buttons.aPressedPrev) {
+                // Player pressed A to back out
+                puzzleFinished = true;
+                puzzleSuccess = false;
+                pendingChestActive = false;
+                currentUIState = UI_NORMAL;
+              }
+              break;
           }
         } else {
           showStatusScreen();
