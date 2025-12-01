@@ -327,8 +327,8 @@ void handleInput() {
   int rNewX = round(newX);
   int rNewY = round(newY);
 
-  // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen) {
+  // Check collision - can move if tile is walkable
+  if (canSpriteOccupyTile(newX, newY)) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {

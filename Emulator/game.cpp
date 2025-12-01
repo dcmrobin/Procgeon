@@ -326,11 +326,13 @@ void updateGame() {
   updateScreenShake();
   handleInput();
   
+  // Camera scrolling is always updated, independent of player action
+  updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
+  
   // Only update game state if the player has taken an action
   if (playerActed || playerNearClockEnemy) {
     handleAmbientNoiseLevel();
     handleHungerAndEffects();
-    updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
     updateDamsel();
     updateProjectiles();
     if (dungeon == bossfightLevel) {

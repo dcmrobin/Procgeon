@@ -333,23 +333,31 @@ int predictXtile(float x) {
 int predictYtile(float y) {
   return (int)(y + 0.5f); // Always round to the nearest integer
 }
+
+// Check if a sprite at the given position would collide with walls
+// Considers the sprite as a point that must be fully within a valid tile
+bool canSpriteOccupyTile(float x, float y) {
+  int tileX = (int)(x + 0.5f);
+  int tileY = (int)(y + 0.5f);
+  
+  // Check bounds
+  if (tileX < 0 || tileX >= mapWidth || tileY < 0 || tileY >= mapHeight) {
+    return false;
+  }
+  
+  // Check tile type - allow walking on these tiles
+  TileTypes tile = dungeonMap[tileY][tileX];
+  return (tile == Floor || tile == Exit || tile == StartStairs || tile == Freedom || 
+          tile == DoorOpen || tile == Potion || tile == Map || tile == MushroomTile || 
+          tile == RiddleStoneTile || tile == ArmorTile || tile == ScrollTile || tile == RingTile || 
+          tile == ChestTile);
+}
+
 bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY) {
-    int ptx = predictXtile(newX);
-    int cty = round(newY);
-    bool xValid = (newX >= 0 && newX < mapWidth && dungeonMap[cty][ptx] != Wall && dungeonMap[cty][ptx] != Bars && dungeonMap[cty][ptx] != ChestTile);
-    if (!xValid) {
-        newX = currentX;
-    }
-    return !xValid;
+    return !canSpriteOccupyTile(newX, newY);
 }
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX) {
-    int pty = predictYtile(newY);
-    int ctx = round(newX);
-    bool yValid = (newY >= 0 && newY < mapHeight && dungeonMap[pty][ctx] != Wall && dungeonMap[pty][ctx] != Bars && dungeonMap[pty][ctx] != ChestTile);
-    if (!yValid) {
-        newY = currentY;
-    }
-    return !yValid;
+    return !canSpriteOccupyTile(newX, newY);
 }
 bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y) {
   // Use predictXtile/predictYtile for consistent rounding

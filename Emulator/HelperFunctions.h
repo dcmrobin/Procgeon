@@ -127,6 +127,7 @@ void swap(int &a, int &b);
 int countWalls(int x, int y);
 int predictXtile(float x);
 int predictYtile(float y);
+bool canSpriteOccupyTile(float x, float y);
 bool checkSpriteCollisionWithTileX(float newX, float currentX, float newY);
 bool checkSpriteCollisionWithTileY(float newY, float currentY, float newX);
 bool checkSpriteCollisionWithSprite(float sprite1X, float sprite1Y, float sprite2X, float sprite2Y);
