@@ -100,6 +100,9 @@ int findFirstItemInCurrentCategory() {
 
 int findNextItemInCategory(int current) {
   int category = inventoryPages[currentInventoryPageIndex].category;
+  // Defensive: clamp current
+  if (current < 0) current = 0;
+  if (current >= inventorySize) current = inventorySize - 1;
 
   // Check from current + 1 to the end
   for (int i = current + 1; i < inventorySize; i++) {
@@ -115,11 +118,15 @@ int findNextItemInCategory(int current) {
     }
   }
 
-  return -1; // No items found
+  // No items found in this category - return first slot candidate (safe default)
+  return findFirstItemInCurrentCategory();
 }
 
 int findPreviousItemInCategory(int current) {
   int category = inventoryPages[currentInventoryPageIndex].category;
+  // Defensive: clamp current
+  if (current < 0) current = 0;
+  if (current >= inventorySize) current = inventorySize - 1;
 
   // Check from current - 1 down to 0
   for (int i = current - 1; i >= 0; i--) {
@@ -135,10 +142,15 @@ int findPreviousItemInCategory(int current) {
     }
   }
 
-  return -1; // No items found
+  // No items found in this category - return first slot candidate (safe default)
+  return findFirstItemInCurrentCategory();
 }
 
 void handleInventoryItemUsage() {
+  // Defensive: ensure selectedInventoryIndex is valid
+  if (selectedInventoryIndex < 0 || selectedInventoryIndex >= inventorySize) {
+    selectedInventoryIndex = findFirstItemInCurrentCategory();
+  }
   if (buttons.bPressed && !buttons.bPressedPrev && identifyingItem && currentUIState == UI_INVENTORY) {
     // Select item to identify
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
@@ -159,6 +171,10 @@ void handleInventoryItemUsage() {
     return;
   }
   if (buttons.bPressed && !buttons.bPressedPrev && !identifyingItem && currentUIState == UI_INVENTORY) {
+    // Defensive: ensure selected index is valid
+    if (selectedInventoryIndex < 0 || selectedInventoryIndex >= inventorySize) {
+      selectedInventoryIndex = findFirstItemInCurrentCategory();
+    }
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
   
     if (strcmp(selectedItem.name, "Empty") != 0 && strlen(selectedItem.name) > 0) {
@@ -246,6 +262,10 @@ void handleInventoryItemUsage() {
 }
 
 void handleItemActionMenu() {
+  // Defensive: ensure selectedInventoryIndex is valid before using
+  if (selectedInventoryIndex < 0 || selectedInventoryIndex >= inventorySize) {
+    selectedInventoryIndex = findFirstItemInCurrentCategory();
+  }
   // Navigation
   if (buttons.upPressed && !buttons.upPressedPrev) {
     playRawSFX(8);
@@ -693,6 +713,10 @@ void renderInventory() {
   display.clearDisplay();
   display.setTextSize(1);
 
+  // Defensive: ensure selected index is within bounds
+  if (selectedInventoryIndex < 0) selectedInventoryIndex = 0;
+  if (selectedInventoryIndex >= inventorySize) selectedInventoryIndex = inventorySize - 1;
+
   if (currentUIState == UI_INVENTORY) {
     display.setCursor(combiningTwoItems ? 0 : 10, combiningTwoItems ? 0 : 3);
     display.setTextSize(combiningTwoItems || identifyingItem ? 1 : 2);
@@ -815,5 +839,5 @@ void removeItemFromInventory(int page, int index) {
         invPage.items[i] = invPage.items[i + 1];
     }
     invPage.items[inventorySize - 1] = getItem(Null);
-    invPage.itemCount--;
+  if (invPage.itemCount > 0) invPage.itemCount--;
 }
