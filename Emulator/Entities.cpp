@@ -17,6 +17,7 @@
 Damsel damsel[1];
 Enemy enemies[maxEnemies];
 Projectile projectiles[maxProjectiles];
+Particle particles[maxParticles];
 int levelOfDamselDeath = -4;
 float clockX = -10000;
 float clockY = -10000;
@@ -860,6 +861,7 @@ void updateProjectiles() {
 
       // Check for collisions with walls or out-of-bounds
       if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || dungeonMap[projectileTileY][projectileTileX] == DoorClosed || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
+        spawnParticles(projectiles[i].x, projectiles[i].y, 5, 0.15f, false);  // Small impact particles
         projectiles[i].active = false; // Deactivate the bullet
         playRawSFX3D(22, projectiles[i].x, projectiles[i].y);
       }
@@ -886,10 +888,14 @@ void updateProjectiles() {
         }
         
         if (collision && enemies[j].hp > 0) {
+          bool wasAlive = enemies[j].hp > 0;
           // Hit by player's projectile or another enemy's projectile
           enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
+          spawnParticles(enemies[j].x, enemies[j].y, 5, 0.15f, false);  // Small impact particles
           playRawSFX3D(23, enemies[j].x, enemies[j].y);
           if (enemies[j].hp <= 0 && projectiles[i].active == true) {
+            // Spawn large death particles
+            spawnParticles(enemies[j].x, enemies[j].y, 12, 0.25f, true);
             kills += 1;
             if (strcmp(enemies[j].name, "clock") == 0) {
               enemies[j].x = -3000;
@@ -1050,4 +1056,79 @@ void renderProjectiles() {
           display.fillCircle(screenX, screenY, 1, 15);
         }
     }
+}
+
+void spawnParticles(float x, float y, int count, float speed, bool isLarge) {
+  for (int i = 0; i < count; i++) {
+    // Find an inactive particle slot
+    for (int j = 0; j < maxParticles; j++) {
+      if (!particles[j].active) {
+        particles[j].x = x;
+        particles[j].y = y;
+        
+        // Random direction (radial spread)
+        float angle = random(0, 628) / 100.0f;  // 0 to 2π
+        particles[j].vx = cos(angle) * speed;
+        particles[j].vy = sin(angle) * speed;
+        
+        // Shorter lifespans
+        if (isLarge) {
+          particles[j].maxLifetime = random(8, 15);  // Large particles: 8-15 frames
+        } else {
+          particles[j].maxLifetime = random(5, 10);  // Small particles: 5-10 frames
+        }
+        particles[j].lifetime = particles[j].maxLifetime;
+        particles[j].active = true;
+        break;
+      }
+    }
+  }
+}
+
+void updateParticles() {
+  for (int i = 0; i < maxParticles; i++) {
+    if (particles[i].active) {
+      // Update position with velocity
+      particles[i].x += particles[i].vx;
+      particles[i].y += particles[i].vy;
+      
+      // Apply slight friction (no gravity)
+      particles[i].vx *= 0.92f;
+      particles[i].vy *= 0.92f;
+      
+      // Decrease lifetime
+      particles[i].lifetime--;
+      
+      // Deactivate when lifetime expires
+      if (particles[i].lifetime <= 0) {
+        particles[i].active = false;
+      }
+    }
+  }
+}
+
+void renderParticles() {
+  for (int i = 0; i < maxParticles; i++) {
+    if (particles[i].active) {
+      float screenX = (particles[i].x - offsetX) * tileSize;
+      float screenY = (particles[i].y - offsetY) * tileSize;
+      
+      // Only render if on screen
+      if (screenX >= -tileSize && screenX < SCREEN_WIDTH + tileSize &&
+          screenY >= -tileSize && screenY < SCREEN_HEIGHT + tileSize) {
+        
+        // Fade out based on lifetime remaining
+        int brightness = (particles[i].lifetime * 15) / particles[i].maxLifetime;
+        brightness = brightness > 15 ? 15 : brightness;
+        brightness = brightness < 1 ? 1 : brightness;
+        
+        // Draw small particles as single pixels, large as 2x2
+        if (particles[i].maxLifetime >= 20) {
+          display.fillRect(screenX, screenY, 2, 2, brightness);
+        } else {
+          display.fillCircle(screenX + 1, screenY + 1, 1, brightness);
+        }
+      }
+    }
+  }
 }

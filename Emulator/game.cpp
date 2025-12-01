@@ -326,8 +326,11 @@ void updateGame() {
   updateScreenShake();
   handleInput();
   
-  // Camera scrolling is always updated, independent of player action
+  // Camera scrolling runs every frame, independent of player action
   updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
+  
+  // Update particles every frame
+  updateParticles();
   
   // Only update game state if the player has taken an action
   if (playerActed || playerNearClockEnemy) {
@@ -359,6 +362,7 @@ void renderGame() {
     renderDamsel();
     renderEnemies();
     renderProjectiles();
+    renderParticles();
   }
   renderPlayer();
   renderUI();

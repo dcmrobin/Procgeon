@@ -471,12 +471,11 @@ void drawMinimap() {
 
 // Render the visible portion of the dungeon
 void renderDungeon() {
-  // Render with 1 tile of padding on all sides so tiles spawn outside the screen
   for (int y = 0; y < viewportHeight + 2; y++) {
     for (int x = 0; x < viewportWidth + 2; x++) {
 
-      float mapX = x + offsetX - 1;
-      float mapY = y + offsetY - 1;
+      float mapX = x - 1 + offsetX;
+      float mapY = y - 1 + offsetY;
 
       if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
 
@@ -492,8 +491,8 @@ void renderDungeon() {
         }
         // --------------------------------------------------------------
 
-        float screenX = (x - (offsetX - (int)offsetX) - 1) * tileSize;
-        float screenY = (y - (offsetY - (int)offsetY) - 1) * tileSize;
+        float screenX = (x - 1 - (offsetX - (int)offsetX)) * tileSize;
+        float screenY = (y - 1 - (offsetY - (int)offsetY)) * tileSize;
 
         drawTile((int)mapX, (int)mapY, screenX, screenY);
       }

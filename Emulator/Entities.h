@@ -8,6 +8,7 @@
 
 #define maxEnemies 30
 #define maxProjectiles 30
+#define maxParticles 200
 
 struct Damsel {
   float x, y;
@@ -78,6 +79,15 @@ struct Projectile {
 };
 extern Projectile projectiles[maxProjectiles];
 
+struct Particle {
+  float x, y;
+  float vx, vy;  // velocity
+  int lifetime;  // remaining frames
+  int maxLifetime;  // for fade effect
+  bool active;
+};
+extern Particle particles[maxParticles];
+
 extern int levelOfDamselDeath;
 extern float clockX;
 extern float clockY;
@@ -94,5 +104,8 @@ void renderEnemies();
 void renderDamsel();
 void renderProjectiles();
 void reduceArmorDurability(int i);
+void spawnParticles(float x, float y, int count, float speed, bool isLarge);
+void updateParticles();
+void renderParticles();
 
 #endif
