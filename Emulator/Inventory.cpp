@@ -455,6 +455,8 @@ void handleItemActionMenu() {
         
         if (selectedItem.AOEsize > 0) {
           applyAOEEffect(playerX, playerY, selectedItem.AOEsize, selectedItem.AOEdamage);
+          spawnParticles(playerX, playerY, 15, 0.4f, true);
+          playRawSFX(10);
         }
 
         if (strcmp(selectedItem.itemResult, "You are now more hungry.") == 0) {

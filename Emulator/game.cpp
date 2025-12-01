@@ -522,6 +522,7 @@ void gameOver() {
       display.print(strcmp(deathCause, "poison") == 0 ? "You died from poison!" : "You starved!");
     } else if (strcmp(deathCause, "stupidity") == 0) {
       display.drawBitmap(0, 0, wizardDeath_stupidity, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      display.setCursor(0, 107);
       display.print("You died of pure stupidity.");
     } else if (strcmp(deathCause, "boss") == 0) {
       display.drawBitmap(0, 0, wizardDeath_boss, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
@@ -568,10 +569,10 @@ void gameOver() {
 
   display.setCursor(7, 10);
   display.setTextSize(2);
-  display.print("Game over!");
+  display.print("Gameover!");
   display.setTextSize(1);
   display.setCursor(5, 30);
-  display.print("Press [X] to restart");
+  display.print("Press [X]");
 
   display.drawRect(8, 41, 110, 72, 15);
 
