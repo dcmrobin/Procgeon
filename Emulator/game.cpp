@@ -329,11 +329,9 @@ void updateGame() {
   // Camera scrolling runs every frame, independent of player action
   updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
   
-  // Update particles every frame
-  updateParticles();
-  
   // Only update game state if the player has taken an action
   if (playerActed || playerNearClockEnemy) {
+    updateParticles();
     handleAmbientNoiseLevel();
     handleHungerAndEffects();
     updateDamsel();
@@ -726,7 +724,7 @@ void showStatusScreen() {
             }
           } else if (dungeon == levelOfDamselDeath) {
             if (damsel[0].dead) {
-              display.drawBitmap(0, -10, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+              display.drawBitmap(0, -15, deadDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
               display.setCursor(0, 77);
               if (!knowsDamselName) {
                 display.print("The Damsel died!");
