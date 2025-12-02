@@ -14,6 +14,12 @@
 #include <string.h>
 #include "SaveLogic.h"
 
+#include <fstream>
+#include <sstream>
+
+// Forward declarations for highscore helpers (defined later)
+static void readHighscoresFromFile(int &dngnHighscore, int &kllHighscore);
+static void writeHighscoresToFile(int dngnHighscore, int kllHighscore);
 bool itemResultScreenActive = false;
 
 unsigned int dngnHighscoreAddress = 0;
@@ -546,16 +552,21 @@ void gameOver() {
   snprintf(Dngn, sizeof(Dngn), "%d", dungeon);
   char KLLS[7];
   snprintf(KLLS, sizeof(KLLS), "%d", kills);
+  // Read highscores from file and update if current values are greater
+  int dngnHighscore = 0;
+  int kllHighscore = 0;
+  readHighscoresFromFile(dngnHighscore, kllHighscore);
 
-  int dngnHighscore = EEPROM.read(dngnHighscoreAddress);
+  bool wroteHighscore = false;
   if (dungeon > dngnHighscore) {
-    EEPROM.update(dngnHighscoreAddress, dungeon);
+    dngnHighscore = dungeon;
+    wroteHighscore = true;
   }
-
-  int kllHighscore = EEPROM.read(killHighscoreAddress);
   if (kills > kllHighscore) {
-    EEPROM.update(killHighscoreAddress, kills);
+    kllHighscore = kills;
+    wroteHighscore = true;
   }
+  if (wroteHighscore) writeHighscoresToFile(dngnHighscore, kllHighscore);
 
   char DHighscore[7];
   snprintf(DHighscore, sizeof(DHighscore), "%d", dngnHighscore);
@@ -1213,4 +1224,21 @@ void updateBossfight() {
     default:
       break;
   }
+}
+
+// Highscore file helpers
+static void readHighscoresFromFile(int &dngnHighscore, int &kllHighscore) {
+  dngnHighscore = 0;
+  kllHighscore = 0;
+  std::ifstream in("highscore");
+  if (!in) return; // file doesn't exist yet
+  // Expected format: two integers (dungeonHighscore killHighscore)
+  if (!(in >> dngnHighscore)) dngnHighscore = 0;
+  if (!(in >> kllHighscore)) kllHighscore = 0;
+}
+
+static void writeHighscoresToFile(int dngnHighscore, int kllHighscore) {
+  std::ofstream out("highscore", std::ios::trunc);
+  if (!out) return; // can't write, silently fail in emulator
+  out << dngnHighscore << " " << kllHighscore << "\n";
 }
