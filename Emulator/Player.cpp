@@ -861,6 +861,7 @@ void handleDialogue() {
     timeTillNextDialogue--;
     if (timeTillNextDialogue <= 0) {
       // Helper lambda to pick a random unsaid dialogue from a given set.
+      // Returns -1 if all dialogues have been used (no dialogue to show).
       auto pickDialogue = [](Dialogue dialogueSet[], int length) -> int {
         int unsaidCount = 0;
         int unsaidIndices[length];
@@ -869,14 +870,10 @@ void handleDialogue() {
             unsaidIndices[unsaidCount++] = i;
           }
         }
-        // If all dialogues have been used, reset them.
-        //if (unsaidCount == 0) {
-        //  for (int i = 0; i < length; i++) {
-        //    dialogueSet[i].alreadyBeenSaid = false;
-        //    unsaidIndices[i] = i;
-        //  }
-        //  unsaidCount = length;
-        //}
+        // If all dialogues have been used, return -1 (no dialogue available).
+        if (unsaidCount <= 0) {
+          return -1;
+        }
         // Choose a random index from the unsaid list.
         int chosenIndex = unsaidIndices[random(0, unsaidCount)];
         return chosenIndex;
@@ -887,46 +884,55 @@ void handleDialogue() {
         if (damsel[0].beingCarried) {
           int length = sizeof(damselCarryDialogue) / sizeof(damselCarryDialogue[0]);
           int index = pickDialogue(damselCarryDialogue, length);
-          currentDamselPortrait = damselPortraitCarrying;
-          dialogueTimeLength = damselCarryDialogue[index].duration;
-          isRidiculeDialogue = false;
-          snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselCarryDialogue[index].message);
-          if (!damselCarryDialogue[index].alreadyBeenSaid) {
-            playRawSFX(18);
+          if (index != -1) {
+            currentDamselPortrait = damselPortraitCarrying;
+            dialogueTimeLength = damselCarryDialogue[index].duration;
+            isRidiculeDialogue = false;
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselCarryDialogue[index].message);
+            if (!damselCarryDialogue[index].alreadyBeenSaid) {
+              playRawSFX(18);
+            }
+            damselCarryDialogue[index].alreadyBeenSaid = true;
+            showDialogue = true;
           }
-          damselCarryDialogue[index].alreadyBeenSaid = true;
         } else {
           // Choose dialogue based on levelOfLove.
           if (damsel[0].levelOfLove >= 1 && damsel[0].levelOfLove < 3) {
             int length = sizeof(damselAnnoyingDialogue) / sizeof(damselAnnoyingDialogue[0]);
             int index = pickDialogue(damselAnnoyingDialogue, length);
-            if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
-              playDamselSFX(damselAnnoyingDialogue[index].tone);
+            if (index != -1) {
+              if (!damselAnnoyingDialogue[index].alreadyBeenSaid) {
+                playDamselSFX(damselAnnoyingDialogue[index].tone);
+              }
+              currentDamselPortrait = (strcmp(damselAnnoyingDialogue[index].tone, "annoying") == 0) ? 
+                                      damselPortraitScared : 
+                                      (strcmp(damselAnnoyingDialogue[index].tone, "alone") == 0) ? 
+                                      damselPortraitAlone : 
+                                      damselPortraitNormal;
+              dialogueTimeLength = damselAnnoyingDialogue[index].duration;
+              isRidiculeDialogue = false;
+              snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselAnnoyingDialogue[index].message);
+              damselAnnoyingDialogue[index].alreadyBeenSaid = true;
+              showDialogue = true;
             }
-            currentDamselPortrait = (strcmp(damselAnnoyingDialogue[index].tone, "annoying") == 0) ? 
-                                    damselPortraitScared : 
-                                    (strcmp(damselAnnoyingDialogue[index].tone, "alone") == 0) ? 
-                                    damselPortraitAlone : 
-                                    damselPortraitNormal;
-            dialogueTimeLength = damselAnnoyingDialogue[index].duration;
-            isRidiculeDialogue = false;
-            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselAnnoyingDialogue[index].message);
-            damselAnnoyingDialogue[index].alreadyBeenSaid = true;
           } else if (damsel[0].levelOfLove >= 3 && damsel[0].levelOfLove < 6) {
             int length = sizeof(damselPassiveDialogue) / sizeof(damselPassiveDialogue[0]);
             int index = pickDialogue(damselPassiveDialogue, length);
-            if (!damselPassiveDialogue[index].alreadyBeenSaid) {
-              playDamselSFX(damselPassiveDialogue[index].tone);
+            if (index != -1) {
+              if (!damselPassiveDialogue[index].alreadyBeenSaid) {
+                playDamselSFX(damselPassiveDialogue[index].tone);
+              }
+              currentDamselPortrait = (strcmp(damselPassiveDialogue[index].tone, "annoying") == 0) ? 
+                                      damselPortraitScared : 
+                                      (strcmp(damselPassiveDialogue[index].tone, "alone") == 0) ? 
+                                      damselPortraitAlone : 
+                                      damselPortraitNormal;
+              dialogueTimeLength = damselPassiveDialogue[index].duration;
+              isRidiculeDialogue = false;
+              snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselPassiveDialogue[index].message);
+              damselPassiveDialogue[index].alreadyBeenSaid = true;
+              showDialogue = true;
             }
-            currentDamselPortrait = (strcmp(damselPassiveDialogue[index].tone, "annoying") == 0) ? 
-                                    damselPortraitScared : 
-                                    (strcmp(damselPassiveDialogue[index].tone, "alone") == 0) ? 
-                                    damselPortraitAlone : 
-                                    damselPortraitNormal;
-            dialogueTimeLength = damselPassiveDialogue[index].duration;
-            isRidiculeDialogue = false;
-            snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselPassiveDialogue[index].message);
-            damselPassiveDialogue[index].alreadyBeenSaid = true;
           } else if (damsel[0].levelOfLove >= 6) {
             if (!knowsDamselName) {
               dialogueTimeLength = 500;
@@ -935,28 +941,32 @@ void handleDialogue() {
               }
               snprintf(currentDialogue, sizeof(currentDialogue), "By the way, my name is %s...", damsel[0].name);
               knowsDamselName = true;
+              showDialogue = true;
             } else {
               int length = sizeof(damselGoodDialogue) / sizeof(damselGoodDialogue[0]);
               int index = pickDialogue(damselGoodDialogue, length);
-              if (!damselGoodDialogue[index].alreadyBeenSaid) {
-                playDamselSFX(damselGoodDialogue[index].tone);
+              if (index != -1) {
+                if (!damselGoodDialogue[index].alreadyBeenSaid) {
+                  playDamselSFX(damselGoodDialogue[index].tone);
+                }
+                currentDamselPortrait = (strcmp(damselGoodDialogue[index].tone, "annoying") == 0) ? 
+                                        damselPortraitScared : 
+                                        (strcmp(damselGoodDialogue[index].tone, "alone") == 0) ? 
+                                        damselPortraitAlone : 
+                                        damselPortraitNormal;
+                dialogueTimeLength = damselGoodDialogue[index].duration;
+                isRidiculeDialogue = false;
+                snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselGoodDialogue[index].message);
+                damselGoodDialogue[index].alreadyBeenSaid = true;
+                showDialogue = true;
               }
-              currentDamselPortrait = (strcmp(damselGoodDialogue[index].tone, "annoying") == 0) ? 
-                                      damselPortraitScared : 
-                                      (strcmp(damselGoodDialogue[index].tone, "alone") == 0) ? 
-                                      damselPortraitAlone : 
-                                      damselPortraitNormal;
-              dialogueTimeLength = damselGoodDialogue[index].duration;
-              isRidiculeDialogue = false;
-              snprintf(currentDialogue, sizeof(currentDialogue), "%s", damselGoodDialogue[index].message);
-              damselGoodDialogue[index].alreadyBeenSaid = true;
             }
           }
         }
       }
-      showDialogue = true;
-
-      timeTillNextDialogue = random(1000, 2000);
+      if (showDialogue) {
+        timeTillNextDialogue = random(1000, 2000);
+      }
     }
   }
 }
