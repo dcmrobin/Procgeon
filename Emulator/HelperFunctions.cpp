@@ -372,13 +372,13 @@ void updateButtonStates() {
 
   // Read current states
   const Uint8* keystate = SDL_GetKeyboardState(NULL);
-  buttons.upPressed = keystate[SDL_SCANCODE_UP];
-  buttons.downPressed = keystate[SDL_SCANCODE_DOWN];
-  buttons.leftPressed = keystate[SDL_SCANCODE_LEFT];
-  buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT];
-  buttons.aPressed = keystate[SDL_SCANCODE_Z]; // Example: Z for A
-  buttons.bPressed = keystate[SDL_SCANCODE_X]; // Example: X for B
-  buttons.startPressed = keystate[SDL_SCANCODE_RETURN]; // Enter for Start
+  buttons.upPressed = keystate[SDL_SCANCODE_UP] || keystate[SDL_SCANCODE_W];
+  buttons.downPressed = keystate[SDL_SCANCODE_DOWN] || keystate[SDL_SCANCODE_S];
+  buttons.leftPressed = keystate[SDL_SCANCODE_LEFT] || keystate[SDL_SCANCODE_A];
+  buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT] || keystate[SDL_SCANCODE_D];
+  buttons.aPressed = keystate[SDL_SCANCODE_Z] || keystate[SDL_SCANCODE_BACKSPACE] || keystate[SDL_SCANCODE_I] || keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_LSHIFT];
+  buttons.bPressed = keystate[SDL_SCANCODE_X] || keystate[SDL_SCANCODE_LCTRL] || keystate[SDL_SCANCODE_TAB] || keystate[SDL_SCANCODE_SPACE];
+  buttons.startPressed = keystate[SDL_SCANCODE_RETURN] || keystate[SDL_SCANCODE_P]; // Enter for Start
 }
 
 void handleUIStateTransitions() {
