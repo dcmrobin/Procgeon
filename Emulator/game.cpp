@@ -328,10 +328,11 @@ void updateGame() {
   
   // Camera scrolling runs every frame, independent of player action
   updateScrolling(viewportWidth, viewportHeight, scrollSpeed, offsetX, offsetY);
+
+  updateParticles();
   
   // Only update game state if the player has taken an action
   if (playerActed || playerNearClockEnemy) {
-    updateParticles();
     handleAmbientNoiseLevel();
     handleHungerAndEffects();
     updateDamsel();

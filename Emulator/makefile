@@ -30,7 +30,7 @@ else
     ifeq ($(SDL_TTF_EXISTS), YES)
         CXXFLAGS += -DHAS_SDL_TTF
     endif
-    EXEC := build/emulator.exe
+    EXEC := build/Velho.exe
 endif
 
 LDFLAGS := -L$(SDL2_LIB)
@@ -45,6 +45,16 @@ endif
 # Directories
 SRC_DIR := .
 BUILD_DIR := build
+
+# Check for icon file
+ICON_SOURCE := icon.ico
+ICON_EXISTS := $(shell [ -f "$(ICON_SOURCE)" ] && echo "YES" || echo "NO")
+ICON_RC := 
+ICON_RESOURCE :=
+ifeq ($(ICON_EXISTS), YES)
+    ICON_RC := icon.rc
+    ICON_RESOURCE := $(BUILD_DIR)/icon.res
+endif
 
 # DLL paths - using system DLLs from MSYS2
 SDL_DLL_SOURCE := /mingw64/bin/SDL2.dll
@@ -70,14 +80,24 @@ all: release
 release:
 	@echo "Building release version..."
 	@mkdir -p $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS)
+	@if [ "$(ICON_EXISTS)" = "YES" ]; then \
+		echo "Icon file found, creating resource file..."; \
+		echo 'IDI_ICON1 ICON "icon.ico"' > icon.rc; \
+		windres icon.rc -O coff -o $(BUILD_DIR)/icon.res; \
+	fi
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS) $(ICON_RESOURCE)
 	@$(MAKE) copy_resources
 
 # Debug build
 debug:
 	@echo "Building debug version..."
 	@mkdir -p $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS)
+	@if [ "$(ICON_EXISTS)" = "YES" ]; then \
+		echo "Icon file found, creating resource file..."; \
+		echo 'IDI_ICON1 ICON "icon.ico"' > icon.rc; \
+		windres icon.rc -O coff -o $(BUILD_DIR)/icon.res; \
+	fi
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS) $(ICON_RESOURCE)
 	@$(MAKE) copy_resources
 
 # Combined copy targets
@@ -129,12 +149,13 @@ copy_audio:
 # Clean build artifacts
 clean:
 	@echo "Cleaning build directory..."
+	@rm -f icon.rc $(BUILD_DIR)/icon.res
 	rm -rf $(BUILD_DIR)
 
 # Run the release emulator
 run: release
 	@echo "Running release emulator..."
-	cd $(BUILD_DIR) && ./emulator.exe
+	cd $(BUILD_DIR) && ./Velho.exe
 
 # Run the debug emulator
 run-debug: debug
@@ -184,14 +205,16 @@ help:
 	@echo "    build/"
 	@echo ""
 	@echo "  Executable names:"
-	@echo "    Release: emulator.exe"
+	@echo "    Release: Velho.exe"
 	@echo "    Debug:   emulator-debug.exe"
 	@echo ""
 	@echo "  Resource directories copied:"
 	@echo "    - Fonts/ -> build/Fonts/"
 	@echo "    - Audio/ -> build/Audio/"
 	@echo ""
-	@echo "  SDL2 paths:"
+	@echo "  Icon support:"
+	@echo "    - Automatically detects icon.ico if present"
+	@echo "    - Current icon status: $(ICON_EXISTS)"
 	@echo "    Include: $(SDL2_INCLUDE)"
 	@echo "    Library: $(SDL2_LIB)"
 	@echo ""

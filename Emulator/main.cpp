@@ -41,7 +41,7 @@ int main() {
         }
     }
     
-    SDL_Window* window = SDL_CreateWindow("SSD1327 Emulator", 
+    SDL_Window* window = SDL_CreateWindow("Velho", 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
         WIDTH * 4, HEIGHT * 4, SDL_WINDOW_SHOWN);
         
