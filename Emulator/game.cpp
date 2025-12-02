@@ -373,7 +373,7 @@ void renderGame() {
 }
 
 void renderIntroScreen() {
-  display.setFont(Adafruit_GFX::profont10_font);
+  display.setFont(Adafruit_GFX::builtin_font);
   introNum++;
   if (introNum > 50) {
     introNum = 50;
@@ -495,8 +495,6 @@ void renderCredits() {
 int page = 1;
 static const char* chosenMessage = nullptr;
 void gameOver() {
-  display.setFont(u8g2_font_profont10_mf);
-  
   // Reset chosen message when death screen is dismissed
   if (showDeathScreen && ((buttons.bPressed && !buttons.bPressedPrev) || (buttons.aPressed && !buttons.aPressedPrev))) {
     chosenMessage = nullptr;
