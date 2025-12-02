@@ -24,7 +24,7 @@ int introNum = 0;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
-const unsigned long frameDelay = 15;
+const unsigned long frameDelay = 18;
 bool deleteSV = false;
 
 // SD card chip select pin for Teensy Audio Board

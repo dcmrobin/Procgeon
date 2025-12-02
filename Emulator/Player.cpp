@@ -647,6 +647,9 @@ void handleHungerAndEffects() {
       playerHP -= 4;
     } else {
       int hungerDrain = 2 + (hungerRingsNumber*7) + (regenRingsNumber*3) - (indigestionRingsNumber*2);
+      if (hungerDrain <= 0) {
+        hungerDrain = 1;
+      }
       playerFood -= hungerDrain;
     }
     hungerTick = 0;
