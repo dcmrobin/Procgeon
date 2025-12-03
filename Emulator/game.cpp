@@ -722,11 +722,11 @@ void showStatusScreen() {
           if (dungeon > levelOfDamselDeath + 3) {
             if (!damsel[0].dead && damsel[0].followingPlayer) {
               if (!damsel[0].beingCarried) {
-                display.drawBitmap(0, -10, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+                display.drawBitmap(0, -15, rescueDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
               } else {
-                display.drawBitmap(0, -10, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+                display.drawBitmap(0, -15, carryDamselScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
               }
-              display.setCursor(0, 117);
+              display.setCursor(0, 107);
               display.print("You rescued the Damsel!");
             } else {
               display.setCursor(0, 117);

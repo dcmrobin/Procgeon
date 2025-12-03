@@ -60,7 +60,8 @@ void generateDungeon(bool isBossfight) {
 
       // Add bars in the middle of north and south walls
       int barX = cellX + (cellWidth / 2);
-      dungeonMap[cellY][barX] = Bars;              // North wall bars
+      // North-middle should be open floor (not bars) so player can see/approach it
+      dungeonMap[cellY][barX] = Floor;              // North wall center as floor
       dungeonMap[cellY + cellHeight - 1][barX] = Bars;  // South wall bars
 
       // Place the damsel in the cell
@@ -120,7 +121,7 @@ void generateDungeon(bool isBossfight) {
       for (int y = roomY; y < roomY + roomHeight; y++) {
         for (int x = roomX; x < roomX + roomWidth; x++) {
           dungeonMap[y][x] = Floor;
-          if (random(0, 50) > 47) {
+          if (random(0, 100) > 93) {
             // Use rarity-based loot spawning - lower dungeon floors have lower max rarity (3)
             // This makes chest loot more valuable than random floor loot
             dungeonMap[y][x] = getRandomLootTile(1 + dungeon); // The further the player goes, the better the loot
@@ -145,6 +146,71 @@ void generateDungeon(bool isBossfight) {
     if (dungeonMap[chestY][chestX] == Floor) {
       dungeonMap[chestY][chestX] = ChestTile;
     }
+  }
+
+  // --- Generate damsel's cell BEFORE connecting rooms so corridors won't block it ---
+  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend && !endlessMode) {
+    // Generate the damsel's cell
+    int damselRoomWidth = 7;
+    int damselRoomHeight = 5;
+    int damselRoomX, damselRoomY;
+
+    // Find a location far from the start room
+    do {
+      damselRoomX = random(3, mapWidth - damselRoomWidth - 3);
+      damselRoomY = random(3, mapHeight - damselRoomHeight - 3);
+    } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
+
+    // Create the damsel's cell
+    int barX = damselRoomX + (damselRoomWidth / 2);
+    for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
+      for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
+        if (y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) {
+          // Top and bottom walls normally Bars, but ensure north-middle is Floor
+          if (y == damselRoomY && x == barX) {
+            dungeonMap[y][x] = Floor; // north-middle should be floor (as requested)
+          } else {
+            dungeonMap[y][x] = Bars;
+          }
+        } else {
+          dungeonMap[y][x] = Floor;
+        }
+      }
+    }
+
+    // Connect the damsel's cell to the dungeon (carve a short connector to start area)
+    int centerX = damselRoomX + damselRoomWidth / 2;
+    int centerY = damselRoomY + damselRoomHeight / 2;
+    int startCenterX = startRoomX + startRoomWidth / 2;
+    int startCenterY = startRoomY + startRoomHeight / 2;
+
+    // Carve a connector to the starting room so the cell is reachable.
+    carveHorizontalCorridor(startCenterX, centerX, startCenterY);
+    carveVerticalCorridor(startCenterY, centerY, centerX);
+
+    // Guarantee a closed door at the center of the south wall of the damsel's cell
+    int southWallY = damselRoomY + damselRoomHeight - 1;
+    int southWallCenterX = damselRoomX + damselRoomWidth / 2;
+    dungeonMap[southWallY][southWallCenterX] = DoorClosed;
+
+    // Place the damsel in the cell
+    damsel[0].x = centerX - 1;
+    damsel[0].y = centerY - 1;
+    dungeonMap[centerY][centerX] = ChestTile;
+    damsel[0].speed = 0.1;
+    damsel[0].followingPlayer = false;
+    damsel[0].beingCarried = false;
+    damsel[0].dead = false;
+    damsel[0].active = true;
+    damsel[0].completelyRescued = false;
+  } else {
+    // Deactivate damsel if succubus is friend or damsel is dead
+    damsel[0].x = -3000;
+    damsel[0].y = -3000;
+    damsel[0].active = false;
+    damsel[0].beingCarried = false;
+    damsel[0].followingPlayer = false;
+    damsel[0].completelyRescued = false;
   }
 
   // Connect rooms with corridors
@@ -183,69 +249,6 @@ void generateDungeon(bool isBossfight) {
         }
       }
     }
-  }
-
-  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend && !endlessMode) {
-    // Generate the damsel's cell
-    int damselRoomWidth = 7;
-    int damselRoomHeight = 5;
-    int damselRoomX, damselRoomY;
-
-    // Find a location far from the start room
-    do {
-      damselRoomX = random(3, mapWidth - damselRoomWidth - 3);
-      damselRoomY = random(3, mapHeight - damselRoomHeight - 3);
-    } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
-
-    // Create the damsel's cell
-    for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
-      for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
-        if ((y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) && x >= damselRoomX && x < damselRoomX + damselRoomWidth) {
-          dungeonMap[y][x] = Bars;
-        } else {
-          dungeonMap[y][x] = Floor;
-        }
-      }
-    }
-
-    // Connect the damsel's cell to the dungeon
-    int centerX = damselRoomX + damselRoomWidth / 2;
-    int centerY = damselRoomY + damselRoomHeight / 2;
-    int startCenterX = startRoomX + startRoomWidth / 2;
-    int startCenterY = startRoomY + startRoomHeight / 2;
-
-    carveHorizontalCorridor(startCenterX, centerX, startCenterY);
-    carveVerticalCorridor(startCenterY, centerY, centerX);
-
-    // Guarantee a closed door at the center of the south wall of the damsel's cell
-    int southWallY = damselRoomY + damselRoomHeight - 1;
-    int southWallCenterX = damselRoomX + damselRoomWidth / 2;
-    dungeonMap[southWallY][southWallCenterX] = DoorClosed;
-
-    // Place the damsel in the cell
-    damsel[0].x = centerX - 1;
-    damsel[0].y = centerY - 1;
-    dungeonMap[centerY][centerX] = ChestTile;
-    damsel[0].speed = 0.1;
-    damsel[0].followingPlayer = false;
-    damsel[0].beingCarried = false;
-    damsel[0].dead = false;
-    damsel[0].active = true;
-    damsel[0].completelyRescued = false;
-    // Only initialize levelOfLove if this is the first time encountering her
-    // If she was recaptured (damselGotTaken), preserve her level of love
-    /*if (!damselGotTaken) {
-      damsel[0].levelOfLove = 0;  // First encounter
-    }*/
-    // If damselGotTaken is true, her levelOfLove is preserved from before
-  } else {
-    // Deactivate damsel if succubus is friend or damsel is dead
-    damsel[0].x = -3000;
-    damsel[0].y = -3000;
-    damsel[0].active = false;
-    damsel[0].beingCarried = false;
-    damsel[0].followingPlayer = false;
-    damsel[0].completelyRescued = false;
   }
 
   dungeonMap[startRoomX + (startRoomWidth / 2)][startRoomY + (startRoomHeight / 2) + 1] = StartStairs;
