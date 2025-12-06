@@ -51,6 +51,7 @@ struct SaveData {
     int indigestionRingsNumber;
     int teleportRingsNumber;
     int invisibleRingsNumber;
+    int keysCount;
 };
 
 bool saveGame(const SaveData& data);

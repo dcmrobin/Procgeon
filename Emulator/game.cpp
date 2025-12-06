@@ -43,6 +43,7 @@ void resetGame() {
   snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "You killed ");
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
+  keysCount = 0;
   //amp1.gain(0.01);
   //pinMode(8, OUTPUT);
   //digitalWrite(8, HIGH);
@@ -1035,6 +1036,7 @@ void updateBossfight() {
           shootDirX /= shootDistance;
           shootDirY /= shootDistance;
           shootProjectile(enemies[0].x, enemies[0].y, shootDirX, shootDirY, false, 0);
+          playRawSFX(1);
         }
       }
       break;
@@ -1059,6 +1061,7 @@ void updateBossfight() {
           
           // Shoot projectile from enemy position towards player
           shootProjectile(enemies[0].x, enemies[0].y, dirX, dirY, false, 0);
+          playRawSFX(1);
         }
       }
       break;
@@ -1139,6 +1142,7 @@ void updateBossfight() {
       // Shoot more frequently when enraged, in direction of movement
       if (bossStateTimer % 10 == 0 && currentSpeed > 0) {
         shootProjectile(enemies[0].x, enemies[0].y, bossVelocityX/currentSpeed, bossVelocityY/currentSpeed, false, 0);
+        playRawSFX(1);
       }
       break;
     }

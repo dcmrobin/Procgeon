@@ -763,6 +763,7 @@ void updateEnemies() {
           
           // Shoot projectile from enemy position towards player
           shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false, i);
+          playRawSFX(1);
           
           // Set cooldown (adjust timing as needed)
           shooterCooldown[i] = 120; // 2 seconds at 60 FPS
@@ -793,7 +794,7 @@ void updateEnemies() {
         if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
           int damage = enemies[i].damage - (round(equippedArmorValue) + armorRingsNumber);
           if (equippedArmor.item == SpikyArmor) {
-            enemies[i].hp -= damage;
+            enemies[i].hp -= damage*2;
           }
           if (armorRingsNumber == 0) {
             reduceArmorDurability(i);

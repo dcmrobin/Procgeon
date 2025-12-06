@@ -14,6 +14,7 @@ char currentDialogue[200] = "";
 bool DIDNOTRESCUEDAMSEL = false;
 float playerX = 0;
 float playerY = 0;
+int keysCount = 0;
 float currentSpeedMultiplier = 1;
 int playerHP = 100;
 int playerMaxHP = 100;
@@ -118,15 +119,17 @@ void renderPlayer() {
     bool facingClosedDoor = false;
     bool facingOpenDoor = false;
     bool facingOpenExit = false;
+    bool facingLockedExit = false;
     bool facingFreedom = false;
     if (!(playerDX == 0 && playerDY == 0) && facingX >= 0 && facingX < mapWidth && facingY >= 0 && facingY < mapHeight) {
       facingChest = (dungeonMap[facingY][facingX] == ChestTile);
       facingClosedDoor = (dungeonMap[facingY][facingX] == DoorClosed);
       facingOpenDoor = (dungeonMap[facingY][facingX] == DoorOpen);
       facingOpenExit = (dungeonMap[facingY][facingX] == Exit);
+      facingLockedExit = (dungeonMap[facingY][facingX] == KeyTile);
       facingFreedom = (dungeonMap[facingY][facingX] == Freedom);
     }
-    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit || facingFreedom) {
+    if (facingChest || facingClosedDoor || facingOpenDoor || facingOpenExit || facingLockedExit || facingFreedom) {
       // Prevent player from shooting while opening chest or door
       reloading = true;
       shootDelay = 0;
@@ -145,6 +148,8 @@ void renderPlayer() {
         display.print("Close Door [X]");
       } else if (facingOpenExit) {
         display.print("Descend [X]");
+      } else if (facingLockedExit) {
+        display.print("Locked Exit [X]");
       } else if (facingFreedom) {
         display.print("Escape [X]");
       }
@@ -328,7 +333,7 @@ void handleInput() {
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen || dungeonMap[rNewY][rNewX] == KeyTile) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
@@ -410,6 +415,11 @@ void handleInput() {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
+  } else if (dungeonMap[rNewY][rNewX] == KeyItem) {
+    // Pick up a key
+    keysCount++;
+    playRawSFX(3);
+    dungeonMap[rNewY][rNewX] = Floor;
   }
 
 
@@ -477,6 +487,46 @@ void handleInput() {
               damsel[0].followingPlayer = false;
               damsel[0].completelyRescued = false;
             }
+          }
+        } else if (dungeonMap[ty][tx] == KeyTile) {
+          // Locked exit: require a key
+          if (keysCount > 0) {
+            // Consume one key and unlock the exit
+            keysCount--;
+            playRawSFX(22);
+            dungeonMap[ty][tx] = Exit;
+            /*if (dungeon != bossfightLevel) {
+              if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
+                levelOfDamselDeath = dungeon;
+                damsel[0].active = false;
+              }
+              statusScreen = true;
+            } else {
+              if (damsel[0].levelOfLove >= 8 && !damsel[0].dead) {
+                currentDamselPortrait = damselPortraitScared;
+                snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Please don't go- come be free, free with me!");
+                showDialogue = true;
+                dialogueTimeLength = 400;
+              } else if (damsel[0].levelOfLove < 8) {
+                playRawSFX(11);
+                statusScreen = true;
+                endlessMode = true;
+                damsel[0].active = false;
+                damsel[0].levelOfLove = 0;
+                damsel[0].x = -3000;
+                damsel[0].y = -3000;
+                damsel[0].beingCarried = false;
+                damsel[0].followingPlayer = false;
+                damsel[0].completelyRescued = false;
+              }
+            }*/
+          } else {
+            // Inform player they need a key
+            playRawSFX(13);
+            currentDamselPortrait = nullptr;
+            snprintf(currentDialogue, sizeof(currentDialogue), "%s", "The exit is locked! Find a key.");
+            showDialogue = true;
+            dialogueTimeLength = 70;
           }
         } else if (dungeonMap[ty][tx] == Freedom) {
           playRawSFX(11);
@@ -758,7 +808,7 @@ void handleHungerAndEffects() {
             // Ensure the player doesn't move into walls due to the pull
             int rPullX = round(playerX);
             int rPullY = round(playerY);
-            if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen) {
+            if (dungeonMap[rPullY][rPullX] != Floor && dungeonMap[rPullY][rPullX] != Exit && dungeonMap[rPullY][rPullX] != StartStairs && dungeonMap[rPullY][rPullX] != DoorOpen && dungeonMap[rPullY][rPullX] != KeyItem && dungeonMap[rPullY][rPullX] != KeyTile) {
               playerX -= (sdx / sqrt(succubusDistanceSquared)) * pullStrength;
               playerY -= (sdy / sqrt(succubusDistanceSquared)) * pullStrength;
             }

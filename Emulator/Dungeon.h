@@ -17,6 +17,8 @@ enum TileTypes {
   DoorClosed,
   DoorOpen,
   Exit,
+  KeyTile,       // Locked exit that requires a key
+  KeyItem,       // A placed key pickup tile
   Freedom,
   Potion,
   Map,

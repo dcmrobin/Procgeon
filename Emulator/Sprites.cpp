@@ -626,6 +626,28 @@ Frame clockAnimation[] = {
 
 const int clockAnimationLength = 8;
 
+const unsigned char PROGMEM keySprite[] = {
+  0b00000000,
+  0b00000000,
+  0b00000111,
+  0b11111101,
+  0b01010111,
+  0b01000000,
+  0b00000000,
+  0b00000000
+};
+
+const unsigned char PROGMEM lockedSprite[] = {
+  0b00011000,
+  0b00100100,
+  0b00100100,
+  0b00100100,
+  0b01111110,
+  0b01110110,
+  0b01110110,
+  0b00111100
+};
+
 // Boss sprites //
 
 // Idle

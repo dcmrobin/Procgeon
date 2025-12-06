@@ -121,10 +121,13 @@ void generateDungeon(bool isBossfight) {
       for (int y = roomY; y < roomY + roomHeight; y++) {
         for (int x = roomX; x < roomX + roomWidth; x++) {
           dungeonMap[y][x] = Floor;
-          if (random(0, 100) > 93) {
+          if (random(0, 100) > 97) {
             // Use rarity-based loot spawning - lower dungeon floors have lower max rarity (3)
             // This makes chest loot more valuable than random floor loot
             dungeonMap[y][x] = getRandomLootTile(1 + dungeon); // The further the player goes, the better the loot
+            if (random(0, 40) > 20) {
+              dungeonMap[y][x] = MushroomTile;
+            }
           }
           if (!generatedMapItem && x > roomX + 1 && y > roomY + 1) {
             dungeonMap[y][x] = Map;
@@ -261,8 +264,43 @@ void generateDungeon(bool isBossfight) {
   playerY = playerStartY;
 
   // Place the exit in the last room
-  dungeonMap[rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2]
-            [rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2] = Exit;
+  int exitY = rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2;
+  int exitX = rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2;
+  dungeonMap[exitY][exitX] = Exit;
+
+  // Chance to make this level require a key to use the exit
+  // Higher floors slightly increase chance
+  int keyChance = 30 + dungeon;
+  if (random(0, 100) < keyChance) {
+    // Mark the exit as a locked key exit
+    dungeonMap[exitY][exitX] = KeyTile;
+
+    // Place the key somewhere else (try several times)
+    bool placedKey = false;
+    for (int attempt = 0; attempt < 100 && !placedKey; attempt++) {
+      int roomIndex = random(1, roomCount - 1); // avoid start and exit room
+      Room &room = rooms[roomIndex];
+      int keyX = room.x + random(1, room.width - 1);
+      int keyY = room.y + random(1, room.height - 1);
+      if (dungeonMap[keyY][keyX] == Floor) {
+        dungeonMap[keyY][keyX] = KeyItem;
+        placedKey = true;
+      }
+    }
+    // If failed to place in rooms, place near start as fallback
+    if (!placedKey) {
+      for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
+        for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
+          if (dungeonMap[y][x] == Floor) {
+            dungeonMap[y][x] = KeyItem;
+            placedKey = true;
+            break;
+          }
+        }
+        if (placedKey) break;
+      }
+    }
+  }
 
   // Spawn some equipment items in random rooms
   int equipmentCount = random(1, 4); // Spawn 1-3 equipment items
@@ -447,6 +485,8 @@ void drawMinimap() {
         if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
         if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
         if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
+        if (tile == KeyTile) display.drawRoundRect(drawX, drawY, mapScale, mapScale, 1, 10);
+        if (tile == KeyItem) display.fillRect(drawX + 1, drawY + 1, mapScale - 2, mapScale - 2, 10);
       }
     }
 
@@ -549,6 +589,19 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
+    case KeyTile: {
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, lockedSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
+      break;
+    }
+    case KeyItem: {
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY)) {
+        display.drawBitmap(screenX, screenY, keySprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
+      }
+      break;
+    }
     case Freedom:
       display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
 

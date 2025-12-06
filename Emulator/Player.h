@@ -74,6 +74,7 @@ extern int paralysisTimer;
 extern bool playerNearClockEnemy;
 extern char damselDeathMsg[100];
 extern bool endlessMode;
+extern int keysCount; // Number of keys the player currently holds
 
 void renderPlayer();
 void handleInput();

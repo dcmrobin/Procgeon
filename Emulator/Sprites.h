@@ -101,6 +101,9 @@ extern const unsigned char clockSpriteF8[];
 extern Frame clockAnimation[];
 extern const int clockAnimationLength;
 
+extern const unsigned char keySprite[];
+extern const unsigned char lockedSprite[];
+
 // Boss sprites
 extern const unsigned char bossIdleSpriteF0[];
 extern const unsigned char bossIdleSpriteF1[];

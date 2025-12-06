@@ -638,9 +638,10 @@ bool isWalkable(int x, int y) {
   if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return false;
   TileTypes tile = dungeonMap[y][x];
   // Walkable if floor or items/stairs/exits (adjust as needed)
-  return (tile == Floor || tile == StartStairs || tile == Exit || tile == Freedom ||
-          tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
-          tile == ArmorTile || tile == ScrollTile || tile == DoorOpen || tile == RiddleStoneTile);
+      return (tile == Floor || tile == StartStairs || tile == Exit || tile == Freedom ||
+        tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
+        tile == ArmorTile || tile == ScrollTile || tile == DoorOpen || tile == RiddleStoneTile ||
+        tile == KeyItem || tile == KeyTile);
 }
 
 void unstuckEnemy(Enemy &enemy) {
@@ -868,6 +869,7 @@ void trySaveGame() {
   saveData.indigestionRingsNumber = indigestionRingsNumber;
   saveData.teleportRingsNumber = teleportRingsNumber;
   saveData.invisibleRingsNumber = invisibleRingsNumber;
+  saveData.keysCount = keysCount;
   if (!saveGame(saveData)) {
     //Serial.println("saveGame() failed");
   }
@@ -934,6 +936,7 @@ void tryLoadGame() {
   indigestionRingsNumber = saveData.indigestionRingsNumber;
   teleportRingsNumber = saveData.teleportRingsNumber;
   invisibleRingsNumber = saveData.invisibleRingsNumber;
+  keysCount = saveData.keysCount;
   randomSeed(saveData.worldSeed);
   currentUIState = UI_NORMAL;
 }
