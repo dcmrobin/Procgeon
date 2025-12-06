@@ -19,6 +19,10 @@ int lightsOutCursorY = 0;
 bool puzzleFinished = false;
 bool puzzleSuccess = false;
 
+// Local flags to show instructions overlay when Start is pressed
+static bool showingPicrossInstructions = false;
+static bool showingLightsOutInstructions = false;
+
 void resetPicrossPuzzle() {
     generatePicrossPuzzle();
     for (int y = 0; y < PICROSS_SIZE; y++)
@@ -101,7 +105,7 @@ void drawPicrossPuzzle() {
     display.setCursor(0, 120);
     display.print("Picross puzzle");
     display.setCursor(0, 100);
-    display.print("Satisfy all columns and rows.");
+    display.print("Press [ENTER] for help.");
     display.display();
 }
 
@@ -222,7 +226,7 @@ void drawLightsOutPuzzle() {
     display.setCursor(0, 120);
     display.print("Lights Out puzzle");
     display.setCursor(0, 2);
-    display.print("Make all squares black.");
+    display.print("Press [ENTER] for help.");
     display.display();
 }
 
@@ -295,6 +299,22 @@ void startPicrossPuzzle() {
 }
 
 void updatePicrossPuzzle() {
+    // Toggle instructions overlay when Start is pressed
+    if (buttons.startPressed && !buttons.startPressedPrev) {
+        showingPicrossInstructions = !showingPicrossInstructions;
+    }
+
+    if (showingPicrossInstructions) {
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(15, 0);
+        display.setCursor(4, 8);
+        display.print("Fill squares to match the clues for each row and column. Use the arrow keys to move, press [X] to toggle a cell. Press [Z] to cancel the puzzle. Press [ENTER] again to close this help.");
+        display.display();
+        // While instructions are visible we don't process other input
+        return;
+    }
+
     drawPicrossPuzzle();
     handlePicrossInput();
     // Cancel with A
@@ -319,6 +339,21 @@ void startLightsOutPuzzle() {
 }
 
 void updateLightsOutPuzzle() {
+    // Toggle instructions overlay when Start is pressed
+    if (buttons.startPressed && !buttons.startPressedPrev) {
+        showingLightsOutInstructions = !showingLightsOutInstructions;
+    }
+
+    if (showingLightsOutInstructions) {
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(15, 0);
+        display.setCursor(4, 8);
+        display.print("Turn all squares black. Use the arrow keys to move the cursor and press [X] to toggle a tile (this also toggles its neighbors). Press [Z] to cancel the puzzle. Press [ENTER] again to close this help.");
+        display.display();
+        return;
+    }
+
     drawLightsOutPuzzle();
     handleLightsOutInput();
     if (buttons.aPressed && !buttons.aPressedPrev) {
