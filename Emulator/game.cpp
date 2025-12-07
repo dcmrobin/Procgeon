@@ -27,6 +27,9 @@ unsigned int killHighscoreAddress = 1;
 int creditsBrightness = 15;
 int noiseLevelDiffuseTimer = 0;
 int introNum = 0;
+// Millis-based splash timing (synchronized to music)
+unsigned long splashStartTime = 0;
+bool splashTimingActive = false;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
@@ -64,6 +67,9 @@ void resetGame() {
   succubusIsFriend = false;
   endlessMode = false;
   currentSplash = splashScreen;
+  // reset splash timing when restarting the game
+  splashTimingActive = false;
+  splashStartTime = 0;
 
   // Reset damsel
   generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
@@ -467,30 +473,40 @@ void renderSplashScreen() {
     playWav1.play("./Audio/title_screen.wav");
   }
 
-  introNum++;
+  // Start timing when the music begins playing
+  if (!splashTimingActive) {
+    splashStartTime = millis();
+    splashTimingActive = true;
+  }
 
-  if (introNum == 200) {
+  unsigned long elapsed = millis() - splashStartTime;
+
+  // Map original frame-based thresholds (frameDelay = 20ms) to milliseconds
+  // original thresholds: 200 (4s), 300 (6s), 400 (8s), 500 (10s), 600 (12s),
+  // 700 (14s), 800 (16s), 900 (18s), 1000 (20s), 1100 (22s), reset >1200 (24s)
+  if (elapsed < 6500UL) {
     currentSplash = splashScreen;
-  } else if (introNum == 300) {
+  } else if (elapsed < 9800UL) {
     currentSplash = batguy_splash;
-  } else if (introNum == 400) {
+  } else if (elapsed < 11500UL) {
     currentSplash = blob_splash;
-  } else if (introNum == 500) {
+  } else if (elapsed < 14700UL) {
     currentSplash = teleporter_splash;
-  } else if (introNum == 600) {
+  } else if (elapsed < 18000UL) {
     currentSplash = shooter_splash;
-  } else if (introNum == 700) {
+  } else if (elapsed < 21300UL) {
     currentSplash = jukebox_splash;
-  } else if (introNum == 800) {
+  } else if (elapsed < 24550UL) {
     currentSplash = succubus_splash;
-  } else if (introNum == 900) {
+  } else if (elapsed < 27850UL) {
     currentSplash = wizard_splash;
-  } else if (introNum == 1000) {
+  } else if (elapsed < 31000UL) {
     currentSplash = damsel_splash;
-  } else if (introNum == 1100) {
+  } else if (elapsed < 34350UL) {
     currentSplash = master_splash;
-  } else if (introNum > 1200) {
-    introNum = 0;
+  } else {
+    // loop back to start of splash sequence
+    splashStartTime = millis();
     currentSplash = splashScreen;
   }
 
