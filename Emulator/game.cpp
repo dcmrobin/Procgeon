@@ -30,7 +30,7 @@ int introNum = 0;
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
-const unsigned long frameDelay = 18;
+const unsigned long frameDelay = 20;
 bool deleteSV = false;
 
 // SD card chip select pin for Teensy Audio Board
@@ -400,6 +400,7 @@ void renderIntroScreen() {
   if (!playWav1.isPlaying() && introNum > 10) {
     playWav1.stop();
     currentUIState = UI_SPLASH;
+    introNum = 0;
   }
 }
 
@@ -464,6 +465,33 @@ void renderSplashScreen() {
 
   if (!playWav1.isPlaying()) {
     playWav1.play("./Audio/title_screen.wav");
+  }
+
+  introNum++;
+
+  if (introNum == 200) {
+    currentSplash = splashScreen;
+  } else if (introNum == 300) {
+    currentSplash = batguy_splash;
+  } else if (introNum == 400) {
+    currentSplash = blob_splash;
+  } else if (introNum == 500) {
+    currentSplash = teleporter_splash;
+  } else if (introNum == 600) {
+    currentSplash = shooter_splash;
+  } else if (introNum == 700) {
+    currentSplash = jukebox_splash;
+  } else if (introNum == 800) {
+    currentSplash = succubus_splash;
+  } else if (introNum == 900) {
+    currentSplash = wizard_splash;
+  } else if (introNum == 1000) {
+    currentSplash = damsel_splash;
+  } else if (introNum == 1100) {
+    currentSplash = master_splash;
+  } else if (introNum > 1200) {
+    introNum = 0;
+    currentSplash = splashScreen;
   }
 
   display.clearDisplay();
