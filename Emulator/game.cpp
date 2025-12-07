@@ -468,8 +468,10 @@ void renderSplashScreen() {
 
   display.clearDisplay();
   display.drawBitmap(0, 0, currentSplash, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
-  display.setCursor(61, 110);
-  display.print("[ENTER]");
+  if (currentSplash == splashScreen) {
+    display.setCursor(61, 110);
+    display.print("[ENTER]");
+  }
   display.display();
 }
 
