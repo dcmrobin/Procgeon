@@ -63,7 +63,8 @@ void resetGame() {
   nearSuccubus = false;
   succubusIsFriend = false;
   endlessMode = false;
-  
+  currentSplash = splashScreen;
+
   // Reset damsel
   generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
   damsel[0].levelOfLove = 0;
@@ -466,7 +467,7 @@ void renderSplashScreen() {
   }
 
   display.clearDisplay();
-  display.drawBitmap(0, 0, splashScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+  display.drawBitmap(0, 0, currentSplash, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
   display.setCursor(61, 110);
   display.print("[ENTER]");
   display.display();

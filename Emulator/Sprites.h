@@ -164,5 +164,15 @@ extern const unsigned char creditsDamselSaved [];
 extern const unsigned char creditsDamselNotSaved [];
 extern const unsigned char creditsSuccubus [];
 extern const unsigned char splashScreen [];
+extern const unsigned char succubus_splash [];
+extern const unsigned char shooter_splash [];
+extern const unsigned char teleporter_splash [];
+extern const unsigned char jukebox_splash [];
+extern const unsigned char master_splash [];
+extern const unsigned char wizard_splash [];
+extern const unsigned char damsel_splash [];
+extern const unsigned char blob_splash [];
+extern const unsigned char batguy_splash [];
+extern const unsigned char* currentSplash;
 
 #endif // SPRITES_H
