@@ -42,8 +42,21 @@ GameItem itemList[] = {
   { RingMailArmor, EquipmentCategory, "Ring Mail Armor", 0,  0,  0, 0, 0, "Ring mail armor. Reduces damage taken.", "Ring Mail Armor", "You equip the ring mail armor.", 4, false, ArmorEffect, 3, false, false, 2, true},
   { ChaosArmor, EquipmentCategory, "Chaos Armor", 0,  0,  0, 0, 0, "This physical state of this armor is not stable.", "Chaos Armor", "The chaos armor clings to you.", 5, false, ArmorEffect, 0, false, true, 2, false},
   { SpikyArmor, EquipmentCategory, "Spiky Armor", 0,  0,  0, 0, 0, "This armor hurts all who touch it, meaning it increases the damage dealt to yourself.", "Spiky Armor", "You equip the spiky armor.", 4, false, ArmorEffect, -1, false, true, 2, true},
-  { KingArmor, EquipmentCategory, "King Armor", 0,  0,  0, 0, 0, "Armor fit for a king. Bestowed upon you by unnatural means.", "King Armor", "You equip the king armor.", 5, false, ArmorEffect, 50, false, false, 2, false},
+  { KingArmor, EquipmentCategory, "King Armor", 0,  0,  0, 0, 0, "Armor fit for a king. Bestowed upon you by unnatural means.", "King Armor", "You equip the king armor.", 5, false, ArmorEffect, 50, false, false, 0, false},
+  { Weapon, WeaponCategory, "Weapon", 0,  0,  0, 0, 0, "Weapon description", "Weapon", 4, false, WeaponEffect, 0, false, false, 2, false},
   { Null, PotionCategory, "Null", 0, 0, 0, 0, 0, "", "Null", "", 5, false }
+};
+
+WeaponItem weaponList[] = {
+    { Sword, NoWeapon, "Sword", "A standard sword.", true, 15 },
+    { MagicSword, NoWeapon, "Magic Sword", "A sword enfused with magic.", false, 25 },
+    { LongSword, NoWeapon, "Longsword", "A longsword. Increased reach.", true, 15 },
+    { MagicLongSword, NoWeapon, "Magic Longsword", "A longsword enfused with magic.", false, 30 },
+    { Staff, NoWeapon, "Staff", "A trusty wooden staff.", false, 5 },
+    { MagicStaff, NoWeapon, "Magic Staff", "A staff enfused with magic.", false, 7 },
+    { Dagger, NoWeapon, "Dagger", "A small dagger for fast attacks.", true, 7 },
+    { MagicDagger, NoWeapon, "Magic Dagger", "A dagger enfused with magic.", false, 15 },
+    { NoWeapon, NoWeapon, "No Weapon", "Not a weapon.", false, 0 }
 };
 
 char scrollNames[NUM_SCROLLS][20] = {

@@ -846,6 +846,9 @@ void trySaveGame() {
   for (int i = 0; i < NUM_ITEMS; i++) {
       saveData.itemList[i] = itemList[i];
   }
+  for (int i = 0; i < NUM_WEAPONS; i++) {
+      saveData.weaponList[i] = weaponList[i];
+  }
   saveData.hasMap = hasMap;
   saveData.playerNearClockEnemy = playerNearClockEnemy;
   saveData.knowsDamselName = knowsDamselName;
@@ -913,6 +916,9 @@ void tryLoadGame() {
   }
   for (int i = 0; i < NUM_ITEMS; i++) {
       itemList[i] = saveData.itemList[i];
+  }
+  for (int i = 0; i < NUM_WEAPONS; i++) {
+      weaponList[i] = saveData.weaponList[i];
   }
   hasMap = saveData.hasMap;
   playerNearClockEnemy = saveData.playerNearClockEnemy;

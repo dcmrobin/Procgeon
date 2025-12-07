@@ -8,7 +8,8 @@
 #define NUM_POTIONS 20
 #define NUM_SCROLLS 10
 #define NUM_RINGS 12
-#define NUM_ITEMS 37
+#define NUM_ITEMS 38
+#define NUM_WEAPONS 9
 
 enum GameItems {
   RedPotion,
@@ -47,9 +48,10 @@ enum GameItems {
   ChaosArmor,
   SpikyArmor,
   KingArmor,
+  Weapon,
   Null
 };
-enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory };
+enum ItemCategory { PotionCategory, FoodCategory, EquipmentCategory, ScrollsCategory, WeaponCategory };
 enum EffectType {
   DefaultEffect,
   HealingEffect, 
@@ -82,9 +84,28 @@ enum EffectType {
   ScrollAmnesiaEffect,
   ScrollAggravateEffect,
   ScrollDestroyEffect,
-  ScrollTeleportEffect
+  ScrollTeleportEffect,
+  WeaponEffect
 };
-
+enum WeaponType {
+  NoWeapon,
+  Sword,
+  MagicSword,
+  LongSword,
+  MagicLongSword,
+  Staff,
+  MagicStaff,
+  Dagger,
+  MagicDagger
+};
+struct WeaponItem {
+  WeaponType type = NoWeapon;
+  WeaponType magicType = NoWeapon;
+  char name[30] = "No Weapon";
+  char description[110] = "Not a weapon.";
+  bool canRust = false;
+  float damage = 0;
+};
 struct GameItem {
   GameItems item = Null;
   ItemCategory category = PotionCategory;
@@ -111,6 +132,7 @@ struct GameItem {
   int ringEffectIndex = -1; // Index of the assigned ring effect
   int ringTypeIndex = -1; // Index of the ring's visible type (Wooden, Diamond, etc.)
   bool isRingIdentified = false;
+  WeaponType weapon = NoWeapon;
 };
 
 // Possible potion effects
@@ -146,6 +168,7 @@ extern char scrollNames[NUM_SCROLLS][20];
 extern char scrollNamesRevealed[NUM_SCROLLS][20];
 extern PotionEffect potionEffects[20];
 extern GameItem itemList[NUM_ITEMS];
+extern GameItem weaponList[NUM_WEAPONS];
 
 extern char ringTypes[NUM_RINGS][20];
 extern char ringEffects[NUM_RINGS][100];

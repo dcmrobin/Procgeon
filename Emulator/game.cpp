@@ -97,6 +97,12 @@ void resetGame() {
   addToInventory(cloak, false);
   equippedArmorValue = cloak.armorValue;
   equippedArmor = cloak;
+
+  // Give player a staff and equip it
+  GameItem staff = getItem(Weapon);
+  staff.isEquipped = true;
+  staff.weaponType = Staff;
+  addToInventory(staff, false);
   
   // Reset projectiles
   for (int i = 0; i < maxProjectiles; i++) {

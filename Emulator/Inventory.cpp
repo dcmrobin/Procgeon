@@ -11,7 +11,8 @@ InventoryPage inventoryPages[] = {
   {{"Potions"}, PotionCategory},
   {{"Food"}, FoodCategory},
   {{"Equipment"}, EquipmentCategory},
-  {{"Scrolls"}, ScrollsCategory}
+  {{"Scrolls"}, ScrollsCategory},
+  {{"Weapons"}, WeaponCategory},
 };
 int currentInventoryPageIndex = 0;
 int numInventoryPages = sizeof(inventoryPages)/sizeof(inventoryPages[0]);
