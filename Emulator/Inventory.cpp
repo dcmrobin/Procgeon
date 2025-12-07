@@ -629,6 +629,7 @@ void handleItemActionMenu() {
               // Clear the equippedWeapon only if it matches this instance
               if (equippedWeapon.item == selectedItem.item && strcmp(equippedWeapon.name, selectedItem.name) == 0) {
                 equippedWeapon = {};
+                equippedWeapon.weapon.type = NoWeapon;
               }
             }
             playRawSFX(2);

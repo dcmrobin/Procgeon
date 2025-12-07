@@ -303,7 +303,7 @@ void handleInput() {
   }
 
   if (buttons.bPressed) {
-    if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3) {
+    if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3 && equippedWeapon.weapon.type != NoWeapon) {
       // If the equipped weapon is the Magic Staff, shoot a projectile.
       if (equippedWeapon.weapon.type == MagicStaff) {
         shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
