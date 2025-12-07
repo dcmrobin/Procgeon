@@ -832,6 +832,9 @@ void handleHungerAndEffects() {
 }
 
 void playDamselSFX(const char *tone) {
+  // Suppress damsel SFX if a succubus is currently pulling the player
+  if (nearSuccubus) return;
+
   if (strcmp(tone, "normal") == 0) {
     playRawSFX3D(16, damsel[0].x, damsel[0].y);
   } else if (strcmp(tone, "annoying") == 0) {
