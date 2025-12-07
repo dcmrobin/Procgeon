@@ -566,7 +566,7 @@ void handleItemActionMenu() {
       }
     } else if (selectedActionIndex == 1) { // Drop
       // Prevent dropping equipped items
-      if (selectedItem.isEquipped) {
+            if (selectedItem.isEquipped) {
         playRawSFX(13);
         snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip it first.");
         currentUIState = UI_ITEM_RESULT;
@@ -630,6 +630,9 @@ void handleItemActionMenu() {
               if (equippedWeapon.item == selectedItem.item && strcmp(equippedWeapon.name, selectedItem.name) == 0) {
                 equippedWeapon = {};
                 equippedWeapon.weapon.type = NoWeapon;
+                // Reset player's attack stats to defaults
+                playerAttackDamage = 10;
+                attackDelayFrames = 10;
               }
             }
             playRawSFX(2);
@@ -658,6 +661,9 @@ void handleItemActionMenu() {
               selectedItem.isEquipped = true;
               // Update equippedWeapon global
               equippedWeapon = selectedItem;
+              // Apply weapon stats to player
+              playerAttackDamage = (int)equippedWeapon.weapon.damage;
+              attackDelayFrames = equippedWeapon.weapon.attackDelay;
             } else {
               selectedItem.isEquipped = true;
               if (selectedItem.effectType == ArmorEffect) {

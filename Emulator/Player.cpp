@@ -58,8 +58,10 @@ int meleeFrames = 0;
 int meleeDuration = 6;
 int meleeFX = -1;
 int meleeFY = -1;
-int meleeArcTilesX[3] = { -1, -1, -1 };
-int meleeArcTilesY[3] = { -1, -1, -1 };
+int meleeArcTilesX[MAX_MELEE_TILES] = { -1 };
+int meleeArcTilesY[MAX_MELEE_TILES] = { -1 };
+int meleeArcCount = 0;
+int attackDelayFrames = 10; // default frames between attacks
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
 int swiftnessRingsNumber = 0;
 int strengthRingsNumber = 0;
@@ -165,7 +167,7 @@ void renderPlayer() {
 
   // --- Draw melee swipe effect if active (render arc tiles) ---
   if (meleeFrames > 0) {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < meleeArcCount; i++) {
       int tx = meleeArcTilesX[i];
       int ty = meleeArcTilesY[i];
       if (tx >= 0) {
@@ -309,14 +311,20 @@ void handleInput() {
         shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
         playRawSFX(1);
         reloading = true;
+        shootDelay = 0;
+        attackDelayFrames = equippedWeapon.item != Null ? equippedWeapon.weapon.attackDelay : 10;
       } else {
-        // Melee swipe for non-staff weapons: compute a 3-tile arc in front of the player,
+        // Melee swipe for non-staff weapons: compute an arc in front of the player,
         // store tiles for rendering, and apply instant damage to each tile.
         meleeFrames = meleeDuration;
         int cx = round(playerX);
         int cy = round(playerY);
-        // Determine arc tiles based on facing direction
-        // Order: center, left, right (relative to facing)
+        meleeArcCount = 0;
+        // Always include the player's own tile
+        meleeArcTilesX[meleeArcCount] = cx;
+        meleeArcTilesY[meleeArcCount] = cy;
+        meleeArcCount++;
+        // Determine arc direction offsets (center, left, right)
         int ox[3];
         int oy[3];
         if (playerDX == 0 && playerDY == -1) { // up
@@ -357,19 +365,67 @@ void handleInput() {
           ox[1] = -1; oy[1] = -1;
           ox[2] = 1; oy[2] = -1;
         }
+        int weaponRange = equippedWeapon.item != Null ? equippedWeapon.weapon.range : 1;
+        // Collect unique enemies hit by the melee arc (including player tile)
+        bool hitSeen[maxEnemies];
+        for (int i = 0; i < maxEnemies; i++) hitSeen[i] = false;
+        int hitIndices[maxEnemies];
+        int hitCount = 0;
         for (int i = 0; i < 3; i++) {
-          int tx = cx + ox[i];
-          int ty = cy + oy[i];
-          meleeArcTilesX[i] = tx;
-          meleeArcTilesY[i] = ty;
-          if (tx >= 0 && tx < mapWidth && ty >= 0 && ty < mapHeight) {
-            applyAOEEffect((float)tx, (float)ty, 0, playerAttackDamage);
+          for (int d = 1; d <= weaponRange; d++) {
+            int tx = cx + ox[i] * d;
+            int ty = cy + oy[i] * d;
+            // store tile for rendering if space
+            if (meleeArcCount < MAX_MELEE_TILES) {
+              meleeArcTilesX[meleeArcCount] = tx;
+              meleeArcTilesY[meleeArcCount] = ty;
+              meleeArcCount++;
+            }
+            if (tx < 0 || tx >= mapWidth || ty < 0 || ty >= mapHeight) continue;
+            // Check enemies on this tile and add unique ones to hit list
+            for (int e = 0; e < maxEnemies; e++) {
+              if (enemies[e].hp > 0) {
+                int ex = round(enemies[e].x);
+                int ey = round(enemies[e].y);
+                if (ex == tx && ey == ty && !hitSeen[e]) {
+                  hitSeen[e] = true;
+                  hitIndices[hitCount++] = e;
+                }
+              }
+            }
+          }
+        }
+        // Also check the player's own tile (it was added already to meleeArcTiles)
+        // and include enemies on the player's tile
+        for (int e = 0; e < maxEnemies; e++) {
+          if (enemies[e].hp > 0) {
+            int ex = round(enemies[e].x);
+            int ey = round(enemies[e].y);
+            if (ex == cx && ey == cy && !hitSeen[e]) {
+              hitSeen[e] = true;
+              hitIndices[hitCount++] = e;
+            }
+          }
+        }
+        // Distribute player's attack damage across hit enemies
+        if (hitCount > 0) {
+          int base = playerAttackDamage / hitCount;
+          int rem = playerAttackDamage % hitCount;
+          for (int h = 0; h < hitCount; h++) {
+            int idx = hitIndices[h];
+            int dmg = base + (h < rem ? 1 : 0);
+            enemies[idx].hp -= dmg;
+            if (enemies[idx].hp <= 0) {
+              kills += 1;
+            }
           }
         }
         playRawSFX(3);
         //triggerScreenShake(4, 1);
-        // Use reloading to introduce the attack cooldown
+        // Use reloading to introduce the attack cooldown; set global attack delay
         reloading = true;
+        shootDelay = 0;
+        attackDelayFrames = equippedWeapon.item != Null ? equippedWeapon.weapon.attackDelay : 10;
       }
       playerActed = true;  // Player has taken an action
     }
@@ -378,7 +434,7 @@ void handleInput() {
   if (playerActed) {
     if (reloading) {
       shootDelay++;
-      if (shootDelay >= 10) {
+      if (shootDelay >= attackDelayFrames) {
         reloading = false;
         shootDelay = 0;
       }

@@ -894,6 +894,14 @@ void tryLoadGame() {
   // Restore equipped weapon (full GameItem)
   equippedWeapon = saveData.equippedWeapon;
   equippedRiddleStone = saveData.equippedRiddleStone;
+  // Restore player attack stats from equipped weapon
+  if (equippedWeapon.item != Null) {
+    playerAttackDamage = (int)equippedWeapon.weapon.damage;
+    attackDelayFrames = equippedWeapon.weapon.attackDelay;
+  } else {
+    playerAttackDamage = 10;
+    attackDelayFrames = 10;
+  }
   playerFood = saveData.food;
   playerHP = saveData.hp;
   for (int i = 0; i < numInventoryPages; i++) {

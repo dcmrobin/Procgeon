@@ -105,6 +105,8 @@ struct WeaponItem {
   char description[110] = "Not a weapon.";
   bool canRust = false;
   float damage = 0;
+  int attackDelay = 10; // frames between attacks
+  int range = 1; // tiles of range for melee/projectile reach
 };
 struct GameItem {
   GameItems item = Null;

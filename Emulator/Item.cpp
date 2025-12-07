@@ -48,15 +48,15 @@ GameItem itemList[] = {
 };
 
 WeaponItem weaponList[] = {
-    { Sword, NoWeapon, "Sword", "A standard sword.", true, 15 },
-    { LongSword, NoWeapon, "Longsword", "A longsword. Increased reach.", true, 15 },
-    { Staff, NoWeapon, "Staff", "A trusty wooden staff.", false, 5 },
-    { Dagger, NoWeapon, "Dagger", "A small dagger for fast attacks.", true, 7 },
-    { MagicStaff, NoWeapon, "Magic Staff", "A staff enfused with magic.", false, 7 },
-    { MagicDagger, NoWeapon, "Magic Dagger", "A dagger enfused with magic.", false, 15 },
-    { MagicSword, NoWeapon, "Magic Sword", "A sword enfused with magic.", false, 25 },
-    { MagicLongSword, NoWeapon, "Magic Longsword", "A longsword enfused with magic.", false, 30 },
-    { NoWeapon, NoWeapon, "No Weapon", "Not a weapon.", false, 0 }
+    { Sword, NoWeapon, "Sword", "A standard sword.", true, 15, 12, 1 },
+    { LongSword, NoWeapon, "Longsword", "A longsword. Increased reach.", true, 15, 14, 2 },
+    { Staff, NoWeapon, "Staff", "A trusty wooden staff.", false, 5, 12, 1 },
+    { Dagger, NoWeapon, "Dagger", "A small dagger for fast attacks.", true, 7, 8, 1 },
+    { MagicStaff, NoWeapon, "Magic Staff", "A staff enfused with magic.", false, 7, 14, 3 },
+    { MagicDagger, NoWeapon, "Magic Dagger", "A dagger enfused with magic.", false, 15, 7, 1 },
+    { MagicSword, NoWeapon, "Magic Sword", "A sword enfused with magic.", false, 25, 14, 1 },
+    { MagicLongSword, NoWeapon, "Magic Longsword", "A longsword enfused with magic.", false, 30, 16, 2 },
+    { NoWeapon, NoWeapon, "No Weapon", "Not a weapon.", false, 0, 10, 1 }
 };
 
 char scrollNames[NUM_SCROLLS][20] = {

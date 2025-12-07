@@ -55,8 +55,12 @@ extern int meleeFrames; // frames remaining to show melee swipe
 extern int meleeDuration; // duration of melee swipe
 extern int meleeFX; // melee swipe tile x
 extern int meleeFY; // melee swipe tile y
-extern int meleeArcTilesX[3]; // tiles hit by melee arc
-extern int meleeArcTilesY[3];
+// Melee arc storage
+#define MAX_MELEE_TILES 20
+extern int meleeArcTilesX[MAX_MELEE_TILES]; // tiles hit by melee arc
+extern int meleeArcTilesY[MAX_MELEE_TILES];
+extern int meleeArcCount; // number of tiles in the current melee arc
+extern int attackDelayFrames; // frames required between attacks (weapon-specific)
 extern int playerAttackDamage;
 extern int swiftnessRingsNumber;
 extern int strengthRingsNumber;
