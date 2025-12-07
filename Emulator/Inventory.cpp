@@ -628,10 +628,26 @@ void handleItemActionMenu() {
             buttons.bPressedPrev = true;
           } else {
             // Equip the item
-            selectedItem.isEquipped = true;
-            if (selectedItem.effectType == ArmorEffect) {
+            // If this is a weapon, ensure only one weapon is equipped at a time
+            if (selectedItem.category == WeaponCategory) {
+              // Unequip any other equipped weapon in inventory
+              for (int p = 0; p < numInventoryPages; p++) {
+                if (inventoryPages[p].category != WeaponCategory) continue;
+                for (int i = 0; i < inventorySize; i++) {
+                  if (inventoryPages[p].items[i].item != Null && inventoryPages[p].items[i].isEquipped) {
+                    inventoryPages[p].items[i].isEquipped = false;
+                  }
+                }
+              }
+              selectedItem.isEquipped = true;
+              // Update equippedWeapon global
+              equippedWeapon = selectedItem;
+            } else {
+              selectedItem.isEquipped = true;
+              if (selectedItem.effectType == ArmorEffect) {
                 equippedArmorValue = selectedItem.armorValue;
                 equippedArmor = selectedItem;
+              }
             }
             // --- Apply ring effects when equipped ---
             if (selectedItem.item == Ring) {

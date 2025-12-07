@@ -101,8 +101,9 @@ void resetGame() {
   // Give player a staff and equip it
   GameItem staff = getItem(Weapon);
   staff.isEquipped = true;
-  staff.weaponType = Staff;
+  staff.weapon = Staff; // set weapon type for the default staff
   addToInventory(staff, false);
+  equippedWeapon = staff; // equip the default staff
   
   // Reset projectiles
   for (int i = 0; i < maxProjectiles; i++) {

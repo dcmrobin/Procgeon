@@ -53,6 +53,11 @@ bool damselSaidWaitUp = false;  // Track if damsel has said "wait up" recently
 float equippedArmorValue = 0.0f;  // Current armor value (damage reduction)
 GameItem equippedArmor = {};  // Currently equipped armor item
 bool equippedRiddleStone = false;
+GameItem equippedWeapon = {}; // Currently equipped weapon
+int meleeFrames = 0;
+int meleeDuration = 6;
+int meleeFX = -1;
+int meleeFY = -1;
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
 int swiftnessRingsNumber = 0;
 int strengthRingsNumber = 0;
@@ -154,6 +159,13 @@ void renderPlayer() {
         display.print("Escape [X]");
       }
     }
+  }
+
+  // --- Draw melee swipe effect if active ---
+  if (meleeFrames > 0 && meleeFX >= 0) {
+    float screenMX = (meleeFX - offsetX) * tileSize;
+    float screenMY = (meleeFY - offsetY) * tileSize;
+    display.fillRect((int)screenMX + 2, (int)screenMY + 2, tileSize - 4, tileSize - 4, 15);
   }
 
   // Update viewport offset if needed
@@ -284,9 +296,23 @@ void handleInput() {
 
   if (buttons.bPressed) {
     if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3) {
-      shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
-      playRawSFX(1);
-      reloading = true;
+      // If the equipped weapon is the Magic Staff, shoot a projectile.
+      if (equippedWeapon.weapon == MagicStaff) {
+        shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
+        playRawSFX(1);
+        reloading = true;
+      } else {
+        // Melee swipe for non-staff weapons: mark melee animation tile and apply instant damage.
+        meleeFrames = meleeDuration;
+        meleeFX = round(playerX) + playerDX;
+        meleeFY = round(playerY) + playerDY;
+        // Apply damage to any enemy in the targeted tile (radius 0 = exact tile).
+        applyAOEEffect((float)meleeFX, (float)meleeFY, 0, playerAttackDamage);
+        playRawSFX(2);
+        triggerScreenShake(4, 1);
+        // Use reloading to introduce the attack cooldown
+        reloading = true;
+      }
       playerActed = true;  // Player has taken an action
     }
   }
@@ -298,6 +324,10 @@ void handleInput() {
         reloading = false;
         shootDelay = 0;
       }
+    }
+    // Advance melee animation frames
+    if (meleeFrames > 0) {
+      meleeFrames--;
     }
   }
 
