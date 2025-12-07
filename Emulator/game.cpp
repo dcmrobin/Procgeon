@@ -407,7 +407,6 @@ void renderSecretScreen() {
   display.setTextColor(15, 0);
   display.setCursor(1, 7);
   display.print("Hah! You bet I had to add the Konami sequence. Minus the start button. Anyway, yeah here's some hints. Equip the Riddle Stone. Read some of the scrolls right after drinking a See-All potion. Try leading a succubus through an exit. Lastly, don't try to see if the washer fits on your finger. Just don't.");
-  //drawWrappedText(1, 7, 128, "Hah! You bet I had to add the Konami sequence. Minus the start button. Anyway, yeah here's some hints. Equip the Riddle Stone. Read some of the scrolls right after drinking a See-All potion. Lastly, don't try to see if the washer fits on your finger. Just don't.");
   display.display();
 }
 
