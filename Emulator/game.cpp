@@ -484,31 +484,53 @@ void renderSplashScreen() {
   // Map original frame-based thresholds (frameDelay = 20ms) to milliseconds
   // original thresholds: 200 (4s), 300 (6s), 400 (8s), 500 (10s), 600 (12s),
   // 700 (14s), 800 (16s), 900 (18s), 1000 (20s), 1100 (22s), reset >1200 (24s)
-  if (elapsed < 6500UL) {
-    currentSplash = splashScreen;
-  } else if (elapsed < 9800UL) {
-    currentSplash = batguy_splash;
-  } else if (elapsed < 11500UL) {
-    currentSplash = blob_splash;
-  } else if (elapsed < 14700UL) {
-    currentSplash = teleporter_splash;
-  } else if (elapsed < 18000UL) {
-    currentSplash = shooter_splash;
-  } else if (elapsed < 21300UL) {
-    currentSplash = jukebox_splash;
-  } else if (elapsed < 24550UL) {
-    currentSplash = succubus_splash;
-  } else if (elapsed < 27850UL) {
-    currentSplash = wizard_splash;
-  } else if (elapsed < 31000UL) {
-    currentSplash = damsel_splash;
-  } else if (elapsed < 34350UL) {
-    currentSplash = master_splash;
-  } else {
-    // loop back to start of splash sequence
-    splashStartTime = millis();
-    currentSplash = splashScreen;
-  }
+    // Timed sequence with transition that finishes exactly at the switch time.
+    const unsigned long splashStartTimes[] = { 0UL, 6500UL, 9800UL, 11500UL, 14700UL, 18000UL, 21300UL, 24550UL, 27850UL, 31000UL };
+    const unsigned long loopDuration = 34350UL; // reset after 24s
+    const unsigned long transitionDuration = 70UL; // how long the slide-in takes
+    const unsigned long now = elapsed % loopDuration; // wrap within loop
+
+    const unsigned char* splashFrames[] = { splashScreen, batguy_splash, blob_splash, teleporter_splash, shooter_splash, jukebox_splash, succubus_splash, wizard_splash, damsel_splash, master_splash };
+    const int splashCount = sizeof(splashFrames) / sizeof(splashFrames[0]);
+
+    // Find current frame index (the one that is active before the next change)
+    int currentIndex = 0;
+    for (int i = 0; i < splashCount; ++i) {
+      if (now >= splashStartTimes[i]) currentIndex = i;
+    }
+    int nextIndex = (currentIndex + 1) % splashCount;
+    unsigned long nextStart = (nextIndex < splashCount) ? splashStartTimes[nextIndex] : loopDuration;
+    if (nextIndex == 0) nextStart = loopDuration; // wrap point
+
+    // If we're within the transition window before the next splash, slide the next splash in
+    if (now >= (nextStart > transitionDuration ? nextStart - transitionDuration : 0) && now < nextStart) {
+      unsigned long t0 = nextStart - transitionDuration;
+      unsigned long t1 = nextStart;
+      float p = (float)(now - t0) / (float)(t1 - t0); // 0..1
+      if (p < 0.0f) p = 0.0f; if (p > 1.0f) p = 1.0f;
+
+      int inX = (int)((1.0f - p) * (float)SCREEN_WIDTH); // from offscreen-right to 0
+      int outX = inX - SCREEN_WIDTH; // previous slides out to the left
+
+      display.clearDisplay();
+      display.drawBitmap(0, 0, splashFrames[currentIndex], SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      display.drawBitmap(inX, 0, splashFrames[nextIndex], SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      if (nextIndex == 0) {
+        // if next is the loop-start splash, show [ENTER]
+        if (inX == 0) {
+          display.setCursor(61, 110);
+          display.print("[ENTER]");
+        }
+      } else if (currentIndex == 0 && inX == 0) {
+        display.setCursor(61, 110);
+        display.print("[ENTER]");
+      }
+      display.display();
+      return; // we've drawn the transition frames
+    }
+
+    // Otherwise draw the current frame statically
+    currentSplash = splashFrames[currentIndex];
 
   display.clearDisplay();
   display.drawBitmap(0, 0, currentSplash, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
