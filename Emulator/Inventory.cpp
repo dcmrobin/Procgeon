@@ -45,6 +45,14 @@ bool addToInventory(GameItem item, bool canBeCursed) {
   if (canBeCursed && random(0, 11) < item.curseChance) {
     item.isCursed = true;
   }
+
+  if (item.category == WeaponCategory && strcmp(item.name, "Weapon") == 0) {
+    item.weapon = weaponList[random(0, 4)];
+    snprintf(item.description, sizeof(item.description), "%s", weaponList[item.weapon.type].description);
+    snprintf(item.name, sizeof(item.name), "%s", weaponList[item.weapon.type].name);
+    snprintf(item.originalName, sizeof(item.originalName), "%s", weaponList[item.weapon.type].name);
+    item.canRust = weaponList[item.weapon.type].canRust;
+  }
   
   // Find the matching tab category
   for (int p = 0; p < numInventoryPages; p++) {
@@ -571,7 +579,7 @@ void handleItemActionMenu() {
     } else if (selectedActionIndex == 2) { // Info
       currentUIState = UI_ITEM_INFO;
     } else if (selectedActionIndex == 3) { // Equip/Unequip
-      if (selectedItem.category == EquipmentCategory) {
+      if (selectedItem.category == EquipmentCategory || selectedItem.category == WeaponCategory) {
         if (selectedItem.isEquipped) {
           // Unequip the item
           if (selectedItem.isCursed) {
@@ -614,6 +622,13 @@ void handleItemActionMenu() {
                 teleportRingsNumber -= 1;
               } else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) {
                 invisibleRingsNumber -= 1;
+              }
+            }
+            // If unequipping a weapon, clear the global equippedWeapon
+            if (selectedItem.category == WeaponCategory) {
+              // Clear the equippedWeapon only if it matches this instance
+              if (equippedWeapon.item == selectedItem.item && strcmp(equippedWeapon.name, selectedItem.name) == 0) {
+                equippedWeapon = {};
               }
             }
             playRawSFX(2);
@@ -797,7 +812,7 @@ void renderInventory() {
 
     // Get the selected item to check if it's equipped
     GameItem &selectedItem = inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex];
-    const char* equipText = (selectedItem.isEquipped && selectedItem.category == EquipmentCategory) ? "Unequip" : "Equip";
+    const char* equipText = (selectedItem.isEquipped && (selectedItem.category == EquipmentCategory || selectedItem.category == WeaponCategory)) ? "Unequip" : "Equip";
     
     // Determine the use text based on item type
     const char* useText = "Use";

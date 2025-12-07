@@ -102,6 +102,10 @@ void resetGame() {
   GameItem staff = getItem(Weapon);
   staff.isEquipped = true;
   staff.weapon = weaponList[Staff]; // set weapon type for the default staff
+  snprintf(staff.description, sizeof(staff.description), "%s", weaponList[Staff].description);
+  snprintf(staff.name, sizeof(staff.name), "%s", weaponList[Staff].name);
+  snprintf(staff.originalName, sizeof(staff.originalName), "%s", weaponList[Staff].name);
+  staff.canRust = weaponList[Staff].canRust;
   addToInventory(staff, false);
   equippedWeapon = staff; // equip the default staff
   

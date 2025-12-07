@@ -88,15 +88,15 @@ enum EffectType {
   WeaponEffect
 };
 enum WeaponType {
-  NoWeapon,
   Sword,
-  MagicSword,
   LongSword,
-  MagicLongSword,
   Staff,
-  MagicStaff,
   Dagger,
-  MagicDagger
+  MagicStaff,
+  MagicDagger,
+  MagicSword,
+  MagicLongSword,
+  NoWeapon,
 };
 struct WeaponItem {
   WeaponType type = NoWeapon;
