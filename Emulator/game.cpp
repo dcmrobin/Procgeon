@@ -101,7 +101,7 @@ void resetGame() {
   // Give player a staff and equip it
   GameItem staff = getItem(Weapon);
   staff.isEquipped = true;
-  staff.weapon = Staff; // set weapon type for the default staff
+  staff.weapon = weaponList[Staff]; // set weapon type for the default staff
   addToInventory(staff, false);
   equippedWeapon = staff; // equip the default staff
   

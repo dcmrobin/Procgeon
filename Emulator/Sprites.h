@@ -103,6 +103,7 @@ extern const int clockAnimationLength;
 
 extern const unsigned char keySprite[];
 extern const unsigned char lockedSprite[];
+extern const unsigned char weaponSprite[];
 
 // Boss sprites
 extern const unsigned char bossIdleSpriteF0[];

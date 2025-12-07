@@ -55,6 +55,8 @@ extern int meleeFrames; // frames remaining to show melee swipe
 extern int meleeDuration; // duration of melee swipe
 extern int meleeFX; // melee swipe tile x
 extern int meleeFY; // melee swipe tile y
+extern int meleeArcTilesX[3]; // tiles hit by melee arc
+extern int meleeArcTilesY[3];
 extern int playerAttackDamage;
 extern int swiftnessRingsNumber;
 extern int strengthRingsNumber;

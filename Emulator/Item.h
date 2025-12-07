@@ -132,7 +132,7 @@ struct GameItem {
   int ringEffectIndex = -1; // Index of the assigned ring effect
   int ringTypeIndex = -1; // Index of the ring's visible type (Wooden, Diamond, etc.)
   bool isRingIdentified = false;
-  WeaponType weapon = NoWeapon;
+  WeaponItem weapon = {}; // full weapon data (type, damage, name, etc.)
 };
 
 // Possible potion effects
@@ -168,7 +168,7 @@ extern char scrollNames[NUM_SCROLLS][20];
 extern char scrollNamesRevealed[NUM_SCROLLS][20];
 extern PotionEffect potionEffects[20];
 extern GameItem itemList[NUM_ITEMS];
-extern GameItem weaponList[NUM_WEAPONS];
+extern WeaponItem weaponList[NUM_WEAPONS];
 
 extern char ringTypes[NUM_RINGS][20];
 extern char ringEffects[NUM_RINGS][100];

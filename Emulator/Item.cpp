@@ -49,13 +49,13 @@ GameItem itemList[] = {
 
 WeaponItem weaponList[] = {
     { Sword, NoWeapon, "Sword", "A standard sword.", true, 15 },
-    { MagicSword, NoWeapon, "Magic Sword", "A sword enfused with magic.", false, 25 },
     { LongSword, NoWeapon, "Longsword", "A longsword. Increased reach.", true, 15 },
-    { MagicLongSword, NoWeapon, "Magic Longsword", "A longsword enfused with magic.", false, 30 },
     { Staff, NoWeapon, "Staff", "A trusty wooden staff.", false, 5 },
-    { MagicStaff, NoWeapon, "Magic Staff", "A staff enfused with magic.", false, 7 },
     { Dagger, NoWeapon, "Dagger", "A small dagger for fast attacks.", true, 7 },
+    { MagicStaff, NoWeapon, "Magic Staff", "A staff enfused with magic.", false, 7 },
     { MagicDagger, NoWeapon, "Magic Dagger", "A dagger enfused with magic.", false, 15 },
+    { MagicSword, NoWeapon, "Magic Sword", "A sword enfused with magic.", false, 25 },
+    { MagicLongSword, NoWeapon, "Magic Longsword", "A longsword enfused with magic.", false, 30 },
     { NoWeapon, NoWeapon, "No Weapon", "Not a weapon.", false, 0 }
 };
 
@@ -629,8 +629,8 @@ GameItems getRandomItemByRarityAnyCategory(int maxRarity) {
 
 TileTypes getRandomLootTile(int maxRarity) {
     // First, select a category with equal probability
-    ItemCategory categories[] = {PotionCategory, FoodCategory, ScrollsCategory, EquipmentCategory};
-    int randomCategoryIndex = random(0, 4); // Random between 0-3
+    ItemCategory categories[] = {PotionCategory, FoodCategory, ScrollsCategory, EquipmentCategory, WeaponCategory};
+    int randomCategoryIndex = random(0, 5);
     
     // Get a random item from the selected category
     GameItems randomItem = getRandomItemByRarity(categories[randomCategoryIndex], maxRarity);
@@ -656,6 +656,8 @@ TileTypes getRandomLootTile(int maxRarity) {
             }
         case FoodCategory:
             return MushroomTile;
+        case WeaponCategory:
+            return WeaponTile;
         default:
             return Potion; // Default fallback
     }

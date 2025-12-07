@@ -58,6 +58,8 @@ int meleeFrames = 0;
 int meleeDuration = 6;
 int meleeFX = -1;
 int meleeFY = -1;
+int meleeArcTilesX[3] = { -1, -1, -1 };
+int meleeArcTilesY[3] = { -1, -1, -1 };
 int playerAttackDamage = 10; // Player's attack damage, can be increased by enchant scroll
 int swiftnessRingsNumber = 0;
 int strengthRingsNumber = 0;
@@ -161,11 +163,17 @@ void renderPlayer() {
     }
   }
 
-  // --- Draw melee swipe effect if active ---
-  if (meleeFrames > 0 && meleeFX >= 0) {
-    float screenMX = (meleeFX - offsetX) * tileSize;
-    float screenMY = (meleeFY - offsetY) * tileSize;
-    display.fillRect((int)screenMX + 2, (int)screenMY + 2, tileSize - 4, tileSize - 4, 15);
+  // --- Draw melee swipe effect if active (render arc tiles) ---
+  if (meleeFrames > 0) {
+    for (int i = 0; i < 3; i++) {
+      int tx = meleeArcTilesX[i];
+      int ty = meleeArcTilesY[i];
+      if (tx >= 0) {
+        float screenMX = (tx - offsetX) * tileSize;
+        float screenMY = (ty - offsetY) * tileSize;
+        display.fillRect((int)screenMX + 2, (int)screenMY + 2, tileSize - 4, tileSize - 4, 15);
+      }
+    }
   }
 
   // Update viewport offset if needed
@@ -297,19 +305,69 @@ void handleInput() {
   if (buttons.bPressed) {
     if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3) {
       // If the equipped weapon is the Magic Staff, shoot a projectile.
-      if (equippedWeapon.weapon == MagicStaff) {
+      if (equippedWeapon.weapon.type == MagicStaff) {
         shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
         playRawSFX(1);
         reloading = true;
       } else {
-        // Melee swipe for non-staff weapons: mark melee animation tile and apply instant damage.
+        // Melee swipe for non-staff weapons: compute a 3-tile arc in front of the player,
+        // store tiles for rendering, and apply instant damage to each tile.
         meleeFrames = meleeDuration;
-        meleeFX = round(playerX) + playerDX;
-        meleeFY = round(playerY) + playerDY;
-        // Apply damage to any enemy in the targeted tile (radius 0 = exact tile).
-        applyAOEEffect((float)meleeFX, (float)meleeFY, 0, playerAttackDamage);
-        playRawSFX(2);
-        triggerScreenShake(4, 1);
+        int cx = round(playerX);
+        int cy = round(playerY);
+        // Determine arc tiles based on facing direction
+        // Order: center, left, right (relative to facing)
+        int ox[3];
+        int oy[3];
+        if (playerDX == 0 && playerDY == -1) { // up
+          ox[0] = 0; oy[0] = -1;
+          ox[1] = -1; oy[1] = -1;
+          ox[2] = 1; oy[2] = -1;
+        } else if (playerDX == 0 && playerDY == 1) { // down
+          ox[0] = 0; oy[0] = 1;
+          ox[1] = -1; oy[1] = 1;
+          ox[2] = 1; oy[2] = 1;
+        } else if (playerDX == -1 && playerDY == 0) { // left
+          ox[0] = -1; oy[0] = 0;
+          ox[1] = -1; oy[1] = -1;
+          ox[2] = -1; oy[2] = 1;
+        } else if (playerDX == 1 && playerDY == 0) { // right
+          ox[0] = 1; oy[0] = 0;
+          ox[1] = 1; oy[1] = -1;
+          ox[2] = 1; oy[2] = 1;
+        } else if (playerDX == 1 && playerDY == -1) { // up-right
+          ox[0] = 1; oy[0] = -1;
+          ox[1] = 0; oy[1] = -1;
+          ox[2] = 1; oy[2] = 0;
+        } else if (playerDX == -1 && playerDY == -1) { // up-left
+          ox[0] = -1; oy[0] = -1;
+          ox[1] = 0; oy[1] = -1;
+          ox[2] = -1; oy[2] = 0;
+        } else if (playerDX == 1 && playerDY == 1) { // down-right
+          ox[0] = 1; oy[0] = 1;
+          ox[1] = 1; oy[1] = 0;
+          ox[2] = 0; oy[2] = 1;
+        } else if (playerDX == -1 && playerDY == 1) { // down-left
+          ox[0] = -1; oy[0] = 1;
+          ox[1] = -1; oy[1] = 0;
+          ox[2] = 0; oy[2] = 1;
+        } else {
+          // Default to forward (no movement) - bite in front if possible
+          ox[0] = 0; oy[0] = -1;
+          ox[1] = -1; oy[1] = -1;
+          ox[2] = 1; oy[2] = -1;
+        }
+        for (int i = 0; i < 3; i++) {
+          int tx = cx + ox[i];
+          int ty = cy + oy[i];
+          meleeArcTilesX[i] = tx;
+          meleeArcTilesY[i] = ty;
+          if (tx >= 0 && tx < mapWidth && ty >= 0 && ty < mapHeight) {
+            applyAOEEffect((float)tx, (float)ty, 0, playerAttackDamage);
+          }
+        }
+        playRawSFX(3);
+        //triggerScreenShake(4, 1);
         // Use reloading to introduce the attack cooldown
         reloading = true;
       }
@@ -377,6 +435,14 @@ void handleInput() {
     dungeonMap[rNewY][rNewX] = Floor;
   } else if (dungeonMap[rNewY][rNewX] == MushroomTile) {
     if (addToInventory(getItem(Mushroom), false)) {
+      playRawSFX(3);
+      dungeonMap[rNewY][rNewX] = Floor;
+    }
+  } else if (dungeonMap[rNewY][rNewX] == WeaponTile) {
+    GameItem weapon = getItem(Weapon);
+    weapon.weapon = weaponList[random(0, 4)]; // Limit to non-unique weapons
+    weapon.isCursed = random(0, 100) < 10; // 10% chance to be cursed
+    if (addToInventory(weapon, false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -1224,7 +1290,7 @@ void finishPendingChest(bool success) {
         if (dungeonMap[ly][lx] != Floor) continue;
         if (random(0, 100) >= 85) continue;
         TileTypes loot = getRandomLootTile(5);
-        bool isItemTile = (loot == Potion || loot == Map || loot == MushroomTile || loot == RiddleStoneTile || loot == ArmorTile || loot == ScrollTile || loot == RingTile);
+        bool isItemTile = (loot == Potion || loot == Map || loot == MushroomTile || loot == RiddleStoneTile || loot == ArmorTile || loot == ScrollTile || loot == RingTile || loot == WeaponTile);
         if (!isItemTile) loot = Potion;
         dungeonMap[ly][lx] = loot;
       }

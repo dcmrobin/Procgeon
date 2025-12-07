@@ -658,6 +658,11 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, chestSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
+    case WeaponTile:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, weaponSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
+      break;
   }
 }
 

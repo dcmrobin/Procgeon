@@ -641,7 +641,7 @@ bool isWalkable(int x, int y) {
       return (tile == Floor || tile == StartStairs || tile == Exit || tile == Freedom ||
         tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
         tile == ArmorTile || tile == ScrollTile || tile == DoorOpen || tile == RiddleStoneTile ||
-        tile == KeyItem || tile == KeyTile);
+        tile == KeyItem || tile == KeyTile || tile == WeaponTile);
 }
 
 void unstuckEnemy(Enemy &enemy) {
@@ -818,6 +818,7 @@ void trySaveGame() {
   saveData.damsel = damsel[0];
   saveData.endlessMode = endlessMode;
   saveData.equippedArmor = equippedArmor;
+  saveData.equippedWeapon = equippedWeapon;
   saveData.equippedRiddleStone = equippedRiddleStone;
   saveData.food = playerFood;
   saveData.hp = playerHP;
@@ -846,9 +847,9 @@ void trySaveGame() {
   for (int i = 0; i < NUM_ITEMS; i++) {
       saveData.itemList[i] = itemList[i];
   }
-  for (int i = 0; i < NUM_WEAPONS; i++) {
-      saveData.weaponList[i] = weaponList[i];
-  }
+  //for (int i = 0; i < NUM_WEAPONS; i++) {
+  //    saveData.weaponList[i] = weaponList[i];
+  //}
   saveData.hasMap = hasMap;
   saveData.playerNearClockEnemy = playerNearClockEnemy;
   saveData.knowsDamselName = knowsDamselName;
@@ -890,6 +891,8 @@ void tryLoadGame() {
   damsel[0] = saveData.damsel;
   endlessMode = saveData.endlessMode;
   equippedArmor = saveData.equippedArmor;
+  // Restore equipped weapon (full GameItem)
+  equippedWeapon = saveData.equippedWeapon;
   equippedRiddleStone = saveData.equippedRiddleStone;
   playerFood = saveData.food;
   playerHP = saveData.hp;
@@ -917,9 +920,9 @@ void tryLoadGame() {
   for (int i = 0; i < NUM_ITEMS; i++) {
       itemList[i] = saveData.itemList[i];
   }
-  for (int i = 0; i < NUM_WEAPONS; i++) {
-      weaponList[i] = saveData.weaponList[i];
-  }
+  //for (int i = 0; i < NUM_WEAPONS; i++) {
+  //    weaponList[i] = saveData.weaponList[i];
+  //}
   hasMap = saveData.hasMap;
   playerNearClockEnemy = saveData.playerNearClockEnemy;
   knowsDamselName = saveData.knowsDamselName;

@@ -28,6 +28,7 @@ struct SaveData {
     int kills;
     float armorValue;
     GameItem equippedArmor;
+    GameItem equippedWeapon; // Persist the full equipped weapon (including stats)
     bool equippedRiddleStone;
     int swiftnessRingsNum;
     int strengthRingsNum;
@@ -37,7 +38,7 @@ struct SaveData {
     char scrollNames[10][20];
     char scrollNamesRevealed[10][20];
     GameItem itemList[38];
-    WeaponItem weaponList[9];
+    //WeaponItem weaponList[9];
     bool hasMap;
     bool playerNearClockEnemy;
     bool knowsDamselName;

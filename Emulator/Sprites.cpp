@@ -648,6 +648,17 @@ const unsigned char PROGMEM lockedSprite[] = {
   0b00111100
 };
 
+const unsigned char PROGMEM weaponSprite[] = {
+  0b00001000,
+  0b00011000,
+  0b00011000,
+  0b00011000,
+  0b00011000,
+  0b00111100,
+  0b00001000,
+  0b00011000
+};
+
 // Boss sprites //
 
 // Idle

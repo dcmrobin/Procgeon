@@ -27,7 +27,8 @@ enum TileTypes {
   ArmorTile,
   ScrollTile,
   RingTile,
-  ChestTile
+  ChestTile,
+  WeaponTile
 };
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];
