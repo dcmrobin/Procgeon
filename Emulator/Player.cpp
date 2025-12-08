@@ -165,17 +165,69 @@ void renderPlayer() {
     }
   }
 
-  // --- Draw melee swipe effect if active (render arc tiles) ---
-  if (meleeFrames > 0) {
-    for (int i = 0; i < meleeArcCount; i++) {
-      int tx = meleeArcTilesX[i];
-      int ty = meleeArcTilesY[i];
-      if (tx >= 0) {
-        float screenMX = (tx - offsetX) * tileSize;
-        float screenMY = (ty - offsetY) * tileSize;
-        display.fillRect((int)screenMX + 2, (int)screenMY + 2, tileSize - 4, tileSize - 4, 15);
-      }
+  // Helper to draw a single directional curved swipe using a sampled bezier stroke.
+  // This approximates a smooth curved arc by drawing overlapping filled circles along
+  // a quadratic bezier from the player's center to the arc's end point.
+  auto drawMeleeSwipe = [&](int centerTileX, int centerTileY, int dirX, int dirY, int range) {
+    // Screen-space player center
+    float pScreenX = (centerTileX - offsetX) * tileSize;
+    float pScreenY = (centerTileY - offsetY) * tileSize;
+    float startX = pScreenX + tileSize / 2.0f;
+    float startY = pScreenY + tileSize / 2.0f;
+
+    // End point in screen space (range tiles away)
+    float endX = startX + dirX * range * tileSize;
+    float endY = startY + dirY * range * tileSize;
+
+    // Midpoint
+    float midX = (startX + endX) * 0.5f;
+    float midY = (startY + endY) * 0.5f;
+
+    // Perpendicular vector to facing direction for curvature
+    float perpX = - (float)dirY;
+    float perpY = (float)dirX;
+
+    // Choose a curvature magnitude. Bigger for larger ranges.
+    float sign = 1.0f;
+    if (dirX * dirY < 0) sign = -1.0f; // give diagonals a slightly opposite bend
+    float curvature = tileSize * range * 0.45f * sign;
+
+    // Control point for quadratic bezier
+    float ctrlX = midX + perpX * curvature;
+    float ctrlY = midY + perpY * curvature;
+
+    // Stroke thickness (radius of the drawn circles)
+    int strokeR = tileSize / 2;
+    if (strokeR < 2) strokeR = 2;
+
+    // Number of samples along the bezier; more samples => smoother arc
+    const int steps = 14;
+
+    // Draw filled circles along the bezier to make a smooth thick stroke
+    for (int i = 0; i <= steps; i++) {
+      float t = (float)i / (float)steps;
+      float u = 1.0f - t;
+      // Quadratic bezier formula
+      float bx = u*u*startX + 2*u*t*ctrlX + t*t*endX;
+      float by = u*u*startY + 2*u*t*ctrlY + t*t*endY;
+      display.fillCircle((int)bx, (int)by, strokeR, 15);
     }
+
+    // Add a thin outline by drawing circles at a subset of points
+    for (int i = 0; i <= steps; i += 2) {
+      float t = (float)i / (float)steps;
+      float u = 1.0f - t;
+      float bx = u*u*startX + 2*u*t*ctrlX + t*t*endX;
+      float by = u*u*startY + 2*u*t*ctrlY + t*t*endY;
+      display.drawCircle((int)bx, (int)by, strokeR, 0);
+    }
+  };
+
+  // --- Draw melee swipe effect if active (render arc tiles or a directional sprite) ---
+  if (meleeFrames > 0) {
+    // Prefer a directional sprite centered on the player and sized by equipped weapon range
+    int weaponRange = equippedWeapon.item != Null ? equippedWeapon.weapon.range : 1;
+    drawMeleeSwipe((int)round(playerX), (int)round(playerY), playerDX, playerDY, weaponRange);
   }
 
   // Update viewport offset if needed
