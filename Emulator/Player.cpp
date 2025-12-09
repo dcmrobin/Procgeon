@@ -8,6 +8,10 @@
 #include "Puzzles.h"
 #include <string.h>
 #include "Translation.h"
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 char deathCause[50] = "";
 char currentDialogue[200] = "";
@@ -165,69 +169,73 @@ void renderPlayer() {
     }
   }
 
-  // Helper to draw a single directional curved swipe using a sampled bezier stroke.
-  // This approximates a smooth curved arc by drawing overlapping filled circles along
-  // a quadratic bezier from the player's center to the arc's end point.
-  auto drawMeleeSwipe = [&](int centerTileX, int centerTileY, int dirX, int dirY, int range) {
-    // Screen-space player center
-    float pScreenX = (centerTileX - offsetX) * tileSize;
-    float pScreenY = (centerTileY - offsetY) * tileSize;
-    float startX = pScreenX + tileSize / 2.0f;
-    float startY = pScreenY + tileSize / 2.0f;
+  int weaponRange = equippedWeapon.item != Null ? equippedWeapon.weapon.range : 1;
 
-    // End point in screen space (range tiles away)
-    float endX = startX + dirX * range * tileSize;
-    float endY = startY + dirY * range * tileSize;
-
-    // Midpoint
-    float midX = (startX + endX) * 0.5f;
-    float midY = (startY + endY) * 0.5f;
-
-    // Perpendicular vector to facing direction for curvature
-    float perpX = - (float)dirY;
-    float perpY = (float)dirX;
-
-    // Choose a curvature magnitude. Bigger for larger ranges.
-    float sign = 1.0f;
-    if (dirX * dirY < 0) sign = -1.0f; // give diagonals a slightly opposite bend
-    float curvature = tileSize * range * 0.45f * sign;
-
-    // Control point for quadratic bezier
-    float ctrlX = midX + perpX * curvature;
-    float ctrlY = midY + perpY * curvature;
-
-    // Stroke thickness (radius of the drawn circles)
-    int strokeR = tileSize / 2;
-    if (strokeR < 2) strokeR = 2;
-
-    // Number of samples along the bezier; more samples => smoother arc
-    const int steps = 14;
-
-    // Draw filled circles along the bezier to make a smooth thick stroke
-    for (int i = 0; i <= steps; i++) {
-      float t = (float)i / (float)steps;
-      float u = 1.0f - t;
-      // Quadratic bezier formula
-      float bx = u*u*startX + 2*u*t*ctrlX + t*t*endX;
-      float by = u*u*startY + 2*u*t*ctrlY + t*t*endY;
-      display.fillCircle((int)bx, (int)by, strokeR, 15);
-    }
-
-    // Add a thin outline by drawing circles at a subset of points
-    for (int i = 0; i <= steps; i += 2) {
-      float t = (float)i / (float)steps;
-      float u = 1.0f - t;
-      float bx = u*u*startX + 2*u*t*ctrlX + t*t*endX;
-      float by = u*u*startY + 2*u*t*ctrlY + t*t*endY;
-      display.drawCircle((int)bx, (int)by, strokeR, 0);
-    }
+  auto drawSwipe = [&](float px, float py, float dx, float dy, float fade) {
+      if (dx == 0 && dy == 0) return;
+      
+      // Base position: a few pixels in front of player
+      float forwardDist = 6 + weaponRange * 3;
+      float baseX = px + dx * forwardDist;
+      float baseY = py + dy * forwardDist;
+      
+      // Create a perpendicular vector (rotate 90 degrees)
+      float perpX = -dy;  // For perpendicular to (dx, dy)
+      float perpY = dx;
+      
+      // Normalize perpendicular vector
+      float perpLen = sqrt(perpX * perpX + perpY * perpY);
+      if (perpLen > 0) {
+          perpX /= perpLen;
+          perpY /= perpLen;
+      }
+      
+      // Draw a curved line perpendicular to movement direction
+      const int segments = 16;
+      float curveHeight = 8 + weaponRange * 2;  // How far the curve extends
+      
+      for (int i = 0; i < segments; i++) {
+          float t = i / float(segments - 1);
+          
+          // Position along perpendicular axis (-1 to 1)
+          float pos = -1.0f + 2.0f * t;
+          
+          // Add slight curve (sine wave)
+          float curveOffset = sinf(pos * M_PI / 2) * 2.0f;
+          
+          // Calculate point along perpendicular line
+          float offset = pos * curveHeight;
+          float pointX = baseX + perpX * offset + dx * curveOffset;
+          float pointY = baseY + perpY * offset + dy * curveOffset;
+          
+          int sx = int(pointX);
+          int sy = int(pointY);
+          
+          // Brightness fades towards ends
+          float brightnessFactor = fade * (0.3f + 0.7f * (1.0f - abs(pos)));
+          uint8_t brightness = uint8_t(15 * brightnessFactor);
+          
+          // Draw main point
+          if (brightness > 1) {
+              display.drawPixel(sx, sy, brightness);
+              
+              // Add a few surrounding pixels for thickness
+              if (i % 2 == 0) {
+                  // Draw in the direction of the curve
+                  int offsetX = int(dx * 0.7f);
+                  int offsetY = int(dy * 0.7f);
+                  display.drawPixel(sx + offsetX, sy + offsetY, brightness / 2);
+              }
+          }
+      }
   };
 
   // --- Draw melee swipe effect if active (render arc tiles or a directional sprite) ---
   if (meleeFrames > 0) {
     // Prefer a directional sprite centered on the player and sized by equipped weapon range
-    int weaponRange = equippedWeapon.item != Null ? equippedWeapon.weapon.range : 1;
-    drawMeleeSwipe((int)round(playerX), (int)round(playerY), playerDX, playerDY, weaponRange);
+    float pScreenX = (playerX - offsetX) * tileSize + tileSize / 2;
+    float pScreenY = (playerY - offsetY) * tileSize + tileSize / 2;
+    drawSwipe(pScreenX, pScreenY, playerDX, playerDY, 1.0f * meleeFrames / meleeDuration);
   }
 
   // Update viewport offset if needed
