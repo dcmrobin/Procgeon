@@ -41,11 +41,11 @@ int main() {
         }
     }
     
-    // Create a window with FULLSCREEN_DESKTOP flag from the start
+    // Create a resizable window that starts in windowed mode
     SDL_Window* window = SDL_CreateWindow("Velho",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        0, 0,  // Size doesn't matter for fullscreen desktop
-        SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_SHOWN);
+        WIDTH * 4, HEIGHT * 4, 
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP);
         
     if (!window) {
         printf("Window creation failed: %s\n", SDL_GetError());
@@ -73,6 +73,10 @@ int main() {
     int win_w, win_h;
     int scale = 1; // pixels per game-pixel
     int offset_x = 0, offset_y = 0; // center offsets in window
+    
+    // Track windowed mode size for restoring
+    int windowed_width = WIDTH * 4;
+    int windowed_height = HEIGHT * 4;
 
     auto recompute_viewport = [&](int ww, int wh) {
         // compute integer scale that fits in window while preserving square aspect ratio
@@ -96,31 +100,63 @@ int main() {
     while (running) {
         // Handle input
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) running = false;
+            if (event.type == SDL_QUIT) {
+                running = false;
+            }
             else if (event.type == SDL_WINDOWEVENT) {
-                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+                    event.window.event == SDL_WINDOWEVENT_RESIZED) {
                     win_w = event.window.data1;
                     win_h = event.window.data2;
                     recompute_viewport(win_w, win_h);
+                    
+                    // Save windowed size when not in fullscreen
+                    Uint32 flags = SDL_GetWindowFlags(window);
+                    if (!(flags & SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+                        windowed_width = win_w;
+                        windowed_height = win_h;
+                    }
+                }
+                else if (event.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+                    // Window minimized - you might want to pause the game here
+                }
+                else if (event.window.event == SDL_WINDOWEVENT_RESTORED) {
+                    // Window restored from minimized
                 }
             } else if (event.type == SDL_KEYDOWN) {
-                // ESC to exit fullscreen
-                if (event.key.keysym.sym == SDLK_ESCAPE) {
-                    running = false;
-                }
-                // F11 still toggles between fullscreen and windowed
-                else if (event.key.keysym.sym == SDLK_F11) {
+                // F11 toggles between fullscreen and windowed
+                if (event.key.keysym.sym == SDLK_F11 && event.key.repeat == 0) {
                     Uint32 flags = SDL_GetWindowFlags(window);
                     if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+                        // Exit fullscreen, restore to windowed
                         SDL_SetWindowFullscreen(window, 0);
-                        // Set a reasonable window size when exiting fullscreen
-                        SDL_SetWindowSize(window, WIDTH * 4, HEIGHT * 4);
-                        SDL_SetWindowPosition(window, 
-                            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+                        SDL_SetWindowSize(window, windowed_width, windowed_height);
+                        SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+                        SDL_RestoreWindow(window); // Ensure window is not minimized
                     } else {
+                        // Enter fullscreen
+                        // Save current window size before going fullscreen
+                        SDL_GetWindowSize(window, &windowed_width, &windowed_height);
                         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
-                    // recompute for current window size after mode change
+                    // Get new size and recompute viewport
+                    SDL_GetWindowSize(window, &win_w, &win_h);
+                    recompute_viewport(win_w, win_h);
+                }
+                // Alt+Enter also toggles fullscreen (common alternative)
+                else if (event.key.keysym.sym == SDLK_RETURN && 
+                        (SDL_GetModState() & KMOD_ALT) && event.key.repeat == 0) {
+                    Uint32 flags = SDL_GetWindowFlags(window);
+                    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+                        // Exit fullscreen
+                        SDL_SetWindowFullscreen(window, 0);
+                        SDL_SetWindowSize(window, windowed_width, windowed_height);
+                        SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+                    } else {
+                        // Enter fullscreen
+                        SDL_GetWindowSize(window, &windowed_width, &windowed_height);
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                    }
                     SDL_GetWindowSize(window, &win_w, &win_h);
                     recompute_viewport(win_w, win_h);
                 }

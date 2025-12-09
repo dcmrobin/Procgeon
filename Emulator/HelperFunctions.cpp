@@ -378,7 +378,7 @@ void updateButtonStates() {
   buttons.rightPressed = keystate[SDL_SCANCODE_RIGHT] || keystate[SDL_SCANCODE_D];
   buttons.aPressed = keystate[SDL_SCANCODE_Z] || keystate[SDL_SCANCODE_BACKSPACE] || keystate[SDL_SCANCODE_I] || keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_LSHIFT];
   buttons.bPressed = keystate[SDL_SCANCODE_X] || keystate[SDL_SCANCODE_LCTRL] || keystate[SDL_SCANCODE_TAB] || keystate[SDL_SCANCODE_SPACE];
-  buttons.startPressed = keystate[SDL_SCANCODE_RETURN] || keystate[SDL_SCANCODE_P]; // Enter for Start
+  buttons.startPressed = keystate[SDL_SCANCODE_RETURN] || keystate[SDL_SCANCODE_P] || keystate[SDL_SCANCODE_ESCAPE]; // Enter for Start
 }
 
 void handleUIStateTransitions() {
@@ -561,13 +561,15 @@ void renderUI() {
   snprintf(HP, sizeof(HP), "%d", playerHP);
   snprintf(FOOD, sizeof(FOOD), "%d", playerFood);
 
-  display.setTextColor(15, 0);
+  display.fillRect(0, 113, SCREEN_WIDTH, 15, 1);
+
+  display.setTextColor(15, 1);
   display.setTextSize(1);
   display.setCursor(5, 117);
   display.print("HP:");
   display.setCursor(21, 117);
   display.print(HP);
-  display.setTextColor(textColor, 0);
+  display.setTextColor(textColor, 1);
 
   if (starving) {
     blinkTick += 1;
@@ -579,7 +581,7 @@ void renderUI() {
     textColor = 15; // Default color when not starving
   }
 
-  display.setTextColor(textColor, 0);
+  display.setTextColor(textColor, 1);
 
   display.setCursor(46, 117);
   display.print("FOOD:");
