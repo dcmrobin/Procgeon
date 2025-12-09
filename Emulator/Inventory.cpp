@@ -339,6 +339,50 @@ void handleItemActionMenu() {
             playerAttackDamage += 8;
             snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You read in between the lines. Your attacks do much more damage!");
           }
+
+          // Additionally: convert the currently equipped weapon (in the weapons tab)
+          // into its magic version (if any) and assign it to the global `equippedWeapon`.
+          for (int p = 0; p < numInventoryPages; p++) {
+            if (inventoryPages[p].category != WeaponCategory) continue;
+            for (int i = 0; i < inventorySize; i++) {
+              GameItem &invItem = inventoryPages[p].items[i];
+              if (invItem.item != Null && (seeAll ? true : invItem.isEquipped) && invItem.weapon.type != NoWeapon) {
+                // Find the weaponList entry for this weapon type
+                for (int w = 0; w < NUM_WEAPONS; w++) {
+                  if (weaponList[w].type == invItem.weapon.type) {
+                    WeaponType magicType = weaponList[w].magicType;
+                    // Find the magic weapon definition
+                    if (invItem.weapon.type != magicType) {
+                      for (int m = 0; m < NUM_WEAPONS; m++) {
+                        if (weaponList[m].type == magicType) {
+                          // Apply magic weapon stats to the inventory item
+                          invItem.weapon = weaponList[m];
+                          invItem.canRust = weaponList[m].canRust;
+                          snprintf(invItem.name, sizeof(invItem.name), "%s", weaponList[m].name);
+                          snprintf(invItem.originalName, sizeof(invItem.originalName), "%s", weaponList[m].name);
+                          snprintf(invItem.description, sizeof(invItem.description), "%s", weaponList[m].description);
+                          // Update global equippedWeapon and player attack stats
+                          equippedWeapon = invItem;
+                          playerAttackDamage = (int)equippedWeapon.weapon.damage;
+                          attackDelayFrames = equippedWeapon.weapon.attackDelay;
+                          break;
+                        }
+                      }
+                    } else {
+                      // Already magic weapon; just increase damage
+                      invItem.weapon.damage += 5;
+                      invItem.weapon.attackDelay = max(5, invItem.weapon.attackDelay - 2);
+                    }
+                    break;
+                  }
+                }
+                // we handled the equipped weapon; stop searching
+                p = numInventoryPages; // break outer loop
+                break;
+              }
+            }
+          }
+
           // Destroy the enchant scroll
           inventoryPages[currentInventoryPageIndex].items[selectedInventoryIndex] = { Null, PotionCategory, "Empty"};
           inventoryPages[currentInventoryPageIndex].itemCount--;

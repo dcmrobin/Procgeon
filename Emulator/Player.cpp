@@ -392,6 +392,13 @@ void handleInput() {
         shootDelay = 0;
         attackDelayFrames = equippedWeapon.item != Null ? equippedWeapon.weapon.attackDelay : 10;
       } else {
+        if (equippedWeapon.weapon.type == MagicDagger || equippedWeapon.weapon.type == MagicSword || equippedWeapon.weapon.type == MagicLongSword) {
+          shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
+          playRawSFX(1);
+          reloading = true;
+          shootDelay = 0;
+          attackDelayFrames = equippedWeapon.item != Null ? equippedWeapon.weapon.attackDelay : 10;
+        }
         // Melee swipe for non-staff weapons: compute an arc in front of the player,
         // store tiles for rendering, and apply instant damage to each tile.
         meleeFrames = meleeDuration;
