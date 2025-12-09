@@ -171,16 +171,24 @@ void renderPlayer() {
 
   int weaponRange = equippedWeapon.item != Null ? equippedWeapon.weapon.range : 1;
 
+  // --- Draw melee swipe effect if active (render arc tiles) ---
+  /*if (meleeFrames > 0) {
+    for (int i = 0; i < meleeArcCount; i++) {
+      int tx = meleeArcTilesX[i];
+      int ty = meleeArcTilesY[i];
+      if (tx >= 0) {
+        float screenMX = (tx - offsetX) * tileSize;
+        float screenMY = (ty - offsetY) * tileSize;
+        display.fillRect((int)screenMX + 2, (int)screenMY + 2, tileSize, tileSize, min(7, meleeFrames * 3));
+      }
+    }
+  }*/
+
   auto drawSwipe = [&](float px, float py, float dx, float dy, float fade) {
       if (dx == 0 && dy == 0) return;
       
-      // Base position: a few pixels in front of player
-      float forwardDist = 6 + weaponRange * 3;
-      float baseX = px + dx * forwardDist;
-      float baseY = py + dy * forwardDist;
-      
       // Create a perpendicular vector (rotate 90 degrees)
-      float perpX = -dy;  // For perpendicular to (dx, dy)
+      float perpX = -dy;
       float perpY = dx;
       
       // Normalize perpendicular vector
@@ -190,41 +198,51 @@ void renderPlayer() {
           perpY /= perpLen;
       }
       
-      // Draw a curved line perpendicular to movement direction
-      const int segments = 16;
-      float curveHeight = 8 + weaponRange * 2;  // How far the curve extends
+      // Draw multiple lines at different distances
+      const int numLines = 3;  // Draw 3 lines for thickness
+      const int segments = 20; // Points per line
       
-      for (int i = 0; i < segments; i++) {
-          float t = i / float(segments - 1);
+      for (int line = 0; line < numLines; line++) {
+          // Each line is slightly closer to the player
+          float lineDist = weaponRange * tileSize * (1.0f - line * 0.3f);
+          float baseX = px + dx * lineDist;
+          float baseY = py + dy * lineDist;
           
-          // Position along perpendicular axis (-1 to 1)
-          float pos = -1.0f + 2.0f * t;
+          // Each line has slightly different curve parameters
+          float curveHeight = weaponRange * tileSize * (1.0f - line * 0.2f);
+          float lineFade = fade * (1.0f - line * 0.3f); // Inner lines are fainter
           
-          // Add slight curve (sine wave)
-          float curveOffset = sinf(pos * M_PI / 2) * 2.0f;
-          
-          // Calculate point along perpendicular line
-          float offset = pos * curveHeight;
-          float pointX = baseX + perpX * offset + dx * curveOffset;
-          float pointY = baseY + perpY * offset + dy * curveOffset;
-          
-          int sx = int(pointX);
-          int sy = int(pointY);
-          
-          // Brightness fades towards ends
-          float brightnessFactor = fade * (0.3f + 0.7f * (1.0f - abs(pos)));
-          uint8_t brightness = uint8_t(15 * brightnessFactor);
-          
-          // Draw main point
-          if (brightness > 1) {
-              display.drawPixel(sx, sy, brightness);
+          for (int i = 0; i < segments; i++) {
+              float t = i / float(segments - 1);
               
-              // Add a few surrounding pixels for thickness
-              if (i % 2 == 0) {
-                  // Draw in the direction of the curve
-                  int offsetX = int(dx * 0.7f);
-                  int offsetY = int(dy * 0.7f);
-                  display.drawPixel(sx + offsetX, sy + offsetY, brightness / 2);
+              // Position along perpendicular axis (-1 to 1)
+              float pos = -1.0f + 2.0f * t;
+              
+              // Add slight curve (sine wave)
+              float curveOffset = sinf(pos * M_PI / 2) * (2.0f - line * 0.5f);
+              
+              // Calculate point along perpendicular line
+              float offset = pos * curveHeight;
+              float pointX = baseX + perpX * offset + dx * curveOffset;
+              float pointY = baseY + perpY * offset + dy * curveOffset;
+              
+              int sx = int(pointX);
+              int sy = int(pointY);
+              
+              // Brightness fades towards ends and for inner lines
+              float brightnessFactor = lineFade * (0.3f + 0.7f * (1.0f - abs(pos)));
+              uint8_t brightness = uint8_t(15 * brightnessFactor);
+              
+              // Draw main point
+              if (brightness > 1) {
+                  display.drawPixel(sx, sy, brightness);
+                  
+                  // Add surrounding pixels for thickness on the outer line only
+                  if (line == 0 && i % 3 == 0 && brightness > 8) {
+                      // Draw pixels in the direction perpendicular to the swipe
+                      display.drawPixel(sx + int(perpY * 0.5f), sy + int(-perpX * 0.5f), brightness / 3);
+                      display.drawPixel(sx - int(perpY * 0.5f), sy - int(-perpX * 0.5f), brightness / 3);
+                  }
               }
           }
       }
@@ -475,8 +493,11 @@ void handleInput() {
             int idx = hitIndices[h];
             int dmg = base + (h < rem ? 1 : 0);
             enemies[idx].hp -= dmg;
+            spawnParticles(enemies[idx].x, enemies[idx].y, 1, 0.15f, false);
+            playRawSFX3D(23, enemies[idx].x, enemies[idx].y);
             if (enemies[idx].hp <= 0) {
               kills += 1;
+              spawnParticles(enemies[idx].x, enemies[idx].y, 5, 0.25f, true);
             }
           }
         }

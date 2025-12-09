@@ -48,14 +48,14 @@ GameItem itemList[] = {
 };
 
 WeaponItem weaponList[] = {
-    { Sword, NoWeapon, "Sword", "A standard sword.", true, 15, 12, 1 },
-    { LongSword, NoWeapon, "Longsword", "A longsword. Increased reach.", true, 15, 14, 2 },
-    { Staff, NoWeapon, "Staff", "A trusty wooden staff.", false, 5, 12, 1 },
-    { Dagger, NoWeapon, "Dagger", "A small dagger for fast attacks.", true, 7, 8, 1 },
-    { MagicStaff, NoWeapon, "Magic Staff", "A staff enfused with magic.", false, 7, 14, 3 },
-    { MagicDagger, NoWeapon, "Magic Dagger", "A dagger enfused with magic.", false, 15, 7, 1 },
-    { MagicSword, NoWeapon, "Magic Sword", "A sword enfused with magic.", false, 25, 14, 1 },
-    { MagicLongSword, NoWeapon, "Magic Longsword", "A longsword enfused with magic.", false, 30, 16, 2 },
+    { Sword, MagicSword, "Sword", "A standard sword.", true, 15, 25, 1 },
+    { LongSword, MagicLongSword, "Longsword", "A longsword. Increased reach.", true, 15, 35, 2 },
+    { Staff, MagicStaff, "Staff", "A trusty wooden staff.", false, 7, 25, 1 },
+    { Dagger, MagicDagger, "Dagger", "A small dagger for fast attacks.", true, 3, 15, 1 },
+    { MagicStaff, MagicStaff, "Magic Staff", "A staff enfused with magic.", false, 7, 20, 1 },
+    { MagicDagger, MagicDagger, "Magic Dagger", "A dagger enfused with magic.", false, 15,12, 1 },
+    { MagicSword, MagicSword, "Magic Sword", "A sword enfused with magic.", false, 25, 22, 1 },
+    { MagicLongSword, MagicLongSword, "Magic Longsword", "A longsword enfused with magic.", false, 30, 25, 2 },
     { NoWeapon, NoWeapon, "No Weapon", "Not a weapon.", false, 0, 10, 1 }
 };
 
