@@ -383,7 +383,7 @@ void handleInput() {
   }
 
   if (buttons.bPressed) {
-    if (!reloading && !damsel[0].beingCarried && distanceSquared > 0.3 && equippedWeapon.weapon.type != NoWeapon) {
+    if (!reloading && (equippedWeapon.weapon.type == MagicStaff ? (!damsel[0].beingCarried && distanceSquared > 0.3) : true) && equippedWeapon.weapon.type != NoWeapon) {
       // If the equipped weapon is the Magic Staff, shoot a projectile.
       if (equippedWeapon.weapon.type == MagicStaff) {
         shootProjectile(playerX, playerY, playerDX, playerDY, true, -1); // Shoot in current direction
@@ -522,9 +522,11 @@ void handleInput() {
   if (playerActed) {
     if (reloading) {
       shootDelay++;
+      reloadBarWidth = shootDelay * (128 / attackDelayFrames);
       if (shootDelay >= attackDelayFrames) {
         reloading = false;
         shootDelay = 0;
+        reloadBarWidth = 0;
       }
     }
     // Advance melee animation frames

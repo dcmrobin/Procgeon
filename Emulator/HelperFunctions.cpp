@@ -26,6 +26,7 @@ const KonamiInput konamiCode[] = {
 
 const int konamiLength = sizeof(konamiCode) / sizeof(konamiCode[0]);
 int konamiIndex = 0;
+int reloadBarWidth = 0;
 
 // Add action selection tracking
 int selectedActionIndex = 0; // 0 = Use, 1 = Drop, 2 = Info
@@ -562,6 +563,7 @@ void renderUI() {
   snprintf(FOOD, sizeof(FOOD), "%d", playerFood);
 
   display.fillRect(0, 113, SCREEN_WIDTH, 15, 1);
+  display.fillRect(0, 112, reloadBarWidth, 1, 15);
 
   display.setTextColor(15, 1);
   display.setTextSize(1);

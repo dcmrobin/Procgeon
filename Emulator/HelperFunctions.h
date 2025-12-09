@@ -40,6 +40,7 @@ extern const KonamiInput konamiCode[];
 
 extern const int konamiLength;
 extern int konamiIndex;
+extern int reloadBarWidth;
 
 struct ButtonStates {
   bool upPressed;
