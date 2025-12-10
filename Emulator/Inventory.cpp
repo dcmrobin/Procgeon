@@ -412,6 +412,14 @@ void handleItemActionMenu() {
         } else if (selectedItem.effectType == ScrollEmptyEffect && seeAll) {
           addToInventory(getItem(KingArmor), false);
           addToInventory(getItem(RiddleStone), false);
+          GameItem newWeapon = getItem(Weapon);
+          newWeapon.weapon = weaponList[MagicStaff];
+          snprintf(newWeapon.description, sizeof(newWeapon.description), "%s", weaponList[MagicStaff].description);
+          snprintf(newWeapon.name, sizeof(newWeapon.name), "%s", weaponList[MagicStaff].name);
+          snprintf(newWeapon.originalName, sizeof(newWeapon.originalName), "%s", weaponList[MagicStaff].name);
+          newWeapon.canRust = weaponList[MagicStaff].canRust;
+          addToInventory(newWeapon, false);
+          addToInventory(getItem(MagicStaff), false);
           blinded = false;
           blindnessTimer = 0;
           confused = false;
