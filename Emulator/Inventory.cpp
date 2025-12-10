@@ -419,7 +419,6 @@ void handleItemActionMenu() {
           snprintf(newWeapon.originalName, sizeof(newWeapon.originalName), "%s", weaponList[MagicStaff].name);
           newWeapon.canRust = weaponList[MagicStaff].canRust;
           addToInventory(newWeapon, false);
-          addToInventory(getItem(MagicStaff), false);
           blinded = false;
           blindnessTimer = 0;
           confused = false;
