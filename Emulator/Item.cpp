@@ -369,7 +369,7 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         if (!item1Primary || !item2Primary) {
             return getItem(BrownPotion);
         }
-    } else if ((item1.category == PotionCategory && item2.category == EquipmentCategory) || (item1.category == EquipmentCategory && item2.category == PotionCategory)) {
+    } else if ((item1.category == PotionCategory && (item2.category == EquipmentCategory || item2.category == WeaponCategory)) || ((item1.category == EquipmentCategory || item1.category == WeaponCategory) && item2.category == PotionCategory)) {
       if (item1.item == EmptyBottle || item2.item == EmptyBottle) {
         GameItem item = item1.item == EmptyBottle ? item2 : item1;
         snprintf(item.itemResult, sizeof(item.itemResult), "The %s cannot fit inside the bottle.", item.name);
@@ -381,22 +381,30 @@ GameItem combineItems(GameItem item1, GameItem item2) {
         snprintf(item.itemResult, sizeof(item.itemResult), "%s", "The washer is wet now, making it easy to remove.");
         snprintf(item.description, sizeof(item.description), "%s", "A wet washer. It being wet prevents it from getting stuck on your finger.");
         return item;
-      } else if ((item1.category == EquipmentCategory ? item1.canRust : item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
+      } else if (((item1.category == EquipmentCategory || item1.category == WeaponCategory) ? item1.canRust : item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
         bool cursed = random(0, 10) < 3 ? true : false;
         GameItem rustedItem = item; // Copy the entire struct first
         rustedItem.AOEdamage = 123; // This is to make sure "rusty"s don't get added more than necessary to the name
-        rustedItem.armorValue = item.armorValue - (item.armorValue < 0 ? 0 : 1);
+        if (item1.category == EquipmentCategory ? item1.category == EquipmentCategory : item2.category == EquipmentCategory) {
+          rustedItem.armorValue = item.armorValue - (item.armorValue < 0 ? 0 : 1);
+        } else if (item1.category == WeaponCategory? item1.category == WeaponCategory : item2.category == WeaponCategory) {
+          rustedItem.weapon.damage = item.weapon.damage - (item.weapon.damage < 0 ? 0 : 1);
+        }
         rustedItem.isCursed = cursed;
         rustedItem.canRust = true;
         snprintf(rustedItem.description, sizeof(rustedItem.description), "A Rusty %s. It looks degraded%s.", item.name, (cursed ? ", and you feel a sense of unease around it." : ""));
         snprintf(rustedItem.name, sizeof(rustedItem.name), "Rusty %s", item.name);
         snprintf(rustedItem.itemResult, sizeof(rustedItem.itemResult), "You pour the %s over the %s. It rusts%s.", (item1.category == PotionCategory ? item1.name : item2.name), item.name, (cursed ? ", becomes less durable, and shimmers slightly red for a moment" : " and becomes less durable"));
         if (item.isEquipped) {
-          equippedArmorValue = item.armorValue;
+          if (item1.category == EquipmentCategory ? item1.category == EquipmentCategory : item2.category == EquipmentCategory) {
+            equippedArmor = rustedItem;
+          } else if (item1.category == WeaponCategory? item1.category == WeaponCategory : item2.category == WeaponCategory) {
+            equippedWeapon = rustedItem;
+          }
         }
         return rustedItem;
-      } else if ((item1.category == EquipmentCategory ? !item1.canRust : !item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
+      } else if (((item1.category == EquipmentCategory || item1.category == WeaponCategory) ? !item1.canRust : !item2.canRust) && strcmp(item1.name, "Washer") != 0 && strcmp(item2.name, "Washer") != 0) {
         GameItem item = item1.category == EquipmentCategory ? item1 : item2;
         GameItem unrustedItem = item; // Copy the entire struct
         snprintf(unrustedItem.itemResult, sizeof(unrustedItem.itemResult), "You pour the %s over the %s, but nothing happens.", (item1.category == PotionCategory ? item1.name : item2.name), item.name);

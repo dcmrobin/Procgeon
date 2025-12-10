@@ -578,7 +578,7 @@ void handleItemActionMenu() {
 
         snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", selectedItem.itemResult);
 
-        if (selectedItem.effectType == ArmorEffect) {
+        if (selectedItem.effectType == ArmorEffect || selectedItem.category == WeaponCategory) {
           snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't use this, Try equipping it.");
         }
 
@@ -594,7 +594,7 @@ void handleItemActionMenu() {
         }
 
         buttons.bPressedPrev = true;
-      } else if (selectedItem.effectType == ArmorEffect || selectedItem.item == Ring) {
+      } else if (selectedItem.effectType == ArmorEffect || selectedItem.category == WeaponCategory || selectedItem.item == Ring) {
         snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You can't use this, try equipping it.");
         currentUIState = UI_ITEM_RESULT;
         buttons.bPressedPrev = true;
@@ -686,28 +686,35 @@ void handleItemActionMenu() {
           // Check if trying to equip armor when armor is already equipped
           if (selectedItem.effectType == ArmorEffect && equippedArmor.item != Null) {
             playRawSFX(13);
-            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip the armor first.");
+            snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip your current armor first.");
             currentUIState = UI_ITEM_RESULT;
             buttons.bPressedPrev = true;
           } else {
             // Equip the item
             // If this is a weapon, ensure only one weapon is equipped at a time
             if (selectedItem.category == WeaponCategory) {
-              // Unequip any other equipped weapon in inventory
-              for (int p = 0; p < numInventoryPages; p++) {
-                if (inventoryPages[p].category != WeaponCategory) continue;
-                for (int i = 0; i < inventorySize; i++) {
-                  if (inventoryPages[p].items[i].item != Null && inventoryPages[p].items[i].isEquipped) {
-                    inventoryPages[p].items[i].isEquipped = false;
+              if (equippedWeapon.weapon.type == NoWeapon) {
+                // Unequip any other equipped weapon in inventory
+                for (int p = 0; p < numInventoryPages; p++) {
+                  if (inventoryPages[p].category != WeaponCategory) continue;
+                  for (int i = 0; i < inventorySize; i++) {
+                    if (inventoryPages[p].items[i].item != Null && inventoryPages[p].items[i].isEquipped) {
+                      inventoryPages[p].items[i].isEquipped = false;
+                    }
                   }
                 }
+                selectedItem.isEquipped = true;
+                // Update equippedWeapon global
+                equippedWeapon = selectedItem;
+                // Apply weapon stats to player
+                playerAttackDamage = (int)equippedWeapon.weapon.damage;
+                attackDelayFrames = equippedWeapon.weapon.attackDelay;
+              } else {
+                playRawSFX(13);
+                snprintf(itemResultMessage, sizeof(itemResultMessage), "%s", "You need to unequip your current weapon first.");
+                currentUIState = UI_ITEM_RESULT;
+                buttons.bPressedPrev = true;
               }
-              selectedItem.isEquipped = true;
-              // Update equippedWeapon global
-              equippedWeapon = selectedItem;
-              // Apply weapon stats to player
-              playerAttackDamage = (int)equippedWeapon.weapon.damage;
-              attackDelayFrames = equippedWeapon.weapon.attackDelay;
             } else {
               selectedItem.isEquipped = true;
               if (selectedItem.effectType == ArmorEffect) {
