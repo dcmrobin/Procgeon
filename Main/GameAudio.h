@@ -6,14 +6,14 @@
 
 #define NUM_SFX 25
 #define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
-#define MAX_SIMULTANEOUS_SFX 8  // Number of sounds that can play at once
+#define MAX_SIMULTANEOUS_SFX 1  // Number of sounds that can play at once
 #define MAX_AUDIO_DISTANCE 20  // Maximum distance for sound to be heard
 #define MIN_AUDIO_VOLUME 0.01f   // Minimum volume before sound cuts out
 
 // Declare audio objects (defined in .cpp)
 extern AudioPlaySdRaw      sfxPlayers[MAX_SIMULTANEOUS_SFX];
-extern AudioMixer4         mixer1;  // For sfxPlayers 0-3
-extern AudioMixer4         mixer2;  // For sfxPlayers 4-7
+extern AudioMixer4         mixer1;  // For sfxPlayers 0
+extern AudioMixer4         mixer2;  // Not used for SFX
 extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
 extern AudioPlaySdWav      playWav1;

@@ -23,6 +23,13 @@ unsigned int killHighscoreAddress = 1;
 int creditsBrightness = 15;
 int noiseLevelDiffuseTimer = 0;
 int introNum = 0;
+// Millis-based splash timing (synchronized to music)
+unsigned long splashStartTime = 0;
+bool splashTimingActive = false;
+// Splash transition shake/easing
+int splashShakeFrames = 0; // frames remaining to shake
+int splashShakeMagnitude = 3; // pixels of shake
+int prevSplashIndex = -1; // track last shown splash to trigger shake once
 
 // Timing variables
 unsigned long lastUpdateTime = 0;
@@ -43,6 +50,9 @@ void resetGame() {
   digitalWrite(8, HIGH);
 
   playWav1.stop();// Stop any currently playing music
+  currentSplash = splashScreen;
+  splashTimingActive = false;
+  splashStartTime = 0;
   // Reset player stats
   playerHP = 100;
   playerFood = 100;
@@ -140,14 +150,14 @@ void setup() {
     Serial.print(CrashReport);
   }
 
-  initAudio();
-
   // Initialize SD card
   if (!SD.begin(SD_CS)) {
     Serial.println("SD initialization failed!");
     while (1);  // Stop execution
   }
   Serial.println("SD initialization done.");
+
+  initAudio();
 
   Serial.println("type 8: teleport damsel to player if damsel is available");
   Serial.println("type 7: make tile player is on into the exit");
@@ -358,6 +368,7 @@ void renderIntroScreen() {
   if (!playWav1.isPlaying() && introNum > 10) {
     playWav1.stop();
     currentUIState = UI_SPLASH;
+    playRawSFX(10);
   }
 }
 
@@ -422,8 +433,75 @@ void renderSplashScreen() {
     playWav1.play("title_screen.wav");
   }
 
+  // Start timing when the music begins playing
+  if (!splashTimingActive) {
+    splashStartTime = millis();
+    splashTimingActive = true;
+  }
+
+  unsigned long elapsed = millis() - splashStartTime;
+
+  // Map original frame-based thresholds (frameDelay = 20ms) to milliseconds
+  // original thresholds: 200 (4s), 300 (6s), 400 (8s), 500 (10s), 600 (12s),
+  // 700 (14s), 800 (16s), 900 (18s), 1000 (20s), 1100 (22s), reset >1200 (24s)
+    // Timed sequence with transition that finishes exactly at the switch time.
+    const unsigned long splashStartTimes[] = { 0UL, 6500UL, 9800UL, 11500UL, 14700UL, 18000UL, 21300UL, 24550UL, 27850UL, 31000UL };
+    const unsigned long loopDuration = 34350UL; // reset after 24s
+    const unsigned long transitionDuration = 100UL; // how long the slide-in takes
+    const unsigned long now = elapsed % loopDuration; // wrap within loop
+
+    const unsigned char* splashFrames[] = { splashScreen, batguy_splash, blob_splash, teleporter_splash, shooter_splash, jukebox_splash, succubus_splash, wizard_splash, damsel_splash, master_splash };
+    const int splashCount = sizeof(splashFrames) / sizeof(splashFrames[0]);
+
+    // Find current frame index (the one that is active before the next change)
+    int currentIndex = 0;
+    for (int i = 0; i < splashCount; ++i) {
+      if (now >= splashStartTimes[i]) currentIndex = i;
+    }
+    int nextIndex = (currentIndex + 1) % splashCount;
+    unsigned long nextStart = (nextIndex < splashCount) ? splashStartTimes[nextIndex] : loopDuration;
+    if (nextIndex == 0) nextStart = loopDuration; // wrap point
+
+    // If we're within the transition window before the next splash, slide the next splash in
+    if (now >= (nextStart > transitionDuration ? nextStart - transitionDuration : 0) && now < nextStart) {
+      unsigned long t0 = nextStart - transitionDuration;
+      unsigned long t1 = nextStart;
+      float p = (float)(now - t0) / (float)(t1 - t0); // linear 0..1
+      if (p < 0.0f) p = 0.0f; if (p > 1.0f) p = 1.0f;
+
+      // Ease-in cubic: starts slow, accelerates toward the end
+      float eased = p * p * p;
+
+      int inX = (int)((1.0f - eased) * (float)SCREEN_WIDTH); // from offscreen-right to 0
+      int outX = inX - SCREEN_WIDTH; // previous slides out to the left
+
+      display.clearDisplay();
+      display.drawBitmap(0, 0, splashFrames[currentIndex], SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+      display.drawBitmap(inX, 0, splashFrames[nextIndex], SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+
+      display.display();
+      return; // we've drawn the transition frames
+    }
+
+    // Otherwise draw the current frame statically
+    currentSplash = splashFrames[currentIndex];
+
+    // Trigger a short shake when we first land on a new splash (not at startup)
+    if (prevSplashIndex != -1 && currentIndex != prevSplashIndex) {
+      splashShakeFrames = 6; // shake for ~6 frames
+    }
+    prevSplashIndex = currentIndex;
+
   display.clearDisplay();
-  display.drawBitmap(0, 0, splashScreen, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+  // Apply a small screenshake if recently slammed into place
+  int shakeX = 0;
+  int shakeY = 0;
+  if (splashShakeFrames > 0) {
+    shakeX = (int)random(-splashShakeMagnitude, splashShakeMagnitude + 1);
+    shakeY = (int)random(-splashShakeMagnitude, splashShakeMagnitude + 1);
+    splashShakeFrames--;
+  }
+  display.drawBitmap(shakeX, shakeY, currentSplash, SCREEN_WIDTH, SCREEN_HEIGHT, 15);
   display.display();
 }
 

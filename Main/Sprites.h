@@ -168,5 +168,6 @@ extern const unsigned char shooter_splash [];
 extern const unsigned char succubus_splash [];
 extern const unsigned char teleporter_splash [];
 extern const unsigned char wizard_splash [];
+extern const unsigned char* currentSplash;
 
 #endif // SPRITES_H
