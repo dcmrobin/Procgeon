@@ -149,13 +149,6 @@ void setup() {
   }
   Serial.println("SD initialization done.");
 
-  // Play a sound effect from memory
-  if (!loadSFXtoRAM()) {
-    Serial.println("Failed to load SFX to RAM");
-  } else {
-    Serial.println("SFX loaded successfully");
-  }
-
   Serial.println("type 8: teleport damsel to player if damsel is available");
   Serial.println("type 7: make tile player is on into the exit");
   Serial.println("type 6: add potion to inventory");

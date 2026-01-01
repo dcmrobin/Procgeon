@@ -3,9 +3,9 @@
 #include <SD.h>
 
 // Define the audio system objects
-AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
-AudioMixer4         mixer1;  // For queues 0-3
-AudioMixer4         mixer2;  // For queues 4-7
+AudioPlaySdRaw      sfxPlayers[MAX_SIMULTANEOUS_SFX];
+AudioMixer4         mixer1;  // For sfxPlayers 0-3
+AudioMixer4         mixer2;  // For sfxPlayers 4-7
 AudioMixer4         musicMixer; // New mixer for music
 AudioOutputI2S      audioOutput;
 AudioPlaySdWav      playWav1;
@@ -13,16 +13,16 @@ AudioPlaySdWav      playWav2;  // Jukebox music player
 //AudioAmplifier      amp1;
 
 // Create audio connections
-// First mixer for queues 0-3
-AudioConnection     patchCord1(queue[0], 0, mixer1, 0);
-AudioConnection     patchCord2(queue[1], 0, mixer1, 1);
-AudioConnection     patchCord3(queue[2], 0, mixer1, 2);
-AudioConnection     patchCord4(queue[3], 0, mixer1, 3);
-// Second mixer for queues 4-7
-AudioConnection     patchCord5(queue[4], 0, mixer2, 0);
-AudioConnection     patchCord6(queue[5], 0, mixer2, 1);
-AudioConnection     patchCord7(queue[6], 0, mixer2, 2);
-AudioConnection     patchCord8(queue[7], 0, mixer2, 3);
+// First mixer for sfxPlayers 0-3
+AudioConnection     patchCord1(sfxPlayers[0], 0, mixer1, 0);
+AudioConnection     patchCord2(sfxPlayers[1], 0, mixer1, 1);
+AudioConnection     patchCord3(sfxPlayers[2], 0, mixer1, 2);
+AudioConnection     patchCord4(sfxPlayers[3], 0, mixer1, 3);
+// Second mixer for sfxPlayers 4-7
+AudioConnection     patchCord5(sfxPlayers[4], 0, mixer2, 0);
+AudioConnection     patchCord6(sfxPlayers[5], 0, mixer2, 1);
+AudioConnection     patchCord7(sfxPlayers[6], 0, mixer2, 2);
+AudioConnection     patchCord8(sfxPlayers[7], 0, mixer2, 3);
 // Mix both SFX mixers and music into final mixer
 AudioConnection     patchCord9(mixer1, 0, musicMixer, 0); // SFX mixer1 to musicMixer
 AudioConnection     patchCord10(mixer2, 0, musicMixer, 1); // SFX mixer2 to musicMixer
@@ -35,10 +35,6 @@ AudioControlSGTL5000 sgtl5000_1;
 int ambientNoiseLevel = 0;
 int masterVolume = 10; // Default volume (1..10). sgtl5000_1.volume will be masterVolume/10.0
 float jukeboxVolume = 0.0f;
-
-// RAM-loaded sound effect storage
-uint8_t* sfxData[NUM_SFX] = { nullptr };
-size_t sfxLength[NUM_SFX] = { 0 };
 
 const char* sfxFilenames[NUM_SFX] = {
   "player_hurt.raw",//        0
@@ -69,7 +65,7 @@ const char* sfxFilenames[NUM_SFX] = {
 };
 
 // Array of currently playing sound effects
-RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
+SFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 
 // Initialize the audio system
 void initAudio() {
@@ -81,16 +77,16 @@ void initAudio() {
     float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
     sgtl5000_1.volume(vol);
     // Set mixer levels for each channel, scaled by master volume
-    // Mixer1 (queues 0-3)
-    mixer1.gain(0, 0.5 * vol);
-    mixer1.gain(1, 0.5 * vol);
-    mixer1.gain(2, 0.5 * vol);
-    mixer1.gain(3, 0.5 * vol);
-    // Mixer2 (queues 4-7)
-    mixer2.gain(0, 0.5 * vol);
-    mixer2.gain(1, 0.5 * vol);
-    mixer2.gain(2, 0.5 * vol);
-    mixer2.gain(3, 0.5 * vol);
+    // Mixer1 (sfxPlayers 0-3)
+    mixer1.gain(0, 0.0);
+    mixer1.gain(1, 0.0);
+    mixer1.gain(2, 0.0);
+    mixer1.gain(3, 0.0);
+    // Mixer2 (sfxPlayers 4-7)
+    mixer2.gain(0, 0.0);
+    mixer2.gain(1, 0.0);
+    mixer2.gain(2, 0.0);
+    mixer2.gain(3, 0.0);
     // Final musicMixer - combine both SFX mixers and music
     musicMixer.gain(0, vol); // SFX mixer1 scaled by master volume
     musicMixer.gain(1, vol); // SFX mixer2 scaled by master volume
@@ -109,12 +105,11 @@ void setJukeboxVolume(float v) {
 bool playRawSFX(int sfxIndex) {
     ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
     
     // Find an available playback slot
     int slot = -1;
     for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        if (!activeSFX[i].isPlaying) {
+        if (!sfxPlayers[i].isPlaying()) {
             slot = i;
             break;
         }
@@ -137,12 +132,18 @@ bool playRawSFX(int sfxIndex) {
         */
     }
     
-    // Initialize the sound in the chosen slot
-    activeSFX[slot].data = (const int16_t*)sfxData[sfxIndex];
-    activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / 2;
-    activeSFX[slot].samplesPlayed = 0;
-    activeSFX[slot].isPlaying = true;
-    activeSFX[slot].volume = constrain(1, 0.0f, 1.0f);
+    // Set volume
+    activeSFX[slot].volume = 1.0f;
+    float vol = masterVolume / 10.0f;
+    float gain = activeSFX[slot].volume * 0.5f * vol;
+    if (slot < 4) {
+        mixer1.gain(slot, gain);
+    } else {
+        mixer2.gain(slot - 4, gain);
+    }
+    
+    // Play the sound
+    sfxPlayers[slot].play(sfxFilenames[sfxIndex]);
     
     return true;
 }
@@ -168,12 +169,11 @@ bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
     
     ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
     
     // Find an available playback slot
     int slot = -1;
     for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        if (!activeSFX[i].isPlaying) {
+        if (!sfxPlayers[i].isPlaying()) {
             slot = i;
             break;
         }
@@ -184,12 +184,18 @@ bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
         return false;
     }
     
-    // Initialize the sound in the chosen slot with calculated volume
-    activeSFX[slot].data = (const int16_t*)sfxData[sfxIndex];
-    activeSFX[slot].samplesTotal = sfxLength[sfxIndex] / 2;
-    activeSFX[slot].samplesPlayed = 0;
-    activeSFX[slot].isPlaying = true;
+    // Set volume with adjustment for specific SFX
     activeSFX[slot].volume = sfxIndex == 23 ? volume / 2.0f : volume;
+    float vol = masterVolume / 10.0f;
+    float gain = activeSFX[slot].volume * 0.5f * vol;
+    if (slot < 4) {
+        mixer1.gain(slot, gain);
+    } else {
+        mixer2.gain(slot - 4, gain);
+    }
+    
+    // Play the sound
+    sfxPlayers[slot].play(sfxFilenames[sfxIndex]);
     
     return true;
 }
@@ -197,72 +203,16 @@ bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
 void serviceRawSFX() {
     // Process each active sound effect
     for (int i = 0; i < MAX_SIMULTANEOUS_SFX; i++) {
-        RawSFXPlayback& sfx = activeSFX[i];
-        
-        if (!sfx.isPlaying) continue;
-        if (!queue[i].available()) continue;
-
-        int16_t* block = queue[i].getBuffer();
-        if (!block) continue;
-
-        size_t remaining = sfx.samplesTotal - sfx.samplesPlayed;
-        size_t samplesToCopy = min(remaining, static_cast<size_t>(AUDIO_BLOCK_SAMPLES));
-
-        // Copy and apply volume
-        if (sfx.volume == 1.0f) {
-            // At full volume, just copy
-            memcpy(block, sfx.data + sfx.samplesPlayed, samplesToCopy * 2);
-        } else {
-            // Apply volume scaling
-            for (size_t j = 0; j < samplesToCopy; j++) {
-                block[j] = sfx.data[sfx.samplesPlayed + j] * sfx.volume;
+        if (!sfxPlayers[i].isPlaying()) {
+            if (activeSFX[i].volume > 0.0f) {
+                activeSFX[i].volume = 0.0f;
+                if (i < 4) {
+                    mixer1.gain(i, 0.0f);
+                } else {
+                    mixer2.gain(i - 4, 0.0f);
+                }
             }
         }
-
-        // Clear the rest of the buffer if needed
-        if (samplesToCopy < AUDIO_BLOCK_SAMPLES) {
-            memset(((uint8_t*)block) + samplesToCopy * 2, 0, (AUDIO_BLOCK_SAMPLES - samplesToCopy) * 2);
-        }
-
-        queue[i].playBuffer();
-        sfx.samplesPlayed += samplesToCopy;
-
-        if (sfx.samplesPlayed >= sfx.samplesTotal) {
-            sfx.isPlaying = false;
-        }
     }
 }
 
-void freeSFX() {
-    for (int i = 0; i < NUM_SFX; i++) {
-        if (sfxData[i]) {
-            free(sfxData[i]);
-            sfxData[i] = nullptr;
-        }
-    }
-}
-
-bool loadSFXtoRAM() {
-    for (int i = 0; i < NUM_SFX; i++) {
-        File f = SD.open(sfxFilenames[i]);
-        if (!f) {
-            Serial.printf("Failed to open %s\n", sfxFilenames[i]);
-            return false;
-        }
-
-        size_t len = f.size();
-        if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
-
-        sfxData[i] = (uint8_t*)malloc(len);
-        if (!sfxData[i]) {
-            Serial.printf("Failed to allocate memory for %s\n", sfxFilenames[i]);
-            f.close();
-            return false;
-        }
-
-        f.read(sfxData[i], len);
-        sfxLength[i] = len;
-        f.close();
-    }
-    return true;
-}
