@@ -6,14 +6,14 @@
 
 #define NUM_SFX 25
 #define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
-#define MAX_SIMULTANEOUS_SFX 1  // Number of sounds that can play at once
+#define MAX_SIMULTANEOUS_SFX 8  // Number of sounds that can play at once
 #define MAX_AUDIO_DISTANCE 20  // Maximum distance for sound to be heard
 #define MIN_AUDIO_VOLUME 0.01f   // Minimum volume before sound cuts out
 
 // Declare audio objects (defined in .cpp)
-extern AudioPlaySdRaw      sfxPlayers[MAX_SIMULTANEOUS_SFX];
-extern AudioMixer4         mixer1;  // For sfxPlayers 0
-extern AudioMixer4         mixer2;  // Not used for SFX
+extern AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
+extern AudioMixer4         mixer1;  // For queues 0-3
+extern AudioMixer4         mixer2;  // For queues 4-7
 extern AudioMixer4         musicMixer;
 extern AudioOutputI2S      audioOutput;
 extern AudioPlaySdWav      playWav1;
@@ -29,14 +29,20 @@ void setJukeboxVolume(float v);
 
 extern AudioControlSGTL5000 sgtl5000_1;
 
+extern uint8_t* sfxData[NUM_SFX];
+extern size_t sfxLength[NUM_SFX];
 extern const char* sfxFilenames[NUM_SFX];
 
-struct SFXPlayback {
-    float volume = 0.0f;  // Volume for this sound (0.0 to 1.0)
+struct RawSFXPlayback {
+    const int16_t* data = nullptr;
+    size_t samplesTotal = 0;
+    size_t samplesPlayed = 0;
+    bool isPlaying = false;
+    float volume = 1.0f;  // Volume for this sound (0.0 to 1.0)
 };
 
 // Array of currently playing sound effects
-extern SFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
+extern RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 
 // Play a sound effect
 bool playRawSFX(int sfxIndex);
@@ -48,8 +54,8 @@ bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
 void serviceRawSFX();
 
 void initAudio();
-//void freeSFX();
-//bool loadSFXtoRAM();
+void freeSFX();
+bool loadSFXtoRAM();
 
 // Utility function to play specific sound effects by name
 //inline bool playSFX_PlayerHurt()     { return playRawSFX(0); }
