@@ -283,7 +283,7 @@ void handleInput() {
   if (playerActed) {
     if (reloading) {
       shootDelay++;
-      if (shootDelay >= 10) {
+      if (shootDelay >= 15) {
         reloading = false;
         shootDelay = 0;
       }

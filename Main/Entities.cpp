@@ -763,7 +763,7 @@ void updateEnemies() {
           shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false, i);
           
           // Set cooldown (adjust timing as needed)
-          shooterCooldown[i] = 120; // 2 seconds at 60 FPS
+          shooterCooldown[i] = 60; // 2 seconds at 60 FPS
         }
       } else {
         shooterCooldown[i]--;
