@@ -165,6 +165,7 @@ void setup() {
   } else {
     Serial.println("High-priority SFX loaded successfully");
   }
+  loadSFX(10);
 
   Serial.println("type 8: teleport damsel to player if damsel is available");
   Serial.println("type 7: make tile player is on into the exit");
