@@ -46,7 +46,7 @@ SFXInfo sfxInfos[NUM_SFX] = {
   {"player_shoot.raw", 8},//       1
   {"player_use.raw", 8},//         2
   {"player_pickup.raw", 8},//      3
-  {"player_footstep.raw", 8},//    4
+  {"player_footstep.raw", 2},//    4
   {"player_eat.raw", 8},//         5
   {"player_drink.raw", 8},//       6
   {"menu_select.raw", 8},//        7
@@ -59,10 +59,10 @@ SFXInfo sfxInfos[NUM_SFX] = {
   {"enemy_teleport.raw", 8},//     14
   {"damsel_putDown.raw", 8},//     15
   {"damsel_passive.raw", 8},//     16
-  {"damsel_hurt.raw", 8},//        17
+  {"damsel_hurt.raw", 2},//        17
   {"damsel_good.raw", 8},//        18
-  {"damsel_footstep.raw", 8},//    19
-  {"damsel_carry.raw", 8},//       20
+  {"damsel_footstep.raw", 2},//    19
+  {"damsel_carry.raw", 2},//       20
   {"damsel_annoying.raw", 8},//    21
   {"bullet_impactWall.raw", 8},//  22
   {"bullet_impactEnemy.raw", 8},// 23
