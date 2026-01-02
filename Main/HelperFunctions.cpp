@@ -791,6 +791,14 @@ void checkIfDeadFrom(const char *cause) {
 }
 
 void trySaveGame() {
+  // Show saving message
+  display.clearDisplay();
+  display.setTextColor(15);
+  display.setTextSize(1);
+  display.setCursor(40, 50);
+  display.print("Saving...");
+  display.display();
+
   saveData.armorValue = equippedArmorValue;
   saveData.attackDamage = playerAttackDamage;
   saveData.currentDungeon = dungeon;
@@ -848,17 +856,48 @@ void trySaveGame() {
   saveData.indigestionRingsNumber = indigestionRingsNumber;
   saveData.teleportRingsNumber = teleportRingsNumber;
   saveData.invisibleRingsNumber = invisibleRingsNumber;
-  if (!saveGame(saveData)) {
+  
+  bool success = saveGame(saveData);
+  
+  // Show result
+  display.clearDisplay();
+  display.setCursor(30, 50);
+  if (success) {
+    display.print("Save Complete!");
+  } else {
+    display.print("Save Failed!");
+  }
+  display.display();
+  delay(1500); // Show for 1.5 seconds
+  
+  if (!success) {
     Serial.println("saveGame() failed");
   }
   currentUIState = UI_NORMAL;
 }
 
 void tryLoadGame() {
+  // Show loading message
+  display.clearDisplay();
+  display.setTextColor(15);
+  display.setTextSize(1);
+  display.setCursor(35, 50);
+  display.print("Loading...");
+  display.display();
+
   if (!loadGame(saveData)) {
+    // Show failure
+    display.clearDisplay();
+    display.setCursor(30, 50);
+    display.print("Load Failed!");
+    display.display();
+    delay(1500);
     Serial.println("loadGame() failed — not applying saveData");
+    currentUIState = UI_NORMAL;
     return;
   }
+  
+  // Apply loaded data
   equippedArmorValue = saveData.armorValue;
   playerAttackDamage = saveData.attackDamage;
   dungeon = saveData.currentDungeon;
@@ -915,5 +954,13 @@ void tryLoadGame() {
   teleportRingsNumber = saveData.teleportRingsNumber;
   invisibleRingsNumber = saveData.invisibleRingsNumber;
   randomSeed(saveData.worldSeed);
+  
+  // Show success
+  display.clearDisplay();
+  display.setCursor(25, 50);
+  display.print("Load Complete!");
+  display.display();
+  delay(1500);
+  
   currentUIState = UI_NORMAL;
 }
