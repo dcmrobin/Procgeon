@@ -160,10 +160,10 @@ void setup() {
   Serial.println("SD initialization done.");
 
   // Play a sound effect from memory
-  if (!loadSFXtoRAM()) {
-    Serial.println("Failed to load SFX to RAM");
+  if (!loadAllHighPrioritySFX()) {
+    Serial.println("Failed to load high-priority SFX to RAM");
   } else {
-    Serial.println("SFX loaded successfully");
+    Serial.println("High-priority SFX loaded successfully");
   }
 
   Serial.println("type 8: teleport damsel to player if damsel is available");

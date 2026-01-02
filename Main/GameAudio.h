@@ -29,9 +29,15 @@ void setJukeboxVolume(float v);
 
 extern AudioControlSGTL5000 sgtl5000_1;
 
+struct SFXInfo {
+    const char* filename;
+    int priority;  // Higher priority means more likely to stay cached (7+ permanent, <7 temporary)
+};
+
+extern SFXInfo sfxInfos[NUM_SFX];
 extern uint8_t* sfxData[NUM_SFX];
 extern size_t sfxLength[NUM_SFX];
-extern const char* sfxFilenames[NUM_SFX];
+extern unsigned long sfxLastUsed[NUM_SFX];
 
 struct RawSFXPlayback {
     const int16_t* data = nullptr;
@@ -55,7 +61,8 @@ void serviceRawSFX();
 
 void initAudio();
 void freeSFX();
-bool loadSFXtoRAM();
+bool loadAllHighPrioritySFX();
+bool loadSFX(int sfxIndex);
 
 // Utility function to play specific sound effects by name
 //inline bool playSFX_PlayerHurt()     { return playRawSFX(0); }

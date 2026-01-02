@@ -39,33 +39,34 @@ float jukeboxVolume = 0.0f;
 // RAM-loaded sound effect storage
 uint8_t* sfxData[NUM_SFX] = { nullptr };
 size_t sfxLength[NUM_SFX] = { 0 };
+unsigned long sfxLastUsed[NUM_SFX] = { 0 };
 
-const char* sfxFilenames[NUM_SFX] = {
-  "player_hurt.raw",//        0
-  "player_shoot.raw",//       1
-  "player_use.raw",//         2
-  "player_pickup.raw",//      3
-  "player_footstep.raw",//    4 IMPLEMENT
-  "player_eat.raw",//         5
-  "player_drink.raw",//       6
-  "menu_select.raw",//        7
-  "menu_scroll.raw",//        8
-  "menu_pause.raw",//         9
-  "menu_gameOver.raw",//      10
-  "level_end.raw",//          11
-  "inventory_open.raw",//     12
-  "inventory_close.raw",//    13
-  "enemy_teleport.raw",//     14
-  "damsel_putDown.raw",//     15
-  "damsel_passive.raw",//     16
-  "damsel_hurt.raw",//        17
-  "damsel_good.raw",//        18
-  "damsel_footstep.raw",//    19 IMPLEMENT
-  "damsel_carry.raw",//       20
-  "damsel_annoying.raw",//    21
-  "bullet_impactWall.raw",//  22
-  "bullet_impactEnemy.raw",// 23
-  "succubus_hey.raw"//        24
+SFXInfo sfxInfos[NUM_SFX] = {
+  {"player_hurt.raw", 8},//        0
+  {"player_shoot.raw", 8},//       1
+  {"player_use.raw", 8},//         2
+  {"player_pickup.raw", 8},//      3
+  {"player_footstep.raw", 8},//    4
+  {"player_eat.raw", 8},//         5
+  {"player_drink.raw", 8},//       6
+  {"menu_select.raw", 8},//        7
+  {"menu_scroll.raw", 8},//        8
+  {"menu_pause.raw", 8},//         9
+  {"menu_gameOver.raw", 2},//      10
+  {"level_end.raw", 2},//          11
+  {"inventory_open.raw", 8},//     12
+  {"inventory_close.raw", 8},//    13
+  {"enemy_teleport.raw", 8},//     14
+  {"damsel_putDown.raw", 8},//     15
+  {"damsel_passive.raw", 8},//     16
+  {"damsel_hurt.raw", 8},//        17
+  {"damsel_good.raw", 8},//        18
+  {"damsel_footstep.raw", 8},//    19
+  {"damsel_carry.raw", 8},//       20
+  {"damsel_annoying.raw", 8},//    21
+  {"bullet_impactWall.raw", 8},//  22
+  {"bullet_impactEnemy.raw", 8},// 23
+  {"succubus_hey.raw", 2}//        24
 };
 
 // Array of currently playing sound effects
@@ -109,7 +110,19 @@ void setJukeboxVolume(float v) {
 bool playRawSFX(int sfxIndex) {
     ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
+    
+    // Check if SFX is loaded
+    if (!sfxData[sfxIndex]) {
+        // For high priority, load on demand
+        if (sfxInfos[sfxIndex].priority >= 7) {
+            if (!loadSFX(sfxIndex)) return false;
+        } else {
+            // For low priority, don't load on demand - just skip playing
+            return false;
+        }
+    }
+    
+    sfxLastUsed[sfxIndex] = millis();
     
     // Find an available playback slot
     int slot = -1;
@@ -168,7 +181,19 @@ bool playRawSFX3D(int sfxIndex, float soundX, float soundY) {
     
     ambientNoiseLevel++;
     if (sfxIndex < 0 || sfxIndex >= NUM_SFX) return false;
-    if (!sfxData[sfxIndex]) return false;
+    
+    // Check if SFX is loaded
+    if (!sfxData[sfxIndex]) {
+        // For high priority, load on demand
+        if (sfxInfos[sfxIndex].priority >= 7) {
+            if (!loadSFX(sfxIndex)) return false;
+        } else {
+            // For low priority, don't load on demand - just skip playing
+            return false;
+        }
+    }
+    
+    sfxLastUsed[sfxIndex] = millis();
     
     // Find an available playback slot
     int slot = -1;
@@ -231,6 +256,19 @@ void serviceRawSFX() {
             sfx.isPlaying = false;
         }
     }
+    
+    // Cache eviction: every 5 seconds, unload low-priority SFX not used in last 10 seconds
+    static unsigned long lastEvictCheck = 0;
+    if (millis() - lastEvictCheck > 5000) {
+        lastEvictCheck = millis();
+        for (int i = 0; i < NUM_SFX; i++) {
+            if (sfxData[i] && sfxInfos[i].priority < 7 && millis() - sfxLastUsed[i] > 10000) {
+                free(sfxData[i]);
+                sfxData[i] = nullptr;
+                sfxLength[i] = 0;
+            }
+        }
+    }
 }
 
 void freeSFX() {
@@ -242,27 +280,36 @@ void freeSFX() {
     }
 }
 
-bool loadSFXtoRAM() {
+bool loadAllHighPrioritySFX() {
     for (int i = 0; i < NUM_SFX; i++) {
-        File f = SD.open(sfxFilenames[i]);
-        if (!f) {
-            Serial.printf("Failed to open %s\n", sfxFilenames[i]);
-            return false;
+        if (sfxInfos[i].priority >= 7) {
+            if (!loadSFX(i)) return false;
         }
-
-        size_t len = f.size();
-        if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
-
-        sfxData[i] = (uint8_t*)malloc(len);
-        if (!sfxData[i]) {
-            Serial.printf("Failed to allocate memory for %s\n", sfxFilenames[i]);
-            f.close();
-            return false;
-        }
-
-        f.read(sfxData[i], len);
-        sfxLength[i] = len;
-        f.close();
     }
+    return true;
+}
+
+bool loadSFX(int sfxIndex) {
+    if (sfxData[sfxIndex]) return true;  // Already loaded
+    
+    File f = SD.open(sfxInfos[sfxIndex].filename);
+    if (!f) {
+        Serial.printf("Failed to open %s\n", sfxInfos[sfxIndex].filename);
+        return false;
+    }
+
+    size_t len = f.size();
+    if (len > MAX_SFX_SIZE) len = MAX_SFX_SIZE;
+
+    sfxData[sfxIndex] = (uint8_t*)malloc(len);
+    if (!sfxData[sfxIndex]) {
+        Serial.printf("Failed to allocate memory for %s\n", sfxInfos[sfxIndex].filename);
+        f.close();
+        return false;
+    }
+
+    f.read(sfxData[sfxIndex], len);
+    sfxLength[sfxIndex] = len;
+    f.close();
     return true;
 }
