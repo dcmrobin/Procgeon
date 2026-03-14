@@ -10,6 +10,7 @@
 #define NUM_RINGS 12
 #define NUM_ITEMS 38
 #define NUM_WEAPONS 9
+#define MAX_STACK_SIZE 7  // Maximum items per stack
 
 enum GameItems {
   RedPotion,
@@ -123,19 +124,49 @@ struct GameItem {
   int rarity = 2;
   bool oneTimeUse = true;
   EffectType effectType = DefaultEffect;
-  float armorValue = 0.0f;  // Damage reduction when equipped
-  bool isEquipped = false;  // Whether this item is currently equipped
+  float armorValue = 0.0f;
+  bool isEquipped = false;
   bool isCursed = false;
   int curseChance = 0;
   bool canRust = false;
-  bool isScrollRevealed = false;  // Whether the scroll's true name has been revealed
-  int scrollEffectIndex = -1;  // Index of the assigned scroll effect
-  // --- Ring support ---
-  int ringEffectIndex = -1; // Index of the assigned ring effect
-  int ringTypeIndex = -1; // Index of the ring's visible type (Wooden, Diamond, etc.)
+  bool isScrollRevealed = false;
+  int scrollEffectIndex = -1;
+  int ringEffectIndex = -1;
+  int ringTypeIndex = -1;
   bool isRingIdentified = false;
-  WeaponItem weapon = {}; // full weapon data (type, damage, name, etc.)
+  WeaponItem weapon = {};
+  // --- Stacking ---
+  // stackCount = 1 means a single item (default). 0 means empty/null slot.
+  // Items that cannot stack (armor, weapons, rings, riddle stones) always have stackCount = 1.
+  int stackCount = 1;
 };
+
+// Returns true if this item type is allowed to stack.
+// Stackable: potions, food, scrolls, empty bottles, wet scrolls.
+// Not stackable: armor, weapons, rings, riddle stones (each may have unique state).
+inline bool isStackable(const GameItem& item) {
+  if (item.item == Null) return false;
+  if (item.category == WeaponCategory) return false;
+  if (item.item == Ring) return false;
+  if (item.item == RiddleStone) return false;
+  // Armors (effectType == ArmorEffect) are not stackable
+  if (item.effectType == ArmorEffect) return false;
+  return true;
+}
+
+// Returns true if two items can be merged into the same stack.
+// They must be the same item type, same displayed name (so revealed vs unrevealed
+// potions/scrolls don't accidentally merge), and both stackable.
+inline bool canStackWith(const GameItem& a, const GameItem& b) {
+  if (!isStackable(a) || !isStackable(b)) return false;
+  if (a.item != b.item) return false;
+  // For scrolls: only merge if both share the same scrollEffectIndex so that
+  // two scrolls of the same revealed type stack, but different types don't.
+  if (a.item == Scroll && a.scrollEffectIndex != b.scrollEffectIndex) return false;
+  // Name must match (covers the case where one potion is identified and one isn't)
+  if (strcmp(a.name, b.name) != 0) return false;
+  return true;
+}
 
 // Possible potion effects
 struct PotionEffect {
@@ -177,12 +208,12 @@ extern char ringEffects[NUM_RINGS][100];
 extern bool ringCursed[NUM_RINGS];
 extern char ringDescriptions[NUM_RINGS][100];
 
-void randomizePotionEffects();  // Call this once at game start
-void randomizeScrollEffects();  // Call this once at game start
-void generateScrollName(char *name, size_t nameSize);  // Generate a random scroll name
+void randomizePotionEffects();
+void randomizeScrollEffects();
+void generateScrollName(char *name, size_t nameSize);
 GameItem getItem(GameItems item);
-void updatePotionName(GameItem &potion);  // Changes potion name when used
-void updateScrollName(GameItem &scroll);  // Reveals scroll's true name when read
+void updatePotionName(GameItem &potion);
+void updateScrollName(GameItem &scroll);
 GameItems getRandomPotion(int randInt, bool primaryColors);
 void resetPotionNames();
 void applyAOEEffect(float centerX, float centerY, int aoeRadius, int aoeDamage);
