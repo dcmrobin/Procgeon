@@ -73,6 +73,18 @@ RiddleAnswer possibleAnswers[] = {
 };
 const int numAnswers = sizeof(possibleAnswers) / sizeof(possibleAnswers[0]);
 
+static const unsigned char* spriteForEnemyName(const char* name) {
+    if (strcmp(name, "blob")       == 0) return blobAnimation[0].frame;
+    if (strcmp(name, "teleporter") == 0) return teleporterAnimation[0].frame;
+    if (strcmp(name, "batguy")     == 0) return batguyAnimation[0].frame;
+    if (strcmp(name, "shooter")    == 0) return shooterAnimation[0].frame;
+    if (strcmp(name, "clock")      == 0) return clockAnimation[0].frame;
+    if (strcmp(name, "jukebox")    == 0) return jukeboxAnimation[0].frame;
+    if (strcmp(name, "boss")       == 0) return bossIdleAnimation[0].frame;
+    if (strcmp(name, "succubus")   == 0) return succubusIdleSprite;
+    return nullptr;
+}
+
 // Define many riddle templates (using %s for attribute insertion)
 const char* templates[] = {
     "I am always %s, yet sometimes %s. What am I?",
@@ -816,148 +828,214 @@ void checkIfDeadFrom(const char *cause) {
 }
 
 void trySaveGame() {
-  saveData.armorValue = equippedArmorValue;
-  saveData.attackDamage = playerAttackDamage;
-  saveData.currentDungeon = dungeon;
-  saveData.damsel = damsel[0];
-  saveData.endlessMode = endlessMode;
-  saveData.equippedArmor = equippedArmor;
-  saveData.equippedWeapon = equippedWeapon;
-  saveData.equippedRiddleStone = equippedRiddleStone;
-  saveData.food = playerFood;
-  saveData.hp = playerHP;
-  for (int i = 0; i < numInventoryPages; i++) {
-      saveData.savedInventory[i] = inventoryPages[i];
-  }
-  for (int i = 0; i < 30; i++) {
-      saveData.savedEnemies[i] = enemies[i];
-  }
-  for (int y = 0; y < 64; y++) {
-      for (int x = 0; x < 64; x++) {
-          saveData.dungeonMap[y][x] = dungeonMap[y][x];
-      }
-  }
-
-  for (int y = 0; y < NUM_SCROLLS; y++) {
-    for (int x = 0; x < 20; x++) {
-      saveData.scrollNames[y][x] = scrollNames[y][x];
+ 
+    // ── Scalar / flag fields ────────────────────────────────────────────────
+    saveData.armorValue               = equippedArmorValue;
+    saveData.attackDamage             = playerAttackDamage;
+    saveData.currentDungeon           = dungeon;
+    saveData.damsel                   = damsel[0];
+    saveData.endlessMode              = endlessMode;
+    saveData.equippedArmor            = equippedArmor;
+    saveData.equippedWeapon           = equippedWeapon;
+    saveData.equippedRiddleStone      = equippedRiddleStone;
+    saveData.succubusFriend           = succubusIsFriend;
+    saveData.kills                    = kills;
+    saveData.hasMap                   = hasMap;
+    saveData.playerNearClockEnemy     = playerNearClockEnemy;
+    saveData.knowsDamselName          = knowsDamselName;
+    saveData.damselSayThanksForRescue = damselSayThanksForRescue;
+    saveData.damselGotTaken           = damselGotTaken;
+    saveData.levelOfDamselDeath       = levelOfDamselDeath;
+    saveData.worldSeed                = worldSeed;
+    saveData.keysCount                = keysCount;
+ 
+    // ── Player position and stats (correct types) ───────────────────────────
+    // Previously playerX/Y were cast to uint16_t (losing the fractional part)
+    // and hp/food were cast to uint8_t (losing negative values and values >255).
+    saveData.playerX = playerX;
+    saveData.playerY = playerY;
+    saveData.hp      = static_cast<int16_t>(playerHP);
+    saveData.food    = static_cast<int16_t>(playerFood);
+ 
+    // ── Ring counters ───────────────────────────────────────────────────────
+    saveData.swiftnessRingsNum      = swiftnessRingsNumber;
+    saveData.strengthRingsNum       = strengthRingsNumber;
+    saveData.weaknessRingsNum       = weaknessRingsNumber;
+    saveData.hungerRingsNumber      = hungerRingsNumber;
+    saveData.regenRingsNumber       = regenRingsNumber;
+    saveData.sicknessRingsNumber    = sicknessRingsNumber;
+    saveData.aggravateRingsNumber   = aggravateRingsNumber;
+    saveData.armorRingsNumber       = armorRingsNumber;
+    saveData.indigestionRingsNumber = indigestionRingsNumber;
+    saveData.teleportRingsNumber    = teleportRingsNumber;
+    saveData.invisibleRingsNumber   = invisibleRingsNumber;
+ 
+    // ── Inventory ───────────────────────────────────────────────────────────
+    for (int i = 0; i < numInventoryPages; i++) {
+        saveData.savedInventory[i] = inventoryPages[i];
     }
-  }
-  for (int y = 0; y < NUM_SCROLLS; y++) {
-    for (int x = 0; x < 20; x++) {
-      saveData.scrollNamesRevealed[y][x] = scrollNamesRevealed[y][x];
+ 
+    // ── Enemies — strip the sprite pointer ─────────────────────────────────
+    // Enemy::sprite is a const unsigned char* that points into program memory.
+    // Its numeric value is only meaningful within one run of the program;
+    // writing it to disk and reading it back gives a dangling pointer that
+    // causes renderEnemies() to crash on the very first frame after load.
+    for (int i = 0; i < 30; i++) {
+        const Enemy& e = enemies[i];
+        SavedEnemy&  s = saveData.savedEnemies[i];
+ 
+        s.x                 = e.x;
+        s.y                 = e.y;
+        s.hp                = e.hp;
+        s.chasingPlayer     = e.chasingPlayer;
+        s.moveAmount        = e.moveAmount;
+        strncpy(s.name, e.name, sizeof(s.name) - 1);
+        s.name[sizeof(s.name) - 1] = '\0';
+        s.attackDelay       = e.attackDelay;
+        s.damage            = e.damage;
+        s.hasWanderPath     = e.hasWanderPath;
+        s.pathLength        = e.pathLength;
+        s.currentPathIndex  = e.currentPathIndex;
+        memcpy(s.wanderPath, e.wanderPath, sizeof(s.wanderPath));
+        // sprite deliberately NOT saved
+        s.attackDelayCounter = e.attackDelayCounter;
+        s.nearClock         = e.nearClock;
+        s.isFriend          = e.isFriend;
     }
-  }
-  for (int i = 0; i < NUM_ITEMS; i++) {
-      saveData.itemList[i] = itemList[i];
-  }
-  //for (int i = 0; i < NUM_WEAPONS; i++) {
-  //    saveData.weaponList[i] = weaponList[i];
-  //}
-  saveData.hasMap = hasMap;
-  saveData.playerNearClockEnemy = playerNearClockEnemy;
-  saveData.knowsDamselName = knowsDamselName;
-  saveData.damselSayThanksForRescue = damselSayThanksForRescue;
-  saveData.damselGotTaken = damselGotTaken;
-  saveData.levelOfDamselDeath = levelOfDamselDeath;
-
-  saveData.kills = kills;
-  saveData.playerX = playerX;
-  saveData.playerY = playerY;
-  saveData.strengthRingsNum = strengthRingsNumber;
-  saveData.weaknessRingsNum = weaknessRingsNumber;
-  saveData.swiftnessRingsNum = swiftnessRingsNumber;
-  saveData.succubusFriend = succubusIsFriend;
-  saveData.worldSeed = worldSeed;
-  saveData.hungerRingsNumber = hungerRingsNumber;
-  saveData.regenRingsNumber = regenRingsNumber;
-  saveData.sicknessRingsNumber = sicknessRingsNumber;
-  saveData.aggravateRingsNumber = aggravateRingsNumber;
-  saveData.armorRingsNumber = armorRingsNumber;
-  saveData.indigestionRingsNumber = indigestionRingsNumber;
-  saveData.teleportRingsNumber = teleportRingsNumber;
-  saveData.invisibleRingsNumber = invisibleRingsNumber;
-  saveData.keysCount = keysCount;
-  if (!saveGame(saveData)) {
-    //Serial.println("saveGame() failed");
-  }
-  currentUIState = UI_NORMAL;
+ 
+    // ── Dungeon map ─────────────────────────────────────────────────────────
+    for (int y = 0; y < 64; y++) {
+        for (int x = 0; x < 64; x++) {
+            saveData.dungeonMap[y][x] = dungeonMap[y][x];
+        }
+    }
+ 
+    // ── Scroll name tables ──────────────────────────────────────────────────
+    for (int y = 0; y < NUM_SCROLLS; y++) {
+        for (int x = 0; x < 20; x++) {
+            saveData.scrollNames[y][x]         = scrollNames[y][x];
+            saveData.scrollNamesRevealed[y][x] = scrollNamesRevealed[y][x];
+        }
+    }
+ 
+    // ── Item list ───────────────────────────────────────────────────────────
+    for (int i = 0; i < NUM_ITEMS; i++) {
+        saveData.itemList[i] = itemList[i];
+    }
+ 
+    if (!saveGame(saveData)) {
+        Serial.println("saveGame() failed");
+    }
+    currentUIState = UI_NORMAL;
 }
 
 void tryLoadGame() {
-  if (!loadGame(saveData)) {
-    //Serial.println("loadGame() failed — not applying saveData");
-    return;
-  }
-  equippedArmorValue = saveData.armorValue;
-  playerAttackDamage = saveData.attackDamage;
-  dungeon = saveData.currentDungeon;
-  damsel[0] = saveData.damsel;
-  endlessMode = saveData.endlessMode;
-  equippedArmor = saveData.equippedArmor;
-  // Restore equipped weapon (full GameItem)
-  equippedWeapon = saveData.equippedWeapon;
-  equippedRiddleStone = saveData.equippedRiddleStone;
-  // Restore player attack stats from equipped weapon
-  if (equippedWeapon.item != Null) {
-    playerAttackDamage = (int)equippedWeapon.weapon.damage;
-    attackDelayFrames = equippedWeapon.weapon.attackDelay;
-  } else {
-    playerAttackDamage = 10;
-    attackDelayFrames = 10;
-  }
-  playerFood = saveData.food;
-  playerHP = saveData.hp;
-  for (int i = 0; i < numInventoryPages; i++) {
-      inventoryPages[i] = saveData.savedInventory[i];
-  }
-  for (int i = 0; i < 30; i++) {
-      enemies[i] = saveData.savedEnemies[i];
-  }
-  for (int y = 0; y < 64; y++) {
-      for (int x = 0; x < 64; x++) {
-          dungeonMap[y][x] = saveData.dungeonMap[y][x];
-      }
-  }
-  for (int y = 0; y < NUM_SCROLLS; y++) {
-    for (int x = 0; x < 20; x++) {
-      scrollNames[y][x] = saveData.scrollNames[y][x];
+    if (!loadGame(saveData)) {
+        Serial.println("loadGame() failed — not applying saveData");
+        return;
     }
-  }
-  for (int y = 0; y < NUM_SCROLLS; y++) {
-    for (int x = 0; x < 20; x++) {
-      scrollNamesRevealed[y][x] = saveData.scrollNamesRevealed[y][x];
+ 
+    // ── Scalar / flag fields ────────────────────────────────────────────────
+    equippedArmorValue        = saveData.armorValue;
+    playerAttackDamage        = saveData.attackDamage;
+    dungeon                   = saveData.currentDungeon;
+    damsel[0]                 = saveData.damsel;
+    endlessMode               = saveData.endlessMode;
+    equippedArmor             = saveData.equippedArmor;
+    equippedWeapon            = saveData.equippedWeapon;
+    equippedRiddleStone       = saveData.equippedRiddleStone;
+    succubusIsFriend          = saveData.succubusFriend;
+    kills                     = saveData.kills;
+    hasMap                    = saveData.hasMap;
+    playerNearClockEnemy      = saveData.playerNearClockEnemy;
+    knowsDamselName           = saveData.knowsDamselName;
+    damselSayThanksForRescue  = saveData.damselSayThanksForRescue;
+    damselGotTaken            = saveData.damselGotTaken;
+    levelOfDamselDeath        = saveData.levelOfDamselDeath;
+    keysCount                 = saveData.keysCount;
+ 
+    // ── Player position and stats ───────────────────────────────────────────
+    playerX    = saveData.playerX;
+    playerY    = saveData.playerY;
+    playerHP   = saveData.hp;
+    playerFood = saveData.food;
+ 
+    // ── Equipped weapon — derive combat stats from the saved weapon ─────────
+    if (equippedWeapon.item != Null && equippedWeapon.weapon.type != NoWeapon) {
+        playerAttackDamage = static_cast<int>(equippedWeapon.weapon.damage);
+        attackDelayFrames  = equippedWeapon.weapon.attackDelay;
+    } else {
+        playerAttackDamage = 10;
+        attackDelayFrames  = 10;
     }
-  }
-  for (int i = 0; i < NUM_ITEMS; i++) {
-      itemList[i] = saveData.itemList[i];
-  }
-  //for (int i = 0; i < NUM_WEAPONS; i++) {
-  //    weaponList[i] = saveData.weaponList[i];
-  //}
-  hasMap = saveData.hasMap;
-  playerNearClockEnemy = saveData.playerNearClockEnemy;
-  knowsDamselName = saveData.knowsDamselName;
-  damselSayThanksForRescue = saveData.damselSayThanksForRescue;
-  damselGotTaken = saveData.damselGotTaken;
-  levelOfDamselDeath = saveData.levelOfDamselDeath;
-
-  kills = saveData.kills;
-  playerX = saveData.playerX;
-  playerY = saveData.playerY;
-  strengthRingsNumber = saveData.strengthRingsNum;
-  weaknessRingsNumber = saveData.weaknessRingsNum;
-  swiftnessRingsNumber = saveData.swiftnessRingsNum;
-  succubusIsFriend = saveData.succubusFriend;
-  hungerRingsNumber = saveData.hungerRingsNumber;
-  regenRingsNumber = saveData.regenRingsNumber;
-  sicknessRingsNumber = saveData.sicknessRingsNumber;
-  aggravateRingsNumber = saveData.aggravateRingsNumber;
-  armorRingsNumber = saveData.armorRingsNumber;
-  indigestionRingsNumber = saveData.indigestionRingsNumber;
-  teleportRingsNumber = saveData.teleportRingsNumber;
-  invisibleRingsNumber = saveData.invisibleRingsNumber;
-  keysCount = saveData.keysCount;
-  randomSeed(saveData.worldSeed);
-  currentUIState = UI_NORMAL;
+ 
+    // ── Ring counters ───────────────────────────────────────────────────────
+    swiftnessRingsNumber    = saveData.swiftnessRingsNum;
+    strengthRingsNumber     = saveData.strengthRingsNum;
+    weaknessRingsNumber     = saveData.weaknessRingsNum;
+    hungerRingsNumber       = saveData.hungerRingsNumber;
+    regenRingsNumber        = saveData.regenRingsNumber;
+    sicknessRingsNumber     = saveData.sicknessRingsNumber;
+    aggravateRingsNumber    = saveData.aggravateRingsNumber;
+    armorRingsNumber        = saveData.armorRingsNumber;
+    indigestionRingsNumber  = saveData.indigestionRingsNumber;
+    teleportRingsNumber     = saveData.teleportRingsNumber;
+    invisibleRingsNumber    = saveData.invisibleRingsNumber;
+ 
+    // ── Inventory ───────────────────────────────────────────────────────────
+    for (int i = 0; i < numInventoryPages; i++) {
+        inventoryPages[i] = saveData.savedInventory[i];
+    }
+ 
+    // ── Enemies — restore fields and fix up the sprite pointer ─────────────
+    // The sprite pointer was NOT saved (it's a runtime address).
+    // We restore it here by looking up the correct animation frame from the
+    // enemy's name, exactly as spawnEnemies() would do.
+    for (int i = 0; i < 30; i++) {
+        const SavedEnemy& s = saveData.savedEnemies[i];
+        Enemy&            e = enemies[i];
+ 
+        e.x                 = s.x;
+        e.y                 = s.y;
+        e.hp                = s.hp;
+        e.chasingPlayer     = s.chasingPlayer;
+        e.moveAmount        = s.moveAmount;
+        strncpy(e.name, s.name, sizeof(e.name) - 1);
+        e.name[sizeof(e.name) - 1] = '\0';
+        e.attackDelay       = s.attackDelay;
+        e.damage            = s.damage;
+        e.hasWanderPath     = s.hasWanderPath;
+        e.pathLength        = s.pathLength;
+        e.currentPathIndex  = s.currentPathIndex;
+        memcpy(e.wanderPath, s.wanderPath, sizeof(e.wanderPath));
+        e.attackDelayCounter = s.attackDelayCounter;
+        e.nearClock         = s.nearClock;
+        e.isFriend          = s.isFriend;
+ 
+        // Restore the sprite pointer — never write a raw pointer to disk.
+        e.sprite = spriteForEnemyName(e.name);
+    }
+ 
+    // ── Dungeon map ─────────────────────────────────────────────────────────
+    for (int y = 0; y < 64; y++) {
+        for (int x = 0; x < 64; x++) {
+            dungeonMap[y][x] = saveData.dungeonMap[y][x];
+        }
+    }
+ 
+    // ── Scroll name tables ──────────────────────────────────────────────────
+    for (int y = 0; y < NUM_SCROLLS; y++) {
+        for (int x = 0; x < 20; x++) {
+            scrollNames[y][x]         = saveData.scrollNames[y][x];
+            scrollNamesRevealed[y][x] = saveData.scrollNamesRevealed[y][x];
+        }
+    }
+ 
+    // ── Item list ───────────────────────────────────────────────────────────
+    for (int i = 0; i < NUM_ITEMS; i++) {
+        itemList[i] = saveData.itemList[i];
+    }
+ 
+    randomSeed(saveData.worldSeed);
+    currentUIState = UI_NORMAL;
 }
