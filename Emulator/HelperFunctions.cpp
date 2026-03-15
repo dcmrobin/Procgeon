@@ -657,7 +657,7 @@ bool isWalkable(int x, int y) {
       return (tile == Floor || tile == StartStairs || tile == Exit || tile == Freedom ||
         tile == Potion || tile == Map || tile == MushroomTile || tile == RingTile ||
         tile == ArmorTile || tile == ScrollTile || tile == DoorOpen || tile == RiddleStoneTile ||
-        tile == KeyItem || tile == KeyTile || tile == WeaponTile);
+        tile == KeyItem || tile == KeyTile || tile == WeaponTile || tile == GoldTile);
 }
 
 void unstuckEnemy(Enemy &enemy) {
@@ -848,6 +848,7 @@ void trySaveGame() {
     saveData.levelOfDamselDeath       = levelOfDamselDeath;
     saveData.worldSeed                = worldSeed;
     saveData.keysCount                = keysCount;
+    saveData.goldCount = goldCount;
  
     // ── Player position and stats (correct types) ───────────────────────────
     // Previously playerX/Y were cast to uint16_t (losing the fractional part)
@@ -953,6 +954,7 @@ void tryLoadGame() {
     damselGotTaken            = saveData.damselGotTaken;
     levelOfDamselDeath        = saveData.levelOfDamselDeath;
     keysCount                 = saveData.keysCount;
+    goldCount = saveData.goldCount;
  
     // ── Player position and stats ───────────────────────────────────────────
     playerX    = saveData.playerX;

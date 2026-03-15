@@ -659,6 +659,17 @@ const unsigned char PROGMEM weaponSprite[] = {
   0b00011000
 };
 
+const unsigned char PROGMEM goldSprite[] = {
+  0b00000000,
+  0b00000000,
+  0b00000000,
+  0b00011000,
+  0b00000000,
+  0b00110110,
+  0b00000000,
+  0b00000000
+};
+
 // Boss sprites //
 
 // Idle

@@ -32,6 +32,7 @@ int ingredient1index = 0;
 int playerFood = 100;
 int dialogueTimeLength = 1000;
 int timeTillNextDialogue = 1000;
+int goldCount = 0;
 bool shouldRestartGame = false;
 bool speeding = false;
 bool hasMap = false;
@@ -567,7 +568,7 @@ void handleInput() {
   int rNewY = round(newY);
 
   // Check collision with walls
-  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen || dungeonMap[rNewY][rNewX] == KeyTile) {
+  if (dungeonMap[rNewY][rNewX] == Floor || dungeonMap[rNewY][rNewX] == Exit || dungeonMap[rNewY][rNewX] == StartStairs || dungeonMap[rNewY][rNewX] == Freedom || dungeonMap[rNewY][rNewX] == DoorOpen || dungeonMap[rNewY][rNewX] == KeyTile/* || dungeonMap[rNewY][rNewX] == GoldTile*/) {
     playerX = newX;
     playerY = newY;
   } else if (dungeonMap[rNewY][rNewX] == Potion) {
@@ -580,7 +581,20 @@ void handleInput() {
     hasMap = true;
     dungeonMap[rNewY][rNewX] = Floor;
   } else if (dungeonMap[rNewY][rNewX] == MushroomTile) {
-    if (addToInventory(getItem(Mushroom), false)) {
+    // Pick a random food item — MushroomTile is a blanket tile for all food
+    GameItems foodChoices[] = { Mushroom, Bread, Cheese, StaleMeat, Berries };
+    // Weight toward common items: Mushroom x3, Bread x2, Cheese x2, StaleMeat x2, Berries x1
+    int foodWeights[]        = { 3, 2, 2, 2, 1 };
+    int totalFoodWeight = 0;
+    for (int i = 0; i < 5; i++) totalFoodWeight += foodWeights[i];
+    int roll = random(0, totalFoodWeight);
+    int cumulative = 0;
+    GameItems chosenFood = Mushroom;
+    for (int i = 0; i < 5; i++) {
+      cumulative += foodWeights[i];
+      if (roll < cumulative) { chosenFood = foodChoices[i]; break; }
+    }
+    if (addToInventory(getItem(chosenFood), false)) {
       playRawSFX(3);
       dungeonMap[rNewY][rNewX] = Floor;
     }
@@ -660,6 +674,10 @@ void handleInput() {
   } else if (dungeonMap[rNewY][rNewX] == KeyItem) {
     // Pick up a key
     keysCount++;
+    playRawSFX(3);
+    dungeonMap[rNewY][rNewX] = Floor;
+  } else if (dungeonMap[rNewY][rNewX] == GoldTile) {
+    goldCount++;
     playRawSFX(3);
     dungeonMap[rNewY][rNewX] = Floor;
   }
@@ -1436,7 +1454,7 @@ void finishPendingChest(bool success) {
         if (dungeonMap[ly][lx] != Floor) continue;
         if (random(0, 100) >= 85) continue;
         TileTypes loot = getRandomLootTile(5);
-        bool isItemTile = (loot == Potion || loot == Map || loot == MushroomTile || loot == RiddleStoneTile || loot == ArmorTile || loot == ScrollTile || loot == RingTile || loot == WeaponTile);
+        bool isItemTile = (loot == Potion || loot == Map || loot == MushroomTile || loot == RiddleStoneTile || loot == ArmorTile || loot == ScrollTile || loot == RingTile || loot == WeaponTile || loot == GoldTile);
         if (!isItemTile) loot = Potion;
         dungeonMap[ly][lx] = loot;
       }

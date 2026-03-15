@@ -50,17 +50,16 @@ extern bool damselSaidWaitUp;
 extern float equippedArmorValue;
 extern GameItem equippedArmor;
 extern bool equippedRiddleStone;
-extern GameItem equippedWeapon; // Currently equipped weapon
-extern int meleeFrames; // frames remaining to show melee swipe
-extern int meleeDuration; // duration of melee swipe
-extern int meleeFX; // melee swipe tile x
-extern int meleeFY; // melee swipe tile y
-// Melee arc storage
+extern GameItem equippedWeapon;
+extern int meleeFrames;
+extern int meleeDuration;
+extern int meleeFX;
+extern int meleeFY;
 #define MAX_MELEE_TILES 20
-extern int meleeArcTilesX[MAX_MELEE_TILES]; // tiles hit by melee arc
+extern int meleeArcTilesX[MAX_MELEE_TILES];
 extern int meleeArcTilesY[MAX_MELEE_TILES];
-extern int meleeArcCount; // number of tiles in the current melee arc
-extern int attackDelayFrames; // frames required between attacks (weapon-specific)
+extern int meleeArcCount;
+extern int attackDelayFrames;
 extern int playerAttackDamage;
 extern int swiftnessRingsNumber;
 extern int strengthRingsNumber;
@@ -85,7 +84,8 @@ extern int paralysisTimer;
 extern bool playerNearClockEnemy;
 extern char damselDeathMsg[100];
 extern bool endlessMode;
-extern int keysCount; // Number of keys the player currently holds
+extern int keysCount;
+extern int goldCount; // Gold coins collected — spent at shops and fairy rooms
 
 void renderPlayer();
 void handleInput();
@@ -98,7 +98,6 @@ void playDamselSFX(const char *tone);
 void handleRingEffects();
 void OpenChest(int cy, int cx, int dx);
 
-// Pending chest handling for non-blocking puzzles
 extern bool pendingChestActive;
 extern int pendingChestX;
 extern int pendingChestY;

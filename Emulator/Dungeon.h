@@ -5,9 +5,9 @@
 #include <cmath>
 #include "Entities.h"
 
-#define mapWidth 64   // Total map width in tiles
-#define mapHeight 64  // Total map height in tiles
-#define tileSize 8    // Size of each tile (in pixels)
+#define mapWidth 64
+#define mapHeight 64
+#define tileSize 8
 
 enum TileTypes {
   StartStairs,
@@ -17,18 +17,19 @@ enum TileTypes {
   DoorClosed,
   DoorOpen,
   Exit,
-  KeyTile,       // Locked exit that requires a key
-  KeyItem,       // A placed key pickup tile
+  KeyTile,
+  KeyItem,
   Freedom,
   Potion,
   Map,
-  MushroomTile,
+  MushroomTile,   // Blanket food tile — picks a random food item on pickup
   RiddleStoneTile,
   ArmorTile,
   ScrollTile,
   RingTile,
   ChestTile,
-  WeaponTile
+  WeaponTile,
+  GoldTile        // Gold coin — increments goldCount, never goes to inventory
 };
 
 extern TileTypes dungeonMap[mapHeight][mapWidth];

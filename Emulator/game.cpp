@@ -51,6 +51,7 @@ void resetGame() {
   DIDNOTRESCUEDAMSEL = false;
   shouldRestartGame = false;
   keysCount = 0;
+  goldCount = 0;
   //amp1.gain(0.01);
   //pinMode(8, OUTPUT);
   //digitalWrite(8, HIGH);

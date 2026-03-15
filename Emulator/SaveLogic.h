@@ -7,28 +7,22 @@
 #include "Entities.h"
 #include "Dungeon.h"
 
-// ── File / chunk constants ───────────────────────────────────────────────────
 #define SAVE_FILE_PATH  "savegame.dat"
 #define SAVE_CHUNK_SIZE 256
 #define FILE_WRITE      "wb"
 #define FILE_READ       "rb"
 
 // Bump whenever SaveData layout changes so old files are cleanly rejected.
-#define SAVE_VERSION 2
+// v2: fixed pointer serialisation bug
+// v3: added stackCount to GameItem
+// v4: added goldCount; NUM_ITEMS 38->42; NUM_SCROLLS 10->11; ScrollEffect gained oneTimeUse field
+#define SAVE_VERSION 4
 
 // "SVDT" as a 32-bit magic number (little-endian: 'S','V','D','T').
 static const uint32_t SAVE_MAGIC = 0x54445653u;
 
-// ── SavedEnemy ───────────────────────────────────────────────────────────────
-// A pointer-free snapshot of Enemy.
-//
-// Enemy contains  const unsigned char* sprite  which is a runtime address.
-// Writing that address to disk and reading it back in a new session gives a
-// dangling pointer → renderEnemies() crashes within the first rendered frame.
-// We exclude the sprite here and restore it from the name string on load.
-//
-// Enemy also contains  PathNode wanderPath[32]  which is plain data and is
-// safe to serialise directly.
+// ── SavedEnemy ────────────────────────────────────────────────────────────────
+// Pointer-free snapshot of Enemy (sprite excluded, restored by name on load).
 struct SavedEnemy {
     float    x;
     float    y;
@@ -42,44 +36,31 @@ struct SavedEnemy {
     int      pathLength;
     int      currentPathIndex;
     PathNode wanderPath[32];
-    // sprite           ← intentionally omitted; restored by name on load
     int      attackDelayCounter;
     bool     nearClock;
     bool     isFriend;
 };
 
-// ── SaveData ─────────────────────────────────────────────────────────────────
-// Complete game state for one save slot.
-//
-// Type fixes vs. the old struct:
-//   hp / food   uint8_t  → int16_t   (playerHP can be < 0 or > 255)
-//   playerX/Y   uint16_t → float     (preserves sub-tile position)
-//   savedEnemies Enemy[] → SavedEnemy[] (no raw pointers)
-//
-// IMPORTANT: checksum must remain the last field that is *hashed*.
-// Everything in the struct after it (dungeonMap, scrollNames, itemList) is
-// still written to disk but not included in the hash, so keep that ordering.
-// If you add new fields, add them before checksum or after itemList and
-// update the hash boundary accordingly (see calculateChecksum in .cpp).
+// ── SaveData ──────────────────────────────────────────────────────────────────
 struct SaveData {
-    // ── Header (validated before anything else) ──────────────────────────
-    uint32_t magic;           // must equal SAVE_MAGIC
-    uint8_t  version;         // must equal SAVE_VERSION
+    // ── Header ────────────────────────────────────────────────────────────
+    uint32_t magic;
+    uint8_t  version;
 
     // ── World ─────────────────────────────────────────────────────────────
     uint32_t worldSeed;
     uint8_t  currentDungeon;
 
     // ── Player ────────────────────────────────────────────────────────────
-    float    playerX;         // was uint16_t – float keeps sub-tile position
+    float    playerX;
     float    playerY;
-    int16_t  hp;              // was uint8_t  – supports negative values & >255
-    int16_t  food;            // was uint8_t
+    int16_t  hp;
+    int16_t  food;
 
     // ── Inventory / entities ──────────────────────────────────────────────
-    InventoryPage savedInventory[5];   // 5 tabs: Potions, Food, Equipment, Scrolls, Weapons
+    InventoryPage savedInventory[5];
     Damsel        damsel;
-    SavedEnemy    savedEnemies[30];    // pointer-free; sprite re-derived on load
+    SavedEnemy    savedEnemies[30];
 
     // ── Equipment / combat ────────────────────────────────────────────────
     float    armorValue;
@@ -99,6 +80,7 @@ struct SaveData {
     int      levelOfDamselDeath;
     int      kills;
     int      keysCount;
+    int      goldCount;   // added v4
 
     // ── Ring counters ─────────────────────────────────────────────────────
     int      swiftnessRingsNum;
@@ -117,20 +99,18 @@ struct SaveData {
     // MUST stay here: calculateChecksum() hashes every byte up to this field.
     uint32_t checksum;
 
-    // ── Large data (written to disk but not included in checksum hash) ────
+    // ── Large data (written to disk but not hashed) ───────────────────────
     TileTypes dungeonMap[64][64];
-    char      scrollNames[10][20];
-    char      scrollNamesRevealed[10][20];
-    GameItem  itemList[38];
+    char      scrollNames[NUM_SCROLLS][20];          // [11][20]
+    char      scrollNamesRevealed[NUM_SCROLLS][20];  // [11][20]
+    GameItem  itemList[NUM_ITEMS];                   // [42]
 };
 
-// ── Public API ───────────────────────────────────────────────────────────────
 bool saveGame(const SaveData& data);
 bool loadGame(SaveData& outData);
 bool deleteSave();
 bool saveExists();
 
-// Audio helpers called internally by save/load to silence the SD card I/O.
 void stopAllAudio();
 void resumeAudio();
 

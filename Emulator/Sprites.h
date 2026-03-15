@@ -10,6 +10,8 @@ struct Frame {
   int length;
 };
 
+extern const unsigned char lockedSprite[];
+
 // Stair sprite
 extern const unsigned char stairsSprite[];
 
@@ -77,6 +79,9 @@ extern const unsigned char chestSprite[];
 extern const unsigned char scrollSprite[];
 extern const unsigned char fastbootSprite[];
 extern const unsigned char confusionSprite[];
+extern const unsigned char weaponSprite[];
+extern const unsigned char goldSprite[];
+extern const unsigned char keySprite[];
 
 // Teleporter sprites
 extern const unsigned char teleporterSpriteF1[];
@@ -100,10 +105,6 @@ extern const unsigned char clockSpriteF7[];
 extern const unsigned char clockSpriteF8[];
 extern Frame clockAnimation[];
 extern const int clockAnimationLength;
-
-extern const unsigned char keySprite[];
-extern const unsigned char lockedSprite[];
-extern const unsigned char weaponSprite[];
 
 // Boss sprites
 extern const unsigned char bossIdleSpriteF0[];

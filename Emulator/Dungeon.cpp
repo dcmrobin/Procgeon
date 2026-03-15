@@ -663,6 +663,11 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
       if (isVisible(round(playerX), round(playerY), mapX, mapY))
         display.drawBitmap(screenX, screenY, weaponSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
       break;
+    case GoldTile:
+      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
+      if (isVisible(round(playerX), round(playerY), mapX, mapY))
+        display.drawBitmap(screenX, screenY, goldSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness + 10);
+      break;
   }
 }
 
