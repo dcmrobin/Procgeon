@@ -17,9 +17,12 @@ extern const unsigned char stairsSprite[];
 
 // Wall sprite
 extern const unsigned char wallSprite[];
+extern const unsigned char shopWallSprite[];
 
 // Bars sprite
 extern const unsigned char barsSprite[];
+extern const unsigned char kioskSprite[];
+extern const unsigned char shopkeeperSprite[];
 
 // Door sprites
 extern const unsigned char doorClosedSprite[];
@@ -143,6 +146,9 @@ extern const unsigned char* currentDamselPortrait;
 extern const unsigned char succubusPortrait[];
 extern const unsigned char bossPortraitIdle[];
 extern const unsigned char bossPortraitEnraged[];
+extern const unsigned char shopkeeperPortrait[];
+extern const unsigned char shopkeeperAngryPortrait[];
+
 
 // Screens
 extern const unsigned char rescueDamselScreen[];
