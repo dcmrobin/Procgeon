@@ -147,7 +147,6 @@ extern const unsigned char succubusPortrait[];
 extern const unsigned char bossPortraitIdle[];
 extern const unsigned char bossPortraitEnraged[];
 extern const unsigned char shopkeeperPortrait[];
-extern const unsigned char shopkeeperAngryPortrait[];
 
 
 // Screens
