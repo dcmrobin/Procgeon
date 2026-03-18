@@ -50,7 +50,7 @@ void resetGame() {
     g_state.keysCount           = 0;
     g_state.goldCount           = 0;
 
-    playWav1.stop();
+    stopAllAudio();
 
     // Player stats
     g_state.playerHP        = PLAYER_START_HP;

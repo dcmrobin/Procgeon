@@ -354,9 +354,9 @@ void updateEnemies() {
         enemies[i].nearClock = (sqrtf(cdx * cdx + cdy * cdy) <= 5.0f);
     }
 
-    float closestDist = 1e9f;
     // ── Jukebox volume ────────────────────────────────────────────────────
     {
+        float closestDist = 1e9f;
         for (int j = 0; j < MAX_ENEMIES; j++) {
             if (enemies[j].hp > 0 && strcmp(enemies[j].name, "jukebox") == 0) {
                 float dx = enemies[j].x - playerX;
@@ -375,6 +375,7 @@ void updateEnemies() {
 
     // ── Shop volume ─────────────────────────────────────────────────────
     {
+        float closestDist = 1e9f;
         for (int j = 0; j < MAX_ENEMIES; j++) {
             if (enemies[j].hp > 0 && strcmp(enemies[j].name, "shopkeeper") == 0) {
                 float dx = enemies[j].x - playerX;
