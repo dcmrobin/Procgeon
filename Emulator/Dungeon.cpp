@@ -389,9 +389,9 @@ void spawnEnemies(bool isBossfight) {
             int   sx = r.x + r.width / 2;
             int   sy = (r.y + r.height / 2)-2; // Spawn shopkeeper just above the line of kiosks
             if (dungeonMap[sy][sx] == Floor) {
-                enemies[0] = { ((float)sx), ((float)sy), 1000, false, 0.0f,
+                enemies[7] = { ((float)sx), ((float)sy), 1000, false, 0.0f,
                                "shopkeeper", 1000 /*He can't die*/, 1, false, 0, 0, {}, nullptr, 9999, false, true };
-                enemies[0].sprite = shopkeeperSprite;
+                enemies[7].sprite = shopkeeperSprite;
             }
         }
     } else {
