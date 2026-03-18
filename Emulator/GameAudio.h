@@ -16,8 +16,14 @@ extern AudioPlayQueue       queue[MAX_SIMULTANEOUS_SFX];
 extern AudioMixer4          mixer1;
 extern AudioMixer4          mixer2;
 extern AudioMixer4          musicMixer;
+extern AudioMixer4          wavMixer;       // groups playWav1/2/3 → musicMixer
 extern AudioOutputI2S       audioOutput;
 extern AudioControlSGTL5000 sgtl5000_1;
+
+// ── WAV players ───
+extern AudioPlaySdWav       playWav1;
+extern AudioPlaySdWav       playWav2;
+extern AudioPlaySdWav       playWav3;
 
 // ── SFX asset storage ────────────────────────────────────────────────────
 extern uint8_t*     sfxData[NUM_SFX];
@@ -34,5 +40,6 @@ void serviceRawSFX();
 bool playRawSFX(int sfxIndex);
 bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
 void setJukeboxVolume(float v);
+void setShopVolume(float v);
 
 #endif // GAMEAUDIO_H

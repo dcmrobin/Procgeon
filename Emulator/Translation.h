@@ -459,6 +459,7 @@ public:
 };
 inline AudioPlaySdWav playWav1;
 inline AudioPlaySdWav playWav2;
+inline AudioPlaySdWav playWav3;
 
 // SDL2 helper wrappers
 inline bool initSDL2Audio(int freq = 44100, Uint16 format = MIX_DEFAULT_FORMAT, int channels = 2, int chunksize = 1024) {
@@ -506,7 +507,9 @@ struct RawSFXPlayback {
 extern int ambientNoiseLevel;
 extern int masterVolume;
 extern float jukeboxVolume;
+extern float shopVolume;
 void setJukeboxVolume(float v);
+void setShopVolume(float v);
 bool playRawSFX(int sfxIndex);
 bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
 void serviceRawSFX();

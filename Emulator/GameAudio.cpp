@@ -16,6 +16,7 @@ AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
 AudioMixer4         mixer1;
 AudioMixer4         mixer2;
 AudioMixer4         musicMixer;
+AudioMixer4         wavMixer;
 AudioOutputI2S      audioOutput;
 AudioControlSGTL5000 sgtl5000_1;
 
@@ -29,14 +30,18 @@ AudioConnection patchCord7 (queue[6], 0, mixer2, 2);
 AudioConnection patchCord8 (queue[7], 0, mixer2, 3);
 AudioConnection patchCord9 (mixer1,   0, musicMixer, 0);
 AudioConnection patchCord10(mixer2,   0, musicMixer, 1);
-AudioConnection patchCord11(playWav1, 0, musicMixer, 2);
-AudioConnection patchCord12(playWav2, 0, musicMixer, 3);
-AudioConnection patchCord13(musicMixer, 0, audioOutput, 0);
-AudioConnection patchCord14(musicMixer, 0, audioOutput, 1);
+// playWav objects now routed through wavMixer → musicMixer
+AudioConnection patchCord11(playWav1, 0, wavMixer, 0);
+AudioConnection patchCord12(playWav2, 0, wavMixer, 1);
+AudioConnection patchCord13(playWav3, 0, wavMixer, 2);
+AudioConnection patchCord14(wavMixer,    0, musicMixer, 2);
+AudioConnection patchCord15(musicMixer,  0, audioOutput, 0);
+AudioConnection patchCord16(musicMixer,  0, audioOutput, 1);
 
 int   ambientNoiseLevel = 0;
 int   masterVolume      = MASTER_VOLUME_DEFAULT;
 float jukeboxVolume     = 0.0f;
+float shopVolume     = 0.0f;
 
 uint8_t*   sfxData[NUM_SFX]   = { nullptr };
 size_t     sfxLength[NUM_SFX] = { 0 };
@@ -96,6 +101,11 @@ void initAudio() {
 void setJukeboxVolume(float v) {
     jukeboxVolume = constrain(v, 0.0f, 0.23f);
     playWav2.volume(jukeboxVolume * (masterVolume / 10.0f));
+}
+
+void setShopVolume(float v) {
+    shopVolume = constrain(v, 0.0f, 0.23f);
+    playWav2.volume(shopVolume * (masterVolume / 10.0f));
 }
 
 bool playRawSFX(int sfxIndex) {

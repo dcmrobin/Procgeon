@@ -474,7 +474,7 @@ void updateEnemies() {
             }
         } else {
             if (invisibleRingsNumber == 0) {
-                if (gridDistSq <= CHASE_RANGE_BASE + ambientNoiseLevel) {
+                if (gridDistSq <= CHASE_RANGE_BASE + (int)(ambientNoiseLevel/2)) {
                     enemies[i].chasingPlayer = true;
                 } else if (enemies[i].chasingPlayer) {
                     if (++giveUpTimer >= ENEMY_GIVE_UP_TICKS) {
