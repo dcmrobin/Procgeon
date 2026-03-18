@@ -1,723 +1,573 @@
-#include "Dungeon.h"
+#include "Common.h"
+#include "GameState.h"
 #include "Sprites.h"
 #include "HelperFunctions.h"
 #include "Player.h"
 #include "Item.h"
 #include "GameAudio.h"
-#include <cstdlib>
-#include <ctime>
-#include <algorithm>
-#include <vector>
-#include "Translation.h"
 #include "Entities.h"
 
-TileTypes dungeonMap[mapHeight][mapWidth];
+#include <cstdlib>
+#include <cmath>
+#include <algorithm>
+#include <vector>
 
-int bossfightLevel = 12;
-bool generatedMapItem;
-bool generatedClockEnemy = false;
-bool generatedSuccubusFriend = false;
+// ─────────────────────────────────────────────────────────────────────────────
+// Dungeon.cpp  — map generation, enemy spawning, scrolling, rendering
+// ─────────────────────────────────────────────────────────────────────────────
+
+TileTypes dungeonMap[MAP_HEIGHT][MAP_WIDTH];
+
+int  bossfightLevel       = BOSSFIGHT_LEVEL;
+bool generatedClockEnemy  = false;
+
+static bool generatedMapItem        = false;
+static bool generatedSuccubusFriend = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// generateDungeon
+// ─────────────────────────────────────────────────────────────────────────────
 void generateDungeon(bool isBossfight) {
-  ambientNoiseLevel = 0;
-  generatedMapItem = false;
+    ambientNoiseLevel = 0;
+    generatedMapItem  = false;
 
-  // Initialize map with walls
-  for (int y = 0; y < mapHeight; y++) {
-    for (int x = 0; x < mapWidth; x++) {
-      if (!isBossfight) {
-        dungeonMap[y][x] = Wall;
-      } else {
-        dungeonMap[y][x] = (y > 15 && y < mapHeight - 15) && (x > 15 && x < mapWidth - 15) ? Floor : Wall; // Boss fight is an large area
-      }
-    }
-  }
+    // Initialise map
+    for (int y = 0; y < MAP_HEIGHT; y++)
+        for (int x = 0; x < MAP_WIDTH; x++)
+            dungeonMap[y][x] = isBossfight
+                ? ((y > 15 && y < MAP_HEIGHT - 15 && x > 15 && x < MAP_WIDTH - 15)
+                   ? Floor : Wall)
+                : Wall;
 
-  if (isBossfight) {
-    playerX = (mapWidth / 2) - 3;
-    playerY = mapHeight / 2;
+    // ── Boss fight layout ─────────────────────────────────────────────────
+    if (isBossfight) {
+        playerX = (float)(MAP_WIDTH / 2) - 3.0f;
+        playerY = (float)(MAP_HEIGHT / 2);
 
-    // Only create the damsel's cell if she was following the player (or the player carried her)
-    // and we don't have a friendly succubus
-    if ((damsel[0].followingPlayer || damsel[0].beingCarried) && !damsel[0].dead && !succubusIsFriend && damsel[0].active) {
-      // Create a small cell in the top-right corner of the boss room
-      int cellX = playerX;
-      int cellY = playerY - 10;
-      int cellWidth = 5;
-      int cellHeight = 5;
-
-      // Create the cell walls
-      for (int y = cellY; y < cellY + cellHeight; y++) {
-        for (int x = cellX; x < cellX + cellWidth; x++) {
-          // Set the cell interior to floor
-          dungeonMap[y][x] = Floor;
-          // Set walls around the perimeter
-          if (x == cellX || x == cellX + cellWidth - 1 || 
-              y == cellY || y == cellY + cellHeight - 1) {
-            dungeonMap[y][x] = Wall;
-          }
-        }
-      }
-
-      // Add bars in the middle of north and south walls
-      int barX = cellX + (cellWidth / 2);
-      // North-middle should be open floor (not bars) so player can see/approach it
-      dungeonMap[cellY][barX] = Floor;              // North wall center as floor
-      dungeonMap[cellY + cellHeight - 1][barX] = Bars;  // South wall bars
-
-      // Place the damsel in the cell
-      damsel[0].x = cellX + (cellWidth / 2);
-      damsel[0].y = cellY + (cellHeight / 2);
-      damsel[0].followingPlayer = false; // She's trapped now
-      damsel[0].beingCarried = false; // Ensure she's no longer flagged as carried
-      damsel[0].completelyRescued = true;
-    } else {
-      DIDNOTRESCUEDAMSEL = true;
-    }
-    
-    return; // Skip regular room generation
-  }
-
-  // Room generation parameters
-  const int maxRooms = random(15, 25);  // Maximum number of rooms
-  const int minRoomSize = 4;            // Minimum room size (tiles)
-  const int maxRoomSize = 8;            // Maximum room size (tiles)
-
-  Room rooms[maxRooms];
-  int roomCount = 0;
-
-  // Guarantee a starting room at the center of the map
-  int startRoomWidth = random(minRoomSize, maxRoomSize + 1);
-  int startRoomHeight = random(minRoomSize, maxRoomSize + 1);
-  int startRoomX = mapWidth / 2 - startRoomWidth / 2;
-  int startRoomY = mapHeight / 2 - startRoomHeight / 2;
-
-  // Create the starting room
-  rooms[roomCount++] = { startRoomX, startRoomY, startRoomWidth, startRoomHeight };
-  for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
-    for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
-      dungeonMap[y][x] = Floor;
-    }
-  }
-
-  // Generate additional rooms
-  for (int i = 1; i < maxRooms; i++) {
-    int roomWidth = random(minRoomSize, maxRoomSize + 1);
-    int roomHeight = random(minRoomSize, maxRoomSize + 1);
-    int roomX = random(3, mapWidth - roomWidth - 3);
-    int roomY = random(3, mapHeight - roomHeight - 3);
-
-    // Check for overlaps
-    bool overlap = false;
-    for (int j = 0; j < roomCount; j++) {
-      if (roomX < rooms[j].x + rooms[j].width && roomX + roomWidth > rooms[j].x && roomY < rooms[j].y + rooms[j].height && roomY + roomHeight > rooms[j].y) {
-        overlap = true;
-        break;
-      }
-    }
-
-    // Add the room if no overlap
-    if (!overlap) {
-      rooms[roomCount++] = { roomX, roomY, roomWidth, roomHeight };
-      for (int y = roomY; y < roomY + roomHeight; y++) {
-        for (int x = roomX; x < roomX + roomWidth; x++) {
-          dungeonMap[y][x] = Floor;
-          if (random(0, 100) > 97) {
-            // Use rarity-based loot spawning - lower dungeon floors have lower max rarity (3)
-            // This makes chest loot more valuable than random floor loot
-            dungeonMap[y][x] = getRandomLootTile(1 + dungeon); // The further the player goes, the better the loot
-            if (random(0, 40) > 20) {
-              dungeonMap[y][x] = MushroomTile;
-            }
-          }
-          if (!generatedMapItem && x > roomX + 1 && y > roomY + 1) {
-            dungeonMap[y][x] = Map;
-            generatedMapItem = true;
-          }
-        }
-      }
-    }
-  }
-
-  // Spawn chests in random rooms
-  int chestCount = random(2, 5); // 2-4 chests per dungeon
-  for (int i = 0; i < chestCount; i++) {
-    int roomIndex = random(0, roomCount);
-    Room &room = rooms[roomIndex];
-    int chestX = room.x + random(1, room.width - 1);
-    int chestY = room.y + random(1, room.height - 1);
-    // Only place if the tile is floor and not occupied by player/damsel/exit
-    if (dungeonMap[chestY][chestX] == Floor) {
-      dungeonMap[chestY][chestX] = ChestTile;
-    }
-  }
-
-  // --- Generate damsel's cell BEFORE connecting rooms so corridors won't block it ---
-  if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend && !endlessMode) {
-    // Generate the damsel's cell
-    int damselRoomWidth = 7;
-    int damselRoomHeight = 5;
-    int damselRoomX, damselRoomY;
-
-    // Find a location far from the start room
-    do {
-      damselRoomX = random(3, mapWidth - damselRoomWidth - 3);
-      damselRoomY = random(3, mapHeight - damselRoomHeight - 3);
-    } while (abs(damselRoomX - startRoomX) + abs(damselRoomY - startRoomY) < mapWidth / 2);
-
-    // Create the damsel's cell
-    int barX = damselRoomX + (damselRoomWidth / 2);
-    for (int y = damselRoomY; y < damselRoomY + damselRoomHeight; y++) {
-      for (int x = damselRoomX; x < damselRoomX + damselRoomWidth; x++) {
-        if (y == damselRoomY || y == damselRoomY + damselRoomHeight - 1) {
-          // Top and bottom walls normally Bars, but ensure north-middle is Floor
-          if (y == damselRoomY && x == barX) {
-            dungeonMap[y][x] = Floor; // north-middle should be floor (as requested)
-          } else {
-            dungeonMap[y][x] = Bars;
-          }
+        bool damselPresent = (damsel[0].followingPlayer || damsel[0].beingCarried) &&
+                             !damsel[0].dead && !succubusIsFriend && damsel[0].active;
+        if (damselPresent) {
+            int cx = (int)playerX, cy = (int)playerY - 10;
+            int cw = 5, ch = 5;
+            for (int y = cy; y < cy + ch; y++)
+                for (int x = cx; x < cx + cw; x++)
+                    dungeonMap[y][x] = ((x == cx || x == cx + cw - 1 ||
+                                         y == cy || y == cy + ch - 1)
+                                        ? Wall : Floor);
+            int barX = cx + cw / 2;
+            dungeonMap[cy][barX]          = Bars;
+            dungeonMap[cy + ch - 1][barX] = Bars;
+            damsel[0].x = (float)(cx + cw / 2);
+            damsel[0].y = (float)(cy + ch / 2);
+            damsel[0].followingPlayer   = false;
+            damsel[0].beingCarried      = false;
+            damsel[0].completelyRescued = true;
         } else {
-          dungeonMap[y][x] = Floor;
+            DIDNOTRESCUEDAMSEL = true;
         }
-      }
+        return;
     }
 
-    // Connect the damsel's cell to the dungeon (carve a short connector to start area)
-    int centerX = damselRoomX + damselRoomWidth / 2;
-    int centerY = damselRoomY + damselRoomHeight / 2;
-    int startCenterX = startRoomX + startRoomWidth / 2;
-    int startCenterY = startRoomY + startRoomHeight / 2;
+    // ── Regular dungeon ───────────────────────────────────────────────────
+    const int maxRooms = random(MAX_ROOMS_MIN, MAX_ROOMS_MAX + 1);
+    Room rooms[25];   // maxRooms upper bound
+    int  roomCount = 0;
 
-    // Carve a connector to the starting room so the cell is reachable.
-    carveHorizontalCorridor(startCenterX, centerX, startCenterY);
-    carveVerticalCorridor(startCenterY, centerY, centerX);
-
-    // Guarantee a closed door at the center of the south wall of the damsel's cell
-    int southWallY = damselRoomY + damselRoomHeight - 1;
-    int southWallCenterX = damselRoomX + damselRoomWidth / 2;
-    dungeonMap[southWallY][southWallCenterX] = DoorClosed;
-
-    // Place the damsel in the cell
-    damsel[0].x = centerX - 1;
-    damsel[0].y = centerY - 1;
-    dungeonMap[centerY][centerX] = ChestTile;
-    damsel[0].speed = 0.1;
-    damsel[0].followingPlayer = false;
-    damsel[0].beingCarried = false;
-    damsel[0].dead = false;
-    damsel[0].active = true;
-    damsel[0].completelyRescued = false;
-  } else {
-    // Deactivate damsel if succubus is friend or damsel is dead
-    damsel[0].x = -3000;
-    damsel[0].y = -3000;
-    damsel[0].active = false;
-    damsel[0].beingCarried = false;
-    damsel[0].followingPlayer = false;
-    damsel[0].completelyRescued = false;
-  }
-
-  // Connect rooms with corridors
-  for (int i = 1; i < roomCount; i++) {
-    int x1, y1, x2, y2;
-
-    getEdgeTowards(rooms[i - 1], rooms[i], x1, y1);
-    getEdgeTowards(rooms[i], rooms[i - 1], x2, y2);
-
-    if (random(0, 2) == 0) {
-      carveHorizontalCorridor(x1, x2, y1);
-      carveVerticalCorridor(y1, y2, x2);
-    } else {
-      carveVerticalCorridor(y1, y2, x1);
-      carveHorizontalCorridor(x1, x2, y2);
-    }
-  }
-
-  // This is to get rid of any lone tiles
-  for (int y = 0; y < mapHeight; y++) {
-    for (int x = 0; x < mapWidth; x++) {
-      if (dungeonMap[y][x] == Wall) {
-        int neighbors = 0;
-
-        for (int nx = -1; nx < 2; nx++) {
-          for (int ny = -1; ny < 2; ny++) {
-            if (nx == 0 && ny == 0) continue;
-            if (dungeonMap[y + ny][x + nx] == Wall) {
-              neighbors += 1;
-            }
-          }
-        }
-
-        if (neighbors <= 1) {
-          dungeonMap[y][x] = Floor;
-        }
-      }
-    }
-  }
-
-  dungeonMap[startRoomX + (startRoomWidth / 2)][startRoomY + (startRoomHeight / 2) + 1] = StartStairs;
-
-  // Ensure player start
-  int playerStartX = startRoomX + startRoomWidth / 2;
-  int playerStartY = startRoomY + startRoomHeight / 2;
-  dungeonMap[playerStartY][playerStartX] = Floor;  // Make sure the player's position is a floor
-  playerX = playerStartX;
-  playerY = playerStartY;
-
-  // Place the exit in the last room
-  int exitY = rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2;
-  int exitX = rooms[roomCount - 1].x + rooms[roomCount - 1].width / 2;
-  dungeonMap[exitY][exitX] = Exit;
-
-  // Chance to make this level require a key to use the exit
-  // Higher floors slightly increase chance
-  int keyChance = 30 + dungeon;
-  if (random(0, 100) < keyChance) {
-    // Mark the exit as a locked key exit
-    dungeonMap[exitY][exitX] = KeyTile;
-
-    // Place the key somewhere else (try several times)
-    bool placedKey = false;
-    for (int attempt = 0; attempt < 100 && !placedKey; attempt++) {
-      int roomIndex = random(1, roomCount - 1); // avoid start and exit room
-      Room &room = rooms[roomIndex];
-      int keyX = room.x + random(1, room.width - 1);
-      int keyY = room.y + random(1, room.height - 1);
-      if (dungeonMap[keyY][keyX] == Floor) {
-        dungeonMap[keyY][keyX] = KeyItem;
-        placedKey = true;
-      }
-    }
-    // If failed to place in rooms, place near start as fallback
-    if (!placedKey) {
-      for (int y = startRoomY; y < startRoomY + startRoomHeight; y++) {
-        for (int x = startRoomX; x < startRoomX + startRoomWidth; x++) {
-          if (dungeonMap[y][x] == Floor) {
-            dungeonMap[y][x] = KeyItem;
-            placedKey = true;
-            break;
-          }
-        }
-        if (placedKey) break;
-      }
-    }
-  }
-
-  // Spawn some equipment items in random rooms
-  int equipmentCount = random(1, 4); // Spawn 1-3 equipment items
-  for (int i = 0; i < equipmentCount; i++) {
-    int roomIndex = random(1, roomCount - 1); // Don't spawn in start or exit room
-    Room &room = rooms[roomIndex];
-    
-    int itemX = room.x + random(1, room.width - 1);
-    int itemY = room.y + random(1, room.height - 1);
-    
-    // Only place if the tile is floor and not occupied
-    if (dungeonMap[itemY][itemX] == Floor) {
-      dungeonMap[itemY][itemX] = random(0, 100) > 50 ? ArmorTile : RingTile;
-    }
-  }
-
-  placeRoomEntranceDoors();
-}
-
-// --- Place doors at corridor-to-room transitions (room mouths) ---
-void placeRoomEntranceDoors() {
-  // Directions: N, S, E, W
-  const int dx[4] = {0, 0, 1, -1};
-  const int dy[4] = {-1, 1, 0, 0};
-  // Perpendicular pairs for corridor check
-  const int perp[4][2][2] = {
-    {{1, 0}, {-1, 0}}, // N/S: check E/W
-    {{1, 0}, {-1, 0}}, // S/N: check E/W
-    {{0, -1}, {0, 1}}, // E/W: check N/S
-    {{0, -1}, {0, 1}}  // W/E: check N/S
-  };
-  for (int y = 2; y < mapHeight - 2; y++) {
-    for (int x = 2; x < mapWidth - 2; x++) {
-      if (dungeonMap[y][x] != Floor) continue;
-      // For each direction, check if this is a corridor mouth
-      for (int d = 0; d < 4; d++) {
-        int bx = x - dx[d];
-        int by = y - dy[d];
-        int fx = x + dx[d];
-        int fy = y + dy[d];
-        // Check that behind is corridor (walls on both sides)
-        int px1 = x + perp[d][0][0];
-        int py1 = y + perp[d][0][1];
-        int px2 = x + perp[d][1][0];
-        int py2 = y + perp[d][1][1];
-        bool corridorBehind = (dungeonMap[by][bx] == Floor || dungeonMap[by][bx] == DoorOpen) &&
-                             dungeonMap[py1][px1] == Wall && dungeonMap[py2][px2] == Wall;
-        // Ahead is open (room): at least 2 open neighbors not including the corridor
-        int openCount = 0;
-        for (int pd = 0; pd < 4; pd++) {
-          if (pd == (d ^ 1)) continue; // skip the direction we came from
-          int nx = fx + dx[pd];
-          int ny = fy + dy[pd];
-          if (dungeonMap[ny][nx] == Floor || dungeonMap[ny][nx] == DoorOpen || dungeonMap[ny][nx] == DoorClosed) openCount++;
-        }
-        bool roomAhead = (dungeonMap[fy][fx] == Floor || dungeonMap[fy][fx] == DoorOpen) && openCount >= 2;
-        // Only place door if not already a door
-        if (corridorBehind && roomAhead && dungeonMap[y][x] == Floor) {
-          if (random(0, 6) == 1 || random(0, 6) == 2 || random(0, 6) == 3) {
-            dungeonMap[y][x] = DoorClosed;
-          } else if (random(0, 6) == 4) {
-            dungeonMap[y][x] = DoorOpen;
-          } else {
+    // Starting room at map centre
+    int srW = random(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
+    int srH = random(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
+    int srX = MAP_WIDTH  / 2 - srW / 2;
+    int srY = MAP_HEIGHT / 2 - srH / 2;
+    rooms[roomCount++] = { srX, srY, srW, srH };
+    for (int y = srY; y < srY + srH; y++)
+        for (int x = srX; x < srX + srW; x++)
             dungeonMap[y][x] = Floor;
-          }
+
+    // Additional rooms
+    for (int i = 1; i < maxRooms; i++) {
+        int rW = random(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
+        int rH = random(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
+        int rX = random(3, MAP_WIDTH  - rW - 3);
+        int rY = random(3, MAP_HEIGHT - rH - 3);
+
+        bool overlap = false;
+        for (int j = 0; j < roomCount && !overlap; j++) {
+            overlap = rX < rooms[j].x + rooms[j].width  &&
+                      rX + rW > rooms[j].x              &&
+                      rY < rooms[j].y + rooms[j].height &&
+                      rY + rH > rooms[j].y;
         }
-      }
-    }
-  }
-}
+        if (overlap) continue;
 
-void spawnEnemies(bool isBossfight) {
-  generatedSuccubusFriend = false;
-  generatedClockEnemy = false;
-  clockX = -10000;
-  clockY = -10000;
-
-  if (!isBossfight) {
-    // First, spawn the friendly succubus if we have one
-    if (succubusIsFriend && !generatedSuccubusFriend) {
-      generatedSuccubusFriend = true;
-      currentDamselPortrait = succubusPortrait;
-      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "You didn't try to kill me. I'll return the favour.");
-      playRawSFX(24);
-      showDialogue = true;
-      dialogueTimeLength = 600;
-      enemies[0] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
-      enemies[0].sprite = succubusIdleSprite;
-      enemies[0].isFriend = true;
-    }
-    
-    // Then spawn other enemies
-    for (int i = (succubusIsFriend ? 1 : 0); i < maxEnemies; i++) {
-      while (true) {
-        int ex = random(0, mapWidth);
-        int ey = random(0, mapHeight);
-        if (dungeonMap[ey][ex] == Floor && sqrt(pow(playerX - ex, 2) + pow(playerY - ey, 2)) >= 10) {
-          if (random(0, 5) == 1 && dungeon > 1) {
-            enemies[i] = { (float)ex, (float)ey, 20 + (endlessMode ? (dungeon-11) : 0), false, 0.05, "blob", 20, 2 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
-            enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
-          } else if (random(0, 4) == 2 && dungeon > 3) {
-            enemies[i] = { (float)ex, (float)ey, 10 + (endlessMode ? (dungeon-11) : 0), false, 0.11, "teleporter", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
-            enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
-          } else if (random(0, 6) == 4 && dungeon > 4) {
-            enemies[i] = { (float)ex, (float)ey, 15 + (endlessMode ? (dungeon-11) : 0), false, 0.06, "shooter", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
-            enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
-          } else if (random(0, 10) == 5 && dungeon > 6) {
-            enemies[i] = { (float)ex, (float)ey, 30 + (endlessMode ? (dungeon-11) : 0), false, 0.02, "succubus", 50, 110 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 50, false, false };
-            enemies[i].sprite = succubusIdleSprite;
-          } else if (random(0, 100) > 92 && dungeon > 2) {
-            enemies[i] = { (float)ex, (float)ey, 25 + (endlessMode ? (dungeon-11) : 0), false, 0.07, "jukebox", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
-            enemies[i].sprite = jukeboxAnimation[random(0, jukeboxAnimationLength)].frame;
-          } else if (random(0, 12) == 11 && dungeon > 6) {
-            if (!generatedClockEnemy) {
-              enemies[i] = { (float)ex, (float)ey, 30 + (endlessMode ? (dungeon-11) : 0), false, 0.07, "clock", 20, 0 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
-              enemies[i].sprite = clockAnimation[random(0, clockAnimationLength)].frame;
-              generatedClockEnemy = true;
+        rooms[roomCount++] = { rX, rY, rW, rH };
+        for (int y = rY; y < rY + rH; y++) {
+            for (int x = rX; x < rX + rW; x++) {
+                dungeonMap[y][x] = Floor;
+                if (random(0, 70) > 67)
+                    dungeonMap[y][x] = MushroomTile;
+                if (random(0, 100) > 97)
+                    dungeonMap[y][x] = getRandomLootTile(1 + dungeon);
+                if (!generatedMapItem && x > rX + 1 && y > rY + 1) {
+                    dungeonMap[y][x] = Map;
+                    generatedMapItem = true;
+                }
             }
-          } else {
-            enemies[i] = { (float)ex, (float)ey, 10 + (endlessMode ? (dungeon-11) : 0), false, 0.08, "batguy", 20, 1 + (endlessMode ? (dungeon-(dungeon-15<0?0:15)) : 0), false, 0, 0, {}, nullptr, 20, false, false };
-            enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
-          }
-          break;
         }
-      }
-    }
-  } else {
-    for (int i = 0; i < maxEnemies; i++) {
-      enemies[i] = { (float)0, (float)0, 0, false, 0, "null", 0, 0, false, 0, 0, {}, nullptr, 0, false, false };
-      enemies[i].sprite = batguyAnimation[0].frame;
     }
 
-    // Spawn the boss
-    enemies[0] = { (float)(mapWidth / 2), (float)(mapHeight / 2), 400, false, 0.04, "boss", 30, 20, false, 0, 0, {}, nullptr, 30, false, false };
-    
-    // If we have a friendly succubus, spawn her near the player
-    if (succubusIsFriend) {
-      enemies[1] = { (float)playerX, (float)playerY - 1, 40, false, 0.06, "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
-      enemies[1].isFriend = true;
-      enemies[1].sprite = succubusIdleSprite;
+    // Chests
+    for (int i = 0; i < random(CHEST_SPAWN_COUNT_MIN, CHEST_SPAWN_COUNT_MAX + 1); i++) {
+        Room& r = rooms[random(0, roomCount)];
+        int cx  = r.x + random(1, r.width  - 1);
+        int cy  = r.y + random(1, r.height - 1);
+        if (dungeonMap[cy][cx] == Floor) dungeonMap[cy][cx] = ChestTile;
     }
-    if (bossState == Idle || bossState == Shooting) {
-      enemies[0].sprite = bossIdleAnimation[random(0, bossIdleAnimationLength)].frame;
-    } else if (bossState == Floating || bossState == Summoning || bossState == Enraged) {
-      enemies[0].sprite = bossFightAnimation[random(0, bossFightAnimationLength)].frame;
-    } else if (bossState == Beaten) {
-      enemies[0].sprite = bossBeatenAnimation[0].frame;
+
+    // ── Damsel cell ───────────────────────────────────────────────────────
+    if (dungeon > levelOfDamselDeath + 3 && !succubusIsFriend && !endlessMode) {
+        int dW = 7, dH = 5, dX, dY;
+        do {
+            dX = random(3, MAP_WIDTH  - dW - 3);
+            dY = random(3, MAP_HEIGHT - dH - 3);
+        } while (abs(dX - srX) + abs(dY - srY) < MAP_WIDTH / 2);
+
+        int barX = dX + dW / 2;
+        for (int y = dY; y < dY + dH; y++) {
+            for (int x = dX; x < dX + dW; x++) {
+                if (y == dY || y == dY + dH - 1) {
+                    dungeonMap[y][x] = (y == dY && x == barX) ? Floor : Bars;
+                } else {
+                    dungeonMap[y][x] = Floor;
+                }
+            }
+        }
+
+        int centerX = dX + dW / 2, centerY = dY + dH / 2;
+        int sCX     = srX + srW / 2, sCY = srY + srH / 2;
+        carveHorizontalCorridor(sCX, centerX, sCY);
+        carveVerticalCorridor(sCY, centerY, centerX);
+
+        dungeonMap[dY + dH - 1][dX + dW / 2] = DoorClosed;
+
+        damsel[0].x = (float)(centerX - 1);
+        damsel[0].y = (float)(centerY - 1);
+        dungeonMap[centerY][centerX] = ChestTile;
+        damsel[0].speed              = 0.1f;
+        damsel[0].followingPlayer    = false;
+        damsel[0].beingCarried       = false;
+        damsel[0].dead               = false;
+        damsel[0].active             = true;
+        damsel[0].completelyRescued  = false;
+    } else {
+        damsel[0].x = -3000.0f; damsel[0].y = -3000.0f;
+        damsel[0].active          = false;
+        damsel[0].beingCarried    = false;
+        damsel[0].followingPlayer = false;
+        damsel[0].completelyRescued = false;
     }
-  }
+
+    // ── Connect rooms ─────────────────────────────────────────────────────
+    for (int i = 1; i < roomCount; i++) {
+        int x1, y1, x2, y2;
+        getEdgeTowards(rooms[i - 1], rooms[i], x1, y1);
+        getEdgeTowards(rooms[i],     rooms[i - 1], x2, y2);
+        if (random(0, 2) == 0) {
+            carveHorizontalCorridor(x1, x2, y1);
+            carveVerticalCorridor(y1, y2, x2);
+        } else {
+            carveVerticalCorridor(y1, y2, x1);
+            carveHorizontalCorridor(x1, x2, y2);
+        }
+    }
+
+    // ── Remove lone wall tiles ────────────────────────────────────────────
+    for (int y = 1; y < MAP_HEIGHT - 1; y++)
+        for (int x = 1; x < MAP_WIDTH - 1; x++)
+            if (dungeonMap[y][x] == Wall && countWalls(x, y) <= 1)
+                dungeonMap[y][x] = Floor;
+
+    // ── Player start ──────────────────────────────────────────────────────
+    dungeonMap[srX + srW / 2][srY + srH / 2 + 1] = StartStairs;
+    int psX = srX + srW / 2, psY = srY + srH / 2;
+    dungeonMap[psY][psX] = Floor;
+    playerX = (float)psX;
+    playerY = (float)psY;
+
+    // ── Exit ─────────────────────────────────────────────────────────────
+    int exY = rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2;
+    int exX = rooms[roomCount - 1].x + rooms[roomCount - 1].width  / 2;
+    dungeonMap[exY][exX] = Exit;
+
+    // Optional locked exit
+    int keyChance = 30 + dungeon;
+    if (random(0, 100) < keyChance) {
+        dungeonMap[exY][exX] = KeyTile;
+        bool placed = false;
+        for (int attempt = 0; attempt < 100 && !placed; attempt++) {
+            Room& r  = rooms[random(1, roomCount - 1)];
+            int   kx = r.x + random(1, r.width  - 1);
+            int   ky = r.y + random(1, r.height - 1);
+            if (dungeonMap[ky][kx] == Floor) {
+                dungeonMap[ky][kx] = KeyItem;
+                placed = true;
+            }
+        }
+        if (!placed) {
+            // Fallback: place key in start room
+            for (int y = srY; y < srY + srH && !placed; y++)
+                for (int x = srX; x < srX + srW && !placed; x++)
+                    if (dungeonMap[y][x] == Floor) {
+                        dungeonMap[y][x] = KeyItem;
+                        placed = true;
+                    }
+        }
+    }
+
+    // Equipment spawns
+    for (int i = 0; i < random(1, 4); i++) {
+        Room& r = rooms[random(1, roomCount - 1)];
+        int ix  = r.x + random(1, r.width  - 1);
+        int iy  = r.y + random(1, r.height - 1);
+        if (dungeonMap[iy][ix] == Floor)
+            dungeonMap[iy][ix] = (random(0, 100) > 50) ? ArmorTile : RingTile;
+    }
+
+    placeRoomEntranceDoors();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// placeRoomEntranceDoors
+// ─────────────────────────────────────────────────────────────────────────────
+void placeRoomEntranceDoors() {
+    const int ddx[4] = { 0, 0, 1,-1};
+    const int ddy[4] = {-1, 1, 0, 0};
+    const int perp[4][2][2] = {
+        {{1,0},{-1,0}}, {{1,0},{-1,0}},
+        {{0,-1},{0,1}}, {{0,-1},{0,1}}
+    };
+
+    for (int y = 2; y < MAP_HEIGHT - 2; y++) {
+        for (int x = 2; x < MAP_WIDTH - 2; x++) {
+            if (dungeonMap[y][x] != Floor) continue;
+            for (int d = 0; d < 4; d++) {
+                int bx = x - ddx[d], by = y - ddy[d];
+                int fx = x + ddx[d], fy = y + ddy[d];
+                int p1x = x + perp[d][0][0], p1y = y + perp[d][0][1];
+                int p2x = x + perp[d][1][0], p2y = y + perp[d][1][1];
+
+                bool corridorBehind = (dungeonMap[by][bx] == Floor ||
+                                       dungeonMap[by][bx] == DoorOpen) &&
+                                       dungeonMap[p1y][p1x] == Wall &&
+                                       dungeonMap[p2y][p2x] == Wall;
+
+                int openCount = 0;
+                for (int pd = 0; pd < 4; pd++) {
+                    if (pd == (d ^ 1)) continue;
+                    int nx = fx + ddx[pd], ny = fy + ddy[pd];
+                    if (dungeonMap[ny][nx] == Floor  ||
+                        dungeonMap[ny][nx] == DoorOpen ||
+                        dungeonMap[ny][nx] == DoorClosed) openCount++;
+                }
+                bool roomAhead = (dungeonMap[fy][fx] == Floor ||
+                                  dungeonMap[fy][fx] == DoorOpen) && openCount >= 2;
+
+                if (corridorBehind && roomAhead && dungeonMap[y][x] == Floor) {
+                    int r = random(0, 6);
+                    if      (r <= 2) dungeonMap[y][x] = DoorClosed;
+                    else if (r == 3) dungeonMap[y][x] = DoorOpen;
+                    else             dungeonMap[y][x] = Floor;
+                }
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// spawnEnemies
+// ─────────────────────────────────────────────────────────────────────────────
+void spawnEnemies(bool isBossfight) {
+    generatedSuccubusFriend = false;
+    generatedClockEnemy     = false;
+    clockX = -10000.0f;
+    clockY = -10000.0f;
+
+    // Helper: endless-mode stat scaling
+    auto scale = [](int base, int extra) -> int {
+        return base + (endlessMode ? extra : 0);
+    };
+    auto dmgScale = [](int base, int dungeon_) -> int {
+        return base + (endlessMode ? (dungeon_ - (dungeon_ - 15 < 0 ? 0 : 15)) : 0);
+    };
+
+    if (!isBossfight) {
+        // Friendly succubus if active
+        if (succubusIsFriend && !generatedSuccubusFriend) {
+            generatedSuccubusFriend = true;
+            currentDamselPortrait = succubusPortrait;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue),
+                     "%s", "You didn't try to kill me. I'll return the favour.");
+            playRawSFX(24);
+            showDialogue = true;
+            dialogueTimeLength = 600;
+            enemies[0] = { (float)playerX, playerY - 1.0f, 40, false, 0.06f,
+                           "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
+            enemies[0].sprite  = succubusIdleSprite;
+            enemies[0].isFriend= true;
+        }
+
+        int start = succubusIsFriend ? 1 : 0;
+        for (int i = start; i < MAX_ENEMIES; i++) {
+            while (true) {
+                int ex = random(0, MAP_WIDTH);
+                int ey = random(0, MAP_HEIGHT);
+                if (dungeonMap[ey][ex] != Floor) continue;
+                float dx = (float)(ex) - playerX, dy = (float)(ey) - playerY;
+                if (sqrtf(dx * dx + dy * dy) < ENEMY_SPAWN_MIN_DIST) continue;
+
+                if        (random(0, 5) == 1 && dungeon > 1) {
+                    enemies[i] = { (float)ex, (float)ey, scale(20, dungeon - 11),
+                                   false, 0.05f, "blob", 20, dmgScale(2, dungeon),
+                                   false, 0, 0, {}, nullptr, 20, false, false };
+                    enemies[i].sprite = blobAnimation[random(0, blobAnimationLength)].frame;
+                } else if (random(0, 4) == 2 && dungeon > 3) {
+                    enemies[i] = { (float)ex, (float)ey, scale(10, dungeon - 11),
+                                   false, 0.11f, "teleporter", 20, dmgScale(0, dungeon),
+                                   false, 0, 0, {}, nullptr, 20, false, false };
+                    enemies[i].sprite = teleporterAnimation[random(0, teleporterAnimationLength)].frame;
+                } else if (random(0, 6) == 4 && dungeon > 4) {
+                    enemies[i] = { (float)ex, (float)ey, scale(15, dungeon - 11),
+                                   false, 0.06f, "shooter", 20, dmgScale(0, dungeon),
+                                   false, 0, 0, {}, nullptr, 20, false, false };
+                    enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
+                } else if (random(0, 10) == 5 && dungeon > 6) {
+                    enemies[i] = { (float)ex, (float)ey, scale(30, dungeon - 11),
+                                   false, 0.02f, "succubus", 50, dmgScale(110, dungeon),
+                                   false, 0, 0, {}, nullptr, 50, false, false };
+                    enemies[i].sprite = succubusIdleSprite;
+                } else if (random(0, 100) > 92 && dungeon > 2) {
+                    enemies[i] = { (float)ex, (float)ey, scale(25, dungeon - 11),
+                                   false, 0.07f, "jukebox", 20, dmgScale(0, dungeon),
+                                   false, 0, 0, {}, nullptr, 20, false, false };
+                    enemies[i].sprite = jukeboxAnimation[random(0, jukeboxAnimationLength)].frame;
+                } else if (random(0, 12) == 11 && dungeon > 6 && !generatedClockEnemy) {
+                    enemies[i] = { (float)ex, (float)ey, scale(30, dungeon - 11),
+                                   false, 0.07f, "clock", 20, dmgScale(0, dungeon),
+                                   false, 0, 0, {}, nullptr, 20, false, false };
+                    enemies[i].sprite      = clockAnimation[random(0, clockAnimationLength)].frame;
+                    generatedClockEnemy    = true;
+                } else {
+                    enemies[i] = { (float)ex, (float)ey, scale(10, dungeon - 11),
+                                   false, 0.08f, "batguy", 20, dmgScale(1, dungeon),
+                                   false, 0, 0, {}, nullptr, 20, false, false };
+                    enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
+                }
+                break;
+            }
+        }
+    } else {
+        // Boss fight — clear all enemies first
+        for (int i = 0; i < MAX_ENEMIES; i++) {
+            enemies[i] = { 0.0f, 0.0f, 0, false, 0.0f, "null",
+                           0, 0, false, 0, 0, {}, nullptr, 0, false, false };
+            enemies[i].sprite = batguyAnimation[0].frame;
+        }
+
+        enemies[0] = { (float)(MAP_WIDTH / 2), (float)(MAP_HEIGHT / 2),
+                       BOSS_START_HP, false, 0.04f, "boss",
+                       30, BOSS_CONTACT_DAMAGE_NORMAL,
+                       false, 0, 0, {}, nullptr, 30, false, false };
+
+        if (succubusIsFriend) {
+            enemies[1] = { (float)playerX, playerY - 1.0f, 40, false, 0.06f,
+                           "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
+            enemies[1].isFriend = true;
+            enemies[1].sprite   = succubusIdleSprite;
+        }
+
+        // Boss sprite based on current state
+        switch (bossState) {
+            case Idle:
+            case Shooting:
+                enemies[0].sprite = bossIdleAnimation[0].frame; break;
+            case Floating:
+            case Summoning:
+            case Enraged:
+                enemies[0].sprite = bossFightAnimation[0].frame; break;
+            case Beaten:
+                enemies[0].sprite = bossBeatenAnimation[0].frame; break;
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Misc
+// ─────────────────────────────────────────────────────────────────────────────
 void setTile(int tileX, int tileY, TileTypes tileType) {
-  dungeonMap[tileY][tileX] = tileType;
+    dungeonMap[tileY][tileX] = tileType;
 }
 
-void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY) {
-  // Target offsets based on player's position
-  float targetOffsetX = playerX - (viewportWidth / 2.0f) + 0.5f;
-  float targetOffsetY = playerY - (viewportHeight / 2.0f) + 0.5f;
-
-  // Clamp target offsets to map boundaries
-  targetOffsetX = constrain(targetOffsetX, 0, mapWidth - viewportWidth);
-  targetOffsetY = constrain(targetOffsetY, 0, mapHeight - viewportHeight);
-
-  // Smoothly move the offset towards the target
-  offsetX += (targetOffsetX - offsetX) * scrollSpeed;
-  offsetY += (targetOffsetY - offsetY) * scrollSpeed;
+void updateScrolling(int vpW, int vpH, float scrollSpd, float& offX, float& offY) {
+    float targetX = playerX - (vpW / 2.0f) + 0.5f;
+    float targetY = playerY - (vpH / 2.0f) + 0.5f;
+    targetX = constrain(targetX, 0.0f, (float)(MAP_WIDTH  - vpW));
+    targetY = constrain(targetY, 0.0f, (float)(MAP_HEIGHT - vpH));
+    offX += (targetX - offX) * scrollSpd;
+    offY += (targetY - offY) * scrollSpd;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// drawMinimap
+// ─────────────────────────────────────────────────────────────────────────────
 void drawMinimap() {
-  display.clearDisplay();
-  int mapScale = 2;
+    display.clearDisplay();
+    const int scale = 2;
 
-  if (!blinded) {
-    for (int y = 0; y < mapHeight; y++) {
-      for (int x = 0; x < mapWidth; x++) {
-        TileTypes tile = dungeonMap[y][x];
-        int drawX = x * mapScale;
-        int drawY = y * mapScale;
-
-        if (tile == Floor) continue;
-        if (tile == Wall) display.fillRect(drawX, drawY, mapScale, mapScale, 15);
-        if (tile == Bars) display.drawCircle(drawX, drawY, mapScale / 2, 15);
-        if (tile == Exit) display.drawRect(drawX, drawY, mapScale, mapScale, 15);
-        if (tile == KeyTile) display.drawRoundRect(drawX, drawY, mapScale, mapScale, 1, 10);
-        if (tile == KeyItem) display.fillRect(drawX + 1, drawY + 1, mapScale - 2, mapScale - 2, 10);
-      }
+    if (blinded) {
+        display.setCursor(10, 10);
+        display.print("You can't see the map while blinded!");
+        display.display();
+        return;
     }
 
-    int playerMinimapX = (playerX)*mapScale;
-    int playerMinimapY = (playerY)*mapScale;
-    display.drawCircle(playerMinimapX, playerMinimapY, 1, 10);
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            int dx = x * scale, dy = y * scale;
+            switch (dungeonMap[y][x]) {
+                case Wall:    display.fillRect(dx, dy, scale, scale, 15); break;
+                case Bars:    display.drawCircle(dx, dy, scale / 2, 15);  break;
+                case Exit:    display.drawRect(dx, dy, scale, scale, 15); break;
+                case KeyTile: display.drawRoundRect(dx, dy, scale, scale, 1, 10); break;
+                case KeyItem: display.fillRect(dx + 1, dy + 1, scale - 2, scale - 2, 10); break;
+                default: break;
+            }
+        }
+    }
+
+    display.drawCircle((int)(playerX * scale), (int)(playerY * scale), 1, 10);
 
     if (seeAll) {
-      for (int i = 0; i < maxEnemies; i++) {
-        int enemyMinimapX = (enemies[i].x)*mapScale;
-        int enemyMinimapY = (enemies[i].y)*mapScale;
-        display.drawCircle(enemyMinimapX, enemyMinimapY, 1, 7);
-      }
-      int damselMinimapX = (damsel[0].x)*mapScale;
-      int damselMinimapY = (damsel[0].y)*mapScale;
-      display.drawCircle(damselMinimapX, damselMinimapY, 2, 15);
+        for (int i = 0; i < MAX_ENEMIES; i++)
+            if (enemies[i].hp > 0)
+                display.drawCircle((int)(enemies[i].x * scale),
+                                   (int)(enemies[i].y * scale), 1, 7);
+        display.drawCircle((int)(damsel[0].x * scale),
+                           (int)(damsel[0].y * scale), 2, 15);
     }
-  } else {
-    display.setCursor(10, 10);
-    display.print("You can't see the map while blinded!");
-  }
-
-  display.display();
+    display.display();
 }
 
-// Render the visible portion of the dungeon
+// ─────────────────────────────────────────────────────────────────────────────
+// renderDungeon / drawTile / computeTileBrightness
+// ─────────────────────────────────────────────────────────────────────────────
 void renderDungeon() {
-  for (int y = 0; y < viewportHeight + 2; y++) {
-    for (int x = 0; x < viewportWidth + 2; x++) {
+    int ptx = round(playerX), pty = round(playerY);
 
-      float mapX = x - 1 + offsetX;
-      float mapY = y - 1 + offsetY;
+    for (int y = 0; y < viewportHeight + 2; y++) {
+        for (int x = 0; x < viewportWidth + 2; x++) {
+            float mapX = x - 1 + offsetX;
+            float mapY = y - 1 + offsetY;
+            if (mapX < 0 || mapX >= MAP_WIDTH || mapY < 0 || mapY >= MAP_HEIGHT) continue;
 
-      if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
+            if (invisibleRingsNumber > 0 && !seeAll) {
+                float dx = mapX - playerX, dy = mapY - playerY;
+                if (sqrtf(dx * dx + dy * dy) > 3.0f) continue;
+            }
 
-        // ---- Distance Check (only draw within 3 tiles of player) ----
-        float dx = mapX - playerX;
-        float dy = mapY - playerY;
-        float dist = sqrt(dx * dx + dy * dy);
-
-        if (invisibleRingsNumber > 0 && !seeAll) {
-          if (dist > 3.0f) {
-            continue;  // Skip rendering this tile
-          }
+            float sx = (x - 1 - (offsetX - (int)offsetX)) * tileSize;
+            float sy = (y - 1 - (offsetY - (int)offsetY)) * tileSize;
+            drawTile((int)mapX, (int)mapY, sx, sy);
         }
-        // --------------------------------------------------------------
-
-        float screenX = (x - 1 - (offsetX - (int)offsetX)) * tileSize;
-        float screenY = (y - 1 - (offsetY - (int)offsetY)) * tileSize;
-
-        drawTile((int)mapX, (int)mapY, screenX, screenY);
-      }
     }
-  }
 }
 
 void drawTile(int mapX, int mapY, float screenX, float screenY) {
-  TileTypes tileType = dungeonMap[mapY][mapX];
+    TileTypes t  = dungeonMap[mapY][mapX];
+    int bright   = computeTileBrightness(mapX, mapY);
+    int floorBrt = bright - 10;
+    if (floorBrt < 0) floorBrt = 0;
 
-  int floorbrightness = computeTileBrightness(mapX, mapY);
-  floorbrightness -= 10;
-  floorbrightness = floorbrightness < 0 ? 0 : floorbrightness;
+    bool vis = seeAll || isVisible(round(playerX), round(playerY), mapX, mapY);
 
-  switch (tileType) {
-    case Wall: {
-      int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, wallSprite, tileSize, tileSize, seeAll ? 15 : brightness);
-      break;
+    switch (t) {
+        case Wall:
+            display.drawBitmap((int)screenX, (int)screenY, wallSprite, tileSize, tileSize,
+                               seeAll ? 15 : bright);
+            break;
+        case Bars:
+            display.fillRect((int)screenX, (int)screenY, tileSize, tileSize, floorBrt);
+            display.drawBitmap((int)screenX, (int)screenY, barsSprite, tileSize, tileSize,
+                               seeAll ? 15 : bright);
+            break;
+        case DoorClosed:
+            display.fillRect((int)screenX, (int)screenY, tileSize, tileSize, floorBrt);
+            display.drawBitmap((int)screenX, (int)screenY, doorClosedSprite, tileSize, tileSize,
+                               seeAll ? 15 : bright);
+            break;
+        case DoorOpen:
+            display.fillRect((int)screenX, (int)screenY, tileSize, tileSize, floorBrt);
+            display.drawBitmap((int)screenX, (int)screenY, doorOpenSprite, tileSize, tileSize,
+                               seeAll ? 15 : bright);
+            break;
+        case Floor:
+            display.fillRect((int)screenX, (int)screenY, tileSize, tileSize,
+                             seeAll ? 2 : floorBrt);
+            break;
+        // All item/special tiles share the same pattern: fill floor, draw sprite if visible
+        default: {
+            display.fillRect((int)screenX, (int)screenY, tileSize, tileSize, floorBrt);
+            if (!vis) break;
+            const unsigned char* spr = nullptr;
+            switch (t) {
+                case StartStairs:
+                case Exit:
+                case Freedom:      spr = stairsSprite;       break;
+                case KeyTile:      spr = lockedSprite;        break;
+                case KeyItem:      spr = keySprite;           break;
+                case Potion:       spr = potionSprite;        break;
+                case Map:          spr = mapSprite;           break;
+                case MushroomTile: spr = mushroomSprite;      break;
+                case RiddleStoneTile: spr = riddleStoneSprite; break;
+                case ArmorTile:    spr = armorSprite;         break;
+                case ScrollTile:   spr = scrollSprite;        break;
+                case RingTile:     spr = ringSprite;          break;
+                case ChestTile:    spr = chestSprite;         break;
+                case WeaponTile:   spr = weaponSprite;        break;
+                case GoldTile:     spr = goldSprite;          break;
+                default: break;
+            }
+            if (spr)
+                display.drawBitmap((int)screenX, (int)screenY, spr, tileSize, tileSize,
+                                   seeAll ? 15 : floorBrt + 10);
+            break;
+        }
     }
-    case Bars: {
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, barsSprite, tileSize, tileSize, seeAll ? 15 : brightness);
-      break;
-    }
-    case DoorClosed: {
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-      
-      int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, doorClosedSprite, tileSize, tileSize, seeAll ? 15 : brightness);
-      break;
-    }
-    case DoorOpen: {
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      int brightness = computeTileBrightness(mapX, mapY);
-      display.drawBitmap(screenX, screenY, doorOpenSprite, tileSize, tileSize, seeAll ? 15 : brightness);
-      break;
-    }
-    case StartStairs:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case Exit:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case KeyTile: {
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, lockedSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    }
-    case KeyItem: {
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-      if (isVisible(round(playerX), round(playerY), mapX, mapY)) {
-        display.drawBitmap(screenX, screenY, keySprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      }
-      break;
-    }
-    case Freedom:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, stairsSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case Potion:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, potionSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case Map:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, mapSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case MushroomTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, mushroomSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case RiddleStoneTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, riddleStoneSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case ArmorTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, armorSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case ScrollTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, scrollSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case RingTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, ringSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case Floor:
-      display.fillRect(screenX, screenY, tileSize, tileSize, seeAll ? 2 : floorbrightness);
-      break;
-    case ChestTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, chestSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case WeaponTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, weaponSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness+10);
-      break;
-    case GoldTile:
-      display.fillRect(screenX, screenY, tileSize, tileSize, floorbrightness);
-      if (isVisible(round(playerX), round(playerY), mapX, mapY))
-        display.drawBitmap(screenX, screenY, goldSprite, tileSize, tileSize, seeAll ? 15 : floorbrightness + 10);
-      break;
-  }
 }
 
 int computeTileBrightness(int mapX, int mapY) {
-  int totalNeighbors = 0;
-  int litNeighbors = 0;
-  
-  // Calculate distance from the player
-  float dist = sqrt(pow(playerX - mapX, 2) + pow(playerY - mapY, 2));
+    float dist      = sqrtf((playerX - mapX) * (playerX - mapX) +
+                             (playerY - mapY) * (playerY - mapY));
+    float fallStart = (invisibleRingsNumber > 0 && !seeAll) ? 0.0f : 5.0f;
+    float fallEnd   = (invisibleRingsNumber > 0 && !seeAll) ? 3.0f : 10.0f;
 
-  // Maximum brightness is 15, minimum is 3 (so it never goes fully dark)
-  int maxBrightness = 15;
-  int minBrightness = 3;
-
-  // Define a falloff range (adjust this for better results)
-  float falloffStart = 5.0f;  // Distance at which brightness starts decreasing
-  float falloffEnd = 10.0f;   // Maximum distance where brightness reaches min
-
-  if (invisibleRingsNumber > 0 && !seeAll) {
-    falloffStart = 0.0f;
-    falloffEnd = 3.0f;
-  } else {
-    falloffStart = 5.0f;
-    falloffEnd = 10.0f;
-  }
-
-  // Compute brightness based on visibility of neighbors
-  for (int dx = -1; dx <= 1; dx++) {
+    int total = 0, lit = 0;
     for (int dy = -1; dy <= 1; dy++) {
-      if (dx == 0 && dy == 0) continue;  // Skip the tile itself
-      int nx = mapX + dx;
-      int ny = mapY + dy;
-      if (nx >= 0 && nx < mapWidth && ny >= 0 && ny < mapHeight) {
-        totalNeighbors++;
-        if (isVisible(round(playerX), round(playerY), nx, ny)) {
-          litNeighbors++;
+        for (int dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            int nx = mapX + dx, ny = mapY + dy;
+            if (nx >= 0 && nx < MAP_WIDTH && ny >= 0 && ny < MAP_HEIGHT) {
+                total++;
+                if (isVisible(round(playerX), round(playerY), nx, ny)) lit++;
+            }
         }
-      }
     }
-  }
 
-  float fraction = totalNeighbors > 0 ? (float)litNeighbors / totalNeighbors : 0.0f;
-  int brightness = minBrightness + (int)(fraction * (maxBrightness - minBrightness));
+    float frac   = total > 0 ? (float)lit / total : 0.0f;
+    int   bright = 3 + (int)(frac * 12.0f);
 
-  // Apply distance-based dimming
-  if (dist > falloffStart) {
-    float factor = 1.0f - ((dist - falloffStart) / (falloffEnd - falloffStart));
-    factor = constrain(factor, 0.0f, 1.0f); // Keep factor between 0 and 1
-    brightness = minBrightness + (int)(factor * (brightness - minBrightness));
-  }
-
-  return brightness;
+    if (dist > fallStart) {
+        float factor = 1.0f - ((dist - fallStart) / (fallEnd - fallStart));
+        factor  = constrain(factor, 0.0f, 1.0f);
+        bright  = 3 + (int)(factor * (bright - 3));
+    }
+    return bright;
 }

@@ -1,30 +1,32 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <stdint.h>
+#include "Common.h"
+#include "GameState.h"
 
-// Game state functions
+// ─────────────────────────────────────────────────────────────────────────────
+// Top-level game loop entry points
+// ─────────────────────────────────────────────────────────────────────────────
 void game_setup();
 void game_loop();
 
-// Game state variables (extern declarations)
-extern bool itemResultScreenActive;
-extern unsigned long lastUpdateTime;
-extern const unsigned long frameDelay;
-extern int page;
-extern bool leftDamsel;
-
-// Game functions
+// ─────────────────────────────────────────────────────────────────────────────
+// Game flow functions (split across Screens.cpp and GameLoop.cpp)
+// ─────────────────────────────────────────────────────────────────────────────
 void resetGame();
 void updateGame();
 void handleAmbientNoiseLevel();
 void renderGame();
+
+// Screens (in Screens.cpp)
 void renderIntroScreen();
 void renderSecretScreen();
 void renderSplashScreen();
 void renderCredits();
 void gameOver();
 void showStatusScreen();
+
+// Boss AI (in BossAI.cpp)
 void updateBossfight();
 
-#endif
+#endif // GAME_H

@@ -1,51 +1,38 @@
 #ifndef GAMEAUDIO_H
 #define GAMEAUDIO_H
 
-#include <cstdint>
-#include "Translation.h"
+#include "Common.h"
 
-#define NUM_SFX 25
-#define MAX_SFX_SIZE 30000  // ~0.68 sec at 44.1kHz
-#define MAX_SIMULTANEOUS_SFX 8  // Number of sounds that can play at once
-#define MAX_AUDIO_DISTANCE 20  // Maximum distance for sound to be heard
-#define MIN_AUDIO_VOLUME 0.01f   // Minimum volume before sound cuts out
+// ─────────────────────────────────────────────────────────────────────────────
+// GameAudio.h
+//
+// Audio system interface. The actual SDL2-backed implementation lives in
+// GameAudio.cpp.  Translation.h provides the AudioPlaySdWav / AudioMixer4
+// stubs, so this header just declares the game-level API.
+// ─────────────────────────────────────────────────────────────────────────────
 
-// Declare audio objects (defined in .cpp)
-extern AudioPlayQueue      queue[MAX_SIMULTANEOUS_SFX];
-extern AudioMixer4         mixer1;  // For queues 0-3
-extern AudioMixer4         mixer2;  // For queues 4-7
-extern AudioMixer4         musicMixer;
-extern AudioOutputI2S      audioOutput;
-extern AudioPlaySdWav      playWav1;
-extern AudioPlaySdWav      playWav2;  // Jukebox music player
-
-extern int ambientNoiseLevel;
-extern int masterVolume; // 1..10
-extern float jukeboxVolume; // 0.0 .. 1.0
-void setJukeboxVolume(float v);
-
-// Audio connections will be defined in the cpp file
-
+// ── Hardware audio objects (defined in GameAudio.cpp) ────────────────────
+extern AudioPlayQueue       queue[MAX_SIMULTANEOUS_SFX];
+extern AudioMixer4          mixer1;
+extern AudioMixer4          mixer2;
+extern AudioMixer4          musicMixer;
+extern AudioOutputI2S       audioOutput;
 extern AudioControlSGTL5000 sgtl5000_1;
 
-extern uint8_t* sfxData[NUM_SFX];
-extern size_t sfxLength[NUM_SFX];
-extern const char* sfxFilenames[NUM_SFX];
-
-// Array of currently playing sound effects
+// ── SFX asset storage ────────────────────────────────────────────────────
+extern uint8_t*     sfxData[NUM_SFX];
+extern size_t       sfxLength[NUM_SFX];
+extern const char*  sfxFilenames[NUM_SFX];
 extern RawSFXPlayback activeSFX[MAX_SIMULTANEOUS_SFX];
 
-// Play a sound effect
-bool playRawSFX(int sfxIndex);
-
-// Play a sound effect with 3D positioning (x, y coordinates)
-bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
-
-// Call this every frame to service the audio system
+// ── Functions ─────────────────────────────────────────────────────────────
+void initAudio();
+bool loadSFXtoRAM();
+void freeSFX();
 void serviceRawSFX();
 
-void initAudio();
-void freeSFX();
-bool loadSFXtoRAM();
+bool playRawSFX(int sfxIndex);
+bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
+void setJukeboxVolume(float v);
 
-#endif
+#endif // GAMEAUDIO_H

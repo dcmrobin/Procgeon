@@ -1,1135 +1,876 @@
-#include "Entities.h"
+#include "Common.h"
+#include "GameState.h"
 #include "Sprites.h"
 #include "HelperFunctions.h"
 #include "Dungeon.h"
 #include "Player.h"
 #include "GameAudio.h"
-#include "Translation.h"
+#include "Item.h"
 
 #include <cmath>
+#include <cstring>
 
-// --- A* pathfinding implementation ---
-// Using cost values: straight = 10, diagonal = 14, and Manhattan heuristic.
-#define INF 999999
-#define COST_STRAIGHT 10
-#define COST_DIAGONAL 14
+// ─────────────────────────────────────────────────────────────────────────────
+// Entities.cpp
+//
+// Damsel AI, enemy AI (A* pathfinding, chase/wander, attack),
+// projectile update, particle system, rendering for all entities.
+// ─────────────────────────────────────────────────────────────────────────────
 
-Damsel damsel[1];
-Enemy enemies[maxEnemies];
-Projectile projectiles[maxProjectiles];
-Particle particles[maxParticles];
-int levelOfDamselDeath = -4;
-float clockX = -10000;
-float clockY = -10000;
+// ── Global entity arrays ─────────────────────────────────────────────────────
+Damsel     damsel[1];
+Enemy      enemies[MAX_ENEMIES];
+Projectile projectiles[MAX_PROJECTILES];
+Particle   particles[MAX_PARTICLES];
 
-struct Coord {
-  int x, y;
-};
+float clockX = -10000.0f;
+float clockY = -10000.0f;
 
-BossStates bossState = Idle;
-int bossStateTimer = 0;
-
+// ── Dialogue tables ──────────────────────────────────────────────────────────
 Dialogue damselAnnoyingDialogue[] = {
-  {"Why are you even down here, anyway?", 400},
-  {"Don't die.", 400},
-  {"I hate this place!", 300, "annoying"},
-  {"Why do wizards wear that stupid hat?", 400, "annoying"},
-  {"Hurry up, will you?", 300},
-  {"You expect a thanks, don't you? Not gonna happen.", 400, "annoying"},
-  {"Does this place ever end?", 350},
-  {"Just saying, I don't like you.", 400, "annoying"},
-  {"When was the last time you showered?", 400, "annoying"},
-  {"I could probably get out on my own.", 400}
+    {"Why are you even down here, anyway?",               400},
+    {"Don't die.",                                        400},
+    {"I hate this place!",                                300, "annoying"},
+    {"Why do wizards wear that stupid hat?",              400, "annoying"},
+    {"Hurry up, will you?",                               300},
+    {"You expect a thanks, don't you? Not gonna happen.", 400, "annoying"},
+    {"Does this place ever end?",                         350},
+    {"Just saying, I don't like you.",                    400, "annoying"},
+    {"When was the last time you showered?",              400, "annoying"},
+    {"I could probably get out on my own.",               400},
 };
 
 Dialogue damselPassiveDialogue[] = {
-  {"Maybe you're not as dumb as I thought.", 400},
-  {"Maybe you know where you're going after all...", 400},
-  {"Sorry if I said anything hurtful.", 400, "alone"},
-  {"Please don't die.", 300, "alone"},
-  {"I probably couldn't get out on my own.", 400},
-  {"Thanks for rescuing me, anyway.", 400, "alone"},
-  {"Well, at least I'm not alone anymore.", 500}
+    {"Maybe you're not as dumb as I thought.",            400},
+    {"Maybe you know where you're going after all...",    400},
+    {"Sorry if I said anything hurtful.",                 400, "alone"},
+    {"Please don't die.",                                 300, "alone"},
+    {"I probably couldn't get out on my own.",            400},
+    {"Thanks for rescuing me, anyway.",                   400, "alone"},
+    {"Well, at least I'm not alone anymore.",             500},
 };
 
 Dialogue damselGoodDialogue[] = {
-  {"Actually, I do kind of like you.", 400, "alone"},
-  {"I'm sorry if I was annoying you.", 400},
-  {"Do you mind... carrying me? (Hold X next to me)", 400, "alone"},
-  {"You can't kill me, I think.", 350},
-  {"I'm glad I'm with you.", 300},
-  {"I don't want to die.", 300, "annoying"},
-  {"Do you think we're almost at the end?", 400}
+    {"Actually, I do kind of like you.",                  400, "alone"},
+    {"I'm sorry if I was annoying you.",                  400},
+    {"Do you mind... carrying me? (Hold X next to me)",   400, "alone"},
+    {"You can't kill me, I think.",                       350},
+    {"I'm glad I'm with you.",                            300},
+    {"I don't want to die.",                              300, "annoying"},
+    {"Do you think we're almost at the end?",             400},
 };
 
 Dialogue damselCarryDialogue[] = {
-  {"You're actually kind of strong...", 450},
-  {"Can I stay in your arms for a bit?", 450},
-  {"You can put me down if you want.", 500},
-  {"I kind of like it here...", 300},
-  {"Hm...", 300},
-  {"I don't want to be in that cell again!", 500},
-  {"Can I stay with you after we escape?", 500}
+    {"You're actually kind of strong...",                 450},
+    {"Can I stay in your arms for a bit?",                450},
+    {"You can put me down if you want.",                  500},
+    {"I kind of like it here...",                         300},
+    {"Hm...",                                             300},
+    {"I don't want to be in that cell again!",            500},
+    {"Can I stay with you after we escape?",              500},
 };
 
 Dialogue ridiculeDialogue[] = {
-  {"There you have it. You're an idiot.", 400},
-  {"Lights are on, but nobody's home.", 400},
-  {"Use your brain! Oh wait- you don't have one.", 400},
-  {"Nice move, man.", 400},
-  {"You're so done for.", 400},
-  {"You're pretty bad at this.", 400},
-  {"Incredibly bad.", 400},
-  {"Only stupid people drink that potion.", 400}
+    {"There you have it. You're an idiot.",               400},
+    {"Lights are on, but nobody's home.",                 400},
+    {"Use your brain! Oh wait- you don't have one.",      400},
+    {"Nice move, man.",                                   400},
+    {"You're so done for.",                               400},
+    {"You're pretty bad at this.",                        400},
+    {"Incredibly bad.",                                   400},
+    {"Only stupid people drink that potion.",             400},
 };
 
 Dialogue glamourDialogue[] = {
-  {"Nobody could resist your charm!", 400},
-  {"What bulging muscles!", 400},
-  {"What a glorious hat you wear!", 400},
-  {"You're so handsome!", 400},
-  {"You're the best at this!", 400},
-  {"You're such a hero!", 400},
-  {"Such bravery!", 400},
-  {"Don't give up, champion!", 400}
+    {"Nobody could resist your charm!",                   400},
+    {"What bulging muscles!",                             400},
+    {"What a glorious hat you wear!",                     400},
+    {"You're so handsome!",                               400},
+    {"You're the best at this!",                          400},
+    {"You're such a hero!",                               400},
+    {"Such bravery!",                                     400},
+    {"Don't give up, champion!",                          400},
 };
 
-bool computePath(int startX, int startY, int goalX, int goalY, PathNode* path, int &pathLength, int maxPathNodes = 32) {
-  int g[mapHeight][mapWidth];
-  int f[mapHeight][mapWidth];
-  bool closed[mapHeight][mapWidth];
-  bool inOpen[mapHeight][mapWidth];
-  int parentX[mapHeight][mapWidth];
-  int parentY[mapHeight][mapWidth];
+// ─────────────────────────────────────────────────────────────────────────────
+// A* pathfinding
+// ─────────────────────────────────────────────────────────────────────────────
+struct Coord { int x, y; };
 
-  // Initialize arrays
-  for (int y = 0; y < mapHeight; y++) {
-    for (int x = 0; x < mapWidth; x++) {
-      g[y][x] = INF;
-      f[y][x] = INF;
-      closed[y][x] = false;
-      inOpen[y][x] = false;
-      parentX[y][x] = -1;
-      parentY[y][x] = -1;
-    }
-  }
+static bool computePath(int startX, int startY, int goalX, int goalY,
+                        PathNode* path, int& pathLength,
+                        int maxPathNodes = ASTAR_MAX_NODES) {
+    int  g[MAP_HEIGHT][MAP_WIDTH];
+    int  f[MAP_HEIGHT][MAP_WIDTH];
+    bool closed[MAP_HEIGHT][MAP_WIDTH];
+    bool inOpen[MAP_HEIGHT][MAP_WIDTH];
+    int  parentX[MAP_HEIGHT][MAP_WIDTH];
+    int  parentY[MAP_HEIGHT][MAP_WIDTH];
 
-  // Open list as a simple array
-  Coord openList[mapWidth * mapHeight];
-  int openCount = 0;
-
-  g[startY][startX] = 0;
-  int h = (abs(goalX - startX) + abs(goalY - startY)) * COST_STRAIGHT;
-  f[startY][startX] = h;
-  openList[openCount++] = {startX, startY};
-  inOpen[startY][startX] = true;
-
-  // Offsets for 8 neighbors (diagonals included)
-  int dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
-  int dy[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
-
-  bool pathFound = false;
-  int currentX, currentY;
-
-  while (openCount > 0) {
-    // Find node with lowest f value
-    int lowestIndex = 0;
-    int lowestF = f[ openList[0].y ][ openList[0].x ];
-    for (int i = 1; i < openCount; i++) {
-      int curF = f[ openList[i].y ][ openList[i].x ];
-      if (curF < lowestF) {
-        lowestF = curF;
-        lowestIndex = i;
-      }
-    }
-    Coord current = openList[lowestIndex];
-    currentX = current.x;
-    currentY = current.y;
-
-    // Remove current from open list
-    openList[lowestIndex] = openList[openCount - 1];
-    openCount--;
-    inOpen[currentY][currentX] = false;
-    closed[currentY][currentX] = true;
-
-    // Check if goal is reached
-    if (currentX == goalX && currentY == goalY) {
-      pathFound = true;
-      break;
-    }
-
-    // Process neighbors
-    for (int i = 0; i < 8; i++) {
-      int nx = currentX + dx[i];
-      int ny = currentY + dy[i];
-
-      if (nx < 0 || nx >= mapWidth || ny < 0 || ny >= mapHeight) continue;
-      if (!isWalkable(nx, ny)) continue;
-      if (closed[ny][nx]) continue;
-
-      // Determine cost: diagonal if both offsets nonzero
-      int moveCost = (dx[i] != 0 && dy[i] != 0) ? COST_DIAGONAL : COST_STRAIGHT;
-      int tentativeG = g[currentY][currentX] + moveCost;
-      if (!inOpen[ny][nx] || tentativeG < g[ny][nx]) {
-        parentX[ny][nx] = currentX;
-        parentY[ny][nx] = currentY;
-        g[ny][nx] = tentativeG;
-        int heuristic = (abs(goalX - nx) + abs(goalY - ny)) * COST_STRAIGHT;
-        f[ny][nx] = tentativeG + heuristic;
-        if (!inOpen[ny][nx]) {
-          openList[openCount++] = {nx, ny};
-          inOpen[ny][nx] = true;
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            g[y][x]       = ASTAR_INF;
+            f[y][x]       = ASTAR_INF;
+            closed[y][x]  = false;
+            inOpen[y][x]  = false;
+            parentX[y][x] = -1;
+            parentY[y][x] = -1;
         }
-      }
-    }
-  }
-
-  if (!pathFound) {
-    return false;
-  }
-
-  // Reconstruct the path (from goal to start)
-  PathNode tempPath[mapWidth * mapHeight];
-  int tempLength = 0;
-  int cx = goalX, cy = goalY;
-  while (!(cx == startX && cy == startY)) {
-    tempPath[tempLength].x = cx;
-    tempPath[tempLength].y = cy;
-    tempLength++;
-    int px = parentX[cy][cx];
-    int py = parentY[cy][cx];
-    cx = px;
-    cy = py;
-    if (tempLength >= mapWidth * mapHeight) break;
-  }
-  // Include the start node
-  tempPath[tempLength].x = startX;
-  tempPath[tempLength].y = startY;
-  tempLength++;
-
-  // Reverse the path so that it goes from start to goal;
-  // only copy up to maxPathNodes nodes (e.g. 32)
-  int nodesToCopy = (tempLength < maxPathNodes) ? tempLength : maxPathNodes;
-  for (int i = 0; i < nodesToCopy; i++) {
-    path[i] = tempPath[tempLength - 1 - i];
-  }
-  pathLength = nodesToCopy;
-  return true;
-}
-
-int damselMoveDelay = 0;
-void updateDamsel() {
-  if (!damsel[0].dead) {
-    damselMoveDelay++;
-  } else {
-    damsel[0].followingPlayer = false;
-    return;
-  }
-
-  float destinationX;
-  float destinationY;
-
-  destinationX = playerDX == 1 ? playerX - 1 : playerDX == -1 ? playerX + 1 : playerX;
-  destinationY = playerDY == 1 ? playerY - 1 : playerDY == -1 ? playerY + 1 : playerY;
-
-  if (nearSuccubus) {
-    damsel[0].followingPlayer = false;
-    destinationX = damsel[0].x;
-    destinationY = damsel[0].y;// Damsel is frozen in fear
-  }
-
-  // Calculate distance to player
-  int dx = round(destinationX) - round(damsel[0].x);
-  int dy = round(destinationY) - round(damsel[0].y);
-  int distanceSquared = dx * dx + dy * dy;
-
-  if (damsel[0].beingCarried) {
-    damsel[0].x = playerX;
-    damsel[0].y = playerY;
-    return;
-  }
-
-  // Check if the damsel should follow the player
-  if (invisibleRingsNumber == 0) {
-    if (distanceSquared <= 25 + (damsel[0].levelOfLove*2)) { // Follow if within 5 tiles (distance^2 = 25) + the love level
-      damsel[0].followingPlayer = true;
-      damsel[0].speed = 0.3;
-    } else {
-      damsel[0].followingPlayer = false;
-      damsel[0].speed = 0.1;
-    }
-  } else if (invisibleRingsNumber > 0) {
-    damsel[0].followingPlayer = false;
-    damsel[0].speed = 0.1;
-  }
-
-  // Check if damsel just stopped following and say "Hey! Wait up!"
-  // Only show this dialogue if the damsel is actually following the player and not in a cell
-  // Also ensure no succubus is currently chasing the player
-  bool succubusChasing = false;
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && enemies[i].chasingPlayer && !enemies[i].isFriend) {
-      succubusChasing = true;
-      break;
-    } else if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 && !enemies[i].chasingPlayer && !enemies[i].isFriend) {
-      succubusChasing = false;
-      break;
-    }
-  }
-  
-  if (!damsel[0].completelyRescued && !nearSuccubus && !succubusChasing && damselWasFollowing && !damsel[0].followingPlayer && !damselSaidWaitUp && damselWaitUpTimer <= 0 && !damselGotTaken && damsel[0].active) {
-    currentDamselPortrait = damselPortraitScared;
-    dialogueTimeLength = 300;
-    playRawSFX3D(17, damsel[0].x, damsel[0].y);
-    snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Hey! Wait up!");
-    showDialogue = true;
-    damselSaidWaitUp = true;
-    damselWaitUpTimer = 200; // Prevent spam for 200 frames
-  }
-
-  // Update tracking variables
-  damselWasFollowing = damsel[0].followingPlayer;
-  
-  // Decrement timers
-  if (damselWaitUpTimer > 0) {
-    damselWaitUpTimer--;
-  }
-  
-  // Reset the flag when timer expires
-  if (damselWaitUpTimer <= 0) {
-    damselSaidWaitUp = false;
-  }
-
-  if (!damsel[0].followingPlayer) {
-    // Random wandering
-    if (damselMoveDelay >= 30) {
-      int dir = random(0, 4);
-      float nx = damsel[0].x + (dir == 0 ? damsel[0].speed : dir == 1 ? -damsel[0].speed : 0);
-      float ny = damsel[0].y + (dir == 2 ? damsel[0].speed : dir == 3 ? -damsel[0].speed : 0);
-
-      damselSprite = dir == 0 ? damselSpriteRight : dir == 1 ? damselSpriteLeft : damselSprite;
-
-      // Check bounds and avoid walls
-      if (!checkSpriteCollisionWithTileX(nx, damsel[0].x, ny)) {
-        damsel[0].x = nx;
-      }
-      if (!checkSpriteCollisionWithTileY(ny, damsel[0].y, nx)) {
-        damsel[0].y = ny;
-      }
-      damselMoveDelay = 0;
-    }
-  } else {
-    if (damsel[0].levelOfLove == 0) {
-      currentDamselPortrait = damselPortraitNormal;
-      dialogueTimeLength = 400;
-      playRawSFX(16);
-      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Hey! I shall follow you, please get me out of here.");
-      showDialogue = true;
-      damsel[0].levelOfLove = 1;
-    }
-    if (damselGotTaken && damselSayThanksForRescue && !succubusIsFriend) {
-      playRawSFX(17);
-      currentDamselPortrait = damselPortraitAlone;
-      dialogueTimeLength = 400;
-      snprintf(currentDialogue, sizeof(currentDialogue), "%s", "He- wasn't gentle...");
-      showDialogue = true;
-      damselSayThanksForRescue = false;
     }
 
-    // Following the player
-    if (damselMoveDelay >= 3) {
-      float moveX = (dx > 0 ? 1 : dx < 0 ? -1 : 0);
-      float moveY = (dy > 0 ? 1 : dy < 0 ? -1 : 0);
+    Coord openList[MAP_WIDTH * MAP_HEIGHT];
+    int   openCount = 0;
 
-      damselSprite = moveX == 1 ? damselHopefullSpriteRight : moveX == -1 ? damselHopefullSpriteLeft : damselSprite;
+    g[startY][startX] = 0;
+    f[startY][startX] = (abs(goalX - startX) + abs(goalY - startY)) * ASTAR_COST_STRAIGHT;
+    openList[openCount++] = { startX, startY };
+    inOpen[startY][startX] = true;
 
-      // Normalize movement vector
-      float magnitude = sqrt(moveX * moveX + moveY * moveY);
-      if (magnitude > 0) {
-        moveX /= magnitude;
-        moveY /= magnitude;
-      }
+    const int dx[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+    const int dy[8] = { -1,-1,-1,  0, 0,  1, 1, 1 };
 
-      // Attempt to move diagonally first
-      float nx = damsel[0].x + moveX * damsel[0].speed;
-      float ny = damsel[0].y + moveY * damsel[0].speed;
+    bool found = false;
+    int  curX = startX, curY = startY;
 
-      bool xValid = !checkSpriteCollisionWithTileX(nx, damsel[0].x, damsel[0].y);
-      bool yValid = !checkSpriteCollisionWithTileY(ny, damsel[0].y, damsel[0].x);
+    while (openCount > 0) {
+        // Pick lowest-f node
+        int lowestIdx = 0;
+        for (int i = 1; i < openCount; i++)
+            if (f[openList[i].y][openList[i].x] < f[openList[lowestIdx].y][openList[lowestIdx].x])
+                lowestIdx = i;
 
-      if (xValid && yValid) {
-        // Move diagonally
-        damsel[0].x = nx;
-        damsel[0].y = ny;
-      } else if (xValid) {
-        // Slide along X
-        damsel[0].x = nx;
-      } else if (yValid) {
-        // Slide along Y
-        damsel[0].y = ny;
-      } else {
-        // Both directions blocked, try wall sliding
-        float slideX = damsel[0].x + moveX * damsel[0].speed;
-        float slideY = damsel[0].y;
+        Coord cur = openList[lowestIdx];
+        curX = cur.x; curY = cur.y;
+        openList[lowestIdx] = openList[--openCount];
+        inOpen[curY][curX]  = false;
+        closed[curY][curX]  = true;
 
-        if (!checkSpriteCollisionWithTileX(slideX, damsel[0].x, damsel[0].y)) {
-          damsel[0].x = slideX;
-        } else if (!checkSpriteCollisionWithTileY(slideY, damsel[0].y, damsel[0].x)) {
-          damsel[0].y = slideY;
-        }
-      }
+        if (curX == goalX && curY == goalY) { found = true; break; }
 
-      damselMoveDelay = 0;
-    }
-  }
-}
+        for (int i = 0; i < 8; i++) {
+            int nx = curX + dx[i];
+            int ny = curY + dy[i];
+            if (nx < 0 || nx >= MAP_WIDTH || ny < 0 || ny >= MAP_HEIGHT) continue;
+            if (!isWalkable(nx, ny)) continue;
+            if (closed[ny][nx]) continue;
 
-int giveUpTimer = 0;
-void updateEnemies() {
-  // --- First pass: find the clock enemy and set clockX/clockY ---
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp > 0 && strcmp(enemies[i].name, "clock") == 0) {
-      clockX = enemies[i].x;
-      clockY = enemies[i].y;
-      break; // Only one clock enemy assumed
-    }
-  }
+            int moveCost = (dx[i] != 0 && dy[i] != 0)
+                           ? ASTAR_COST_DIAGONAL : ASTAR_COST_STRAIGHT;
+            int tg = g[curY][curX] + moveCost;
 
-  // --- Second pass: set nearClock for all non-clock enemies ---
-  for (int i = 0; i < maxEnemies; i++) {
-    if (strcmp(enemies[i].name, "boss") == 0) {
-      continue; // Skip boss, its AI is handled in Main.ino in updateBossfight()
-    }
-    if (enemies[i].hp > 0 && strcmp(enemies[i].name, "clock") != 0) {
-      float clockDiffX = enemies[i].x - clockX;
-      float clockDiffY = enemies[i].y - clockY;
-      float clockDistanceSquared = clockDiffX * clockDiffX + clockDiffY * clockDiffY;
-      float clockDistance = sqrt(clockDistanceSquared);
-      if (clockDistance <= 5) {
-        enemies[i].nearClock = true;
-      } else {
-        enemies[i].nearClock = false;
-      }
-    }
-  }
-
-  // --- Third pass: main update logic ---
-
-  // Find closest jukebox to the player and set jukebox music volume accordingly
-  {
-    float closestDist = 1e9;
-    int closestIndex = -1;
-    for (int j = 0; j < maxEnemies; j++) {
-      if (enemies[j].hp > 0 && strcmp(enemies[j].name, "jukebox") == 0) {
-        float dx = enemies[j].x - playerX;
-        float dy = enemies[j].y - playerY;
-        float dist = sqrt(dx*dx + dy*dy);
-        if (dist < closestDist) {
-          closestDist = dist;
-          closestIndex = j;
-        }
-      }
-    }
-    float vol = 0.0f;
-    if (closestIndex != -1) {
-      // Map distance to volume: within maxRadius tiles full volume, beyond zero
-      const float maxRadius = 12.0f;
-      if (closestDist < maxRadius) {
-        vol = 1.0f - (closestDist / maxRadius);
-        if (vol < 0.0f) vol = 0.0f;
-      }
-    }
-    setJukeboxVolume(vol);
-
-    // Increase ambient noise proportional to jukebox volume so enemies are attracted
-    int noiseFromJukebox = (int)round(vol * 8.0f); // 0..8
-    if (ambientNoiseLevel < noiseFromJukebox) ambientNoiseLevel = noiseFromJukebox;
-  }
-
-  for (int i = 0; i < maxEnemies; i++) {
-    if (enemies[i].hp <= 0) continue; // Skip dead enemies
-    
-    // Check if enemy is stuck in a wall and unstuck them
-    unstuckEnemy(enemies[i]);
-    
-    if (strcmp(enemies[i].name, "boss") == 0) {
-      // Skip boss AI but allow friendly enemies to attack it
-      if (enemies[i].hp > 0) {
-        // Check if any friendly enemies are near the boss and can attack it
-        for (int j = 0; j < maxEnemies; j++) {
-          if (j != i && enemies[j].hp > 0 && enemies[j].isFriend) {
-            float dist = sqrt((enemies[i].x - enemies[j].x)*(enemies[i].x - enemies[j].x) + (enemies[i].y - enemies[j].y)*(enemies[i].y - enemies[j].y));
-            if (dist < 0.5) {
-              // Friendly enemy is touching boss, allow attack
-              if (enemies[j].attackDelayCounter >= enemies[j].attackDelay) {
-                enemies[i].hp -= enemies[j].damage;
-                if (enemies[i].hp <= 0) {
-                  kills += 1;
+            if (!inOpen[ny][nx] || tg < g[ny][nx]) {
+                parentX[ny][nx] = curX;
+                parentY[ny][nx] = curY;
+                g[ny][nx] = tg;
+                f[ny][nx] = tg + (abs(goalX - nx) + abs(goalY - ny)) * ASTAR_COST_STRAIGHT;
+                if (!inOpen[ny][nx]) {
+                    openList[openCount++] = { nx, ny };
+                    inOpen[ny][nx] = true;
                 }
-                playRawSFX3D(23, enemies[i].x, enemies[i].y); // Play hit sound
-                enemies[j].attackDelayCounter = 0;
-              } else {
-                enemies[j].attackDelayCounter++;
-              }
             }
-          }
         }
-      }
-      continue; // Skip boss AI, it's handled in Main.ino in updateBossfight()
-    }
-    if (!playerActed && !enemies[i].nearClock && strcmp(enemies[i].name, "clock") != 0) { continue; }
-
-    // Calculate the vector from the player to the enemy.
-    float diffX = enemies[i].x - playerX;
-    float diffY = enemies[i].y - playerY;
-    int distanceSquared = diffX * diffX + diffY * diffY;
-    float distance = sqrt(distanceSquared);
-
-    if (strcmp(enemies[i].name, "clock") == 0) {
-      // clockX/clockY already set above
-      if (distance <= 5) {
-        playerNearClockEnemy = true;
-      } else {
-        playerNearClockEnemy = false;
-      }
     }
 
-    // Only consider enemies within a certain range (e.g. within 8 tiles)
-    if (distance > 0 && distanceSquared < 64) // 64 = 8^2
-      {
-      // Assuming playerDX and playerDY are normalized (or nearly so),
-      // compute the cosine of the angle between the player's facing and the enemy's direction.
-      float dot = diffX * playerDX + diffY * playerDY;
-      float cosAngle = dot / distance; // since (playerDX,playerDY) is roughly unit length
-      
-      // If cosAngle is very high (close to 1), the enemy lies nearly directly ahead.
-      const float avoidanceThreshold = 0.95; // adjust threshold as needed
-      if (cosAngle > avoidanceThreshold) {
-        // Check if there's space to dodge by looking at adjacent tiles
-        int enemyGridX = round(enemies[i].x);
-        int enemyGridY = round(enemies[i].y);
-        
-        // Check if we're in a corridor (limited space)
-        bool inCorridor = false;
-        int freeDirections = 0;
-        
-        // Check all 8 directions for walkable space
-        for (int dx = -1; dx <= 1; dx++) {
-          for (int dy = -1; dy <= 1; dy++) {
-            if (dx == 0 && dy == 0) continue; // Skip the center tile
-            
-            int checkX = enemyGridX + dx;
-            int checkY = enemyGridY + dy;
-            
-            if (checkX >= 0 && checkX < mapWidth && checkY >= 0 && checkY < mapHeight) {
-              if (dungeonMap[checkY][checkX] == Floor) {
-                freeDirections++;
-              }
-            }
-          }
-        }
-        
-        // If we have less than 3 free directions, we're in a corridor
-        inCorridor = (freeDirections < 3);
-        
-        if (!inCorridor) {
-          // Determine which dodge direction gets the enemy out of line-of-sight faster
-          // by choosing the perpendicular that moves away from the player's position
-          float perpLeft_x = -playerDY;
-          float perpLeft_y = playerDX;
-          float perpRight_x = playerDY;
-          float perpRight_y = -playerDX;
-          
-          // Calculate dot product of each perpendicular with the direction away from player
-          float awayFromPlayerX = enemies[i].x - playerX;
-          float awayFromPlayerY = enemies[i].y - playerY;
-          
-          float dotLeft = perpLeft_x * awayFromPlayerX + perpLeft_y * awayFromPlayerY;
-          float dotRight = perpRight_x * awayFromPlayerX + perpRight_y * awayFromPlayerY;
-          
-          // Choose the perpendicular with the higher dot product (points more away from player)
-          int chosenDodgeDir = (dotLeft >= dotRight) ? 1 : -1;
-          
-          // Use the chosen direction
-          float avoidX = chosenDodgeDir * -playerDY;
-          float avoidY = chosenDodgeDir * playerDX;
-          
-          // Also calculate the direction toward the player
-          float towardPlayerX = -diffX / distance;
-          float towardPlayerY = -diffY / distance;
-          
-          // Combine dodge and approach movements (70% dodge, 30% approach)
-          float combinedX = (avoidX * 0.7f) + (towardPlayerX * 0.3f);
-          float combinedY = (avoidY * 0.7f) + (towardPlayerY * 0.3f);
-          
-          // Normalize the combined vector
-          float combinedMagnitude = sqrt(combinedX * combinedX + combinedY * combinedY);
-          if (combinedMagnitude > 0) {
-            combinedX /= combinedMagnitude;
-            combinedY /= combinedMagnitude;
-          }
-          
-          // Multiply by enemy's moveAmount
-          float avoidSpeed = enemies[i].moveAmount;
-          float newX = enemies[i].x + combinedX * avoidSpeed;
-          float newY = enemies[i].y + combinedY * avoidSpeed;
-          
-          // Check for collisions before moving
-          bool xValid = !checkSpriteCollisionWithTileX(newX, enemies[i].x, enemies[i].y);
-          bool yValid = !checkSpriteCollisionWithTileY(newY, enemies[i].y, enemies[i].x);
-          if (xValid && yValid) {
-            enemies[i].x = newX;
-            enemies[i].y = newY;
-          } else if (xValid) {
-            enemies[i].x = newX;
-          } else if (yValid) {
-            enemies[i].y = newY;
-          }
-          // Skip the rest of the enemy update for this enemy so that it prioritizes avoiding the shot.
-          continue;
-        }
-        // If in corridor, fall through to normal movement
-      }
+    if (!found) return false;
+
+    // Reconstruct path (goal → start, then reverse)
+    PathNode temp[MAP_WIDTH * MAP_HEIGHT];
+    int tempLen = 0;
+    int cx = goalX, cy = goalY;
+    while (!(cx == startX && cy == startY) && tempLen < MAP_WIDTH * MAP_HEIGHT) {
+        temp[tempLen++] = { cx, cy };
+        int px = parentX[cy][cx];
+        int py = parentY[cy][cx];
+        cx = px; cy = py;
+    }
+    temp[tempLen++] = { startX, startY };
+
+    int toCopy = (tempLen < maxPathNodes) ? tempLen : maxPathNodes;
+    for (int i = 0; i < toCopy; i++)
+        path[i] = temp[tempLen - 1 - i];
+    pathLength = toCopy;
+    return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// updateDamsel
+// ─────────────────────────────────────────────────────────────────────────────
+static int damselMoveDelay = 0;
+
+void updateDamsel() {
+    if (damsel[0].dead) {
+        damsel[0].followingPlayer = false;
+        return;
+    }
+    damselMoveDelay++;
+
+    // Where the damsel wants to be (just behind the player)
+    float destX = (playerDX ==  1) ? playerX - 1
+                : (playerDX == -1) ? playerX + 1 : playerX;
+    float destY = (playerDY ==  1) ? playerY - 1
+                : (playerDY == -1) ? playerY + 1 : playerY;
+
+    if (nearSuccubus) {
+        damsel[0].followingPlayer = false;
+        destX = damsel[0].x;
+        destY = damsel[0].y;
     }
 
-    // Existing grid-space logic for chase/wander behavior:
-    int enemyGridX = round(enemies[i].x);
-    int enemyGridY = round(enemies[i].y);
-    int playerGridX = round(playerX);
-    int playerGridY = round(playerY);
-    int dx = playerGridX - enemyGridX;
-    int dy = playerGridY - enemyGridY;
-    int gridDistanceSquared = dx * dx + dy * dy;
-    
-    // Different behavior for friendly vs hostile enemies
-    if (enemies[i].isFriend) {
-      if (invisibleRingsNumber == 0) {
-        // Friendly enemies try to stay near the player
-        if (gridDistanceSquared > 4) { // If more than 2 tiles away
-          enemies[i].chasingPlayer = true;
-        } else {
-          enemies[i].chasingPlayer = false;
-          // Look for nearby hostile enemies to attack
-          for (int j = 0; j < maxEnemies; j++) {
-            if (j != i && enemies[j].hp > 0 && !enemies[j].isFriend) {
-              int targetDx = round(enemies[j].x) - enemyGridX;
-              int targetDy = round(enemies[j].y) - enemyGridY;
-              int targetDistSq = targetDx * targetDx + targetDy * targetDy;
-              if (targetDistSq <= 25) { // Within 5 tiles
-                enemies[i].chasingPlayer = true;
-                // Override player position with enemy position for chasing
-                playerGridX = round(enemies[j].x);
-                playerGridY = round(enemies[j].y);
-                break;
-              }
-            }
-          }
-        }
-      } else if (invisibleRingsNumber > 0) {
-        enemies[i].chasingPlayer = false;
-      }
+    int idx = round(destX) - round(damsel[0].x);
+    int idy = round(destY) - round(damsel[0].y);
+    int distSq = idx * idx + idy * idy;
+
+    if (damsel[0].beingCarried) {
+        damsel[0].x = playerX;
+        damsel[0].y = playerY;
+        return;
+    }
+
+    // Follow / not follow decision
+    if (invisibleRingsNumber == 0) {
+        damsel[0].followingPlayer = (distSq <= 25 + damsel[0].levelOfLove * 2);
+        damsel[0].speed           = damsel[0].followingPlayer ? 0.3f : 0.1f;
     } else {
-      // Regular hostile enemy behavior
-      if (invisibleRingsNumber == 0) {
-        if (gridDistanceSquared <= (25 + (ambientNoiseLevel))) { // Chase if within 5 tiles + noise factor
-          enemies[i].chasingPlayer = true;
+        damsel[0].followingPlayer = false;
+        damsel[0].speed           = 0.1f;
+    }
+
+    // "Hey! Wait up!" — fire once when damsel stops following
+    bool succubusChasing = false;
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemies[i].hp > 0 && strcmp(enemies[i].name, "succubus") == 0 &&
+            enemies[i].chasingPlayer && !enemies[i].isFriend) {
+            succubusChasing = true; break;
+        }
+    }
+
+    if (!damsel[0].completelyRescued && !nearSuccubus && !succubusChasing &&
+        damselWasFollowing && !damsel[0].followingPlayer &&
+        !damselSaidWaitUp  && damselWaitUpTimer <= 0 &&
+        !damselGotTaken    && damsel[0].active) {
+        currentDamselPortrait = damselPortraitScared;
+        dialogueTimeLength    = 300;
+        playRawSFX3D(17, damsel[0].x, damsel[0].y);
+        snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Hey! Wait up!");
+        showDialogue        = true;
+        damselSaidWaitUp    = true;
+        damselWaitUpTimer   = DAMSEL_WAIT_UP_COOLDOWN;
+    }
+
+    damselWasFollowing = damsel[0].followingPlayer;
+    if (damselWaitUpTimer > 0 && --damselWaitUpTimer == 0)
+        damselSaidWaitUp = false;
+
+    if (!damsel[0].followingPlayer) {
+        // Random wander every 30 ticks
+        if (damselMoveDelay >= 30) {
+            int dir = random(0, 4);
+            float nx = damsel[0].x + ((dir == 0) ?  damsel[0].speed
+                                    : (dir == 1) ? -damsel[0].speed : 0.0f);
+            float ny = damsel[0].y + ((dir == 2) ?  damsel[0].speed
+                                    : (dir == 3) ? -damsel[0].speed : 0.0f);
+            damselSprite = (dir == 0) ? damselSpriteRight
+                         : (dir == 1) ? damselSpriteLeft : damselSprite;
+            if (!checkSpriteCollisionWithTileX(nx, damsel[0].x, ny)) damsel[0].x = nx;
+            if (!checkSpriteCollisionWithTileY(ny, damsel[0].y, nx)) damsel[0].y = ny;
+            damselMoveDelay = 0;
+        }
+    } else {
+        // First follow greeting
+        if (damsel[0].levelOfLove == 0) {
+            currentDamselPortrait = damselPortraitNormal;
+            dialogueTimeLength    = 400;
+            playRawSFX(16);
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue),
+                     "%s", "Hey! I shall follow you, please get me out of here.");
+            showDialogue = true;
+            damsel[0].levelOfLove = 1;
+        }
+
+        if (damselGotTaken && damselSayThanksForRescue && !succubusIsFriend) {
+            playRawSFX(17);
+            currentDamselPortrait = damselPortraitAlone;
+            dialogueTimeLength    = 400;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue),
+                     "%s", "He- wasn't gentle...");
+            showDialogue             = true;
+            damselSayThanksForRescue = false;
+        }
+
+        // Smooth follow movement every 3 ticks
+        if (damselMoveDelay >= 3) {
+            float moveX = (float)((idx > 0) - (idx < 0));
+            float moveY = (float)((idy > 0) - (idy < 0));
+            float mag   = sqrtf(moveX * moveX + moveY * moveY);
+            if (mag > 0.0f) { moveX /= mag; moveY /= mag; }
+
+            damselSprite = (moveX >  0.5f) ? damselHopefullSpriteRight
+                         : (moveX < -0.5f) ? damselHopefullSpriteLeft : damselSprite;
+
+            float nx = damsel[0].x + moveX * damsel[0].speed;
+            float ny = damsel[0].y + moveY * damsel[0].speed;
+            bool xOk = !checkSpriteCollisionWithTileX(nx, damsel[0].x, damsel[0].y);
+            bool yOk = !checkSpriteCollisionWithTileY(ny, damsel[0].y, damsel[0].x);
+
+            if      (xOk && yOk) { damsel[0].x = nx; damsel[0].y = ny; }
+            else if (xOk)        { damsel[0].x = nx; }
+            else if (yOk)        { damsel[0].y = ny; }
+            else {
+                // Wall slide
+                float sx = damsel[0].x + moveX * damsel[0].speed;
+                if (!checkSpriteCollisionWithTileX(sx, damsel[0].x, damsel[0].y))
+                    damsel[0].x = sx;
+                float sy = damsel[0].y;
+                if (!checkSpriteCollisionWithTileY(sy, damsel[0].y, damsel[0].x))
+                    damsel[0].y = sy;
+            }
+            damselMoveDelay = 0;
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// updateEnemies
+// ─────────────────────────────────────────────────────────────────────────────
+static int giveUpTimer = 0;
+
+void updateEnemies() {
+    // ── Find clock enemy position ─────────────────────────────────────────
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemies[i].hp > 0 && strcmp(enemies[i].name, "clock") == 0) {
+            clockX = enemies[i].x;
+            clockY = enemies[i].y;
+            break;
+        }
+    }
+
+    // ── Mark enemies near clock ───────────────────────────────────────────
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (strcmp(enemies[i].name, "boss")  == 0) continue;
+        if (strcmp(enemies[i].name, "clock") == 0) continue;
+        if (enemies[i].hp <= 0) continue;
+        float cdx = enemies[i].x - clockX;
+        float cdy = enemies[i].y - clockY;
+        enemies[i].nearClock = (sqrtf(cdx * cdx + cdy * cdy) <= 5.0f);
+    }
+
+    // ── Jukebox volume ────────────────────────────────────────────────────
+    {
+        float closestDist = 1e9f;
+        for (int j = 0; j < MAX_ENEMIES; j++) {
+            if (enemies[j].hp > 0 && strcmp(enemies[j].name, "jukebox") == 0) {
+                float dx = enemies[j].x - playerX;
+                float dy = enemies[j].y - playerY;
+                float d  = sqrtf(dx * dx + dy * dy);
+                if (d < closestDist) closestDist = d;
+            }
+        }
+        float vol = 0.0f;
+        if (closestDist < JUKEBOX_MAX_RADIUS)
+            vol = 1.0f - (closestDist / JUKEBOX_MAX_RADIUS);
+        setJukeboxVolume(vol);
+        if (ambientNoiseLevel < (int)(vol * JUKEBOX_NOISE_MAX))
+            ambientNoiseLevel = (int)(vol * JUKEBOX_NOISE_MAX);
+    }
+
+    // ── Per-enemy update ──────────────────────────────────────────────────
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemies[i].hp <= 0) continue;
+
+        unstuckEnemy(enemies[i]);
+
+        if (strcmp(enemies[i].name, "boss") == 0) {
+            // Let friendly enemies attack the boss
+            for (int j = 0; j < MAX_ENEMIES; j++) {
+                if (j == i || enemies[j].hp <= 0 || !enemies[j].isFriend) continue;
+                float dist = sqrtf((enemies[i].x - enemies[j].x) * (enemies[i].x - enemies[j].x) +
+                                   (enemies[i].y - enemies[j].y) * (enemies[i].y - enemies[j].y));
+                if (dist < 0.5f && enemies[j].attackDelayCounter >= enemies[j].attackDelay) {
+                    enemies[i].hp -= enemies[j].damage;
+                    if (enemies[i].hp <= 0) kills++;
+                    playRawSFX3D(23, enemies[i].x, enemies[i].y);
+                    enemies[j].attackDelayCounter = 0;
+                }
+            }
+            continue;
+        }
+
+        // Skip if neither player acted nor near clock (performance gate)
+        if (!playerActed && !enemies[i].nearClock &&
+            strcmp(enemies[i].name, "clock") != 0) continue;
+
+        float diffX = enemies[i].x - playerX;
+        float diffY = enemies[i].y - playerY;
+        float dist  = sqrtf(diffX * diffX + diffY * diffY);
+
+        // Clock: set playerNearClockEnemy
+        if (strcmp(enemies[i].name, "clock") == 0) {
+            playerNearClockEnemy = (dist <= 5.0f);
+        }
+
+        // Projectile dodging for enemies in line-of-fire
+        if (dist > 0.0f && dist * dist < 64.0f) {
+            float dot      = diffX * playerDX + diffY * playerDY;
+            float cosAngle = dot / dist;
+
+            if (cosAngle > 0.95f) {
+                int ex = round(enemies[i].x);
+                int ey = round(enemies[i].y);
+                int freeDir = 0;
+                for (int ddx = -1; ddx <= 1; ddx++)
+                    for (int ddy = -1; ddy <= 1; ddy++)
+                        if ((ddx || ddy) && dungeonMap[ey + ddy][ex + ddx] == Floor)
+                            freeDir++;
+
+                if (freeDir >= 3) {
+                    float awayX = enemies[i].x - playerX;
+                    float awayY = enemies[i].y - playerY;
+                    float plx = -(float)playerDY, ply = (float)playerDX;  // left perp
+                    float prx =  (float)playerDY, pry = -(float)playerDX; // right perp
+                    float dL = plx * awayX + ply * awayY;
+                    float dR = prx * awayX + pry * awayY;
+                    float avoidX = (dL >= dR) ? plx : prx;
+                    float avoidY = (dL >= dR) ? ply : pry;
+
+                    float toX = -diffX / dist, toY = -diffY / dist;
+                    float cx  = avoidX * 0.7f + toX * 0.3f;
+                    float cy  = avoidY * 0.7f + toY * 0.3f;
+                    float cm  = sqrtf(cx * cx + cy * cy);
+                    if (cm > 0.0f) { cx /= cm; cy /= cm; }
+
+                    float nx = enemies[i].x + cx * enemies[i].moveAmount;
+                    float ny = enemies[i].y + cy * enemies[i].moveAmount;
+                    bool xOk = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+                    bool yOk = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+                    if      (xOk && yOk) { enemies[i].x = nx; enemies[i].y = ny; }
+                    else if (xOk)        { enemies[i].x = nx; }
+                    else if (yOk)        { enemies[i].y = ny; }
+                    continue;
+                }
+            }
+        }
+
+        // Chase / wander decision
+        int egx = round(enemies[i].x), egy = round(enemies[i].y);
+        int pgx = round(playerX),       pgy = round(playerY);
+        int gdx = pgx - egx, gdy = pgy - egy;
+        int gridDistSq = gdx * gdx + gdy * gdy;
+
+        if (enemies[i].isFriend) {
+            enemies[i].chasingPlayer = (invisibleRingsNumber == 0 && gridDistSq > 4);
+            if (!enemies[i].chasingPlayer && invisibleRingsNumber == 0) {
+                // Attack nearby hostile enemies
+                for (int j = 0; j < MAX_ENEMIES; j++) {
+                    if (j == i || enemies[j].hp <= 0 || enemies[j].isFriend) continue;
+                    int tdx = round(enemies[j].x) - egx;
+                    int tdy = round(enemies[j].y) - egy;
+                    if (tdx * tdx + tdy * tdy <= 25) {
+                        enemies[i].chasingPlayer = true;
+                        pgx = round(enemies[j].x);
+                        pgy = round(enemies[j].y);
+                        break;
+                    }
+                }
+            }
         } else {
-          if (enemies[i].chasingPlayer) {
-            giveUpTimer++;
-          }
-          if (giveUpTimer >= 600) {
-            if (aggravateRingsNumber > 0) {
-              giveUpTimer = 600;
+            if (invisibleRingsNumber == 0) {
+                if (gridDistSq <= CHASE_RANGE_BASE + ambientNoiseLevel) {
+                    enemies[i].chasingPlayer = true;
+                } else if (enemies[i].chasingPlayer) {
+                    if (++giveUpTimer >= ENEMY_GIVE_UP_TICKS) {
+                        if (aggravateRingsNumber > 0) {
+                            giveUpTimer = ENEMY_GIVE_UP_TICKS;
+                        } else {
+                            enemies[i].chasingPlayer = false;
+                            giveUpTimer = 0;
+                        }
+                    }
+                }
             } else {
-              enemies[i].chasingPlayer = false;
-              giveUpTimer = 0;
+                enemies[i].chasingPlayer = false;
+                giveUpTimer = 0;
             }
-          }
         }
-      } else if (invisibleRingsNumber > 0) {
-        enemies[i].chasingPlayer = false;
-        giveUpTimer = 0;
-      }
-    }
-    
-    if (enemies[i].chasingPlayer) {
-      // When chasing, compute a dynamic path using A*
-      PathNode dynamicPath[32];
-      int dynamicPathLength = 0;
-      bool found = computePath(enemyGridX, enemyGridY, playerGridX, playerGridY, dynamicPath, dynamicPathLength);
-      if (found && dynamicPathLength > 1) {
-        // The first node is the enemy's current cell; move toward the next cell
-        int nextX = dynamicPath[1].x;
-        int nextY = dynamicPath[1].y;
-        float targetX = nextX;
-        float targetY = nextY;
-        float moveX = targetX - enemies[i].x;
-        float moveY = targetY - enemies[i].y;
-        float magnitude = sqrt(moveX * moveX + moveY * moveY);
-        if (magnitude > 0) {
-          moveX = (moveX / magnitude) * enemies[i].moveAmount;
-          moveY = (moveY / magnitude) * enemies[i].moveAmount;
-        }
-        float nx = enemies[i].x + moveX;
-        float ny = enemies[i].y + moveY;
-        bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
-        bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
-        if (xValid && yValid) {
-          enemies[i].x = nx;
-          enemies[i].y = ny;
-        } else if (xValid) {
-          enemies[i].x = nx;
-        } else if (yValid) {
-          enemies[i].y = ny;
-        }
-      }
-    } else {
-      if (strcmp(enemies[i].name, "succubus") == 0) {
-        continue; // Succubi do not wander when not chasing
-      }
 
-      // When not chasing, follow a precomputed wander path
-      if (!enemies[i].hasWanderPath) {
-        // Compute a new wander path: choose a random destination near the enemy
-        int startX = enemyGridX;
-        int startY = enemyGridY;
-        int destX = startX + random(-5, 6);
-        int destY = startY + random(-5, 6);
-        // Clamp destination to the dungeon boundaries
-        if (destX < 0) destX = 0;
-        if (destX >= mapWidth) destX = mapWidth - 1;
-        if (destY < 0) destY = 0;
-        if (destY >= mapHeight) destY = mapHeight - 1;
-        if (isWalkable(destX, destY)) {
-          if (computePath(startX, startY, destX, destY, enemies[i].wanderPath, enemies[i].pathLength)) {
-            enemies[i].currentPathIndex = 0;
-            enemies[i].hasWanderPath = true;
-          }
-        }
-      }
-      // Follow the wander path nodes one by one
-      if (enemies[i].currentPathIndex < enemies[i].pathLength) {
-        int nextX = enemies[i].wanderPath[enemies[i].currentPathIndex].x;
-        int nextY = enemies[i].wanderPath[enemies[i].currentPathIndex].y;
-        // If the enemy is on the target cell, advance the index
-        if (enemyGridX == nextX && enemyGridY == nextY) {
-          enemies[i].currentPathIndex++;
-          if (enemies[i].currentPathIndex >= enemies[i].pathLength) {
-            enemies[i].hasWanderPath = false;
-          }
+        // Movement
+        if (enemies[i].chasingPlayer) {
+            PathNode dynPath[ASTAR_MAX_NODES];
+            int      dynLen = 0;
+            if (computePath(egx, egy, pgx, pgy, dynPath, dynLen) && dynLen > 1) {
+                float tx = (float)dynPath[1].x, ty = (float)dynPath[1].y;
+                float mx = tx - enemies[i].x,   my = ty - enemies[i].y;
+                float mm = sqrtf(mx * mx + my * my);
+                if (mm > 0.0f) { mx = mx / mm * enemies[i].moveAmount;
+                                  my = my / mm * enemies[i].moveAmount; }
+                float nx = enemies[i].x + mx, ny = enemies[i].y + my;
+                bool xOk = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+                bool yOk = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+                if      (xOk && yOk) { enemies[i].x = nx; enemies[i].y = ny; }
+                else if (xOk)        { enemies[i].x = nx; }
+                else if (yOk)        { enemies[i].y = ny; }
+            }
         } else {
-          float targetX = nextX;
-          float targetY = nextY;
-          float moveX = targetX - enemies[i].x;
-          float moveY = targetY - enemies[i].y;
-          float magnitude = sqrt(moveX * moveX + moveY * moveY);
-          if (magnitude > 0) {
-            moveX = (moveX / magnitude) * enemies[i].moveAmount;
-            moveY = (moveY / magnitude) * enemies[i].moveAmount;
-          }
-          float nx = enemies[i].x + moveX;
-          float ny = enemies[i].y + moveY;
-          bool xValid = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
-          bool yValid = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
-          if (xValid && yValid) {
-            enemies[i].x = nx;
-            enemies[i].y = ny;
-          } else if (xValid) {
-            enemies[i].x = nx;
-          } else if (yValid) {
-            enemies[i].y = ny;
-          }
-        }
-      } else {
-        // If the wander path is finished, clear it to compute a new one later.
-        enemies[i].hasWanderPath = false;
-      }
-    }
+            if (strcmp(enemies[i].name, "succubus") == 0) continue;
 
-    // Shooter enemies shoot projectiles when chasing the player
-    if (strcmp(enemies[i].name, "shooter") == 0 && enemies[i].chasingPlayer) {
-      // Add a cooldown to prevent constant shooting
-      static int shooterCooldown[maxEnemies] = {0};
-      if (shooterCooldown[i] <= 0) {
-        // Calculate direction to player
-        float dirX = playerX - enemies[i].x;
-        float dirY = playerY - enemies[i].y;
-        float distance = sqrt(dirX * dirX + dirY * dirY);
-        
-        if (distance > 0) {
-          // Normalize direction
-          dirX /= distance;
-          dirY /= distance;
-          
-          // Shoot projectile from enemy position towards player
-          shootProjectile(enemies[i].x, enemies[i].y, dirX, dirY, false, i);
-          playRawSFX(1);
-          
-          // Set cooldown (adjust timing as needed)
-          shooterCooldown[i] = 120; // 2 seconds at 60 FPS
-        }
-      } else {
-        shooterCooldown[i]--;
-      }
-    }
+            if (!enemies[i].hasWanderPath) {
+                int dx = egx + random(-5, 6);
+                int dy = egy + random(-5, 6);
+                dx = (dx < 0) ? 0 : (dx >= MAP_WIDTH  ? MAP_WIDTH  - 1 : dx);
+                dy = (dy < 0) ? 0 : (dy >= MAP_HEIGHT ? MAP_HEIGHT - 1 : dy);
+                if (isWalkable(dx, dy) &&
+                    computePath(egx, egy, dx, dy,
+                                enemies[i].wanderPath, enemies[i].pathLength)) {
+                    enemies[i].currentPathIndex = 0;
+                    enemies[i].hasWanderPath    = true;
+                }
+            }
 
-    bool isAttacking = false;
-    bool hasAttacked = false;
-    
-    // Handle collisions differently for friendly and hostile enemies
-    if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
-      if (strcmp(enemies[i].name, "teleporter") == 0) {
-        if (equippedArmor.item != MagicRobe) { // Only teleport if not wearing Magic Robe
-          playRawSFX(14);
-          int newX, newY;
-          do {
-            newX = random(0, mapWidth);
-            newY = random(0, mapHeight);
-          } while (dungeonMap[newY][newX] != Floor);
-          playerX = newX;
-          playerY = newY;
+            if (enemies[i].currentPathIndex < enemies[i].pathLength) {
+                int nx2 = enemies[i].wanderPath[enemies[i].currentPathIndex].x;
+                int ny2 = enemies[i].wanderPath[enemies[i].currentPathIndex].y;
+                if (egx == nx2 && egy == ny2) {
+                    if (++enemies[i].currentPathIndex >= enemies[i].pathLength)
+                        enemies[i].hasWanderPath = false;
+                } else {
+                    float mx = (float)nx2 - enemies[i].x;
+                    float my = (float)ny2 - enemies[i].y;
+                    float mm = sqrtf(mx * mx + my * my);
+                    if (mm > 0.0f) { mx = mx / mm * enemies[i].moveAmount;
+                                     my = my / mm * enemies[i].moveAmount; }
+                    float nx = enemies[i].x + mx, ny = enemies[i].y + my;
+                    bool xOk = !checkSpriteCollisionWithTileX(nx, enemies[i].x, enemies[i].y);
+                    bool yOk = !checkSpriteCollisionWithTileY(ny, enemies[i].y, enemies[i].x);
+                    if      (xOk && yOk) { enemies[i].x = nx; enemies[i].y = ny; }
+                    else if (xOk)        { enemies[i].x = nx; }
+                    else if (yOk)        { enemies[i].y = ny; }
+                }
+            } else {
+                enemies[i].hasWanderPath = false;
+            }
         }
-      } else if (!enemies[i].isFriend && invisibleRingsNumber == 0) { // Only hostile enemies damage the player
-        isAttacking = true;
-        if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
-          int damage = enemies[i].damage - (round(equippedArmorValue) + armorRingsNumber);
-          if (equippedArmor.item == SpikyArmor) {
-            enemies[i].hp -= damage*2;
-          }
-          if (armorRingsNumber == 0) {
-            reduceArmorDurability(i);
-          }
-          if (damage < 0) damage = 0;
-          if (damage > 0) {
-            playerHP -= damage;
+
+        // Shooter fires at player
+        if (strcmp(enemies[i].name, "shooter") == 0 && enemies[i].chasingPlayer) {
+            static int shooterCooldown[MAX_ENEMIES] = {};
+            if (shooterCooldown[i] <= 0) {
+                float sdx = playerX - enemies[i].x;
+                float sdy = playerY - enemies[i].y;
+                float sd  = sqrtf(sdx * sdx + sdy * sdy);
+                if (sd > 0.0f) {
+                    shootProjectile(enemies[i].x, enemies[i].y,
+                                    sdx / sd, sdy / sd, false, i);
+                    playRawSFX(1);
+                    shooterCooldown[i] = 120;
+                }
+            } else {
+                shooterCooldown[i]--;
+            }
+        }
+
+        // Contact / combat
+        bool isAttacking = false, hasAttacked = false;
+
+        if (checkSpriteCollisionWithSprite(playerX, playerY, enemies[i].x, enemies[i].y)) {
+            if (strcmp(enemies[i].name, "teleporter") == 0) {
+                if (equippedArmor.item != MagicRobe) {
+                    playRawSFX(14);
+                    int nx, ny;
+                    do { nx = random(0, MAP_WIDTH); ny = random(0, MAP_HEIGHT); }
+                    while (dungeonMap[ny][nx] != Floor);
+                    playerX = (float)nx; playerY = (float)ny;
+                }
+            } else if (!enemies[i].isFriend && invisibleRingsNumber == 0) {
+                isAttacking = true;
+                if (enemies[i].attackDelayCounter >= enemies[i].attackDelay) {
+                    int dmg = enemies[i].damage - (round(equippedArmorValue) + armorRingsNumber);
+                    if (equippedArmor.item == SpikyArmor) enemies[i].hp -= dmg * 2;
+                    if (armorRingsNumber == 0) reduceArmorDurability(i);
+                    if (dmg < 0) dmg = 0;
+                    if (dmg > 0) {
+                        playerHP -= dmg;
+                        triggerScreenShake(2, 1);
+                        playRawSFX(0);
+                        checkIfDeadFrom(enemies[i].name);
+                    }
+                    hasAttacked = true;
+                }
+            }
+        }
+
+        // Enemy repulsion + friendly combat
+        for (int j = 0; j < MAX_ENEMIES; j++) {
+            if (j == i || enemies[j].hp <= 0) continue;
+            float repDist = sqrtf((enemies[i].x - enemies[j].x) * (enemies[i].x - enemies[j].x) +
+                                  (enemies[i].y - enemies[j].y) * (enemies[i].y - enemies[j].y));
+            if (repDist < REPEL_DISTANCE) {
+                float rx = enemies[i].x - enemies[j].x;
+                float ry = enemies[i].y - enemies[j].y;
+                float rm = sqrtf(rx * rx + ry * ry) + 0.01f;
+                enemies[i].x += (rx / rm) * REPEL_STRENGTH;
+                enemies[i].y += (ry / rm) * REPEL_STRENGTH;
+
+                if (enemies[i].isFriend && !enemies[j].isFriend) {
+                    isAttacking = true;
+                    if (enemies[i].attackDelayCounter >= enemies[i].attackDelay && !hasAttacked) {
+                        enemies[j].hp -= enemies[i].damage;
+                        if (enemies[j].hp <= 0) kills++;
+                        playRawSFX3D(23, enemies[i].x, enemies[i].y);
+                        hasAttacked = true;
+                    }
+                }
+            }
+        }
+
+        if      (hasAttacked)  enemies[i].attackDelayCounter = 0;
+        else if (isAttacking && enemies[i].attackDelayCounter < enemies[i].attackDelay)
+                               enemies[i].attackDelayCounter++;
+        else                   enemies[i].attackDelayCounter = enemies[i].attackDelay;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// updateProjectiles
+// ─────────────────────────────────────────────────────────────────────────────
+void updateProjectiles() {
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        if (!projectiles[i].active) continue;
+
+        projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
+        projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
+
+        int ptx = predictXtile(projectiles[i].x);
+        int pty = predictYtile(projectiles[i].y);
+
+        // Wall / out-of-bounds
+        bool oob = (projectiles[i].x < 0 || projectiles[i].y < 0 ||
+                    projectiles[i].x >= MAP_WIDTH || projectiles[i].y >= MAP_HEIGHT ||
+                    projectiles[i].speed <= 0.0f ||
+                    (projectiles[i].dx == 0.0f && projectiles[i].dy == 0.0f));
+        TileTypes pt = dungeonMap[pty][ptx];
+        if (oob || pt == Wall || pt == Bars || pt == DoorClosed) {
+            spawnParticles(projectiles[i].x, projectiles[i].y, 3, 0.15f, false);
+            projectiles[i].active = false;
+            playRawSFX3D(22, projectiles[i].x, projectiles[i].y);
+            continue;
+        }
+
+        // Enemy hits
+        for (int j = 0; j < MAX_ENEMIES; j++) {
+            if (!projectiles[i].shotByPlayer && j == projectiles[i].shooterId) continue;
+
+            bool hit = false;
+            if (strcmp(enemies[j].name, "boss") == 0) {
+                hit = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                          enemies[j].x, enemies[j].y) ||
+                      checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                          enemies[j].x + 1, enemies[j].y) ||
+                      checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                          enemies[j].x, enemies[j].y + 1) ||
+                      checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                          enemies[j].x + 1, enemies[j].y + 1);
+            } else if (!enemies[j].isFriend) {
+                hit = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                          enemies[j].x, enemies[j].y);
+            }
+
+            if (hit && enemies[j].hp > 0) {
+                enemies[j].hp -= (int)projectiles[i].damage;
+                spawnParticles(enemies[j].x, enemies[j].y, 1, 0.15f, false);
+                playRawSFX3D(23, enemies[j].x, enemies[j].y);
+                if (enemies[j].hp <= 0) {
+                    spawnParticles(enemies[j].x, enemies[j].y, 5, 0.25f, true);
+                    kills++;
+                    if (strcmp(enemies[j].name, "clock") == 0) {
+                        enemies[j].x = -3000.0f;
+                        enemies[j].y = -3000.0f;
+                        playerNearClockEnemy = false;
+                    }
+                }
+                projectiles[i].active = false;
+                break;
+            }
+
+            // Damsel hit
+            if (!damsel[0].dead && !damsel[0].beingCarried &&
+                dungeon != bossfightLevel &&
+                checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                                               damsel[0].x, damsel[0].y)) {
+                if (damsel[0].levelOfLove < 6 || !projectiles[i].shotByPlayer) {
+                    if (!projectiles[i].shotByPlayer)
+                        snprintf(damselDeathMsg, sizeof(g_state.damselDeathMsg),
+                                 "%s", "Something killed ");
+                    playRawSFX3D(23, damsel[0].x, damsel[0].y);
+                    playRawSFX3D(17, damsel[0].x, damsel[0].y);
+                    levelOfDamselDeath     = dungeon;
+                    damsel[0].dead         = true;
+                    currentDamselPortrait  = damselPortraitDying;
+                    dialogueTimeLength     = 200;
+                    snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Ugh-!");
+                    showDialogue           = true;
+                    damsel[0].active       = false;
+                    projectiles[i].active  = false;
+                    break;
+                }
+            }
+        }
+
+        // Player hit
+        if (!projectiles[i].shotByPlayer &&
+            checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y,
+                                           playerX, playerY)) {
+            int dmg = (int)projectiles[i].damage -
+                      (int)(round(equippedArmorValue) + armorRingsNumber);
+            if (armorRingsNumber == 0) reduceArmorDurability(0);
+            if (dmg < 0) dmg = 0;
+            playerHP -= dmg;
             triggerScreenShake(2, 1);
             playRawSFX(0);
-            checkIfDeadFrom(enemies[i].name);
-          }
-          hasAttacked = true;
-        }
-      }
-    }
-    
-    // Repel enemies from each other and handle combat between friendly and hostile enemies
-    for (int j = 0; j < maxEnemies; j++) {
-      if (i != j && enemies[j].hp > 0) {
-        float dist = sqrt((enemies[i].x - enemies[j].x)*(enemies[i].x - enemies[j].x) + (enemies[i].y - enemies[j].y)*(enemies[i].y - enemies[j].y));
-        if (dist < 0.5) {
-          float dx = enemies[i].x - enemies[j].x;
-          float dy = enemies[i].y - enemies[j].y;
-          float mag = sqrt(dx*dx + dy*dy) + 0.01;
-          enemies[i].x += (dx/mag) * 0.05;
-          enemies[i].y += (dy/mag) * 0.05;
-          
-          // Handle combat between friendly and hostile enemies
-          if (enemies[i].isFriend && !enemies[j].isFriend) {
-            isAttacking = true;
-            if (enemies[i].attackDelayCounter >= enemies[i].attackDelay && !hasAttacked) {
-              enemies[j].hp -= enemies[i].damage;
-              if (enemies[j].hp <= 0) {
-                kills += 1;
-              }
-              playRawSFX3D(23, enemies[i].x, enemies[i].y); // Play hit sound
-              hasAttacked = true;
-            }
-          }
-        }
-      }
-    }
-    
-    // Handle attack delay counter
-    if (hasAttacked) {
-      enemies[i].attackDelayCounter = 0;
-    } else if (isAttacking) {
-      if (enemies[i].attackDelayCounter < enemies[i].attackDelay) {
-        enemies[i].attackDelayCounter++;
-      }
-    } else {
-      enemies[i].attackDelayCounter = enemies[i].attackDelay; // Reset when not attacking anything
-    }
-  }
-}
-
-void updateProjectiles() {
-  for (int i = 0; i < maxProjectiles; i++) {
-    if (projectiles[i].active) {
-      projectiles[i].x += projectiles[i].dx * projectiles[i].speed;
-      projectiles[i].y += projectiles[i].dy * projectiles[i].speed;
-
-      int projectileTileX = predictXtile(projectiles[i].x);
-      int projectileTileY = predictYtile(projectiles[i].y);
-
-      // Check for collisions with walls or out-of-bounds
-      if (dungeonMap[projectileTileY][projectileTileX] == Wall || dungeonMap[projectileTileY][projectileTileX] == Bars || dungeonMap[projectileTileY][projectileTileX] == DoorClosed || projectiles[i].x < 0 || projectiles[i].y < 0 || projectiles[i].x > SCREEN_WIDTH || projectiles[i].y > SCREEN_HEIGHT || projectiles[i].speed <= 0 || (projectiles[i].dx == 0 && projectiles[i].dy == 0)) {
-        spawnParticles(projectiles[i].x, projectiles[i].y, 3, 0.15f, false);  // Small impact particles
-        projectiles[i].active = false; // Deactivate the bullet
-        playRawSFX3D(22, projectiles[i].x, projectiles[i].y);
-      }
-
-      // Check for collisions with enemies
-      for (int j = 0; j < maxEnemies; j++) {
-        // Skip collision check if this is the enemy that shot the projectile
-        if (!projectiles[i].shotByPlayer && j == projectiles[i].shooterId) {
-          continue;
-        }
-
-        bool collision = false;
-        if (strcmp(enemies[j].name, "boss") == 0) {
-          // For boss, check collision with full 16x16 sprite using 4 points
-          collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y) ||
-                     checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x + 1, enemies[j].y) ||
-                     checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y + 1) ||
-                     checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x + 1, enemies[j].y + 1);
-        } else {
-          // For regular enemies, use normal 8x8 collision
-          if (!enemies[j].isFriend) {// Friendly enemies cannot be hurt
-            collision = checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, enemies[j].x, enemies[j].y);
-          }
-        }
-        
-        if (collision && enemies[j].hp > 0) {
-          bool wasAlive = enemies[j].hp > 0;
-          // Hit by player's projectile or another enemy's projectile
-          enemies[j].hp -= projectiles[i].damage;    // Reduce enemy health
-          spawnParticles(enemies[j].x, enemies[j].y, 1, 0.15f, false);  // Small impact particles
-          playRawSFX3D(23, enemies[j].x, enemies[j].y);
-          if (enemies[j].hp <= 0 && projectiles[i].active == true) {
-            // Spawn large death particles
-            spawnParticles(enemies[j].x, enemies[j].y, 5, 0.25f, true);
-            kills += 1;
-            if (strcmp(enemies[j].name, "clock") == 0) {
-              enemies[j].x = -3000;
-              enemies[j].y = -3000;
-              playerNearClockEnemy = false;
-            }
-          }
-          projectiles[i].active = false; // Deactivate the bullet
-          break;
-        } else if (!damsel[0].dead && !damsel[0].beingCarried && dungeon != bossfightLevel && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, damsel[0].x, damsel[0].y)) {
-          if (damsel[0].levelOfLove < 6 || !projectiles[i].shotByPlayer) {
-            if (!projectiles[i].shotByPlayer) {
-              snprintf(damselDeathMsg, sizeof(damselDeathMsg), "%s", "Something killed ");
-            }
-            playRawSFX3D(23, damsel[0].x, damsel[0].y);
-            playRawSFX3D(17, damsel[0].x, damsel[0].y);
-            levelOfDamselDeath = dungeon;
-            damsel[0].dead = true;
-            currentDamselPortrait = damselPortraitDying;
-            dialogueTimeLength = 200;
-            snprintf(currentDialogue, sizeof(currentDialogue), "%s", "Ugh-!");
-            showDialogue = true;
-            damsel[0].active = false;
+            checkIfDeadFrom("projectile");
             projectiles[i].active = false;
-            break;
-          }
         }
-      }
-
-      // Also check for collision with player:
-      if (projectiles[i].shotByPlayer == false && checkSpriteCollisionWithSprite(projectiles[i].x, projectiles[i].y, playerX, playerY)) {
-        int damage = projectiles[i].damage - (round(equippedArmorValue) + armorRingsNumber);
-        if (armorRingsNumber == 0) {
-          reduceArmorDurability(i);
-        }
-        if (damage < 0) damage = 0;  // Ensure damage doesn't go below 0
-        playerHP -= damage;
-        triggerScreenShake(2, 1);
-        playRawSFX(0);
-        checkIfDeadFrom("projectile");
-        projectiles[i].active = false; // Deactivate the bullet
-      }
     }
-  }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Misc entity helpers
+// ─────────────────────────────────────────────────────────────────────────────
 void moveDamselToPos(float posX, float posY) {
-  damsel[0].x = posX;
-  damsel[0].y = posY;
+    damsel[0].x = posX;
+    damsel[0].y = posY;
 }
 
 void reduceArmorDurability(int i) {
-  equippedArmor.armorValue -= ((float)enemies[i].damage / 100);
-  if (equippedArmor.armorValue < 0 && equippedArmor.item != SpikyArmor) {
-    equippedArmor.armorValue = 0;
-    snprintf(equippedArmor.description, sizeof(equippedArmor.description), "%s", "Broken armor.");
-  }
-  
-  equippedArmorValue = equippedArmor.armorValue;
-
-  ////Serial.print("Armor durability reduced to: ");
-  ////Serial.println(equippedArmor.armorValue);
-  ////Serial.print("EquippedArmorvalue is now: ");
-  ////Serial.println(equippedArmorValue);
-}
-
-void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId) {
-
-  for (int i = 0; i < maxProjectiles; i++) {
-    if (!projectiles[i].active) {
-      projectiles[i].x = x;
-      projectiles[i].y = y;
-      projectiles[i].dx = xDir;  // Set direction based on player's facing direction
-      projectiles[i].dy = yDir;
-      projectiles[i].damage = shotByPlayer ? (playerAttackDamage + (strengthRingsNumber * 5) + (weaknessRingsNumber * 5)) : 4; // Player projectiles do playerAttackDamage, enemies do 4 damage
-      projectiles[i].speed = shotByPlayer? 0.5 : 0.25;
-      projectiles[i].active = true;
-      projectiles[i].shotByPlayer = shotByPlayer;
-      projectiles[i].shooterId = shooterId; // Track which enemy shot this projectile
-      break;
+    float reduction = (i >= 0 && i < MAX_ENEMIES)
+                      ? (float)enemies[i].damage / 100.0f : 0.0f;
+    equippedArmor.armorValue -= reduction;
+    if (equippedArmor.armorValue < 0 && equippedArmor.item != SpikyArmor) {
+        equippedArmor.armorValue = 0;
+        snprintf(equippedArmor.description, sizeof(equippedArmor.description),
+                 "%s", "Broken armor.");
     }
-  }
+    equippedArmorValue = equippedArmor.armorValue;
 }
 
+void shootProjectile(float x, float y, float xDir, float yDir,
+                     bool shotByPlayer, int shooterId) {
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        if (projectiles[i].active) continue;
+        projectiles[i].x          = x;
+        projectiles[i].y          = y;
+        projectiles[i].dx         = xDir;
+        projectiles[i].dy         = yDir;
+        projectiles[i].damage     = shotByPlayer
+            ? (float)(playerAttackDamage +
+                      strengthRingsNumber * STRENGTH_RING_DAMAGE_BONUS +
+                      weaknessRingsNumber * WEAKNESS_RING_DAMAGE_BONUS)
+            : (float)PROJECTILE_DAMAGE_ENEMY;
+        projectiles[i].speed      = shotByPlayer
+            ? PROJECTILE_SPEED_PLAYER : PROJECTILE_SPEED_ENEMY;
+        projectiles[i].active     = true;
+        projectiles[i].shotByPlayer = shotByPlayer;
+        projectiles[i].shooterId  = shooterId;
+        break;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rendering
+// ─────────────────────────────────────────────────────────────────────────────
 void renderEnemies() {
-  int playerTileX = predictXtile(playerX);
-  int playerTileY = predictYtile(playerY);
+    int ptx = predictXtile(playerX);
+    int pty = predictYtile(playerY);
+    int visRadSq = 200 - (invisibleRingsNumber * 50);
 
-  for (int i = 0; i < maxEnemies; i++) {
-    // Always show boss even if dead, hide other enemies when dead
-    if (strcmp(enemies[i].name, "boss") == 0 || enemies[i].hp > 0) {
-      int enemyTileX = predictXtile(enemies[i].x);
-      int enemyTileY = predictYtile(enemies[i].y);
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        bool isBoss = (strcmp(enemies[i].name, "boss") == 0);
+        if (!isBoss && enemies[i].hp <= 0) continue;
 
-      // Distance check (10 tiles max)
-      int dx = enemyTileX - playerTileX;
-      int dy = enemyTileY - playerTileY;
-      int distSq = dx*dx + dy*dy;
-      if (distSq > (200 - (invisibleRingsNumber*50))) continue;
+        int etx = predictXtile(enemies[i].x);
+        int ety = predictYtile(enemies[i].y);
+        int dx  = etx - ptx, dy = ety - pty;
+        if (dx * dx + dy * dy > visRadSq) continue;
 
-      // Line-of-sight check
-      if (seeAll || isVisible(playerTileX, playerTileY, enemyTileX, enemyTileY)) {
-        float screenX = (enemies[i].x - offsetX) * tileSize;
-        float screenY = (enemies[i].y - offsetY) * tileSize;
-        if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-          Enemy& e = enemies[i];
-          if (strcmp(e.name, "succubus") == 0) {
-            display.drawBitmap(screenX, screenY, playerX > e.x ? e.sprite : playerX < e.x ? succubusIdleSpriteFlipped : e.sprite, 8, 8, 15);
-          } else {
-            bool isBoss = strcmp(e.name, "boss") == 0;
-            display.drawBitmap(screenX, screenY, e.sprite, isBoss ? 16 : 8, isBoss ? 16 : 8, 15);
-          }
+        if (!seeAll && !isVisible(ptx, pty, etx, ety)) continue;
+
+        float sx = (enemies[i].x - offsetX) * tileSize;
+        float sy = (enemies[i].y - offsetY) * tileSize;
+        if (sx < 0 || sy < 0 || sx >= SCREEN_WIDTH || sy >= SCREEN_HEIGHT) continue;
+
+        if (strcmp(enemies[i].name, "succubus") == 0) {
+            const unsigned char* spr = (playerX > enemies[i].x)
+                                       ? enemies[i].sprite : succubusIdleSpriteFlipped;
+            display.drawBitmap((int)sx, (int)sy, spr, 8, 8, 15);
+        } else {
+            int siz = isBoss ? 16 : 8;
+            display.drawBitmap((int)sx, (int)sy, enemies[i].sprite, siz, siz, 15);
         }
-      }
     }
-  }
 }
 
 void renderDamsel() {
-  if (damsel[0].beingCarried) return;
-  
-  // Don't render if damsel is deactivated (succubus is friend)
-  if (!damsel[0].active) return;
+    if (damsel[0].beingCarried || !damsel[0].active) return;
 
-  int playerTileX = predictXtile(playerX);
-  int playerTileY = predictYtile(playerY);
-  int damselTileX = predictXtile(damsel[0].x);
-  int damselTileY = predictYtile(damsel[0].y);
+    int ptx = predictXtile(playerX),  pty = predictYtile(playerY);
+    int dtx = predictXtile(damsel[0].x), dty = predictYtile(damsel[0].y);
+    int dx = dtx - ptx, dy = dty - pty;
+    if (dx * dx + dy * dy > 100) return;
+    if (!isVisible(ptx, pty, dtx, dty)) return;
 
-  // Distance check (10 tiles max)
-  int dx = damselTileX - playerTileX;
-  int dy = damselTileY - playerTileY;
-  int distSq = dx * dx + dy * dy;
-  if (distSq > 100) return; // Skip rendering if too far away
+    float sx = (damsel[0].x - offsetX) * tileSize;
+    float sy = (damsel[0].y - offsetY) * tileSize;
+    if (sx < 0 || sy < 0 || sx >= SCREEN_WIDTH || sy >= SCREEN_HEIGHT) return;
 
-  if (isVisible(playerTileX, playerTileY, damselTileX, damselTileY)) {
-    if (damsel[0].active && !damsel[0].dead) {
-      float screenX = (damsel[0].x - offsetX) * tileSize;
-      float screenY = (damsel[0].y - offsetY) * tileSize;
-      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-        display.drawBitmap(screenX, screenY, damselSprite, 8, 8, 15);
-      }
-    } else {
-      float screenX = (damsel[0].x - offsetX) * tileSize;
-      float screenY = (damsel[0].y - offsetY) * tileSize;
-      if (screenX >= 0 && screenY >= 0 && screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
-        display.drawBitmap(screenX, screenY, damselSpriteDead, 8, 8, 15);
-      }
-    }
-  }
+    const unsigned char* spr = damsel[0].dead ? damselSpriteDead : damselSprite;
+    display.drawBitmap((int)sx, (int)sy, spr, 8, 8, 15);
 }
 
 void renderProjectiles() {
-    for (int i = 0; i < maxProjectiles; i++) {
-        if (projectiles[i].active) {
-          float screenX = (projectiles[i].x - offsetX) * tileSize + tileSize/2;
-          float screenY = (projectiles[i].y - offsetY) * tileSize + tileSize/2;
-          display.fillCircle(screenX, screenY, 1, 15);
-        }
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        if (!projectiles[i].active) continue;
+        float sx = (projectiles[i].x - offsetX) * tileSize + tileSize / 2.0f;
+        float sy = (projectiles[i].y - offsetY) * tileSize + tileSize / 2.0f;
+        display.fillCircle((int)sx, (int)sy, 1, 15);
     }
 }
 
 void spawnParticles(float x, float y, int count, float speed, bool isLarge) {
-  for (int i = 0; i < count; i++) {
-    // Find an inactive particle slot
-    for (int j = 0; j < maxParticles; j++) {
-      if (!particles[j].active) {
-        particles[j].x = x;
-        particles[j].y = y;
-        
-        // Random direction (radial spread)
-        float angle = random(0, 628) / 100.0f;  // 0 to 2π
-        particles[j].vx = cos(angle) * speed;
-        particles[j].vy = sin(angle) * speed;
-        
-        // Shorter lifespans
-        if (isLarge) {
-          particles[j].maxLifetime = random(8, 15);  // Large particles: 8-15 frames
-        } else {
-          particles[j].maxLifetime = random(5, 10);  // Small particles: 5-10 frames
+    for (int i = 0; i < count; i++) {
+        for (int j = 0; j < MAX_PARTICLES; j++) {
+            if (particles[j].active) continue;
+            float angle      = random(0, 628) / 100.0f;
+            particles[j].x          = x;
+            particles[j].y          = y;
+            particles[j].vx         = cosf(angle) * speed;
+            particles[j].vy         = sinf(angle) * speed;
+            particles[j].maxLifetime = isLarge ? random(8, 15) : random(5, 10);
+            particles[j].lifetime   = particles[j].maxLifetime;
+            particles[j].active     = true;
+            break;
         }
-        particles[j].lifetime = particles[j].maxLifetime;
-        particles[j].active = true;
-        break;
-      }
     }
-  }
 }
 
 void updateParticles() {
-  for (int i = 0; i < maxParticles; i++) {
-    if (particles[i].active) {
-      // Update position with velocity
-      particles[i].x += particles[i].vx;
-      particles[i].y += particles[i].vy;
-      
-      // Apply slight friction (no gravity)
-      particles[i].vx *= 0.92f;
-      particles[i].vy *= 0.92f;
-      
-      // Decrease lifetime
-      particles[i].lifetime--;
-      
-      // Deactivate when lifetime expires
-      if (particles[i].lifetime <= 0) {
-        particles[i].active = false;
-      }
+    for (int i = 0; i < MAX_PARTICLES; i++) {
+        if (!particles[i].active) continue;
+        particles[i].x  += particles[i].vx;
+        particles[i].y  += particles[i].vy;
+        particles[i].vx *= 0.92f;
+        particles[i].vy *= 0.92f;
+        if (--particles[i].lifetime <= 0) particles[i].active = false;
     }
-  }
 }
 
 void renderParticles() {
-  for (int i = 0; i < maxParticles; i++) {
-    if (particles[i].active) {
-      float screenX = (particles[i].x - offsetX) * tileSize;
-      float screenY = (particles[i].y - offsetY) * tileSize;
-      
-      // Only render if on screen
-      if (screenX >= -tileSize && screenX < SCREEN_WIDTH + tileSize &&
-          screenY >= -tileSize && screenY < SCREEN_HEIGHT + tileSize) {
-        
-        // Fade out based on lifetime remaining
-        //int brightness = (particles[i].lifetime * 15) / particles[i].maxLifetime;
-        //brightness = brightness > 15 ? 15 : brightness;
-        //brightness = brightness < 1 ? 1 : brightness;
-        
-        // Draw small particles as single pixels, large as 2x2
-        if (particles[i].maxLifetime >= 20) {
-          display.fillRect(screenX, screenY, 2, 2, 15);
-        } else {
-          display.fillCircle(screenX + 1, screenY + 1, 1, 15);
-        }
-      }
+    for (int i = 0; i < MAX_PARTICLES; i++) {
+        if (!particles[i].active) continue;
+        float sx = (particles[i].x - offsetX) * tileSize;
+        float sy = (particles[i].y - offsetY) * tileSize;
+        if (sx < -tileSize || sx >= SCREEN_WIDTH  + tileSize ||
+            sy < -tileSize || sy >= SCREEN_HEIGHT + tileSize) continue;
+        if (particles[i].maxLifetime >= 20)
+            display.fillRect((int)sx, (int)sy, 2, 2, 15);
+        else
+            display.fillCircle((int)sx + 1, (int)sy + 1, 1, 15);
     }
-  }
 }

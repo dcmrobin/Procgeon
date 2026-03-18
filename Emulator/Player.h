@@ -1,106 +1,41 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "Common.h"
+#include "GameState.h"
 #include "Item.h"
 #include "Puzzles.h"
-#include "Translation.h"
 
-#define RIDICULE_DURATION 1000
+// ─────────────────────────────────────────────────────────────────────────────
+// Player.h
+//
+// All player state variables live in GameState.h / GameState.cpp.
+// This header only declares the player subsystem functions.
+// ─────────────────────────────────────────────────────────────────────────────
 
-extern char deathCause[50];
-extern char currentDialogue[200];
-extern float playerX;
-extern float playerY;
-extern float currentSpeedMultiplier;
-extern int playerHP;
-extern int playerMaxHP;
-extern int speedTimer;
-extern int seeAllTimer;
-extern int dungeon;
-extern int kills;
-extern int playerDX;
-extern int playerDY;
-extern int ingredient1index;
-extern int playerFood;
-extern int dialogueTimeLength;
-extern int timeTillNextDialogue;
-extern bool shouldRestartGame;
-extern bool speeding;
-extern bool hasMap;
-extern bool paused;
-extern bool DIDNOTRESCUEDAMSEL;
-extern bool damselGotTaken;
-extern bool damselSayThanksForRescue;
-extern bool knowsDamselName;
-extern bool combiningTwoItems;
-extern bool playerMoving;
-extern bool starving;
-extern bool seeAll;
-extern bool showDialogue;
-extern GameItem combiningItem1;
-extern GameItem combiningItem2;
-extern bool playerActed;
-extern bool confused;
-extern int confusionTimer;
-extern bool succubusIsFriend;
-extern bool nearSuccubus;
-extern bool damselWasFollowing;
-extern int damselWaitUpTimer;
-extern bool damselSaidWaitUp;
-extern float equippedArmorValue;
-extern GameItem equippedArmor;
-extern bool equippedRiddleStone;
-extern GameItem equippedWeapon;
-extern int meleeFrames;
-extern int meleeDuration;
-extern int meleeFX;
-extern int meleeFY;
-#define MAX_MELEE_TILES 20
-extern int meleeArcTilesX[MAX_MELEE_TILES];
-extern int meleeArcTilesY[MAX_MELEE_TILES];
-extern int meleeArcCount;
-extern int attackDelayFrames;
-extern int playerAttackDamage;
-extern int swiftnessRingsNumber;
-extern int strengthRingsNumber;
-extern int weaknessRingsNumber;
-extern int hungerRingsNumber;
-extern int regenRingsNumber;
-extern int sicknessRingsNumber;
-extern int aggravateRingsNumber;
-extern int armorRingsNumber;
-extern int indigestionRingsNumber;
-extern int teleportRingsNumber;
-extern int invisibleRingsNumber;
-extern float lastPotionSpeedModifier;
-extern bool ridiculed;
-extern int ridiculeTimer;
-extern bool glamoured;
-extern int glamourTimer;
-extern bool blinded;
-extern int blindnessTimer;
-extern bool paralyzed;
-extern int paralysisTimer;
-extern bool playerNearClockEnemy;
-extern char damselDeathMsg[100];
-extern bool endlessMode;
-extern int keysCount;
-extern int goldCount; // Gold coins collected — spent at shops and fairy rooms
-
+// ── Rendering ────────────────────────────────────────────────────────────
 void renderPlayer();
-void handleInput();
-void startCarryingDamsel();
-void handlePauseScreen();
-void handleHungerAndEffects();
-void handleDialogue();
-void handleRiddles();
-void playDamselSFX(const char *tone);
-void handleRingEffects();
-void OpenChest(int cy, int cx, int dx);
 
-extern bool pendingChestActive;
-extern int pendingChestX;
-extern int pendingChestY;
+// ── Input & movement ─────────────────────────────────────────────────────
+void handleInput();
+void startCarryingDamsel(bool resetPickupTimer);
+
+// ── UI screens ────────────────────────────────────────────────────────────
+void handlePauseScreen();
+
+// ── Per-tick effects ──────────────────────────────────────────────────────
+void handleHungerAndEffects();
+void handleRingEffects();
+
+// ── Dialogue ──────────────────────────────────────────────────────────────
+void handleDialogue();
+void playDamselSFX(const char* tone);
+
+// ── Riddles ───────────────────────────────────────────────────────────────
+void handleRiddles();
+
+// ── Chest / puzzle gate ───────────────────────────────────────────────────
+void OpenChest(int cy, int cx, int dx);
 void finishPendingChest(bool success);
 
-#endif
+#endif // PLAYER_H

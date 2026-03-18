@@ -1,55 +1,28 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
 
-#include <cstdint>
-#include <cmath>
-#include "Entities.h"
+#include "Common.h"
+#include "GameState.h"   // for Room struct
 
-#define mapWidth 64
-#define mapHeight 64
-#define tileSize 8
-
-enum TileTypes {
-  StartStairs,
-  Floor,
-  Wall,
-  Bars,
-  DoorClosed,
-  DoorOpen,
-  Exit,
-  KeyTile,
-  KeyItem,
-  Freedom,
-  Potion,
-  Map,
-  MushroomTile,   // Blanket food tile — picks a random food item on pickup
-  RiddleStoneTile,
-  ArmorTile,
-  ScrollTile,
-  RingTile,
-  ChestTile,
-  WeaponTile,
-  GoldTile        // Gold coin — increments goldCount, never goes to inventory
-};
-
-extern TileTypes dungeonMap[mapHeight][mapWidth];
+// ─────────────────────────────────────────────────────────────────────────────
+// The dungeon tile map (defined in Dungeon.cpp)
+// ─────────────────────────────────────────────────────────────────────────────
+extern TileTypes dungeonMap[MAP_HEIGHT][MAP_WIDTH];
 
 extern bool generatedClockEnemy;
+extern int  bossfightLevel;
 
-extern int bossfightLevel;
-
-struct Room {
-  int x, y, width, height;
-};
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Dungeon generation & rendering
+// ─────────────────────────────────────────────────────────────────────────────
 void generateDungeon(bool isBossfight);
 void placeRoomEntranceDoors();
 void spawnEnemies(bool isBossfight);
 void setTile(int tileX, int tileY, TileTypes tileType);
-void updateScrolling(int viewportWidth, int viewportHeight, float scrollSpeed, float& offsetX, float& offsetY);
+void updateScrolling(int vpWidth, int vpHeight, float scrollSpd, float& offX, float& offY);
 void drawMinimap();
 void renderDungeon();
 void drawTile(int mapX, int mapY, float screenX, float screenY);
-int computeTileBrightness(int mapX, int mapY);
+int  computeTileBrightness(int mapX, int mapY);
 
-#endif
+#endif // DUNGEON_H

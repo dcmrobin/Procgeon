@@ -1,38 +1,76 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include <string>
-#include <cstdlib>
-#include "Sprites.h"
-#include "Translation.h"
+#include "Common.h"
+#include "GameState.h"  // for PathNode, Dialogue, BossStates
+#include "Sprites.h"    // for sprite pointers
 
-#define maxEnemies 30
-#define maxProjectiles 30
-#define maxParticles 200
+// ─────────────────────────────────────────────────────────────────────────────
+// Structs
+// ─────────────────────────────────────────────────────────────────────────────
 
 struct Damsel {
-  float x, y;
-  float speed;
-  bool dead;
-  bool followingPlayer;
-  bool active;
-  int levelOfLove;
-  char name[30];
-  bool completelyRescued;
-  bool beingCarried;
-};
-extern Damsel damsel[1];
-
-struct PathNode {
-  int x, y;
+    float   x = 0.0f, y = 0.0f;
+    float   speed = 0.1f;
+    bool    dead             = false;
+    bool    followingPlayer  = false;
+    bool    active           = false;
+    int     levelOfLove      = 0;
+    char    name[30]         = "";
+    bool    completelyRescued= false;
+    bool    beingCarried     = false;
 };
 
-struct Dialogue {
-  char message[200] = "";
-  int duration;
-  char tone[20] = "normal";
-  bool alreadyBeenSaid = false;
+struct Enemy {
+    float   x = 0.0f, y = 0.0f;
+    int     hp              = 0;
+    bool    chasingPlayer   = false;
+    float   moveAmount      = 0.05f;
+    char    name[30]        = "";
+    int     attackDelay     = 20;
+    int     damage          = 0;
+    bool    hasWanderPath   = false;
+    int     pathLength      = 0;
+    int     currentPathIndex= 0;
+    PathNode wanderPath[ASTAR_MAX_NODES] = {};
+    const unsigned char* sprite = nullptr;
+    int     attackDelayCounter  = 20;
+    bool    nearClock       = false;
+    bool    isFriend        = false;
 };
+
+struct Projectile {
+    float   x = 0.0f, y = 0.0f;
+    float   dx = 0.0f, dy = 0.0f;
+    float   speed   = 0.0f;
+    float   damage  = 0.0f;
+    bool    active      = false;
+    bool    shotByPlayer= false;
+    int     shooterId   = -1;
+};
+
+struct Particle {
+    float   x = 0.0f, y = 0.0f;
+    float   vx = 0.0f, vy = 0.0f;
+    int     lifetime    = 0;
+    int     maxLifetime = 0;
+    bool    active      = false;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Global entity arrays (defined in Entities.cpp)
+// ─────────────────────────────────────────────────────────────────────────────
+extern Damsel       damsel[1];
+extern Enemy        enemies[MAX_ENEMIES];
+extern Projectile   projectiles[MAX_PROJECTILES];
+extern Particle     particles[MAX_PARTICLES];
+
+extern float        clockX;
+extern float        clockY;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dialogue tables (defined in Entities.cpp)
+// ─────────────────────────────────────────────────────────────────────────────
 extern Dialogue damselAnnoyingDialogue[10];
 extern Dialogue damselPassiveDialogue[7];
 extern Dialogue damselGoodDialogue[7];
@@ -40,61 +78,9 @@ extern Dialogue damselCarryDialogue[7];
 extern Dialogue ridiculeDialogue[8];
 extern Dialogue glamourDialogue[8];
 
-enum BossStates {
-  Idle,
-  Floating,
-  Shooting,
-  Summoning,
-  Enraged,
-  Beaten
-};
-
-struct Enemy {
-  float x, y;
-  int hp;
-  bool chasingPlayer;
-  float moveAmount;
-  char name[30];
-  int attackDelay;
-  int damage;
-  bool hasWanderPath;
-  int pathLength;
-  int currentPathIndex;
-  PathNode wanderPath[32];  // maximum length for a wandering route
-  const unsigned char* sprite; // Pointer to current sprite bitmap
-  int attackDelayCounter = attackDelay; // Each enemy tracks its own attack delay
-  bool nearClock;
-  bool isFriend;
-};
-extern Enemy enemies[maxEnemies];
-
-struct Projectile {
-  float x, y;
-  float dx, dy;
-  float speed;
-  float damage;
-  bool active;
-  bool shotByPlayer;
-  int shooterId;
-};
-extern Projectile projectiles[maxProjectiles];
-
-struct Particle {
-  float x, y;
-  float vx, vy;  // velocity
-  int lifetime;  // remaining frames
-  int maxLifetime;  // for fade effect
-  bool active;
-};
-extern Particle particles[maxParticles];
-
-extern int levelOfDamselDeath;
-extern float clockX;
-extern float clockY;
-
-extern BossStates bossState;
-extern int bossStateTimer;
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Entity update / render functions (defined in Entities.cpp)
+// ─────────────────────────────────────────────────────────────────────────────
 void updateEnemies();
 void updateDamsel();
 void updateProjectiles();
@@ -103,9 +89,9 @@ void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer
 void renderEnemies();
 void renderDamsel();
 void renderProjectiles();
-void reduceArmorDurability(int i);
+void reduceArmorDurability(int enemyIndex);
 void spawnParticles(float x, float y, int count, float speed, bool isLarge);
 void updateParticles();
 void renderParticles();
 
-#endif
+#endif // ENTITIES_H

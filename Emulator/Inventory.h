@@ -1,40 +1,41 @@
-#ifndef INVENTORY_H 
+#ifndef INVENTORY_H
 #define INVENTORY_H
 
+#include "Common.h"
+#include "GameState.h"
 #include "Item.h"
-#include "HelperFunctions.h"
-#include "Translation.h"
 
-#define inventorySize 8
-
+// ─────────────────────────────────────────────────────────────────────────────
+// InventoryPage
+// ─────────────────────────────────────────────────────────────────────────────
 struct InventoryPage {
-  char name[30];
-  ItemCategory category;
-  GameItem items[8]; // Each tab holds up to 8 items
-  int itemCount = 0; // Track how many items are in this tab
+    char        name[30]                = "";
+    ItemCategory category               = PotionCategory;
+    GameItem    items[INVENTORY_SIZE]   = {};
+    int         itemCount               = 0;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Global inventory (defined in Inventory.cpp)
+// ─────────────────────────────────────────────────────────────────────────────
 extern InventoryPage inventoryPages[];
-extern int selectedInventoryIndex; // Currently selected inventory item
-extern char itemResultMessage[150];
+extern int           numInventoryPages;
 
-//extern InventoryPage inventoryPages[];
-extern int currentInventoryPageIndex;
-extern int numInventoryPages;
-
-extern bool identifyingItem;
-extern int identifyScrollPage;
-extern int identifyScrollIndex;
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Inventory functions
+// ─────────────────────────────────────────────────────────────────────────────
 bool addToInventory(GameItem item, bool canBeCursed);
+void removeItemFromInventory(int page, int index);
+
 void handleInventoryNavigation();
-int findFirstItemInCurrentCategory();
-int findPreviousItemInCategory(int current);
-int findNextItemInCategory(int current);
 void handleInventoryItemUsage();
 void handleItemActionMenu();
 void renderInventory();
-void identifyItem(GameItem &item);
-void removeItemFromInventory(int page, int index);
 
-#endif
+void identifyItem(GameItem& item);
+
+int  findFirstItemInCurrentCategory();
+int  findNextItemInCategory(int current);
+int  findPreviousItemInCategory(int current);
+
+#endif // INVENTORY_H
