@@ -473,6 +473,9 @@ void trySaveGame() {
         s.isFriend          = e.isFriend;
     }
 
+    for (int i = 0; i < SHOP_MAX_ITEMS; i++)
+        saveData.shopItems[i] = shopItems[i];
+
     for (int y = 0; y < MAP_HEIGHT; y++)
         for (int x = 0; x < MAP_WIDTH; x++)
             saveData.dungeonMap[y][x] = dungeonMap[y][x];
@@ -579,6 +582,9 @@ void tryLoadGame() {
         e.isFriend          = s.isFriend;
         e.sprite            = spriteFor(e.name);
     }
+
+    for (int i = 0; i < SHOP_MAX_ITEMS; i++)
+        shopItems[i] = saveData.shopItems[i];
 
     for (int y = 0; y < MAP_HEIGHT; y++)
         for (int x = 0; x < MAP_WIDTH; x++)

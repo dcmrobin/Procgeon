@@ -110,6 +110,10 @@ void handleUIStateTransitions() {
             case UI_SECRET:
                 currentUIState = UI_SPLASH;
                 break;
+            case UI_SHOP:
+                playRawSFX(13);
+                currentUIState = UI_NORMAL;
+                break;
             // These states handle their own A-press:
             case UI_PAUSE:
             case UI_RIDDLE:

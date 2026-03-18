@@ -11,6 +11,7 @@
 #include "GameAudio.h"
 #include "Puzzles.h"
 #include "SaveLogic.h"
+#include "Shop.h"
 
 #include <fstream>
 #include <sstream>
@@ -48,7 +49,7 @@ void resetGame() {
     g_state.DIDNOTRESCUEDAMSEL  = false;
     g_state.shouldRestartGame   = false;
     g_state.keysCount           = 0;
-    g_state.goldCount           = 0;
+    g_state.goldCount           = 15;
 
     stopAllAudio();
 
@@ -283,6 +284,11 @@ void game_loop() {
                                 g_state.currentUIState = UI_NORMAL;
                             }
                             break;
+
+                        case UI_SHOP:
+                            renderShop();
+                            handleShopNavigation();
+                            break;
                     }
                 } else {
                     showStatusScreen();
@@ -329,6 +335,7 @@ void updateGame() {
         handleAmbientNoiseLevel();
         handleHungerAndEffects();
         updateDamsel();
+        updateShopkeeper();
         updateProjectiles();
         if (g_state.dungeon == bossfightLevel) {
             updateBossfight();

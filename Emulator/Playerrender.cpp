@@ -103,6 +103,24 @@ void renderPlayer() {
             }
         }
 
+        // ── "Shop [X]" prompt ────────────────────────────────────────────
+        if (strcmp(enemies[7].name, "shopkeeper") == 0) {
+            float dx = playerX - enemies[7].x;
+            float dy = playerY - enemies[7].y;
+            if ((dx * dx + dy * dy) <= 0.4f) {
+                display.setTextSize(1);
+                display.setTextColor(15, 0);
+                int textWidth = 9 * 6;
+                display.setCursor((int)(screenX + tileSize / 2) - textWidth / 2,
+                                  (int)(screenY + tileSize) + 2);
+                display.print("Shop [X]");
+                if (g_state.buttons.bPressed && !g_state.buttons.bPressedPrev) {
+                    playRawSFX(12);
+                    g_state.currentUIState = UI_SHOP;
+                }
+            }
+        }
+
         // ── Facing-tile interaction prompts ───────────────────────────────
         int facingX = round(playerX) + playerDX;
         int facingY = round(playerY) + playerDY;
@@ -122,6 +140,7 @@ void renderPlayer() {
                 case Exit:        showPrompt = true; promptText = "Descend [X]";     break;
                 case KeyTile:     showPrompt = true; promptText = "Locked Exit [X]"; break;
                 case Freedom:     showPrompt = true; promptText = "Escape [X]";      break;
+                case Kiosk:       showPrompt = true; promptText = "Shop [X]";   break;
                 default: break;
             }
 

@@ -6,6 +6,7 @@
 #include "Item.h"
 #include "GameAudio.h"
 #include "Entities.h"
+#include "Shop.h"
 
 #include <cstdlib>
 #include <cmath>
@@ -180,7 +181,8 @@ void generateDungeon(bool isBossfight) {
     }
 
     // Place shop in an already existing room
-    if (random(0, 100) < 25) {
+    if (random(0, 10) < 2) {
+        setupShopItems();
         g_state.shopOnThisFloor = true;
         Room& r = g_state.rooms[7];
         int sx  = r.x + random(1, r.width  - 1);

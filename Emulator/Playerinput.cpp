@@ -230,7 +230,7 @@ void handleInput() {
                     for (int h = 0; h < hitCount; h++) {
                         int idx = hitIndices[h];
                         int dmg = base + (h < rem ? 1 : 0);
-                        if (enemies[idx].name != "shopkeeper") {
+                        if (strcmp(enemies[idx].name, "shopkeeper") != 0) {
                             enemies[idx].hp -= dmg;
                             spawnParticles(enemies[idx].x, enemies[idx].y, 1, 0.15f, false);
                             playRawSFX3D(23, enemies[idx].x, enemies[idx].y);
@@ -464,6 +464,10 @@ void handleInput() {
                 finalStatusScreen = true;
                 bossStateTimer    = 0;
                 nearSuccubus      = false;
+                break;
+            case Kiosk:
+                playRawSFX(12);
+                g_state.currentUIState = UI_SHOP;
                 break;
             default:
                 break;

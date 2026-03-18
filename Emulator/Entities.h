@@ -83,6 +83,7 @@ extern Dialogue glamourDialogue[8];
 // ─────────────────────────────────────────────────────────────────────────────
 void updateEnemies();
 void updateDamsel();
+void updateShopkeeper();
 void updateProjectiles();
 void moveDamselToPos(float posX, float posY);
 void shootProjectile(float x, float y, float xDir, float yDir, bool shotByPlayer, int shooterId);

@@ -70,7 +70,8 @@ enum UIState {
     UI_LIGHTSOUT,
     UI_SPLASH,
     UI_INTRO,
-    UI_SECRET
+    UI_SECRET,
+    UI_SHOP
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

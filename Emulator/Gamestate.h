@@ -228,6 +228,10 @@ struct GameState {
     int     identifyScrollIndex = -1;
     char    itemResultMessage[150] = "";
 
+    // Shop
+    int shopSelectedIndex = 0;
+    int shopItemCount = 0;
+
     // ── Pending chest (puzzle gate) ───────────────────────────────────────
     bool    pendingChestActive  = false;
     int     pendingChestX       = -1;

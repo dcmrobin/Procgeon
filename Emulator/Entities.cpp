@@ -193,6 +193,28 @@ static bool computePath(int startX, int startY, int goalX, int goalY,
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// updateShopkeeper
+// ─────────────────────────────────────────────────────────────────────────────
+void updateShopkeeper() {
+    if (strcmp(enemies[7].name, "shopkeeper") == 0) {
+        int idx = round(playerX) - round(enemies[7].x);
+        int idy = round(playerY) - round(enemies[7].y);
+        int distSq = idx * idx + idy * idy;
+
+        if (distSq <= 25 && strcmp(currentDialogue, "Hey you! Come buy something!") != 0) {
+            currentDamselPortrait = shopkeeperPortrait;
+            dialogueTimeLength    = 500;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Hey you! Come buy something!");
+            showDialogue        = true;
+        } else if (distSq > 25) {
+            showDialogue        = false;
+            dialogueTimeLength    = 0;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "");
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // updateDamsel
 // ─────────────────────────────────────────────────────────────────────────────
 static int damselMoveDelay = 0;
@@ -473,7 +495,7 @@ void updateEnemies() {
         int gdx = pgx - egx, gdy = pgy - egy;
         int gridDistSq = gdx * gdx + gdy * gdy;
 
-        if (enemies[i].isFriend && enemies[i].name != "shopkeeper") {
+        if (enemies[i].isFriend && strcmp(enemies[i].name, "shopkeeper") != 0) {
             enemies[i].chasingPlayer = (invisibleRingsNumber == 0 && gridDistSq > 4);
             if (!enemies[i].chasingPlayer && invisibleRingsNumber == 0) {
                 // Attack nearby hostile enemies
@@ -626,7 +648,7 @@ void updateEnemies() {
                 enemies[i].x += (rx / rm) * REPEL_STRENGTH;
                 enemies[i].y += (ry / rm) * REPEL_STRENGTH;
 
-                if (enemies[i].isFriend && !enemies[j].isFriend && enemies[i].name != "shopkeeper") {
+                if (enemies[i].isFriend && !enemies[j].isFriend && strcmp(enemies[i].name, "shopkeeper") != 0) {
                     isAttacking = true;
                     if (enemies[i].attackDelayCounter >= enemies[i].attackDelay && !hasAttacked) {
                         enemies[j].hp -= enemies[i].damage;
@@ -690,7 +712,7 @@ void updateProjectiles() {
                           enemies[j].x, enemies[j].y);
             }
 
-            if (hit && enemies[j].hp > 0 && enemies[i].name != "shopkeeper") {
+            if (hit && enemies[j].hp > 0 && strcmp(enemies[j].name, "shopkeeper") != 0) {
                 enemies[j].hp -= (int)projectiles[i].damage;
                 spawnParticles(enemies[j].x, enemies[j].y, 1, 0.15f, false);
                 playRawSFX3D(23, enemies[j].x, enemies[j].y);

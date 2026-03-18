@@ -6,6 +6,7 @@
 #include "Item.h"
 #include "Entities.h"
 #include "Dungeon.h"
+#include "Shop.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Save version — bump whenever SaveData layout changes
@@ -62,6 +63,7 @@ struct SaveData {
     GameItem equippedArmor;
     GameItem equippedWeapon;
     bool     equippedRiddleStone;
+    ShopItem shopItems[SHOP_MAX_ITEMS];
 
     // Flags
     bool     endlessMode;

@@ -133,6 +133,7 @@
 #define NUM_RINGS               12
 #define NUM_LORE_TEXTS          20
 #define NUM_ITEM_COMBINATIONS   15
+#define SHOP_MAX_ITEMS          7
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Gameplay – audio
