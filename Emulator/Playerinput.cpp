@@ -230,12 +230,14 @@ void handleInput() {
                     for (int h = 0; h < hitCount; h++) {
                         int idx = hitIndices[h];
                         int dmg = base + (h < rem ? 1 : 0);
-                        enemies[idx].hp -= dmg;
-                        spawnParticles(enemies[idx].x, enemies[idx].y, 1, 0.15f, false);
-                        playRawSFX3D(23, enemies[idx].x, enemies[idx].y);
-                        if (enemies[idx].hp <= 0) {
-                            kills++;
-                            spawnParticles(enemies[idx].x, enemies[idx].y, 5, 0.25f, true);
+                        if (enemies[idx].name != "shopkeeper") {
+                            enemies[idx].hp -= dmg;
+                            spawnParticles(enemies[idx].x, enemies[idx].y, 1, 0.15f, false);
+                            playRawSFX3D(23, enemies[idx].x, enemies[idx].y);
+                            if (enemies[idx].hp <= 0) {
+                                kills++;
+                                spawnParticles(enemies[idx].x, enemies[idx].y, 5, 0.25f, true);
+                            }
                         }
                     }
                 }

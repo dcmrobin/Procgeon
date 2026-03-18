@@ -354,9 +354,9 @@ void updateEnemies() {
         enemies[i].nearClock = (sqrtf(cdx * cdx + cdy * cdy) <= 5.0f);
     }
 
+    float closestDist = 1e9f;
     // ── Jukebox volume ────────────────────────────────────────────────────
     {
-        float closestDist = 1e9f;
         for (int j = 0; j < MAX_ENEMIES; j++) {
             if (enemies[j].hp > 0 && strcmp(enemies[j].name, "jukebox") == 0) {
                 float dx = enemies[j].x - playerX;
@@ -371,6 +371,22 @@ void updateEnemies() {
         setJukeboxVolume(vol);
         if (ambientNoiseLevel < (int)(vol * JUKEBOX_NOISE_MAX))
             ambientNoiseLevel = (int)(vol * JUKEBOX_NOISE_MAX);
+    }
+
+    // ── Shop volume ─────────────────────────────────────────────────────
+    {
+        for (int j = 0; j < MAX_ENEMIES; j++) {
+            if (enemies[j].hp > 0 && strcmp(enemies[j].name, "shopkeeper") == 0) {
+                float dx = enemies[j].x - playerX;
+                float dy = enemies[j].y - playerY;
+                float d  = sqrtf(dx * dx + dy * dy);
+                if (d < closestDist) closestDist = d;
+            }
+        }
+        float vol = 0.0f;
+        if (closestDist < JUKEBOX_MAX_RADIUS)
+            vol = 1.0f - (closestDist / JUKEBOX_MAX_RADIUS);
+        setShopVolume(vol);
     }
 
     // ── Per-enemy update ──────────────────────────────────────────────────
@@ -456,7 +472,7 @@ void updateEnemies() {
         int gdx = pgx - egx, gdy = pgy - egy;
         int gridDistSq = gdx * gdx + gdy * gdy;
 
-        if (enemies[i].isFriend) {
+        if (enemies[i].isFriend && enemies[i].name != "shopkeeper") {
             enemies[i].chasingPlayer = (invisibleRingsNumber == 0 && gridDistSq > 4);
             if (!enemies[i].chasingPlayer && invisibleRingsNumber == 0) {
                 // Attack nearby hostile enemies
@@ -609,7 +625,7 @@ void updateEnemies() {
                 enemies[i].x += (rx / rm) * REPEL_STRENGTH;
                 enemies[i].y += (ry / rm) * REPEL_STRENGTH;
 
-                if (enemies[i].isFriend && !enemies[j].isFriend) {
+                if (enemies[i].isFriend && !enemies[j].isFriend && enemies[i].name != "shopkeeper") {
                     isAttacking = true;
                     if (enemies[i].attackDelayCounter >= enemies[i].attackDelay && !hasAttacked) {
                         enemies[j].hp -= enemies[i].damage;
@@ -647,7 +663,7 @@ void updateProjectiles() {
                     projectiles[i].speed <= 0.0f ||
                     (projectiles[i].dx == 0.0f && projectiles[i].dy == 0.0f));
         TileTypes pt = dungeonMap[pty][ptx];
-        if (oob || pt == Wall || pt == Bars || pt == DoorClosed) {
+        if (oob || pt == Wall || pt == Bars || pt == DoorClosed || pt == ShopWall || pt == Kiosk) {
             spawnParticles(projectiles[i].x, projectiles[i].y, 3, 0.15f, false);
             projectiles[i].active = false;
             playRawSFX3D(22, projectiles[i].x, projectiles[i].y);
@@ -673,7 +689,7 @@ void updateProjectiles() {
                           enemies[j].x, enemies[j].y);
             }
 
-            if (hit && enemies[j].hp > 0) {
+            if (hit && enemies[j].hp > 0 && enemies[i].name != "shopkeeper") {
                 enemies[j].hp -= (int)projectiles[i].damage;
                 spawnParticles(enemies[j].x, enemies[j].y, 1, 0.15f, false);
                 playRawSFX3D(23, enemies[j].x, enemies[j].y);

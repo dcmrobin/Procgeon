@@ -181,6 +181,7 @@ bool saveExists() {
 void stopAllAudio() {
     if (playWav1.isPlaying()) playWav1.stop();
     if (playWav2.isPlaying()) playWav2.stop();
+    if (playWav3.isPlaying()) playWav3.stop();
     delay(100);
 }
 

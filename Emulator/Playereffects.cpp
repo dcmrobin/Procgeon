@@ -206,10 +206,10 @@ void handleHungerAndEffects() {
 
                 // Wall check before applying pull
                 int rPX = round(newPX), rPY = round(newPY);
-                TileTypes t = dungeonMap[rPY][rPX];
-                bool walkable = (t == Floor || t == Exit || t == StartStairs ||
-                                 t == DoorOpen || t == KeyItem || t == KeyTile);
-                if (walkable) {
+                //TileTypes t = dungeonMap[rPY][rPX];
+                //bool walkable = (t == Floor || t == Exit || t == StartStairs ||
+                //                 t == DoorOpen || t == KeyItem || t == KeyTile);
+                if (isWalkable(rPX, rPY)) {
                     playerX = newPX;
                     playerY = newPY;
                 }
@@ -219,7 +219,7 @@ void handleHungerAndEffects() {
                 currentDamselPortrait     = damselPortraitCarrying;
                 dialogueTimeLength        = 400;
                 snprintf(currentDialogue, sizeof(g_state.currentDialogue),
-                         "%s", "Stay away from her- you're mine!");
+                         "%s", "Stay away from him- he's mine!");
                 showDialogue = true;
                 playRawSFX(21);
                 playerSprite = (playerSprite == playerSpriteRight)

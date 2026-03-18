@@ -33,6 +33,8 @@ enum TileTypes {
     StartStairs,
     Floor,
     Wall,
+    Kiosk,
+    ShopWall,
     Bars,
     DoorClosed,
     DoorOpen,

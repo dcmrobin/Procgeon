@@ -123,7 +123,7 @@ bool isVisible(int x0, int y0, int x1, int y1) {
         if (x0 == x1 && y0 == y1) break;
 
         TileTypes tile = dungeonMap[y0][x0];
-        if (tile == Wall || tile == DoorClosed) return false;
+        if (tile == Wall || tile == DoorClosed || tile == ShopWall) return false;
 
         int e2 = 2 * err;
         if (e2 > -dy) { err -= dy; x0 += sx; }

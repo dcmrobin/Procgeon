@@ -552,8 +552,7 @@ void showStatusScreen() {
         if (g_state.finalStatusScreen && !g_state.credits) {
             g_state.credits      = true;
             g_state.bossStateTimer = 0;
-            playWav1.stop();
-            playWav2.stop();
+            stopAllAudio();
             float volf = masterVolume / 10.0f;
             sgtl5000_1.volume(volf);
             mixer1.gain(0, 0.5f * volf);

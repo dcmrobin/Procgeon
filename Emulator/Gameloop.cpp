@@ -39,6 +39,7 @@ static void writeHighscoresToFile(int dngnHighscore, int kllHighscore) {
 // ─────────────────────────────────────────────────────────────────────────────
 void resetGame() {
     setJukeboxVolume(0.0f);
+    setShopVolume(0.0f);
 
     g_state.deleteSV        = false;
     g_state.introNum        = 0;
@@ -304,9 +305,14 @@ void game_loop() {
         playWav2.play("./Audio/12_8.wav");
     }
 
+    if (!playWav3.isPlaying()) {
+        playWav3.play("./Audio/calm.wav");
+    }
+
     // Silence music on pause
     if (g_state.currentUIState == UI_PAUSE) {
         setJukeboxVolume(0.0f);
+        setShopVolume(0.0f);
     }
 }
 

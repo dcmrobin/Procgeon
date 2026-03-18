@@ -105,7 +105,7 @@ void setJukeboxVolume(float v) {
 
 void setShopVolume(float v) {
     shopVolume = constrain(v, 0.0f, 0.23f);
-    playWav2.volume(shopVolume * (masterVolume / 10.0f));
+    playWav3.volume(shopVolume * (masterVolume / 10.0f));
 }
 
 bool playRawSFX(int sfxIndex) {

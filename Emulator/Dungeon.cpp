@@ -70,7 +70,6 @@ void generateDungeon(bool isBossfight) {
 
     // ── Regular dungeon ───────────────────────────────────────────────────
     const int maxRooms = random(MAX_ROOMS_MIN, MAX_ROOMS_MAX + 1);
-    Room rooms[25];   // maxRooms upper bound
     int  roomCount = 0;
 
     // Starting room at map centre
@@ -78,7 +77,7 @@ void generateDungeon(bool isBossfight) {
     int srH = random(MIN_ROOM_SIZE, MAX_ROOM_SIZE + 1);
     int srX = MAP_WIDTH  / 2 - srW / 2;
     int srY = MAP_HEIGHT / 2 - srH / 2;
-    rooms[roomCount++] = { srX, srY, srW, srH };
+    g_state.rooms[roomCount++] = { srX, srY, srW, srH };
     for (int y = srY; y < srY + srH; y++)
         for (int x = srX; x < srX + srW; x++)
             dungeonMap[y][x] = Floor;
@@ -92,14 +91,14 @@ void generateDungeon(bool isBossfight) {
 
         bool overlap = false;
         for (int j = 0; j < roomCount && !overlap; j++) {
-            overlap = rX < rooms[j].x + rooms[j].width  &&
-                      rX + rW > rooms[j].x              &&
-                      rY < rooms[j].y + rooms[j].height &&
-                      rY + rH > rooms[j].y;
+            overlap = rX < g_state.rooms[j].x + g_state.rooms[j].width  &&
+                      rX + rW > g_state.rooms[j].x              &&
+                      rY < g_state.rooms[j].y + g_state.rooms[j].height &&
+                      rY + rH > g_state.rooms[j].y;
         }
         if (overlap) continue;
 
-        rooms[roomCount++] = { rX, rY, rW, rH };
+        g_state.rooms[roomCount++] = { rX, rY, rW, rH };
         for (int y = rY; y < rY + rH; y++) {
             for (int x = rX; x < rX + rW; x++) {
                 dungeonMap[y][x] = Floor;
@@ -117,7 +116,7 @@ void generateDungeon(bool isBossfight) {
 
     // Chests
     for (int i = 0; i < random(CHEST_SPAWN_COUNT_MIN, CHEST_SPAWN_COUNT_MAX + 1); i++) {
-        Room& r = rooms[random(0, roomCount)];
+        Room& r = g_state.rooms[random(0, roomCount)];
         int cx  = r.x + random(1, r.width  - 1);
         int cy  = r.y + random(1, r.height - 1);
         if (dungeonMap[cy][cx] == Floor) dungeonMap[cy][cx] = ChestTile;
@@ -169,14 +168,34 @@ void generateDungeon(bool isBossfight) {
     // ── Connect rooms ─────────────────────────────────────────────────────
     for (int i = 1; i < roomCount; i++) {
         int x1, y1, x2, y2;
-        getEdgeTowards(rooms[i - 1], rooms[i], x1, y1);
-        getEdgeTowards(rooms[i],     rooms[i - 1], x2, y2);
+        getEdgeTowards(g_state.rooms[i - 1], g_state.rooms[i], x1, y1);
+        getEdgeTowards(g_state.rooms[i],     g_state.rooms[i - 1], x2, y2);
         if (random(0, 2) == 0) {
             carveHorizontalCorridor(x1, x2, y1);
             carveVerticalCorridor(y1, y2, x2);
         } else {
             carveVerticalCorridor(y1, y2, x1);
             carveHorizontalCorridor(x1, x2, y2);
+        }
+    }
+
+    // Place shop in an already existing room
+    if (random(0, 100) < 25) {
+        g_state.shopOnThisFloor = true;
+        Room& r = g_state.rooms[7];
+        int sx  = r.x + random(1, r.width  - 1);
+        int sy  = r.y + random(1, r.height - 1);
+        for (int y = r.y-1; y <= r.y + r.height; y++) {
+            for (int x = r.x-1; x <= r.x + r.width; x++) {
+                if ((y == r.y - 1 || x == r.x - 1 || y == r.y + r.height || x == r.x + r.width) && dungeonMap[y][x] != DoorClosed && dungeonMap[y][x] != DoorOpen && dungeonMap[y][x] != Floor) {
+                    dungeonMap[y][x] = ShopWall;
+                }
+
+                // Generate line of kiosk tiles in the middle of the room
+                if (y == (r.y + r.height / 2)-1 && x > r.x && x < r.x + r.width - 1 && dungeonMap[y][x] == Floor) {
+                    dungeonMap[y][x] = Kiosk;
+                }
+            }
         }
     }
 
@@ -194,8 +213,8 @@ void generateDungeon(bool isBossfight) {
     playerY = (float)psY;
 
     // ── Exit ─────────────────────────────────────────────────────────────
-    int exY = rooms[roomCount - 1].y + rooms[roomCount - 1].height / 2;
-    int exX = rooms[roomCount - 1].x + rooms[roomCount - 1].width  / 2;
+    int exY = g_state.rooms[roomCount - 1].y + g_state.rooms[roomCount - 1].height / 2;
+    int exX = g_state.rooms[roomCount - 1].x + g_state.rooms[roomCount - 1].width  / 2;
     dungeonMap[exY][exX] = Exit;
 
     // Optional locked exit
@@ -204,7 +223,7 @@ void generateDungeon(bool isBossfight) {
         dungeonMap[exY][exX] = KeyTile;
         bool placed = false;
         for (int attempt = 0; attempt < 100 && !placed; attempt++) {
-            Room& r  = rooms[random(1, roomCount - 1)];
+            Room& r  = g_state.rooms[random(1, roomCount - 1)];
             int   kx = r.x + random(1, r.width  - 1);
             int   ky = r.y + random(1, r.height - 1);
             if (dungeonMap[ky][kx] == Floor) {
@@ -224,13 +243,13 @@ void generateDungeon(bool isBossfight) {
     }
 
     // Equipment spawns
-    for (int i = 0; i < random(1, 4); i++) {
-        Room& r = rooms[random(1, roomCount - 1)];
+    /*for (int i = 0; i < random(1, 4); i++) {
+        Room& r = g_state.rooms[random(1, roomCount - 1)];
         int ix  = r.x + random(1, r.width  - 1);
         int iy  = r.y + random(1, r.height - 1);
         if (dungeonMap[iy][ix] == Floor)
-            dungeonMap[iy][ix] = (random(0, 100) > 50) ? ArmorTile : RingTile;
-    }
+            dungeonMap[iy][ix] = (random(0, 100) > 50) ? ArmorTile : RingTile; //no, we do not want this. loot spawning is handled farther up the code.
+    }*/
 
     placeRoomEntranceDoors();
 }
@@ -364,6 +383,17 @@ void spawnEnemies(bool isBossfight) {
                 break;
             }
         }
+
+        if (g_state.shopOnThisFloor) { // If a shop is on this floor, then spawn the shopkeeper in the shop
+            Room& r = g_state.rooms[7];
+            int   sx = r.x + r.width / 2;
+            int   sy = (r.y + r.height / 2)-2; // Spawn shopkeeper just above the line of kiosks
+            if (dungeonMap[sy][sx] == Floor) {
+                enemies[0] = { ((float)sx), ((float)sy), 1000, false, 0.0f,
+                               "shopkeeper", 1000 /*He can't die*/, 1, false, 0, 0, {}, nullptr, 9999, false, true };
+                enemies[0].sprite = shopkeeperSprite;
+            }
+        }
     } else {
         // Boss fight — clear all enemies first
         for (int i = 0; i < MAX_ENEMIES; i++) {
@@ -438,6 +468,7 @@ void drawMinimap() {
                 case Exit:    display.drawRect(dx, dy, scale, scale, 15); break;
                 case KeyTile: display.drawRoundRect(dx, dy, scale, scale, 1, 10); break;
                 case KeyItem: display.fillRect(dx + 1, dy + 1, scale - 2, scale - 2, 10); break;
+                case ShopWall: display.drawCircle(dx, dy, scale / 2, 15);  break;
                 default: break;
             }
         }
@@ -491,6 +522,14 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
     switch (t) {
         case Wall:
             display.drawBitmap((int)screenX, (int)screenY, wallSprite, tileSize, tileSize,
+                               seeAll ? 15 : bright);
+            break;
+        case ShopWall:
+            display.drawBitmap((int)screenX, (int)screenY, shopWallSprite, tileSize, tileSize,
+                               seeAll ? 15 : bright);
+            break;
+        case Kiosk:
+            display.drawBitmap((int)screenX, (int)screenY, kioskSprite, tileSize, tileSize,
                                seeAll ? 15 : bright);
             break;
         case Bars:
