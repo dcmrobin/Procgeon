@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "GameAudio.h"
 #include "Item.h"
+#include "Shop.h"
 
 #include <cmath>
 #include <cstring>
@@ -201,12 +202,20 @@ void updateShopkeeper() {
         int idy = round(playerY) - round(enemies[7].y);
         int distSq = idx * idx + idy * idy;
 
-        if (distSq <= 25 && strcmp(currentDialogue, "Hey you! Come buy something!") != 0) {
+        bool boughtSomething = false;
+
+        for (int i = 0; i < SHOP_MAX_ITEMS; i++) {
+            if (shopItems[i].item.item == Null) {
+                boughtSomething = true;
+            }
+        }
+
+        if (distSq <= 25 && strcmp(currentDialogue, "Hey you! Come buy something!") != 0 && !boughtSomething) {
             currentDamselPortrait = shopkeeperPortrait;
             dialogueTimeLength    = 500;
             snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Hey you! Come buy something!");
             showDialogue        = true;
-        } else if (distSq > 25) {
+        } else if (distSq > 25 && !boughtSomething) {
             showDialogue        = false;
             dialogueTimeLength    = 0;
             snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "");
