@@ -382,7 +382,8 @@ void OpenChest(int cy, int cx, int /*dx_unused*/) {
     pendingChestX      = cx;
     pendingChestY      = cy;
 
-    if (random(0, 2) == 0) {
+    //if (random(0, 2) == 0) {
+    if (cy % 2 == 0) {// Only do picross on even y coords so that when the player exits and reopens, it is still the same puzzle type
         startPicrossPuzzle();
     } else {
         startLightsOutPuzzle();
