@@ -230,7 +230,7 @@ void handleInput() {
                     for (int h = 0; h < hitCount; h++) {
                         int idx = hitIndices[h];
                         int dmg = base + (h < rem ? 1 : 0);
-                        if (strcmp(enemies[idx].name, "shopkeeper") != 0) {
+                        if (strcmp(enemies[idx].name, "shopkeeper") != 0 && !enemies[idx].isFriend) {
                             enemies[idx].hp -= dmg;
                             spawnParticles(enemies[idx].x, enemies[idx].y, 1, 0.15f, false);
                             playRawSFX3D(23, enemies[idx].x, enemies[idx].y);

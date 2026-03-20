@@ -310,7 +310,7 @@ void applyAOEEffect(float cx, float cy, int aoeRadius, int aoeDamage) {
         if (enemies[i].hp <= 0) continue;
         int dx = round(cx) - round(enemies[i].x);
         int dy = round(cy) - round(enemies[i].y);
-        if (dx * dx + dy * dy <= aoeRadius * aoeRadius && strcmp(enemies[i].name, "shopkeeper") != 0) {
+        if (dx * dx + dy * dy <= aoeRadius * aoeRadius && strcmp(enemies[i].name, "shopkeeper") != 0 && !enemies[i].isFriend) {
             enemies[i].hp -= aoeDamage;
             if (enemies[i].hp <= 0) kills++;
         }

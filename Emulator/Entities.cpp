@@ -721,7 +721,7 @@ void updateProjectiles() {
                           enemies[j].x, enemies[j].y);
             }
 
-            if (hit && enemies[j].hp > 0 && strcmp(enemies[j].name, "shopkeeper") != 0) {
+            if (hit && !enemies[j].isFriend && enemies[j].hp > 0 && strcmp(enemies[j].name, "shopkeeper") != 0) {
                 enemies[j].hp -= (int)projectiles[i].damage;
                 spawnParticles(enemies[j].x, enemies[j].y, 1, 0.15f, false);
                 playRawSFX3D(23, enemies[j].x, enemies[j].y);
