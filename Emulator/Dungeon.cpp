@@ -382,6 +382,13 @@ void spawnEnemies(bool isBossfight) {
                                    false, 0, 0, {}, nullptr, 20, false, false };
                     enemies[i].sprite = batguyAnimation[random(0, batguyAnimationLength)].frame;
                 }
+
+                if (endlessMode && random(0, 100) < 10) {
+                    // Chance for enemy to have extra stats in endless mode
+                    enemies[i].hp += dungeon * 2;
+                    enemies[i].damage += dungeon * 2;
+                    enemies[i].moveAmount -= 0.01f; // stronger enemies move slower
+                }
                 break;
             }
         }
