@@ -67,6 +67,7 @@ public:
     // Font support
     void setFont(const uint8_t *f = nullptr);
     static const uint8_t profont10_font[];
+    static const uint8_t font3x5[];
     // Simple built-in font (5x7)
     static const uint8_t builtin_font[];
     

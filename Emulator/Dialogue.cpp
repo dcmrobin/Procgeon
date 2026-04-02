@@ -88,7 +88,9 @@ void handleDialogue() {
         u8g2_for_adafruit_gfx.setFont(u8g2_font_profont10_mf);
         display.fillRect(25, 10, 100, 34, 0);
         display.setCursor(28, 13);
+        //display.setFont(Adafruit_GFX::font3x5);
         display.print(currentDialogue);
+        //display.setFont(Adafruit_GFX::builtin_font);
         display.drawRect(25, 10, 100, 34, 15);
 
         // Portrait (hidden for ridicule/glamour unless it's the "wait up" line)

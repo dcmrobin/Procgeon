@@ -370,6 +370,7 @@ void showStatusScreen() {
 
     display.clearDisplay();
     display.setTextColor(15, 0);
+    display.setFont(Adafruit_GFX::font3x5);
 
     if (!nearSuccubus && !endlessMode) {
         if (!g_state.finalStatusScreen) {
@@ -480,6 +481,7 @@ void showStatusScreen() {
     }
 
     display.display();
+    display.setFont(Adafruit_GFX::builtin_font);
 
     // ── Button handling ───────────────────────────────────────────────────
     if (b.bPressed && !b.bPressedPrev) {
