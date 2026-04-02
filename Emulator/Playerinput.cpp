@@ -118,15 +118,24 @@ void handleInput() {
     {
         float dx = playerX - damsel[0].x;
         float dy = playerY - damsel[0].y;
-        if (b.bPressed &&
-            (dx * dx + dy * dy) <= 0.4f &&
-            !damsel[0].dead &&
-            damsel[0].levelOfLove >= 6) {
-            playerActed = true;
-            startCarryingDamsel(true);
-        }
-        if (!b.bPressed && damsel[0].beingCarried) {
-            startCarryingDamsel(false); // reset damsel pick up timer
+
+        if (!damsel[0].beingCarried) {
+            if (b.bPressed &&
+                (dx * dx + dy * dy) <= 0.4f &&
+                !damsel[0].dead &&
+                damsel[0].levelOfLove >= 6) {
+                playerActed = true;
+                startCarryingDamsel(false);
+            } else {
+                startCarryingDamsel(true);
+            }
+        } else {
+            if (b.bPressed) {
+                playerActed = true;
+                startCarryingDamsel(false);
+            } else {
+                startCarryingDamsel(true);
+            }
         }
     }
 
