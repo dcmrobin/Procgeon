@@ -369,7 +369,7 @@ void showStatusScreen() {
     const ButtonStates& b = g_state.buttons;
 
     display.clearDisplay();
-    display.setTextColor(15, 0)
+    display.setTextColor(15, 0);
 
     if (!nearSuccubus && !endlessMode) {
         if (!g_state.finalStatusScreen) {
