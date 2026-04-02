@@ -24,7 +24,7 @@ void setupShopItems() {
         if (itemList[j].item == Weapon) {
             int weaponCount = sizeof(weaponList) / sizeof(weaponList[0]);
             shopItems[i].item.weapon = weaponList[random(0, weaponCount)];
-            snprintf(shopItems[i].item.name, sizeof(shopItems[i].item.name), "%d", shopItems[i].item.weapon.name);
+            snprintf(shopItems[i].item.name, sizeof(shopItems[i].item.name), "%s", shopItems[i].item.weapon.name);
         }
     }
     g_state.shopItemCount = SHOP_MAX_ITEMS;
