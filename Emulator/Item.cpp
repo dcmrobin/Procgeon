@@ -313,6 +313,7 @@ void applyAOEEffect(float cx, float cy, int aoeRadius, int aoeDamage) {
         if (dx * dx + dy * dy <= aoeRadius * aoeRadius && strcmp(enemies[i].name, "shopkeeper") != 0 && !enemies[i].isFriend) {
             enemies[i].hp -= aoeDamage;
             if (enemies[i].hp <= 0) kills++;
+            if (enemies[i].hp <= 0 && random(0, 100) < 15 && dungeonMap[(int)round(enemies[i].y)][(int)round(enemies[i].x)] == Floor) dungeonMap[(int)round(enemies[i].y)][(int)round(enemies[i].x)] = MushroomTile;
         }
     }
 }

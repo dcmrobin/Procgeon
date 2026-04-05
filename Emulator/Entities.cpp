@@ -436,6 +436,7 @@ void updateEnemies() {
                 if (dist < 0.5f && enemies[j].attackDelayCounter >= enemies[j].attackDelay) {
                     enemies[i].hp -= enemies[j].damage;
                     if (enemies[i].hp <= 0) kills++;
+                    if (enemies[i].hp <= 0 && random(0, 100) < 15 && dungeonMap[(int)round(enemies[i].y)][(int)round(enemies[i].x)] == Floor) dungeonMap[(int)round(enemies[i].y)][(int)round(enemies[i].x)] = MushroomTile;
                     playRawSFX3D(23, enemies[i].x, enemies[i].y);
                     enemies[j].attackDelayCounter = 0;
                 }
@@ -662,6 +663,7 @@ void updateEnemies() {
                     if (enemies[i].attackDelayCounter >= enemies[i].attackDelay && !hasAttacked) {
                         enemies[j].hp -= enemies[i].damage;
                         if (enemies[j].hp <= 0) kills++;
+                        if (enemies[j].hp <= 0 && random(0, 100) < 15 && dungeonMap[(int)round(enemies[j].y)][(int)round(enemies[j].x)] == Floor) dungeonMap[(int)round(enemies[j].y)][(int)round(enemies[j].x)] = MushroomTile;
                         playRawSFX3D(23, enemies[i].x, enemies[i].y);
                         hasAttacked = true;
                     }
@@ -728,6 +730,7 @@ void updateProjectiles() {
                 if (enemies[j].hp <= 0) {
                     spawnParticles(enemies[j].x, enemies[j].y, 5, 0.25f, true);
                     kills++;
+                    if (random(0, 100) < 15 && dungeonMap[(int)round(enemies[j].y)][(int)round(enemies[j].x)] == Floor) dungeonMap[(int)round(enemies[j].y)][(int)round(enemies[j].x)] = MushroomTile;
                     if (strcmp(enemies[j].name, "clock") == 0) {
                         enemies[j].x = -3000.0f;
                         enemies[j].y = -3000.0f;

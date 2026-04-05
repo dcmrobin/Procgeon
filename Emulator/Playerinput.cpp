@@ -247,6 +247,7 @@ void handleInput() {
                                 kills++;
                                 spawnParticles(enemies[idx].x, enemies[idx].y, 5, 0.25f, true);
                             }
+                            if (enemies[idx].hp <= 0 && random(0, 100) < 15 && dungeonMap[(int)round(enemies[idx].y)][(int)round(enemies[idx].x)] == Floor) dungeonMap[(int)round(enemies[idx].y)][(int)round(enemies[idx].x)] = MushroomTile;
                         }
                     }
                 }
