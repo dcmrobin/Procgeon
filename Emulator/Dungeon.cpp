@@ -591,11 +591,8 @@ void drawTile(int mapX, int mapY, float screenX, float screenY) {
     }
 }
 
-int computeTileBrightness(int mapX, int mapY) {
-    float dist      = sqrtf((playerX - mapX) * (playerX - mapX) +
-                             (playerY - mapY) * (playerY - mapY));
-    float fallStart = (invisibleRingsNumber > 0 && !seeAll) ? 0.0f : 5.0f;
-    float fallEnd   = (invisibleRingsNumber > 0 && !seeAll) ? 3.0f : 10.0f;
+int computeLightFromSource(float sourceX, float sourceY, int mapX, int mapY, float fallStart, float fallEnd) {
+    float dist = sqrtf((sourceX - mapX) * (sourceX - mapX) + (sourceY - mapY) * (sourceY - mapY));
 
     int total = 0, lit = 0;
     for (int dy = -1; dy <= 1; dy++) {
@@ -604,18 +601,36 @@ int computeTileBrightness(int mapX, int mapY) {
             int nx = mapX + dx, ny = mapY + dy;
             if (nx >= 0 && nx < MAP_WIDTH && ny >= 0 && ny < MAP_HEIGHT) {
                 total++;
-                if (isVisible(round(playerX), round(playerY), nx, ny)) lit++;
+                if (isVisible(round(sourceX), round(sourceY), nx, ny)) lit++;
             }
         }
     }
 
-    float frac   = total > 0 ? (float)lit / total : 0.0f;
-    int   bright = 3 + (int)(frac * 12.0f);
+    float frac = total > 0 ? (float)lit / total : 0.0f;
+    int bright = 3 + (int)(frac * 12.0f);
 
     if (dist > fallStart) {
         float factor = 1.0f - ((dist - fallStart) / (fallEnd - fallStart));
-        factor  = constrain(factor, 0.0f, 1.0f);
-        bright  = 3 + (int)(factor * (bright - 3));
+        factor = constrain(factor, 0.0f, 1.0f);
+        bright = 3 + (int)(factor * (bright - 3));
     }
+    return bright;
+}
+
+int computeTileBrightness(int mapX, int mapY) {
+    float fallStart = (invisibleRingsNumber > 0 && !seeAll) ? 0.0f : 5.0f;
+    float fallEnd = (invisibleRingsNumber > 0 && !seeAll) ? 3.0f : 10.0f;
+
+    int bright = computeLightFromSource(playerX, playerY, mapX, mapY, fallStart, fallEnd);
+
+    // Add light from shopkeeper if visible
+    if (g_state.shopOnThisFloor && enemies[7].hp > 0) {
+        int shopX = round(enemies[7].x), shopY = round(enemies[7].y);
+        if (isVisible(round(playerX), round(playerY), shopX, shopY)) {
+            int shopBright = computeLightFromSource(enemies[7].x, enemies[7].y, mapX, mapY, fallStart, fallEnd);
+            if (shopBright > bright) bright = shopBright;
+        }
+    }
+
     return bright;
 }
