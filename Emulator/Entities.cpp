@@ -649,6 +649,7 @@ void updateEnemies() {
         // Enemy repulsion + friendly combat
         for (int j = 0; j < MAX_ENEMIES; j++) {
             if (j == i || enemies[j].hp <= 0) continue;
+            if (strcmp(enemies[i].name, "shopkeeper") == 0) continue;
             float repDist = sqrtf((enemies[i].x - enemies[j].x) * (enemies[i].x - enemies[j].x) +
                                   (enemies[i].y - enemies[j].y) * (enemies[i].y - enemies[j].y));
             if (repDist < REPEL_DISTANCE) {
