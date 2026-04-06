@@ -43,6 +43,12 @@ extern const unsigned char damselHopefullSpriteLeft[];
 extern const unsigned char damselSpriteDead[];
 extern const unsigned char* damselSprite;
 
+// Fairy sprites
+extern const unsigned char fairySpriteFrame1[];
+extern const unsigned char fairySpriteFrame2[];
+extern Frame fairyAnimation[];
+extern const int fairyAnimationLength;
+
 // Blob sprites
 extern const unsigned char blobSpriteFrame1[];
 extern const unsigned char blobSpriteFrame2[];
@@ -148,6 +154,8 @@ extern const unsigned char bossPortraitIdle[];
 extern const unsigned char bossPortraitEnraged[];
 extern const unsigned char shopkeeperPortrait[];
 extern const unsigned char shopkeeperAnnoyedPortrait[];
+extern const unsigned char fairyLeaningPortrait[];
+extern const unsigned char fairyPassivePortrait[];
 
 
 // Screens

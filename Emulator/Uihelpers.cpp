@@ -224,6 +224,7 @@ void updateAnimations() {
         else if (strcmp(e.name, "shooter")   == 0) { anim = shooterAnimation;    animLen = shooterAnimationLength;    }
         else if (strcmp(e.name, "clock")     == 0) { anim = clockAnimation;      animLen = clockAnimationLength;      }
         else if (strcmp(e.name, "jukebox")   == 0) { anim = jukeboxAnimation;    animLen = jukeboxAnimationLength;    }
+        else if (strcmp(e.name, "fairy")   == 0) { anim = fairyAnimation;    animLen = fairyAnimationLength;    }
         else if (strcmp(e.name, "boss")      == 0) {
             switch (bossState) {
                 case Idle:
