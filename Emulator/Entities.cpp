@@ -210,7 +210,7 @@ void updateShopkeeper() {
             }
         }
 
-        if (distSq <= 25 && strcmp(currentDialogue, "Hey you! Come buy something!") != 0 && !boughtSomething) {
+        if (distSq <= 25 && strcmp(currentDialogue, "Hey you! Come buy something!") != 0 && !boughtSomething && isVisible(round(playerX), round(playerY), round(enemies[7].x), round(enemies[7].y))) {
             currentDamselPortrait = shopkeeperPortrait;
             dialogueTimeLength    = 500;
             snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Hey you! Come buy something!");
