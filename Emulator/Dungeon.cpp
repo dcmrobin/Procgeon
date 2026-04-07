@@ -201,6 +201,22 @@ void generateDungeon(bool isBossfight) {
         }
     }
 
+    // Place fairy room in an already existing room
+    if (random(15, 40) < /*dungeon*/ 20) {
+        setupUpgrades();
+        g_state.fairyOnThisFloor = true;
+        Room& r = g_state.rooms[3];
+        int sx  = r.x + random(1, r.width  - 1);
+        int sy  = r.y + random(1, r.height - 1);
+        for (int y = r.y-1; y <= r.y + r.height; y++) {
+            for (int x = r.x-1; x <= r.x + r.width; x++) {
+                if ((y == r.y - 1 || x == r.x - 1 || y == r.y + r.height || x == r.x + r.width) && dungeonMap[y][x] != DoorClosed && dungeonMap[y][x] != DoorOpen && dungeonMap[y][x] != Floor) {
+                    dungeonMap[y][x] = ShopWall;
+                }
+            }
+        }
+    }
+
     // ── Remove lone wall tiles ────────────────────────────────────────────
     for (int y = 1; y < MAP_HEIGHT - 1; y++)
         for (int x = 1; x < MAP_WIDTH - 1; x++)
@@ -401,6 +417,16 @@ void spawnEnemies(bool isBossfight) {
                 enemies[7] = { ((float)sx), ((float)sy), 1000, false, 0.0f,
                                "shopkeeper", 1000 /*He can't die*/, 1, false, 0, 0, {}, nullptr, 9999, false, true };
                 enemies[7].sprite = shopkeeperSprite;
+            }
+        }
+        if (g_state.fairyOnThisFloor) { // If a fairy is on this floor, then spawn the fairy in the room
+            Room& r = g_state.rooms[5];
+            int   sx = r.x + r.width / 2;
+            int   sy = (r.y + r.height / 2)-2; // Spawn shopkeeper just above the line of kiosks
+            if (dungeonMap[sy][sx] == Floor) {
+                enemies[5] = { ((float)sx), ((float)sy), 1000, false, 0.0f,
+                               "fairy", 1000 /*She can't die*/, 1, false, 0, 0, {}, nullptr, 9999, false, true };
+                enemies[5].sprite = fairySpriteFrame1;
             }
         }
     } else {
@@ -629,6 +655,13 @@ int computeTileBrightness(int mapX, int mapY) {
         if (isVisible(round(playerX), round(playerY), shopX, shopY)) {
             int shopBright = computeLightFromSource(enemies[7].x, enemies[7].y, mapX, mapY, fallStart, fallEnd);
             if (shopBright > bright) bright = shopBright;
+        }
+    }
+    if (g_state.fairyOnThisFloor && enemies[5].hp > 0) {
+        int fairyX = round(enemies[5].x), fairyY = round(enemies[5].y);
+        if (isVisible(round(playerX), round(playerY), fairyX, fairyY)) {
+            int fairyBright = computeLightFromSource(enemies[5].x, enemies[5].y, mapX, mapY, fallStart, fallEnd);
+            if (fairyBright > bright) bright = fairyBright;
         }
     }
 

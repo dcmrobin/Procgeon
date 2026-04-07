@@ -186,6 +186,7 @@ struct GameState {
     bool        hasMap              = false;
     bool        playerNearClockEnemy = false;
     bool        shopOnThisFloor     = false;
+    bool        fairyOnThisFloor     = false;
     Room        rooms[MAX_ROOMS_MAX] = {};
     int         ambientNoiseLevel   = 0;
 
