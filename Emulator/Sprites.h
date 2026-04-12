@@ -190,5 +190,6 @@ extern const unsigned char damsel_splash [];
 extern const unsigned char blob_splash [];
 extern const unsigned char batguy_splash [];
 extern const unsigned char* currentSplash;
+extern const unsigned char fairyScreen [];
 
 #endif // SPRITES_H
