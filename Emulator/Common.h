@@ -71,7 +71,8 @@ enum UIState {
     UI_SPLASH,
     UI_INTRO,
     UI_SECRET,
-    UI_SHOP
+    UI_SHOP,
+    UI_FAIRY
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

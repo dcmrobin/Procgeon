@@ -34,14 +34,16 @@ AudioConnection patchCord10(mixer2,   0, musicMixer, 1);
 AudioConnection patchCord11(playWav1, 0, wavMixer, 0);
 AudioConnection patchCord12(playWav2, 0, wavMixer, 1);
 AudioConnection patchCord13(playWav3, 0, wavMixer, 2);
-AudioConnection patchCord14(wavMixer,    0, musicMixer, 2);
-AudioConnection patchCord15(musicMixer,  0, audioOutput, 0);
-AudioConnection patchCord16(musicMixer,  0, audioOutput, 1);
+AudioConnection patchCord14(playWav4, 0, wavMixer, 3);
+AudioConnection patchCord15(wavMixer,    0, musicMixer, 2);
+AudioConnection patchCord16(musicMixer,  0, audioOutput, 0);
+AudioConnection patchCord17(musicMixer,  0, audioOutput, 1);
 
 int   ambientNoiseLevel = 0;
 int   masterVolume      = MASTER_VOLUME_DEFAULT;
 float jukeboxVolume     = 0.0f;
 float shopVolume     = 0.0f;
+float fairyVolume    = 0.0f;
 
 uint8_t*   sfxData[NUM_SFX]   = { nullptr };
 size_t     sfxLength[NUM_SFX] = { 0 };
@@ -89,6 +91,7 @@ void initAudio() {
         return;
     }
     Mix_AllocateChannels(16);
+    Mix_ReserveChannels(4);
     float vol = constrain(masterVolume / 10.0f, 0.0f, 1.0f);
     Mix_Volume(-1, static_cast<int>(vol * MIX_MAX_VOLUME));
     if (!loadSFXtoRAM())
@@ -106,6 +109,11 @@ void setJukeboxVolume(float v) {
 void setShopVolume(float v) {
     shopVolume = constrain(v, 0.0f, 0.23f);
     playWav3.volume(shopVolume * (masterVolume / 10.0f));
+}
+
+void setFairyVolume(float v) {
+    fairyVolume = constrain(v, 0.0f, 0.23f);
+    playWav4.volume(fairyVolume * (masterVolume / 10.0f));
 }
 
 bool playRawSFX(int sfxIndex) {

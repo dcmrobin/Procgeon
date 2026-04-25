@@ -24,6 +24,7 @@ extern AudioControlSGTL5000 sgtl5000_1;
 extern AudioPlaySdWav       playWav1;
 extern AudioPlaySdWav       playWav2;
 extern AudioPlaySdWav       playWav3;
+extern AudioPlaySdWav       playWav4;
 
 // ── SFX asset storage ────────────────────────────────────────────────────
 extern uint8_t*     sfxData[NUM_SFX];
@@ -41,5 +42,6 @@ bool playRawSFX(int sfxIndex);
 bool playRawSFX3D(int sfxIndex, float soundX, float soundY);
 void setJukeboxVolume(float v);
 void setShopVolume(float v);
+void setFairyVolume(float v);
 
 #endif // GAMEAUDIO_H

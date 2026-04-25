@@ -114,6 +114,10 @@ void handleUIStateTransitions() {
                 playRawSFX(13);
                 currentUIState = UI_NORMAL;
                 break;
+            case UI_FAIRY:
+                playRawSFX(13);
+                currentUIState = UI_NORMAL;
+                break;
             // These states handle their own A-press:
             case UI_PAUSE:
             case UI_RIDDLE:

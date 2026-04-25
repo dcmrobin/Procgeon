@@ -181,7 +181,7 @@ void generateDungeon(bool isBossfight) {
     }
 
     // Place shop in an already existing room
-    if (random(0, 10) < 2) {
+    if (random(0, 10) < 2 && !g_state.shopOnThisFloor) {
         setupShopItems();
         g_state.shopOnThisFloor = true;
         Room& r = g_state.rooms[7];
@@ -202,7 +202,7 @@ void generateDungeon(bool isBossfight) {
     }
 
     // Place fairy room in an already existing room
-    if (random(15, 40) < /*dungeon*/ 20) {
+    if (/*random(15, 40) < /*dungeon*/ /*20*/ true && !g_state.fairyOnThisFloor) { // THIS IS TEMPORARY
         setupUpgrades();
         g_state.fairyOnThisFloor = true;
         Room& r = g_state.rooms[3];

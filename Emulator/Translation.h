@@ -384,12 +384,14 @@ class AudioPlaySdWav {
 private:
     Mix_Chunk* chunk = nullptr;
     int channel = -1;
+    int reservedChannel = -1;
     static inline std::unordered_map<std::string, Mix_Chunk*> loadedChunks;
     float currentVolume = 1.0f;
     bool playing = false;  // Track playing state internally
     
 public:
-    AudioPlaySdWav() = default;
+    AudioPlaySdWav(int reservedChannel_ = -1)
+        : channel(reservedChannel_), reservedChannel(reservedChannel_) {}
     
     bool play(const char* filename) {
         if (!filename) return false;
@@ -403,7 +405,10 @@ public:
             loadedChunks[fname] = c;
         }
         chunk = loadedChunks[fname];
-        channel = Mix_PlayChannel(-1, chunk, 0);
+        if (reservedChannel >= 0)
+            channel = Mix_PlayChannel(reservedChannel, chunk, 0);
+        else
+            channel = Mix_PlayChannel(-1, chunk, 0);
         if (channel != -1) {
             Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
             playing = true;
@@ -419,7 +424,10 @@ public:
     
     void play() { 
         if (chunk) {
-            channel = Mix_PlayChannel(-1, chunk, 0); 
+            if (reservedChannel >= 0)
+                channel = Mix_PlayChannel(reservedChannel, chunk, 0);
+            else
+                channel = Mix_PlayChannel(-1, chunk, 0);
             if (channel != -1) {
                 Mix_Volume(channel, static_cast<int>(currentVolume * MIX_MAX_VOLUME));
                 playing = true;
@@ -431,7 +439,7 @@ public:
         if (channel != -1) {
             Mix_HaltChannel(channel); 
         }
-        channel = -1;
+        channel = reservedChannel;
         playing = false;
     }
     
@@ -457,9 +465,10 @@ public:
         volume(level);
     }
 };
-inline AudioPlaySdWav playWav1;
-inline AudioPlaySdWav playWav2;
-inline AudioPlaySdWav playWav3;
+inline AudioPlaySdWav playWav1(0);
+inline AudioPlaySdWav playWav2(1);
+inline AudioPlaySdWav playWav3(2);
+inline AudioPlaySdWav playWav4(3);
 
 // SDL2 helper wrappers
 inline bool initSDL2Audio(int freq = 44100, Uint16 format = MIX_DEFAULT_FORMAT, int channels = 2, int chunksize = 1024) {

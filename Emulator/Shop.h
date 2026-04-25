@@ -16,4 +16,8 @@ void setupShopItems();
 void renderShop();
 void handleShopNavigation();
 
+void setupUpgrades();
+void renderFairy();
+void handleFairyNavigation();
+
 #endif

@@ -421,6 +421,23 @@ void updateEnemies() {
         setShopVolume(vol);
     }
 
+    // ── Fairy volume ─────────────────────────────────────────────────────
+    {
+        float closestDist = 1e9f;
+        for (int j = 0; j < MAX_ENEMIES; j++) {
+            if (enemies[j].hp > 0 && strcmp(enemies[j].name, "fairy") == 0) {
+                float dx = enemies[j].x - playerX;
+                float dy = enemies[j].y - playerY;
+                float d  = sqrtf(dx * dx + dy * dy);
+                if (d < closestDist) closestDist = d;
+            }
+        }
+        float vol = 0.0f;
+        if (closestDist < JUKEBOX_MAX_RADIUS)
+            vol = 1.0f - (closestDist / JUKEBOX_MAX_RADIUS);
+        setFairyVolume(vol);
+    }
+
     // ── Per-enemy update ──────────────────────────────────────────────────
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (enemies[i].hp <= 0) continue;
@@ -638,7 +655,7 @@ void updateEnemies() {
                     if (dmg > 0) {
                         playerHP -= dmg;
                         triggerScreenShake(2, 1);
-                        playRawSFX(0);
+                        playRawSFX(dmg == 0 ? 8 : 0);
                         checkIfDeadFrom(enemies[i].name);
                     }
                     hasAttacked = true;
@@ -652,12 +669,18 @@ void updateEnemies() {
             if (strcmp(enemies[i].name, "shopkeeper") == 0) continue;
             float repDist = sqrtf((enemies[i].x - enemies[j].x) * (enemies[i].x - enemies[j].x) +
                                   (enemies[i].y - enemies[j].y) * (enemies[i].y - enemies[j].y));
-            if (repDist < REPEL_DISTANCE) {
+            float thisRepelDist = REPEL_DISTANCE;
+            float thisRepelStrength = REPEL_STRENGTH;
+            if (!enemies[i].isFriend && (strcmp(enemies[j].name, "shopkeeper") == 0 || strcmp(enemies[j].name, "fairy") == 0)) {
+                thisRepelDist = 2.0f;
+                thisRepelStrength = 0.2f;
+            }
+            if (repDist < thisRepelDist) {
                 float rx = enemies[i].x - enemies[j].x;
                 float ry = enemies[i].y - enemies[j].y;
                 float rm = sqrtf(rx * rx + ry * ry) + 0.01f;
-                enemies[i].x += (rx / rm) * REPEL_STRENGTH;
-                enemies[i].y += (ry / rm) * REPEL_STRENGTH;
+                enemies[i].x += (rx / rm) * thisRepelStrength;
+                enemies[i].y += (ry / rm) * thisRepelStrength;
 
                 if (enemies[i].isFriend && !enemies[j].isFriend && strcmp(enemies[i].name, "shopkeeper") != 0) {
                     isAttacking = true;
@@ -776,7 +799,7 @@ void updateProjectiles() {
             if (dmg < 0) dmg = 0;
             playerHP -= dmg;
             triggerScreenShake(2, 1);
-            playRawSFX(0);
+            playRawSFX(dmg == 0 ? 7 : 0);
             checkIfDeadFrom("projectile");
             projectiles[i].active = false;
         }

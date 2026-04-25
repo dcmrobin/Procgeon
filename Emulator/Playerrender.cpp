@@ -121,6 +121,24 @@ void renderPlayer() {
             }
         }
 
+        // ── "Fairy [X]" prompt ───────────────────────────────────────────
+        if (strcmp(enemies[5].name, "fairy") == 0) {
+            float dx = playerX - enemies[5].x;
+            float dy = playerY - enemies[5].y;
+            if ((dx * dx + dy * dy) <= 0.4f) {
+                display.setTextSize(1);
+                display.setTextColor(15, 0);
+                int textWidth = 9 * 6;
+                display.setCursor((int)(screenX + tileSize / 2) - textWidth / 2,
+                                  (int)(screenY + tileSize) + 2);
+                display.print("Fairy [X]");
+                if (g_state.buttons.bPressed && !g_state.buttons.bPressedPrev) {
+                    playRawSFX(12);
+                    g_state.currentUIState = UI_FAIRY;
+                }
+            }
+        }
+
         // ── Facing-tile interaction prompts ───────────────────────────────
         int facingX = round(playerX) + playerDX;
         int facingY = round(playerY) + playerDY;

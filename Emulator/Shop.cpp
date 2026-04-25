@@ -6,6 +6,7 @@
 #include "GameAudio.h"
 #include "Dungeon.h"
 #include "Entities.h"
+#include "Sprites.h"
 
 ShopItem shopItems[SHOP_MAX_ITEMS] = {};
 
@@ -208,5 +209,34 @@ void handleShopNavigation() {
                 shopItems[g_state.shopSelectedIndex].price = 0;
             }
         }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fairy upgrade screen
+// ─────────────────────────────────────────────────────────────────────────────
+
+void setupUpgrades() {
+    // Placeholder: set up upgrade items similar to shop
+    for (int i = 0; i < SHOP_MAX_ITEMS; i++) {
+        // For now, copy shop items or set to null
+        shopItems[i].item = {Null, PotionCategory, "Null"};
+        shopItems[i].price = 0;
+    }
+    // TODO: Implement actual upgrades
+}
+
+void renderFairy() {
+    display.clearDisplay();
+    // Display fairyScreenSparkle
+    display.drawBitmap(0, 0, seeAll ? fairyScreen : fairyScreenSparkle, 128, 128, 15);
+    display.display();
+}
+
+void handleFairyNavigation() {
+    // Placeholder: exit on X or something
+    if (g_state.buttons.bPressed && !g_state.buttons.bPressedPrev) {
+        playRawSFX(7);
+        g_state.currentUIState = UI_NORMAL;
     }
 }

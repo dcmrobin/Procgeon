@@ -41,6 +41,7 @@ static void writeHighscoresToFile(int dngnHighscore, int kllHighscore) {
 void resetGame() {
     setJukeboxVolume(0.0f);
     setShopVolume(0.0f);
+    setFairyVolume(0.0f);
 
     g_state.deleteSV        = false;
     g_state.introNum        = 0;
@@ -289,6 +290,11 @@ void game_loop() {
                             renderShop();
                             handleShopNavigation();
                             break;
+
+                        case UI_FAIRY:
+                            renderFairy();
+                            handleFairyNavigation();
+                            break;
                     }
                 } else {
                     showStatusScreen();
@@ -315,10 +321,21 @@ void game_loop() {
         playWav3.play("./Audio/calm.wav");
     }
 
+    if (g_state.fairyOnThisFloor) {
+        if (!playWav4.isPlaying()) {
+            playWav4.play("./Audio/inBetween.wav");
+        }
+    } else {
+        if (playWav4.isPlaying()) {
+            playWav4.stop();
+        }
+    }
+
     // Silence music on pause
     if (g_state.currentUIState == UI_PAUSE) {
         setJukeboxVolume(0.0f);
         setShopVolume(0.0f);
+        setFairyVolume(0.0f);
     }
 }
 
