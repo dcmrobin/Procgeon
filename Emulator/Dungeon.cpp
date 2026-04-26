@@ -181,7 +181,7 @@ void generateDungeon(bool isBossfight) {
     }
 
     // Place shop in an already existing room
-    if (random(0, 10) < 2 && !g_state.shopOnThisFloor) {
+    if (/*random(0, 10) < 2*/ true && !g_state.shopOnThisFloor) { // THIS IS TEMPORARY
         setupShopItems();
         g_state.shopOnThisFloor = true;
         Room& r = g_state.rooms[7];
