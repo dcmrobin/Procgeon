@@ -353,6 +353,7 @@ void updateGame() {
         handleHungerAndEffects();
         updateDamsel();
         updateShopkeeper();
+        updateFairy();
         updateProjectiles();
         if (g_state.dungeon == bossfightLevel) {
             updateBossfight();

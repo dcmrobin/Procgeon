@@ -224,6 +224,37 @@ void updateShopkeeper() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// updateFairy
+// ─────────────────────────────────────────────────────────────────────────────
+void updateFairy() {
+    if (strcmp(enemies[5].name, "fairy") == 0 && enemies[5].hp > 0) {
+        int idx = round(playerX) - round(enemies[5].x);
+        int idy = round(playerY) - round(enemies[5].y);
+        int distSq = idx * idx + idy * idy;
+
+        if (distSq <= 25 && strcmp(currentDialogue, "Make a wish...") != 0 && isVisible(round(playerX), round(playerY), round(enemies[5].x), round(enemies[5].y))) {
+            // Close: "Make a wish..." with leaning portrait
+            currentDamselPortrait = fairyLeaningPortrait;
+            dialogueTimeLength    = 500;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Make a wish...");
+            showDialogue        = true;
+        } else if (distSq > 25 && distSq <= 50 && strcmp(currentDialogue, "Welcome...") != 0 && isVisible(round(playerX), round(playerY), round(enemies[5].x), round(enemies[5].y))) {
+            // Nearish: "Welcome..." with passive portrait
+            currentDamselPortrait = fairyPassivePortrait;
+            dialogueTimeLength    = 500;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "Welcome...");
+            showDialogue        = true;
+        } else if ((distSq > 50 || !isVisible(round(playerX), round(playerY), round(enemies[5].x), round(enemies[5].y))) &&
+                   (strcmp(currentDialogue, "Welcome...") == 0 || strcmp(currentDialogue, "Make a wish...") == 0)) {
+            // Only clear dialogue if we were showing fairy dialogue
+            showDialogue        = false;
+            dialogueTimeLength    = 0;
+            snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s", "");
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // updateDamsel
 // ─────────────────────────────────────────────────────────────────────────────
 static int damselMoveDelay = 0;
