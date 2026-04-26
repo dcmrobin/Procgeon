@@ -217,12 +217,6 @@ void handleShopNavigation() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 void setupUpgrades() {
-    // Placeholder: set up upgrade items similar to shop
-    for (int i = 0; i < SHOP_MAX_ITEMS; i++) {
-        // For now, copy shop items or set to null
-        shopItems[i].item = {Null, PotionCategory, "Null"};
-        shopItems[i].price = 0;
-    }
     // TODO: Implement actual upgrades
 }
 
