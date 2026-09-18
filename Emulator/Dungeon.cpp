@@ -181,7 +181,7 @@ void generateDungeon(bool isBossfight) {
     }
 
     // Place shop in an already existing room
-    if (/*random(0, 10) < 2*/ true && !g_state.shopOnThisFloor) { // THIS IS TEMPORARY
+    if (random(0, 10) < 2) { // THIS IS TEMPORARY
         setupShopItems();
         g_state.shopOnThisFloor = true;
         Room& r = g_state.rooms[7];
@@ -201,21 +201,21 @@ void generateDungeon(bool isBossfight) {
         }
     }
 
-    // Place fairy room in an already existing room
-    if (/*random(15, 40) < /*dungeon*/ /*20*/ true && !g_state.fairyOnThisFloor) { // THIS IS TEMPORARY
-        setupUpgrades();
-        g_state.fairyOnThisFloor = true;
-        Room& r = g_state.rooms[3];
-        int sx  = r.x + random(1, r.width  - 1);
-        int sy  = r.y + random(1, r.height - 1);
-        for (int y = r.y-1; y <= r.y + r.height; y++) {
-            for (int x = r.x-1; x <= r.x + r.width; x++) {
-                if ((y == r.y - 1 || x == r.x - 1 || y == r.y + r.height || x == r.x + r.width) && dungeonMap[y][x] != DoorClosed && dungeonMap[y][x] != DoorOpen && dungeonMap[y][x] != Floor) {
-                    dungeonMap[y][x] = ShopWall;
-                }
-            }
-        }
-    }
+    //// Place fairy room in an already existing room
+    //if (/*random(15, 40) < /*dungeon*/ /*20*/ true && !g_state.fairyOnThisFloor) { // THIS IS TEMPORARY
+    //    setupUpgrades();
+    //    g_state.fairyOnThisFloor = true;
+    //    Room& r = g_state.rooms[3];
+    //    int sx  = r.x + random(1, r.width  - 1);
+    //    int sy  = r.y + random(1, r.height - 1);
+    //    for (int y = r.y-1; y <= r.y + r.height; y++) {
+    //        for (int x = r.x-1; x <= r.x + r.width; x++) {
+    //            if ((y == r.y - 1 || x == r.x - 1 || y == r.y + r.height || x == r.x + r.width) && dungeonMap[y][x] != DoorClosed && dungeonMap[y][x] != DoorOpen && dungeonMap[y][x] != Floor) {
+    //                dungeonMap[y][x] = ShopWall;
+    //            }
+    //        }
+    //    }
+    //}
 
     // ── Remove lone wall tiles ────────────────────────────────────────────
     for (int y = 1; y < MAP_HEIGHT - 1; y++)
