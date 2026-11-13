@@ -1,0 +1,60 @@
+1. Balance save feature
+
+2. BALANCE THINGS
+
+3. Upgrades. Perks gotten from a special room that sometimes spawns. Perhaps a fountain room that has a fairy in it that grants wishes?
+(in progress)
+
+4. New enemies: witch/sorceress- casts spells on the player like lesser forms of bad potions? Flame- sets player alight? Snake- paralyses
+player?
+
+5. More weapons: crossbow? Bow? Arrows? Mace? Axe?
+
+6. More rooms: destroyable enemy spawner portal room? Totem room with random chance for bad or good things to happen?
+
+7. Able to combine identical weapons to make a more powerful same weapon perhaps in a specific room- a forge room?
+
+8. Utilize isFriend more
+
+9. Fungus room, spreads to consume current dungeon?
+
+10. Additional tunnel layer underneath each dungeon?
+
+11. Delete save after player chooses freedeom, and save the game right after the player generated the dungeon after picking descend
+instead of freedom.
+
+12. If the damsel gets captured, when that captured screen goes away, wewillgetthroughthis plays. When it is finished, if the damsel
+hasn't gotten rescued by the player by that time, youdidbad plays and the damsel is lost. If the player has rescued her however,
+then chords plays.
+
+13. Have when near the edges of the map ethereal plays very quietly. Ethereal should also play when near a weird portal that once
+the player goes through, throughthemist plays showing text and then when it's done the whole game is randomized.
+
+14. Succubus logic kinda broken rn I think. Update: I encountered a succubus, got tp's away and then encountered another succubus
+and killed it, then all through that level where I killed the succubus, damsel dialogue was showing as if the damsel was following
+me. Then when I reached the exit, it showed the "you didn't try to kill her" succubus screen? and on the next level I had a
+succubus friend?
+
+15. Enemies need to not try to get out of the way if the player is invisible.
+
+16. Visual effects like blindness and seeall, when they appear or disappear, need to not suddenly affect the lighting but kinda lerp
+between the lighting before the effect and the lighting during the effect- a smooth transition.
+
+17. When I used the identify scroll on a ring, it turned out to be an aggravate ring. But when I looked at the info of the ring, it said
+it lowered the max HP... which is not what the aggravate ring does. Granted, this was in the handheld version of the game. FIX PLEZ.
+Addition- in the pc version the exact same thing happened, with a ring of armor having the wrong description.
+
+18. Add a blender you can find in the dungeon that, instead of combining potions to make new potions that are named based on colors,
+they (more than two) are combined into a "concoction" that has all the attributes of the ingredient potions added together. Oh, and
+not only potions can be mixed together- it's an industrial blender, after all.
+
+19. After the amnesia scroll, I looked at the info of a red potion and while the name had reset to red potion the info had not reset to
+"you have forgotten" or "drink it to find out"
+
+20. Friendly enemies should not try and move out of the way of the player's bullets.
+
+21. Enemies around where a clock has died still are updated and can move freely.
+
+22. Rings, when worn, should have a "revealed-in" timer- how long the player should have to wear the ring before its power is
+automatically revealed. Some rings should be revealed as soon as something happens- like for instance the teleport ring should
+be revealed as soon as the player is first teleported by it.
