@@ -60,6 +60,7 @@ automatically revealed. Some rings should be revealed as soon as something happe
 be revealed as soon as the player is first teleported by it.
 
 
+
 BUG -> CAUSE NOTES FOR FUTURE FIXING SESSIONS
 ============================================
 
