@@ -5,8 +5,8 @@ CXX := g++
 BUILD_TYPE ?= release
 
 # Use system SDL2 paths (MSYS2 installation)
-SDL2_INCLUDE := /mingw64/include/SDL2
-SDL2_LIB := /mingw64/lib
+SDL2_INCLUDE := /ucrt64/include/SDL2
+SDL2_LIB := /ucrt64/lib
 
 # Check what SDL libraries exist in system paths
 SDL_MIXER_EXISTS := $(shell [ -f "$(SDL2_INCLUDE)/SDL_mixer.h" ] && echo "YES" || echo "NO")
@@ -57,12 +57,12 @@ ifeq ($(ICON_EXISTS), YES)
 endif
 
 # DLL paths - using system DLLs from MSYS2
-SDL_DLL_SOURCE := /mingw64/bin/SDL2.dll
-SDL_TTF_DLL_SOURCE := /mingw64/bin/SDL2_ttf.dll
-SDL_MIXER_DLL_SOURCE := /mingw64/bin/SDL2_mixer.dll
-GCC_DLL_SOURCE := /mingw64/bin/libgcc_s_seh-1.dll
-STDCPP_DLL_SOURCE := /mingw64/bin/libstdc++-6.dll
-PTHREAD_DLL_SOURCE := /mingw64/bin/libwinpthread-1.dll
+SDL_DLL_SOURCE := /ucrt64/bin/SDL2.dll
+SDL_TTF_DLL_SOURCE := /ucrt64/bin/SDL2_ttf.dll
+SDL_MIXER_DLL_SOURCE := /ucrt64/bin/SDL2_mixer.dll
+GCC_DLL_SOURCE := /ucrt64/bin/libgcc_s_seh-1.dll
+STDCPP_DLL_SOURCE := /ucrt64/bin/libstdc++-6.dll
+PTHREAD_DLL_SOURCE := /ucrt64/bin/libwinpthread-1.dll
 
 # Resource directories
 FONTS_SOURCE := Fonts
@@ -109,15 +109,15 @@ copy_dll:
 	@cp "$(SDL_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2.dll not found"
 	@if [ "$(SDL_MIXER_EXISTS)" = "YES" ]; then \
 		cp "$(SDL_MIXER_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_mixer.dll not found"; \
-		cp "/mingw64/bin/libopusfile-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopusfile-0.dll not found"; \
-		cp "/mingw64/bin/libmpg123-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libmpg123-0.dll not found"; \
-		cp "/mingw64/bin/libFLAC.dll" "$(BUILD_DIR)/" || echo "WARNING: libFLAC.dll not found"; \
-		cp "/mingw64/bin/libvorbisfile-3.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbisfile-3.dll not found"; \
-		cp "/mingw64/bin/libogg-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libogg-0.dll not found"; \
-		cp "/mingw64/bin/libvorbis-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbis-0.dll not found"; \
-		cp "/mingw64/bin/libwavpack-1.dll" "$(BUILD_DIR)/" || echo "WARNING: libwavpack-1.dll not found"; \
-		cp "/mingw64/bin/libopus-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopus-0.dll not found"; \
-		cp "/mingw64/bin/libxmp.dll" "$(BUILD_DIR)/" || echo "WARNING: libxmp.dll not found"; \
+		cp "/ucrt64/bin/libopusfile-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopusfile-0.dll not found"; \
+		cp "/ucrt64/bin/libmpg123-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libmpg123-0.dll not found"; \
+		cp "/ucrt64/bin/libFLAC.dll" "$(BUILD_DIR)/" || echo "WARNING: libFLAC.dll not found"; \
+		cp "/ucrt64/bin/libvorbisfile-3.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbisfile-3.dll not found"; \
+		cp "/ucrt64/bin/libogg-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libogg-0.dll not found"; \
+		cp "/ucrt64/bin/libvorbis-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbis-0.dll not found"; \
+		cp "/ucrt64/bin/libwavpack-1.dll" "$(BUILD_DIR)/" || echo "WARNING: libwavpack-1.dll not found"; \
+		cp "/ucrt64/bin/libopus-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopus-0.dll not found"; \
+		cp "/ucrt64/bin/libxmp.dll" "$(BUILD_DIR)/" || echo "WARNING: libxmp.dll not found"; \
 	fi
 	@if [ "$(SDL_TTF_EXISTS)" = "YES" ]; then \
 		cp "$(SDL_TTF_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_ttf.dll not found"; \

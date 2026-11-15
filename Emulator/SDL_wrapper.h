@@ -16,6 +16,6 @@
 #endif
 
 // Include SDL with minimal dependencies
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #endif // SDL_WRAPPER_H
