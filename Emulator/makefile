@@ -12,24 +12,21 @@ SDL2_LIB := /ucrt64/lib
 SDL_MIXER_EXISTS := $(shell [ -f "$(SDL2_INCLUDE)/SDL_mixer.h" ] && echo "YES" || echo "NO")
 SDL_TTF_EXISTS := $(shell [ -f "$(SDL2_INCLUDE)/SDL_ttf.h" ] && echo "YES" || echo "NO")
 
-# Conditional flags based on build type and library availability
+# Base flags
+CXXFLAGS := -Wall -std=c++17 -I$(SDL2_INCLUDE) -I.
+ifeq ($(SDL_MIXER_EXISTS), YES)
+    CXXFLAGS += -DHAS_SDL_MIXER
+endif
+ifeq ($(SDL_TTF_EXISTS), YES)
+    CXXFLAGS += -DHAS_SDL_TTF
+endif
+
+# Conditional flags based on build type
 ifeq ($(BUILD_TYPE), debug)
-    CXXFLAGS := -Wall -std=c++17 -g -DDEBUG -I$(SDL2_INCLUDE) -I.
-    ifeq ($(SDL_MIXER_EXISTS), YES)
-        CXXFLAGS += -DHAS_SDL_MIXER
-    endif
-    ifeq ($(SDL_TTF_EXISTS), YES)
-        CXXFLAGS += -DHAS_SDL_TTF
-    endif
+    CXXFLAGS += -g -DDEBUG
     EXEC := build/emulator-debug.exe
 else
-    CXXFLAGS := -Wall -std=c++17 -O2 -I$(SDL2_INCLUDE) -I.
-    ifeq ($(SDL_MIXER_EXISTS), YES)
-        CXXFLAGS += -DHAS_SDL_MIXER
-    endif
-    ifeq ($(SDL_TTF_EXISTS), YES)
-        CXXFLAGS += -DHAS_SDL_TTF
-    endif
+    CXXFLAGS += -O2
     EXEC := build/Velho.exe
 endif
 
@@ -49,20 +46,12 @@ BUILD_DIR := build
 # Check for icon file
 ICON_SOURCE := icon.ico
 ICON_EXISTS := $(shell [ -f "$(ICON_SOURCE)" ] && echo "YES" || echo "NO")
-ICON_RC := 
+ICON_RC :=
 ICON_RESOURCE :=
 ifeq ($(ICON_EXISTS), YES)
     ICON_RC := icon.rc
     ICON_RESOURCE := $(BUILD_DIR)/icon.res
 endif
-
-# DLL paths - using system DLLs from MSYS2
-SDL_DLL_SOURCE := /ucrt64/bin/SDL2.dll
-SDL_TTF_DLL_SOURCE := /ucrt64/bin/SDL2_ttf.dll
-SDL_MIXER_DLL_SOURCE := /ucrt64/bin/SDL2_mixer.dll
-GCC_DLL_SOURCE := /ucrt64/bin/libgcc_s_seh-1.dll
-STDCPP_DLL_SOURCE := /ucrt64/bin/libstdc++-6.dll
-PTHREAD_DLL_SOURCE := /ucrt64/bin/libwinpthread-1.dll
 
 # Resource directories
 FONTS_SOURCE := Fonts
@@ -79,18 +68,15 @@ all: release
 # Release build
 release:
 	@echo "Building release version..."
-	@mkdir -p $(BUILD_DIR)
-	@if [ "$(ICON_EXISTS)" = "YES" ]; then \
-		echo "Icon file found, creating resource file..."; \
-		echo 'IDI_ICON1 ICON "icon.ico"' > icon.rc; \
-		windres icon.rc -O coff -o $(BUILD_DIR)/icon.res; \
-	fi
-	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS) $(ICON_RESOURCE)
-	@$(MAKE) copy_resources
+	@$(MAKE) build BUILD_TYPE=release
 
 # Debug build
 debug:
 	@echo "Building debug version..."
+	@$(MAKE) build BUILD_TYPE=debug
+
+# Unified internal build target
+build:
 	@mkdir -p $(BUILD_DIR)
 	@if [ "$(ICON_EXISTS)" = "YES" ]; then \
 		echo "Icon file found, creating resource file..."; \
@@ -98,39 +84,21 @@ debug:
 		windres icon.rc -O coff -o $(BUILD_DIR)/icon.res; \
 	fi
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $(EXEC) $(LDFLAGS) $(LDLIBS) $(ICON_RESOURCE)
-	@$(MAKE) copy_resources
+	@$(MAKE) copy_resources BUILD_TYPE=$(BUILD_TYPE)
 
 # Combined copy targets
 copy_resources: copy_dll copy_fonts copy_audio
 
-# Copy necessary DLLs to build directory from system paths
+# Copy necessary DLLs to build directory automatically using ldd
 copy_dll:
-	@echo "Copying DLLs to $(BUILD_DIR)..."
-	@cp "$(SDL_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2.dll not found"
-	@if [ "$(SDL_MIXER_EXISTS)" = "YES" ]; then \
-		cp "$(SDL_MIXER_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_mixer.dll not found"; \
-		cp "/ucrt64/bin/libopusfile-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopusfile-0.dll not found"; \
-		cp "/ucrt64/bin/libmpg123-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libmpg123-0.dll not found"; \
-		cp "/ucrt64/bin/libFLAC.dll" "$(BUILD_DIR)/" || echo "WARNING: libFLAC.dll not found"; \
-		cp "/ucrt64/bin/libvorbisfile-3.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbisfile-3.dll not found"; \
-		cp "/ucrt64/bin/libogg-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libogg-0.dll not found"; \
-		cp "/ucrt64/bin/libvorbis-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libvorbis-0.dll not found"; \
-		cp "/ucrt64/bin/libwavpack-1.dll" "$(BUILD_DIR)/" || echo "WARNING: libwavpack-1.dll not found"; \
-		cp "/ucrt64/bin/libopus-0.dll" "$(BUILD_DIR)/" || echo "WARNING: libopus-0.dll not found"; \
-		cp "/ucrt64/bin/libxmp.dll" "$(BUILD_DIR)/" || echo "WARNING: libxmp.dll not found"; \
-	fi
-	@if [ "$(SDL_TTF_EXISTS)" = "YES" ]; then \
-		cp "$(SDL_TTF_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: SDL2_ttf.dll not found"; \
-	fi
-	@cp "$(GCC_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libgcc_s_seh-1.dll not found"
-	@cp "$(STDCPP_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libstdc++-6.dll not found"
-	@cp "$(PTHREAD_DLL_SOURCE)" "$(BUILD_DIR)/" || echo "WARNING: libwinpthread-1.dll not found"
+	@echo "Copying required UCRT64 DLLs to $(BUILD_DIR)..."
+	@ldd $(EXEC) | grep -i '/ucrt64/bin/' | awk '{print $$3}' | xargs -r -I{} cp -u "{}" "$(BUILD_DIR)/"
 
 # Copy Fonts folder to build directory
 copy_fonts:
 	@echo "Copying Fonts folder to $(BUILD_DIR)..."
 	@if [ -d "$(FONTS_SOURCE)" ]; then \
-		cp -r "$(FONTS_SOURCE)" "$(FONTS_TARGET)" && \
+		cp -ru "$(FONTS_SOURCE)" "$(BUILD_DIR)/" && \
 		echo "Fonts copied successfully"; \
 	else \
 		echo "WARNING: Fonts directory not found"; \
@@ -140,7 +108,7 @@ copy_fonts:
 copy_audio:
 	@echo "Copying Audio folder to $(BUILD_DIR)..."
 	@if [ -d "$(AUDIO_SOURCE)" ]; then \
-		cp -r "$(AUDIO_SOURCE)" "$(AUDIO_TARGET)" && \
+		cp -ru "$(AUDIO_SOURCE)" "$(BUILD_DIR)/" && \
 		echo "Audio copied successfully"; \
 	else \
 		echo "WARNING: Audio directory not found"; \
@@ -174,7 +142,7 @@ test-sdl:
 	@echo "SDL2 lib path: $(SDL2_LIB)"
 	@echo "SDL_mixer available: $(SDL_MIXER_EXISTS)"
 	@echo "SDL_ttf available: $(SDL_TTF_EXISTS)"
-	@if [ -f "$(SDL_DLL_SOURCE)" ]; then \
+	@if [ -f "/ucrt64/bin/SDL2.dll" ]; then \
 		echo "SDL2.dll found: YES"; \
 	else \
 		echo "SDL2.dll found: NO"; \
@@ -224,4 +192,4 @@ help:
 	@echo "    - Use #ifdef DEBUG in code for debug-only sections"
 
 # Phony targets
-.PHONY: all release debug clean run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources test-sdl
+.PHONY: all release debug build clean run run-debug gdb help copy_dll copy_fonts copy_audio copy_resources test-sdl
