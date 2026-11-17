@@ -104,3 +104,5 @@ of clearer adversary state, leading to odd follow-target behavior and contradict
 Cause: several status checks in Inventory.cpp compare itemResult strings or ring names to detect effect types (for example, "You
 feel restored!" or ring names like "Ring of Aggravation"). String-based effect detection is brittle and can fail or misclassify
 when descriptions are renamed, forgotten, or partially reset.
+
+9. See-all potion seeming to not apply its effect?? I dunno the cause
