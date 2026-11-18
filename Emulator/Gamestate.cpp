@@ -76,12 +76,12 @@ int&         meleeArcCount          = g_state.meleeArcCount;
 bool&        reloading              = g_state.reloading;
 int&         shootDelay             = g_state.shootDelay;
 
-int&         dungeon                = g_state.dungeon;
+int&         dungeon                = g_state.progression.dungeon;
 int&         kills                  = g_state.kills;
 int&         keysCount              = g_state.keysCount;
 int&         goldCount              = g_state.goldCount;
 uint32_t&    worldSeed              = g_state.worldSeed;
-bool&        endlessMode            = g_state.endlessMode;
+bool&        endlessMode            = g_state.progression.endlessMode;
 bool&        shouldRestartGame      = g_state.shouldRestartGame;
 bool&        hasMap                 = g_state.hasMap;
 bool&        playerNearClockEnemy   = g_state.playerNearClockEnemy;
@@ -101,15 +101,15 @@ int&         timeTillNextDialogue   = g_state.timeTillNextDialogue;
 bool&        damselWasFollowing     = g_state.damselWasFollowing;
 int&         damselWaitUpTimer      = g_state.damselWaitUpTimer;
 bool&        damselSaidWaitUp       = g_state.damselSaidWaitUp;
-bool&        damselGotTaken         = g_state.damselGotTaken;
-bool&        damselSayThanksForRescue = g_state.damselSayThanksForRescue;
-bool&        knowsDamselName        = g_state.knowsDamselName;
-char*        damselDeathMsg         = g_state.damselDeathMsg;
-bool&        DIDNOTRESCUEDAMSEL     = g_state.DIDNOTRESCUEDAMSEL;
-int&         levelOfDamselDeath     = g_state.levelOfDamselDeath;
+bool&        damselGotTaken         = g_state.progression.damselGotTaken;
+bool&        damselSayThanksForRescue = g_state.progression.damselSayThanksForRescue;
+bool&        knowsDamselName        = g_state.progression.knowsDamselName;
+char*        damselDeathMsg         = g_state.progression.damselDeathMsg;
+bool&        DIDNOTRESCUEDAMSEL     = g_state.progression.didNotRescueDamsel;
+int&         levelOfDamselDeath     = g_state.progression.levelOfDamselDeath;
 
 bool&        nearSuccubus           = g_state.nearSuccubus;
-bool&        succubusIsFriend       = g_state.succubusIsFriend;
+bool&        succubusIsFriend       = g_state.progression.succubusIsFriend;
 
 BossStates&  bossState              = g_state.bossState;
 int&         bossStateTimer         = g_state.bossStateTimer;

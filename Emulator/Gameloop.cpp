@@ -46,8 +46,7 @@ void resetGame() {
     g_state.deleteSV        = false;
     g_state.introNum        = 0;
 
-    snprintf(damselDeathMsg, sizeof(g_state.damselDeathMsg), "%s", "You killed ");
-    g_state.DIDNOTRESCUEDAMSEL  = false;
+    g_state.progression = ProgressionState{};
     g_state.shouldRestartGame   = false;
     g_state.keysCount           = 0;
     g_state.goldCount           = 15;
@@ -57,8 +56,6 @@ void resetGame() {
     // Player stats
     g_state.playerHP        = PLAYER_START_HP;
     g_state.playerFood      = PLAYER_START_FOOD;
-    g_state.dungeon         = 1;
-    g_state.levelOfDamselDeath = -4;
     g_state.kills           = 0;
     g_state.finalStatusScreen  = false;
     g_state.credits         = false;
@@ -66,8 +63,6 @@ void resetGame() {
     g_state.bossStateTimer  = 0;
     g_state.creditsBrightness  = CREDITS_BRIGHTNESS_START;
     g_state.nearSuccubus    = false;
-    g_state.succubusIsFriend   = false;
-    g_state.endlessMode     = false;
 
     // Splash timing reset
     g_state.splashTimingActive = false;
@@ -80,10 +75,8 @@ void resetGame() {
     damsel[0].dead              = false;
     damsel[0].active            = false;
     damsel[0].followingPlayer   = false;
-    g_state.knowsDamselName     = false;
     damsel[0].beingCarried      = false;
     damsel[0].completelyRescued = false;
-    g_state.damselGotTaken      = false;
 
     // Inventory
     for (int i = 0; i < INVENTORY_SIZE; i++) {
@@ -357,7 +350,7 @@ void updateGame() {
         updateShopkeeper();
         updateFairy();
         updateProjectiles();
-        if (g_state.dungeon == bossfightLevel) {
+        if (g_state.progression.dungeon == bossfightLevel) {
             updateBossfight();
         }
     }

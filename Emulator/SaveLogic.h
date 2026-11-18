@@ -14,6 +14,7 @@
 // v3: added stackCount to GameItem
 // v4: added goldCount; NUM_ITEMS 38→42; NUM_SCROLLS 10→11
 // v5: added ring reveal metadata to GameItem
+// v6: consolidated durable run progression fields
 // ─────────────────────────────────────────────────────────────────────────────
 #define SAVE_MAGIC   0x54445653u   // "SVDT" little-endian
 
@@ -47,7 +48,8 @@ struct SaveData {
 
     // World
     uint32_t worldSeed;
-    uint8_t  currentDungeon;
+    ProgressionState progression;
+    Damsel        damsel;
 
     // Player
     float    playerX, playerY;
@@ -55,7 +57,6 @@ struct SaveData {
 
     // Inventory / entities
     InventoryPage savedInventory[NUM_INVENTORY_PAGES];
-    Damsel        damsel;
     SavedEnemy    savedEnemies[MAX_ENEMIES];
 
     // Equipment / combat
@@ -67,14 +68,8 @@ struct SaveData {
     ShopItem shopItems[SHOP_MAX_ITEMS];
 
     // Flags
-    bool     endlessMode;
-    bool     succubusFriend;
     bool     hasMap;
     bool     playerNearClockEnemy;
-    bool     knowsDamselName;
-    bool     damselSayThanksForRescue;
-    bool     damselGotTaken;
-    int      levelOfDamselDeath;
     int      kills;
     int      keysCount;
     int      goldCount;

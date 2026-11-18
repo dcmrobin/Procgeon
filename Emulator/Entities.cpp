@@ -832,7 +832,7 @@ void updateProjectiles() {
                                                damsel[0].x, damsel[0].y)) {
                 if (damsel[0].levelOfLove < 6 || !projectiles[i].shotByPlayer) {
                     if (!projectiles[i].shotByPlayer)
-                        snprintf(damselDeathMsg, sizeof(g_state.damselDeathMsg),
+                        snprintf(damselDeathMsg, sizeof(g_state.progression.damselDeathMsg),
                                  "%s", "Something killed ");
                     playRawSFX3D(23, damsel[0].x, damsel[0].y);
                     playRawSFX3D(17, damsel[0].x, damsel[0].y);

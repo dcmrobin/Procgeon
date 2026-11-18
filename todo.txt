@@ -36,11 +36,3 @@ between the lighting before the effect and the lighting during the effect- a smo
 15. Add a blender you can find in the dungeon that, instead of combining potions to make new potions that are named based on colors,
 they (more than two) are combined into a "concoction" that has all the attributes of the ingredient potions added together. Oh, and
 not only potions can be mixed together- it's an industrial blender, after all.
-
-BUG -> CAUSE NOTES FOR FUTURE FIXING SESSIONS
-============================================
-
-1. Save / progression flags are too spread out
-Cause: game progression and encounter flags are saved in SaveData and also read/written through many globals in Utils.cpp,
-Dungeon.cpp, Screens.cpp, and Gameloop.cpp. This makes it easy to save the wrong phase or keep a cancelled encounter state alive
-across level transitions and reloads.

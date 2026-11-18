@@ -207,7 +207,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 #define SAVE_FILE_PATH      "savegame.dat"
 #define SAVE_CHUNK_SIZE     256
-#define SAVE_VERSION        5
+#define SAVE_VERSION        6
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Markov name generator

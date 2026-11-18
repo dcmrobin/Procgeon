@@ -20,7 +20,7 @@ static int  shopSellScrollOffset = 0;
 
 static int getShopValue(const GameItem& item) {
     if (item.item == Null) return 0;
-    int value = (7 * item.rarity) + g_state.dungeon;
+    int value = (7 * item.rarity) + g_state.progression.dungeon;
     if (value < 1) value = 1;
     return value;
 }
@@ -48,7 +48,7 @@ void setupShopItems() {
         } while (itemList[j].item == Null || itemList[j].item == KingArmor);
 
         shopItems[i].item = itemList[j];
-        shopItems[i].price = (random(5, 10) * shopItems[i].item.rarity) + g_state.dungeon;
+        shopItems[i].price = (random(5, 10) * shopItems[i].item.rarity) + g_state.progression.dungeon;
 
         if (itemList[j].item == Weapon) {
             int weaponCount = sizeof(weaponList) / sizeof(weaponList[0]);

@@ -58,6 +58,19 @@ struct RiddleAnswer {
     const char* attributes[4];
 };
 
+// Durable run/story state, copied as one unit by save/load.
+struct ProgressionState {
+    int  dungeon = 1;
+    bool endlessMode = false;
+    bool succubusIsFriend = false;
+    bool damselGotTaken = false;
+    bool damselSayThanksForRescue = false;
+    bool knowsDamselName = false;
+    bool didNotRescueDamsel = false;
+    int  levelOfDamselDeath = -4;
+    char damselDeathMsg[100] = "You killed ";
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PathNode  (was in Entities.h — needed by SaveLogic and Entities)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -176,12 +189,11 @@ struct GameState {
     int     shootDelay          = 0;
 
     // ── World / progression ───────────────────────────────────────────────
-    int         dungeon             = 1;
+    ProgressionState progression;
     int         kills               = 0;
     int         keysCount           = 0;
     int         goldCount           = 0;
     uint32_t    worldSeed           = 0;
-    bool        endlessMode         = false;
     bool        shouldRestartGame   = false;
     bool        hasMap              = false;
     bool        playerNearClockEnemy = false;
@@ -206,16 +218,9 @@ struct GameState {
     bool    damselWasFollowing      = false;
     int     damselWaitUpTimer       = 0;
     bool    damselSaidWaitUp        = false;
-    bool    damselGotTaken          = false;
-    bool    damselSayThanksForRescue= false;
-    bool    knowsDamselName         = false;
-    char    damselDeathMsg[100]     = "You killed ";
-    bool    DIDNOTRESCUEDAMSEL      = false;
-    int     levelOfDamselDeath      = -4;
 
     // ── Succubus / special ────────────────────────────────────────────────
     bool    nearSuccubus        = false;
-    bool    succubusIsFriend    = false;
 
     // ── Boss ──────────────────────────────────────────────────────────────
     BossStates  bossState       = Idle;

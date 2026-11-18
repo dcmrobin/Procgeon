@@ -414,20 +414,14 @@ static SaveData saveData;   // module-private; no need to expose it globally
 void trySaveGame() {
     saveData.armorValue               = equippedArmorValue;
     saveData.attackDamage             = playerAttackDamage;
-    saveData.currentDungeon           = (uint8_t)dungeon;
+    saveData.progression              = g_state.progression;
     saveData.damsel                   = damsel[0];
-    saveData.endlessMode              = endlessMode;
     saveData.equippedArmor            = equippedArmor;
     saveData.equippedWeapon           = equippedWeapon;
     saveData.equippedRiddleStone      = equippedRiddleStone;
-    saveData.succubusFriend           = succubusIsFriend;
     saveData.kills                    = kills;
     saveData.hasMap                   = hasMap;
     saveData.playerNearClockEnemy     = playerNearClockEnemy;
-    saveData.knowsDamselName          = knowsDamselName;
-    saveData.damselSayThanksForRescue = damselSayThanksForRescue;
-    saveData.damselGotTaken           = damselGotTaken;
-    saveData.levelOfDamselDeath       = levelOfDamselDeath;
     saveData.worldSeed                = worldSeed;
     saveData.keysCount                = keysCount;
     saveData.goldCount                = goldCount;
@@ -503,15 +497,13 @@ void tryLoadGame() {
 
     equippedArmorValue        = saveData.armorValue;
     playerAttackDamage        = saveData.attackDamage;
-    dungeon                   = saveData.currentDungeon;
+    g_state.progression       = saveData.progression;
     damsel[0]                 = saveData.damsel;
-    endlessMode               = saveData.endlessMode;
     equippedArmor             = saveData.equippedArmor;
     equippedWeapon            = saveData.equippedWeapon;
     equippedRiddleStone       = saveData.equippedRiddleStone;
-    succubusIsFriend          = saveData.succubusFriend;
     nearSuccubus              = false;
-    if (succubusIsFriend) {
+    if (g_state.progression.succubusIsFriend) {
         damsel[0].active          = false;
         damsel[0].followingPlayer = false;
         damsel[0].beingCarried    = false;
@@ -520,10 +512,6 @@ void tryLoadGame() {
     kills                     = saveData.kills;
     hasMap                    = saveData.hasMap;
     playerNearClockEnemy      = saveData.playerNearClockEnemy;
-    knowsDamselName           = saveData.knowsDamselName;
-    damselSayThanksForRescue  = saveData.damselSayThanksForRescue;
-    damselGotTaken            = saveData.damselGotTaken;
-    levelOfDamselDeath        = saveData.levelOfDamselDeath;
     keysCount                 = saveData.keysCount;
     goldCount                 = saveData.goldCount;
 
