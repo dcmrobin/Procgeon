@@ -141,7 +141,6 @@ void resetGame() {
     resetPotionNames();
     randomizePotionEffects();
     randomizeScrollEffects();
-    randomizeRingEffects();
 
     // Ring counters
     g_state.swiftnessRingsNumber    = 0;

@@ -131,6 +131,7 @@
 #define NUM_ITEMS               42
 #define NUM_WEAPONS             9
 #define NUM_RINGS               12
+#define RING_REVEAL_TICKS       300000
 #define NUM_LORE_TEXTS          20
 #define NUM_ITEM_COMBINATIONS   15
 #define SHOP_MAX_ITEMS          7
@@ -206,7 +207,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 #define SAVE_FILE_PATH      "savegame.dat"
 #define SAVE_CHUNK_SIZE     256
-#define SAVE_VERSION        4
+#define SAVE_VERSION        5
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Markov name generator

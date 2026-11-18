@@ -391,6 +391,8 @@ void handleItemActionMenu() {
                         snprintf(inventoryPages[2].items[i].description,
                                  sizeof(inventoryPages[2].items[i].description),
                                  "%s", "You don't remember what this does.");
+                        inventoryPages[2].items[i].isRingIdentified = false;
+                        inventoryPages[2].items[i].ringRevealTimer = 0;
                     }
                     snprintf(inventoryPages[0].items[i].description,
                              sizeof(inventoryPages[0].items[i].description),
@@ -553,21 +555,22 @@ void handleItemActionMenu() {
                     currentUIState = UI_ITEM_RESULT;
                 } else {
                     sel.isEquipped = false;
+                    if (sel.item == Ring) sel.ringRevealTimer = 0;
                     if (sel.effectType == ArmorEffect) { equippedArmorValue = 0; equippedArmor = {}; }
                     if (sel.item == RiddleStone) equippedRiddleStone = false;
                     if (sel.item == Ring) {
                         int idx = sel.ringEffectIndex;
-                        if      (strcmp(ringEffects[idx], "Ring of Swiftness")    == 0) swiftnessRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Strength")     == 0) strengthRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Weakness")     == 0) weaknessRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Hunger")       == 0) hungerRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) regenRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Sickness")     == 0) sicknessRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Aggravation")  == 0) aggravateRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Armor")        == 0) armorRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Indigestion")  == 0) indigestionRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Teleport")     == 0) teleportRingsNumber--;
-                        else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) invisibleRingsNumber--;
+                        if      (idx == RingOfSwiftness)    swiftnessRingsNumber--;
+                        else if (idx == RingOfStrength)     strengthRingsNumber--;
+                        else if (idx == RingOfWeakness)     weaknessRingsNumber--;
+                        else if (idx == RingOfHunger)       hungerRingsNumber--;
+                        else if (idx == RingOfRegeneration) regenRingsNumber--;
+                        else if (idx == RingOfSickness)     sicknessRingsNumber--;
+                        else if (idx == RingOfAggravation)  aggravateRingsNumber--;
+                        else if (idx == RingOfArmor)        armorRingsNumber--;
+                        else if (idx == RingOfIndigestion)  indigestionRingsNumber--;
+                        else if (idx == RingOfTeleport)     teleportRingsNumber--;
+                        else if (idx == RingOfInvisibility) invisibleRingsNumber--;
                     }
                     if (sel.category == WeaponCategory &&
                         equippedWeapon.item == sel.item &&
@@ -615,20 +618,21 @@ void handleItemActionMenu() {
                 if (sel.item == Ring) {
                     if (sel.ringEffectIndex < 0 || sel.ringEffectIndex >= NUM_RINGS) {
                         sel.ringEffectIndex = random(0, NUM_RINGS);
-                        sel.isCursed        = ringCursed[sel.ringEffectIndex];
+                        sel.isCursed        = ringEffects[sel.ringEffectIndex].cursed;
                     }
+                    sel.ringRevealTimer = 0;
                     int idx = sel.ringEffectIndex;
-                    if      (strcmp(ringEffects[idx], "Ring of Swiftness")    == 0) swiftnessRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Strength")     == 0) strengthRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Weakness")     == 0) weaknessRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Hunger")       == 0) hungerRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Regeneration") == 0) regenRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Sickness")     == 0) { sicknessRingsNumber++; playerHP = playerMaxHP - sicknessRingsNumber * 20; }
-                    else if (strcmp(ringEffects[idx], "Ring of Aggravation")  == 0) aggravateRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Armor")        == 0) armorRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Indigestion")  == 0) indigestionRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Teleport")     == 0) teleportRingsNumber++;
-                    else if (strcmp(ringEffects[idx], "Ring of Invisibility") == 0) invisibleRingsNumber++;
+                    if      (idx == RingOfSwiftness)    swiftnessRingsNumber++;
+                    else if (idx == RingOfStrength)     strengthRingsNumber++;
+                    else if (idx == RingOfWeakness)     weaknessRingsNumber++;
+                    else if (idx == RingOfHunger)       hungerRingsNumber++;
+                    else if (idx == RingOfRegeneration) regenRingsNumber++;
+                    else if (idx == RingOfSickness)     { sicknessRingsNumber++; playerHP = playerMaxHP - sicknessRingsNumber * 20; }
+                    else if (idx == RingOfAggravation)  aggravateRingsNumber++;
+                    else if (idx == RingOfArmor)        armorRingsNumber++;
+                    else if (idx == RingOfIndigestion)  indigestionRingsNumber++;
+                    else if (idx == RingOfTeleport)     teleportRingsNumber++;
+                    else if (idx == RingOfInvisibility) invisibleRingsNumber++;
                 }
                 playRawSFX(2);
                 snprintf(itemResultMessage, sizeof(g_state.itemResultMessage),

@@ -262,10 +262,34 @@ void handleRingEffects() {
             } while (dungeonMap[newY][newX] != Floor);
             playerX = (float)newX;
             playerY = (float)newY;
+            for (int page = 0; page < NUM_INVENTORY_PAGES; page++) {
+                for (int slot = 0; slot < INVENTORY_SIZE; slot++) {
+                    GameItem& ring = inventoryPages[page].items[slot];
+                    if (ring.item == Ring && ring.isEquipped &&
+                        ring.ringEffectIndex == RingOfTeleport &&
+                        !ring.isRingIdentified) {
+                        identifyItem(ring);
+                    }
+                }
+            }
             teleportCounter = 0;
         }
     } else {
         teleportCounter = 0;
+    }
+
+    if (playerActed || playerNearClockEnemy) {
+        for (int page = 0; page < NUM_INVENTORY_PAGES; page++) {
+            for (int slot = 0; slot < INVENTORY_SIZE; slot++) {
+                GameItem& ring = inventoryPages[page].items[slot];
+                if (ring.item != Ring || !ring.isEquipped ||
+                    ring.ringEffectIndex < 0 ||
+                    ring.ringEffectIndex >= NUM_RINGS ||
+                    ring.isRingIdentified) continue;
+                if (++ring.ringRevealTimer >= RING_REVEAL_TICKS)
+                    identifyItem(ring);
+            }
+        }
     }
 }
 

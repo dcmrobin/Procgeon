@@ -13,6 +13,7 @@
 // v2: fixed pointer serialisation bug
 // v3: added stackCount to GameItem
 // v4: added goldCount; NUM_ITEMS 38→42; NUM_SCROLLS 10→11
+// v5: added ring reveal metadata to GameItem
 // ─────────────────────────────────────────────────────────────────────────────
 #define SAVE_MAGIC   0x54445653u   // "SVDT" little-endian
 

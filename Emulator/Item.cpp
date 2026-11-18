@@ -189,31 +189,24 @@ char ringTypes[NUM_RINGS][20] = {
     "Gold Ring",  "Ruby ring",   "Washer",      "Azure ring",
     "Stone ring", "Opal ring",   "Copper ring", "Silver ring"
 };
-char ringEffects[NUM_RINGS][100] = {
-    "Ring of Swiftness","Ring of Strength",    "Ring of Weakness",    "Ring of Hunger",
-    "Ring of Regeneration","Ring",             "Ring of Sickness",    "Ring of Aggravation",
-    "Ring of Armor",    "Ring of Indigestion", "Ring of Teleport",    "Ring of Invisibility"
-};
-bool ringCursed[NUM_RINGS] = {
-    false,false,true,true,false,false,true,true,false,false,true,true
-};
-char ringDescriptions[NUM_RINGS][100] = {
-    "While wearing this ring, you move faster.",
-    "While wearing this ring, you deal more damage.",
-    "While wearing this ring, you deal less damage.",
-    "Makes you starve quicker.",
-    "Passively heals you.",
-    "It's just a ring.",
-    "Lowers your maximum HP.",
-    "Makes enemies never stop chasing you.",
-    "Prevents armor degrading while slightly boosting defence.",
-    "Makes you get hungry slower.",
-    "Makes you randomly teleport all over the map.",
-    "Makes you invisible to all, including yourself.",
+const RingEffectData ringEffects[NUM_RINGS] = {
+    {"Ring of Swiftness",    "While wearing this ring, you move faster.",                  false},
+    {"Ring of Strength",     "While wearing this ring, you deal more damage.",             false},
+    {"Ring of Weakness",     "While wearing this ring, you deal less damage.",             true},
+    {"Ring of Hunger",       "Makes you starve quicker.",                                  true},
+    {"Ring of Regeneration", "Passively heals you.",                                       false},
+    {"Ring",                 "It's just a ring.",                                         false},
+    {"Ring of Sickness",     "Lowers your maximum HP.",                                    true},
+    {"Ring of Aggravation",  "Makes enemies never stop chasing you.",                      true},
+    {"Ring of Armor",        "Prevents armor degrading while slightly boosting defence.", false},
+    {"Ring of Indigestion",  "Makes you get hungry slower.",                               false},
+    {"Ring of Teleport",     "Makes you randomly teleport all over the map.",              true},
+    {"Ring of Invisibility", "Makes you invisible to all, including yourself.",           true}
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Functions — logic identical to original
+// Ring effect metadata is kept together so names, descriptions and curses
+// always use the same stable effect index.
 // ─────────────────────────────────────────────────────────────────────────────
 
 void randomizePotionEffects() {
@@ -506,23 +499,14 @@ void updateScrollName(GameItem& scroll) {
     }
 }
 
-void randomizeRingEffects() {
-    for (int i = NUM_RINGS - 1; i > 0; i--) {
-        int j = random(i + 1);
-        char tmp[100];
-        memcpy(tmp, ringEffects[i], 100); memcpy(ringEffects[i], ringEffects[j], 100); memcpy(ringEffects[j], tmp, 100);
-        bool tb = ringCursed[i]; ringCursed[i] = ringCursed[j]; ringCursed[j] = tb;
-    }
-}
-
 void updateRingName(GameItem& ring) {
     if (ring.ringEffectIndex < 0 || ring.ringEffectIndex >= NUM_RINGS) {
         ring.ringEffectIndex = random(0, NUM_RINGS);
-        ring.isCursed        = ringCursed[ring.ringEffectIndex];
+        ring.isCursed        = ringEffects[ring.ringEffectIndex].cursed;
     }
     int idx = ring.ringEffectIndex;
-    snprintf(ring.name,        sizeof(ring.name),        "%s", ringEffects[idx]);
-    snprintf(ring.description, sizeof(ring.description), "%s", ringDescriptions[idx]);
+    snprintf(ring.name,        sizeof(ring.name),        "%s", ringEffects[idx].name);
+    snprintf(ring.description, sizeof(ring.description), "%s", ringEffects[idx].description);
     ring.isRingIdentified = true;
 }
 

@@ -43,6 +43,7 @@ struct GameItem {
     int         ringEffectIndex   = -1;
     int         ringTypeIndex     = -1;
     bool        isRingIdentified  = false;
+    int         ringRevealTimer   = 0;
     WeaponItem  weapon      = {};
     int         stackCount  = 1;
 };
@@ -70,6 +71,12 @@ struct ItemCombination {
     GameItems ingredient1;
     GameItems ingredient2;
     GameItems result;
+};
+
+struct RingEffectData {
+    const char* name;
+    const char* description;
+    bool cursed;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -106,9 +113,7 @@ extern char scrollNames[NUM_SCROLLS][20];
 extern char scrollNamesRevealed[NUM_SCROLLS][20];
 
 extern char ringTypes[NUM_RINGS][20];
-extern char ringEffects[NUM_RINGS][100];
-extern bool ringCursed[NUM_RINGS];
-extern char ringDescriptions[NUM_RINGS][100];
+extern const RingEffectData ringEffects[NUM_RINGS];
 
 extern const char* loreTexts[NUM_LORE_TEXTS];
 
@@ -117,7 +122,6 @@ extern const char* loreTexts[NUM_LORE_TEXTS];
 // ─────────────────────────────────────────────────────────────────────────────
 void        randomizePotionEffects();
 void        randomizeScrollEffects();
-void        randomizeRingEffects();
 void        generateScrollName(char* name, size_t nameSize);
 GameItem    getItem(GameItems item);
 void        updatePotionName(GameItem& potion);

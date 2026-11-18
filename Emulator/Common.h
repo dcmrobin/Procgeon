@@ -148,6 +148,21 @@ enum EffectType {
     StaleMeatEffect
 };
 
+enum RingEffectType {
+    RingOfSwiftness,
+    RingOfStrength,
+    RingOfWeakness,
+    RingOfHunger,
+    RingOfRegeneration,
+    RingOfNothing,
+    RingOfSickness,
+    RingOfAggravation,
+    RingOfArmor,
+    RingOfIndigestion,
+    RingOfTeleport,
+    RingOfInvisibility
+};
+
 enum GameItems {
     RedPotion,
     GreenPotion,
