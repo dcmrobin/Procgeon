@@ -64,11 +64,6 @@ be revealed as soon as the player is first teleported by it.
 BUG -> CAUSE NOTES FOR FUTURE FIXING SESSIONS
 ============================================
 
-2. Enemies dodge while player is invisible
-Cause: the avoidance / projectile-dodging logic in updateEnemies() runs without checking invisibleRingsNumber and without
-checking enemies[i].isFriend. That allows enemy movement to react to the player even when the player should be hidden, and also
-allows friendly enemies to move out of the way of the player's bullets.
-
 3. Clock enemy death leaves stale world state
 Cause: clockX and clockY are set from the living clock enemy, but there is no reset when the clock dies. Nearby enemies continue
 using the last known clock position as a proximity trigger, so they remain active and move freely after the clock is gone.
@@ -99,6 +94,5 @@ Cause: several status checks in Inventory.cpp compare itemResult strings or ring
 feel restored!" or ring names like "Ring of Aggravation"). String-based effect detection is brittle and can fail or misclassify
 when descriptions are renamed, forgotten, or partially reset.
 
-9. See-all potion seeming to not apply its effect?? I dunno the cause
-
-10. Shopkeeper not restocking between levels? Is he even refreshing? I also dunno the cause
+I also got a washer ring, used an identify scroll on it, and then went into its info screen and it said "makes enemies never
+stop chasing you" which is not what a ring of regeneration does, it is what a ring of aggravate does. Please fix.

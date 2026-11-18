@@ -428,7 +428,7 @@ void handleItemActionMenu() {
         if ((sel.category == PotionCategory || sel.category == FoodCategory) &&
             sel.item != EmptyBottle) {
 
-            if (strcmp(sel.itemResult, "A lot happens.") == 0) {
+            if (sel.effectType == ChaosEffect) {
                 sel.healthRecoverAmount = random(-90, 101);
                 sel.hungerRecoverAmount = random(-90, 101);
                 sel.AOEsize             = random(0, 11);
@@ -459,16 +459,15 @@ void handleItemActionMenu() {
             }
 
             // Status effect triggers
-            const char* res = sel.itemResult;
-            if      (strcmp(res, "You are now more hungry.") == 0)                    playerFood -= 51;
+            if      (sel.effectType == HungerEffect)                                      playerFood -= 51;
             else if (sel.effectType == SeeAllEffect)
                                                                                       { seeAll=true; seeAllTimer=SEE_ALL_TIMER_DEFAULT; blinded=false; blindnessTimer=0; }
-            else if (strcmp(res, "What is going on?") == 0)                           { confused=true; confusionTimer=CONFUSION_TIMER_DEFAULT; }
-            else if (strcmp(res, "You feel fabulous!") == 0)                          { if(ridiculed){ridiculed=false;ridiculeTimer=0;} glamoured=true; glamourTimer=GLAMOUR_TIMER_DEFAULT; }
-            else if (strcmp(res, "You feel stupid.") == 0)                            { if(glamoured){glamoured=false;glamourTimer=0;} ridiculed=true; ridiculeTimer=RIDICULE_DURATION; }
-            else if (strcmp(res, "A cloak of darkness falls around you.") == 0)       { blinded=true; blindnessTimer=BLINDNESS_TIMER_DEFAULT; }
-            else if (strcmp(res, "You feel stronger.") == 0)                          playerAttackDamage += 3;
-            else if (strcmp(res, "You feel restored!") == 0) {
+            else if (sel.effectType == ConfusionEffect)                           { confused=true; confusionTimer=CONFUSION_TIMER_DEFAULT; }
+            else if (sel.effectType == GlamourEffect)                             { if(ridiculed){ridiculed=false;ridiculeTimer=0;} glamoured=true; glamourTimer=GLAMOUR_TIMER_DEFAULT; }
+            else if (sel.effectType == RidiculeEffect)                            { if(glamoured){glamoured=false;glamourTimer=0;} ridiculed=true; ridiculeTimer=RIDICULE_DURATION; }
+            else if (sel.effectType == BlindnessEffect)                           { blinded=true; blindnessTimer=BLINDNESS_TIMER_DEFAULT; }
+            else if (sel.effectType == StrengthEffect)                           playerAttackDamage += 3;
+            else if (sel.effectType == RestoreEffect) {
                 blinded=false; blindnessTimer=0; confused=false; confusionTimer=0;
                 if (ridiculed) { ridiculed=false; ridiculeTimer=0; showDialogue=false; }
                 paralyzed=false; paralysisTimer=0;
@@ -477,7 +476,7 @@ void handleItemActionMenu() {
                 playerHP += 15; if (playerHP > maxHPNow) playerHP = maxHPNow;
                 playerFood += 15; if (playerFood > 100) playerFood = 100;
             }
-            else if (strcmp(res, "You can't move!") == 0)                             { paralyzed=true; paralysisTimer=PARALYSIS_TIMER_DEFAULT; }
+            else if (sel.effectType == ParalysisEffect)                           { paralyzed=true; paralysisTimer=PARALYSIS_TIMER_DEFAULT; }
 
             // Update potion name on all stacks
             for (int i = 0; i < INVENTORY_SIZE; i++)
@@ -633,11 +632,11 @@ void handleItemActionMenu() {
                 }
                 playRawSFX(2);
                 snprintf(itemResultMessage, sizeof(g_state.itemResultMessage),
-                         strcmp(sel.itemResult, "Solve this riddle!") == 0
+                         sel.item == RiddleStone
                          ? "%s" : "You equip the %s.",
-                         strcmp(sel.itemResult, "Solve this riddle!") == 0
+                         sel.item == RiddleStone
                          ? "You equip the riddle stone." : sel.name);
-                if (strcmp(sel.itemResult, "Solve this riddle!") == 0) equippedRiddleStone = true;
+                if (sel.item == RiddleStone) equippedRiddleStone = true;
                 currentUIState = UI_ITEM_RESULT;
             }
         } else {

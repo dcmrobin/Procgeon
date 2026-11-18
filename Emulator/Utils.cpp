@@ -253,7 +253,7 @@ void checkIfDeadFrom(const char* cause) {
         currentUIState      = UI_RIDDLE;
         equippedRiddleStone = false;
         for (int i = 0; i < INVENTORY_SIZE; i++) {
-            if (strcmp(inventoryPages[2].items[i].itemResult, "Solve this riddle!") == 0) {
+            if (inventoryPages[2].items[i].item == RiddleStone) {
                 removeItemFromInventory(2, i);
                 break;
             }
