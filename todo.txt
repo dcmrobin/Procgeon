@@ -106,3 +106,5 @@ feel restored!" or ring names like "Ring of Aggravation"). String-based effect d
 when descriptions are renamed, forgotten, or partially reset.
 
 9. See-all potion seeming to not apply its effect?? I dunno the cause
+
+10. Shopkeeper not restocking between levels? Is he even refreshing? I also dunno the cause
