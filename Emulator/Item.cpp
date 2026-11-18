@@ -95,10 +95,10 @@ WeaponItem weaponList[] = {
     { LongSword,      MagicLongSword,  "Longsword",       "A longsword. Increased reach.",      true,  15, 35, 2 },
     { Staff,          MagicStaff,      "Staff",           "A trusty wooden staff.",             false, 10, 25, 1 },
     { Dagger,         MagicDagger,     "Dagger",          "A small dagger for fast attacks.",   true,   3, 15, 1 },
-    { MagicStaff,     MagicStaff,      "Magic Staff",     "A staff enfused with magic.",        false,  7, 15, 1 },
-    { MagicDagger,    MagicDagger,     "Magic Dagger",    "A dagger enfused with magic.",       false, 15, 20, 1 },
-    { MagicSword,     MagicSword,      "Magic Sword",     "A sword enfused with magic.",        false, 25, 25, 1 },
-    { MagicLongSword, MagicLongSword,  "Magic Longsword", "A longsword enfused with magic.",    false, 30, 30, 2 },
+    { MagicStaff,     MagicStaff,      "Magic Staff",     "A staff infused with magic.",        false,  7, 15, 1 },
+    { MagicDagger,    MagicDagger,     "Magic Dagger",    "A dagger infused with magic.",       false, 15, 20, 1 },
+    { MagicSword,     MagicSword,      "Magic Sword",     "A sword infused with magic.",        false, 25, 25, 1 },
+    { MagicLongSword, MagicLongSword, "Magic Longsword", "A longsword infused with magic.",    false, 30, 30, 2 },
     { NoWeapon,       NoWeapon,        "No Weapon",       "Not a weapon.",                      false,  0, 10, 1 },
 };
 
@@ -227,6 +227,12 @@ void randomizePotionEffects() {
     }
 }
 
+const PotionEffect* findPotionEffect(EffectType effectType) {
+    for (const PotionEffect& effect : potionEffects)
+        if (effect.effectType == effectType) return &effect;
+    return nullptr;
+}
+
 GameItem getItem(GameItems item) {
     GameItem newItem = itemList[item];
 
@@ -263,19 +269,35 @@ GameItem getItem(GameItems item) {
 }
 
 void updatePotionName(GameItem& potion) {
-    for (auto& effect : potionEffects) {
-        if (potion.effectType != effect.effectType) continue;
-        for (int i = 0; i < NUM_POTIONS; i++) {
-            if (itemList[i].item != potion.item) continue;
-            snprintf(itemList[i].name,        sizeof(itemList[i].name),        "%s", effect.effectName);
-            snprintf(itemList[i].description, sizeof(itemList[i].description), "%s", effect.effectDescription);
-        }
+    const int potionIndex = static_cast<int>(potion.item);
+    if (potion.category != PotionCategory ||
+        potionIndex < 0 || potionIndex >= NUM_POTIONS ||
+        itemList[potionIndex].item != potion.item)
+        return;
+
+    const PotionEffect* revealedEffect = findPotionEffect(potion.effectType);
+    if (!revealedEffect) return;
+
+    GameItem& templateItem = itemList[potionIndex];
+    snprintf(templateItem.name, sizeof(templateItem.name), "%s", revealedEffect->effectName);
+    snprintf(templateItem.description, sizeof(templateItem.description),
+             "%s", revealedEffect->effectDescription);
+    snprintf(templateItem.itemResult, sizeof(templateItem.itemResult),
+             "%s", revealedEffect->effectResult);
+
+    auto revealName = [revealedEffect](GameItem& item) {
+        snprintf(item.name, sizeof(item.name), "%s", revealedEffect->effectName);
+        snprintf(item.description, sizeof(item.description),
+                 "%s", revealedEffect->effectDescription);
+        snprintf(item.itemResult, sizeof(item.itemResult),
+                 "%s", revealedEffect->effectResult);
+    };
+    revealName(potion);
+    for (int page = 0; page < numInventoryPages; page++) {
         for (int i = 0; i < INVENTORY_SIZE; i++) {
-            if (inventoryPages[0].items[i].item != potion.item) continue;
-            snprintf(inventoryPages[0].items[i].name,        sizeof(inventoryPages[0].items[i].name),        "%s", effect.effectName);
-            snprintf(inventoryPages[0].items[i].description, sizeof(inventoryPages[0].items[i].description), "%s", effect.effectDescription);
+            GameItem& item = inventoryPages[page].items[i];
+            if (item.item == potion.item) revealName(item);
         }
-        break;
     }
 }
 

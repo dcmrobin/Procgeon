@@ -486,12 +486,25 @@ void handleItemActionMenu() {
             }
             else if (sel.effectType == ParalysisEffect)                           { paralyzed=true; paralysisTimer=PARALYSIS_TIMER_DEFAULT; }
 
-            // Update potion name on all stacks
-            for (int i = 0; i < INVENTORY_SIZE; i++)
-                if (inventoryPages[currentInventoryPageIndex].items[i].item == sel.item)
-                    updatePotionName(inventoryPages[currentInventoryPageIndex].items[i]);
+            if (sel.category == PotionCategory)
+                updatePotionName(sel);
 
-            snprintf(itemResultMessage, sizeof(g_state.itemResultMessage), "%s", sel.itemResult);
+            if (sel.category == PotionCategory) {
+                const PotionEffect* effect = findPotionEffect(sel.effectType);
+                if (effect) {
+                    snprintf(itemResultMessage, sizeof(g_state.itemResultMessage),
+                             "%s", effect->effectResult);
+                } else {
+                    Serial.printf("Invalid potion effect %d for item %d\n",
+                                  static_cast<int>(sel.effectType),
+                                  static_cast<int>(sel.item));
+                    snprintf(itemResultMessage, sizeof(g_state.itemResultMessage),
+                             "%s", "This potion's effect is invalid.");
+                }
+            } else {
+                snprintf(itemResultMessage, sizeof(g_state.itemResultMessage),
+                         "%s", sel.itemResult);
+            }
             if (sel.effectType == ArmorEffect || sel.category == WeaponCategory)
                 snprintf(itemResultMessage, sizeof(g_state.itemResultMessage),
                          "%s", "You can't use this, Try equipping it.");

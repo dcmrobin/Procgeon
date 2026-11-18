@@ -121,6 +121,7 @@ extern const char* loreTexts[NUM_LORE_TEXTS];
 // Item functions (defined in Item.cpp)
 // ─────────────────────────────────────────────────────────────────────────────
 void        randomizePotionEffects();
+const PotionEffect* findPotionEffect(EffectType effectType);
 void        randomizeScrollEffects();
 void        generateScrollName(char* name, size_t nameSize);
 GameItem    getItem(GameItems item);
