@@ -439,10 +439,10 @@ void showStatusScreen() {
                     display.print("The Damsel was captured!");
                 }
             } else if (succubusIsFriend) {
-                display.drawBitmap(0, 0, aloneWizardScreen,
+                display.drawBitmap(0, 0, succubusLeftScreen,
                                    SCREEN_WIDTH, SCREEN_HEIGHT, 15);
                 display.setCursor(0, 117);
-                display.print("The succubus is left behind.");
+                display.print("You left your succubus!");
             }
         }
     } else if (endlessMode) {

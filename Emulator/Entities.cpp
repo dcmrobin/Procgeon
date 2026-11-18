@@ -272,6 +272,11 @@ void updateDamsel() {
         damsel[0].followingPlayer = false;
         return;
     }
+    if (nearSuccubus) {
+        damsel[0].followingPlayer = false;
+        damselWasFollowing = false;
+        return;
+    }
     damselMoveDelay++;
 
     // Where the damsel wants to be (just behind the player)
@@ -279,12 +284,6 @@ void updateDamsel() {
                 : (playerDX == -1) ? playerX + 1 : playerX;
     float destY = (playerDY ==  1) ? playerY - 1
                 : (playerDY == -1) ? playerY + 1 : playerY;
-
-    if (nearSuccubus) {
-        damsel[0].followingPlayer = false;
-        destX = damsel[0].x;
-        destY = damsel[0].y;
-    }
 
     int idx = round(destX) - round(damsel[0].x);
     int idy = round(destY) - round(damsel[0].y);
