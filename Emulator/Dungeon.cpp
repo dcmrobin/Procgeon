@@ -31,6 +31,8 @@ static bool generatedSuccubusFriend = false;
 void generateDungeon(bool isBossfight) {
     ambientNoiseLevel = 0;
     generatedMapItem  = false;
+    g_state.shopOnThisFloor = false;
+    g_state.fairyOnThisFloor = false;
 
     // Initialise map
     for (int y = 0; y < MAP_HEIGHT; y++)

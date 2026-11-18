@@ -461,7 +461,7 @@ void handleItemActionMenu() {
             // Status effect triggers
             const char* res = sel.itemResult;
             if      (strcmp(res, "You are now more hungry.") == 0)                    playerFood -= 51;
-            else if (strcmp(res, "You can now see that which was unseen for a limited time.") == 0)
+            else if (sel.effectType == SeeAllEffect)
                                                                                       { seeAll=true; seeAllTimer=SEE_ALL_TIMER_DEFAULT; blinded=false; blindnessTimer=0; }
             else if (strcmp(res, "What is going on?") == 0)                           { confused=true; confusionTimer=CONFUSION_TIMER_DEFAULT; }
             else if (strcmp(res, "You feel fabulous!") == 0)                          { if(ridiculed){ridiculed=false;ridiculeTimer=0;} glamoured=true; glamourTimer=GLAMOUR_TIMER_DEFAULT; }

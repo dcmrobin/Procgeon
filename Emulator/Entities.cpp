@@ -514,7 +514,8 @@ void updateEnemies() {
         }
 
         // Projectile dodging for enemies in line-of-fire
-        if (dist > 0.0f && dist * dist < 64.0f) {
+        if (!enemies[i].isFriend && invisibleRingsNumber == 0 &&
+            dist > 0.0f && dist * dist < 64.0f) {
             float dot      = diffX * playerDX + diffY * playerDY;
             float cosAngle = dot / dist;
 
@@ -523,9 +524,14 @@ void updateEnemies() {
                 int ey = round(enemies[i].y);
                 int freeDir = 0;
                 for (int ddx = -1; ddx <= 1; ddx++)
-                    for (int ddy = -1; ddy <= 1; ddy++)
-                        if ((ddx || ddy) && dungeonMap[ey + ddy][ex + ddx] == Floor)
+                    for (int ddy = -1; ddy <= 1; ddy++) {
+                        int tx = ex + ddx;
+                        int ty = ey + ddy;
+                        if (tx >= 0 && tx < MAP_WIDTH &&
+                            ty >= 0 && ty < MAP_HEIGHT &&
+                            (ddx || ddy) && dungeonMap[ty][tx] == Floor)
                             freeDir++;
+                    }
 
                 if (freeDir >= 3) {
                     float awayX = enemies[i].x - playerX;
