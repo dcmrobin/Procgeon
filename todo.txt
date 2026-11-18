@@ -37,31 +37,10 @@ between the lighting before the effect and the lighting during the effect- a smo
 they (more than two) are combined into a "concoction" that has all the attributes of the ingredient potions added together. Oh, and
 not only potions can be mixed together- it's an industrial blender, after all.
 
-16. After the amnesia scroll, I looked at the info of a red potion and while the name had reset to red potion the info had not reset to
-"you have forgotten" or "drink it to find out"
-
-17. Enemies around where a clock has died still are updated and can move freely.
-
-
-
 BUG -> CAUSE NOTES FOR FUTURE FIXING SESSIONS
 ============================================
 
-1. Clock enemy death leaves stale world state
-Cause: clockX and clockY are set from the living clock enemy, but there is no reset when the clock dies. Nearby enemies continue
-using the last known clock position as a proximity trigger, so they remain active and move freely after the clock is gone.
-
-2. Amnesia scroll only partially resets item metadata
-Cause: resetPotionNames() and some inventory-page resets are implemented in a piecemeal way, so potion metadata is not fully reset
-in one place. This leaves some item entries with names that are reset while their descriptions remain stale, producing inconsistent
-item info.
-
-3. Save / progression flags are too spread out
+1. Save / progression flags are too spread out
 Cause: game progression and encounter flags are saved in SaveData and also read/written through many globals in Utils.cpp,
 Dungeon.cpp, Screens.cpp, and Gameloop.cpp. This makes it easy to save the wrong phase or keep a cancelled encounter state alive
 across level transitions and reloads.
-
-4. Friendly enemy / hostile enemy targeting logic is mixed into generic chase logic
-Cause: the AI branch in updateEnemies() treats isFriend as an afterthought while also switching target goals and chase toggles based
-on invisibleRingsNumber and nearby hostiles. This means friend/enemy combat relationships are inferred from ad hoc checks instead
-of clearer adversary state, leading to odd follow-target behavior and contradictory screens.

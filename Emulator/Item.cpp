@@ -280,8 +280,20 @@ void updatePotionName(GameItem& potion) {
 }
 
 void resetPotionNames() {
-    for (int i = 0; i < NUM_POTIONS; i++)
+    for (int i = 0; i < NUM_POTIONS; i++) {
         snprintf(itemList[i].name, sizeof(itemList[i].name), "%s", itemList[i].originalName);
+        snprintf(itemList[i].description, sizeof(itemList[i].description),
+                 "%s", "Drink it to find out.");
+    }
+
+    for (int i = 0; i < INVENTORY_SIZE; i++) {
+        GameItem& potion = inventoryPages[0].items[i];
+        if (potion.category != PotionCategory ||
+            potion.item == Null || potion.item == EmptyBottle) continue;
+        snprintf(potion.name, sizeof(potion.name), "%s", potion.originalName);
+        snprintf(potion.description, sizeof(potion.description),
+                 "%s", "You don't remember what this does.");
+    }
 }
 
 GameItems getRandomPotion(int randInt, bool primaryColors) {

@@ -402,23 +402,32 @@ void updateDamsel() {
 // ─────────────────────────────────────────────────────────────────────────────
 // updateEnemies
 // ─────────────────────────────────────────────────────────────────────────────
-static int giveUpTimer = 0;
+static int giveUpTimer[MAX_ENEMIES] = {};
 
 void updateEnemies() {
     // ── Find clock enemy position ─────────────────────────────────────────
+    bool clockAlive = false;
+    clockX = -10000.0f;
+    clockY = -10000.0f;
+    playerNearClockEnemy = false;
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (enemies[i].hp > 0 && strcmp(enemies[i].name, "clock") == 0) {
             clockX = enemies[i].x;
             clockY = enemies[i].y;
+            float dx = playerX - clockX;
+            float dy = playerY - clockY;
+            playerNearClockEnemy = dx * dx + dy * dy <= 25.0f;
+            clockAlive = true;
             break;
         }
     }
 
     // ── Mark enemies near clock ───────────────────────────────────────────
     for (int i = 0; i < MAX_ENEMIES; i++) {
+        enemies[i].nearClock = false;
+        if (!clockAlive || enemies[i].hp <= 0) continue;
         if (strcmp(enemies[i].name, "boss")  == 0) continue;
         if (strcmp(enemies[i].name, "clock") == 0) continue;
-        if (enemies[i].hp <= 0) continue;
         float cdx = enemies[i].x - clockX;
         float cdy = enemies[i].y - clockY;
         enemies[i].nearClock = (sqrtf(cdx * cdx + cdy * cdy) <= 5.0f);
@@ -508,11 +517,6 @@ void updateEnemies() {
         float diffY = enemies[i].y - playerY;
         float dist  = sqrtf(diffX * diffX + diffY * diffY);
 
-        // Clock: set playerNearClockEnemy
-        if (strcmp(enemies[i].name, "clock") == 0) {
-            playerNearClockEnemy = (dist <= 5.0f);
-        }
-
         // Projectile dodging for enemies in line-of-fire
         if (!enemies[i].isFriend && invisibleRingsNumber == 0 &&
             dist > 0.0f && dist * dist < 64.0f) {
@@ -567,40 +571,51 @@ void updateEnemies() {
         int gdx = pgx - egx, gdy = pgy - egy;
         int gridDistSq = gdx * gdx + gdy * gdy;
 
-        if (enemies[i].isFriend && strcmp(enemies[i].name, "shopkeeper") != 0) {
-            enemies[i].chasingPlayer = (invisibleRingsNumber == 0 && gridDistSq > 4);
-            if (!enemies[i].chasingPlayer && invisibleRingsNumber == 0) {
-                // Attack nearby hostile enemies
-                for (int j = 0; j < MAX_ENEMIES; j++) {
-                    if (j == i || enemies[j].hp <= 0 || enemies[j].isFriend) continue;
-                    int tdx = round(enemies[j].x) - egx;
-                    int tdy = round(enemies[j].y) - egy;
-                    if (tdx * tdx + tdy * tdy <= 25) {
-                        enemies[i].chasingPlayer = true;
-                        pgx = round(enemies[j].x);
-                        pgy = round(enemies[j].y);
-                        break;
-                    }
+        bool isCombatAlly = enemies[i].isFriend &&
+                            strcmp(enemies[i].name, "shopkeeper") != 0 &&
+                            strcmp(enemies[i].name, "fairy") != 0;
+        if (isCombatAlly) {
+            int nearestHostile = -1;
+            int nearestHostileDistSq = 26;
+            for (int j = 0; j < MAX_ENEMIES; j++) {
+                if (j == i || enemies[j].hp <= 0 || enemies[j].isFriend) continue;
+                int tdx = round(enemies[j].x) - egx;
+                int tdy = round(enemies[j].y) - egy;
+                int targetDistSq = tdx * tdx + tdy * tdy;
+                if (targetDistSq < nearestHostileDistSq) {
+                    nearestHostileDistSq = targetDistSq;
+                    nearestHostile = j;
                 }
             }
-        } else {
+
+            if (nearestHostile >= 0) {
+                enemies[i].chasingPlayer = true;
+                pgx = round(enemies[nearestHostile].x);
+                pgy = round(enemies[nearestHostile].y);
+            } else {
+                enemies[i].chasingPlayer = (invisibleRingsNumber == 0 && gridDistSq > 4);
+            }
+        } else if (!enemies[i].isFriend) {
             if (invisibleRingsNumber == 0) {
                 if (gridDistSq <= CHASE_RANGE_BASE + (int)(ambientNoiseLevel/2)) {
                     enemies[i].chasingPlayer = true;
+                    giveUpTimer[i] = 0;
                 } else if (enemies[i].chasingPlayer) {
-                    if (++giveUpTimer >= ENEMY_GIVE_UP_TICKS) {
+                    if (++giveUpTimer[i] >= ENEMY_GIVE_UP_TICKS) {
                         if (aggravateRingsNumber > 0) {
-                            giveUpTimer = ENEMY_GIVE_UP_TICKS;
+                            giveUpTimer[i] = ENEMY_GIVE_UP_TICKS;
                         } else {
                             enemies[i].chasingPlayer = false;
-                            giveUpTimer = 0;
+                            giveUpTimer[i] = 0;
                         }
                     }
                 }
             } else {
                 enemies[i].chasingPlayer = false;
-                giveUpTimer = 0;
+                giveUpTimer[i] = 0;
             }
+        } else {
+            enemies[i].chasingPlayer = false;
         }
 
         // Movement

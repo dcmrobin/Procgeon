@@ -380,10 +380,22 @@ void handleItemActionMenu() {
                     snprintf(scrollNamesRevealed[i], sizeof(scrollNamesRevealed[0]),
                              "%s", scrollNames[i]);
                 for (int i = 0; i < INVENTORY_SIZE; i++) {
-                    snprintf(inventoryPages[0].items[i].name, sizeof(inventoryPages[0].items[i].name),
-                             "%s", inventoryPages[0].items[i].originalName);
-                    snprintf(inventoryPages[3].items[i].name, sizeof(inventoryPages[3].items[i].name),
-                             "%s", inventoryPages[3].items[i].originalName);
+                    GameItem& scroll = inventoryPages[3].items[i];
+                    if (scroll.item == Scroll &&
+                        scroll.scrollEffectIndex >= 0 &&
+                        scroll.scrollEffectIndex < NUM_SCROLLS) {
+                        snprintf(scroll.name, sizeof(scroll.name), "%s",
+                                 scrollNamesRevealed[scroll.scrollEffectIndex]);
+                        scroll.isScrollRevealed = false;
+                        if (scrollEffects[scroll.scrollEffectIndex].effectType ==
+                            ScrollLoreEffect) {
+                            snprintf(scroll.description, sizeof(scroll.description),
+                                     "%s", "A scrap of parchment with writing on it.");
+                        } else {
+                            snprintf(scroll.description, sizeof(scroll.description),
+                                     "%s", "Read it to find out.");
+                        }
+                    }
                     if (inventoryPages[2].items[i].item == Ring) {
                         snprintf(inventoryPages[2].items[i].name,
                                  sizeof(inventoryPages[2].items[i].name),
@@ -394,12 +406,6 @@ void handleItemActionMenu() {
                         inventoryPages[2].items[i].isRingIdentified = false;
                         inventoryPages[2].items[i].ringRevealTimer = 0;
                     }
-                    snprintf(inventoryPages[0].items[i].description,
-                             sizeof(inventoryPages[0].items[i].description),
-                             "%s", "You don't remember what this does.");
-                    snprintf(inventoryPages[3].items[i].description,
-                             sizeof(inventoryPages[3].items[i].description),
-                             "%s", "You don't remember what this does.");
                 }
             } else if (sel.effectType == ScrollAggravateEffect) {
                 ambientNoiseLevel = 100000;

@@ -329,6 +329,7 @@ void spawnEnemies(bool isBossfight) {
     generatedClockEnemy     = false;
     clockX = -10000.0f;
     clockY = -10000.0f;
+    playerNearClockEnemy = false;
 
     // Helper: endless-mode stat scaling
     auto scale = [](int base, int extra) -> int {
