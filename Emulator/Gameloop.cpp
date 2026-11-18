@@ -77,6 +77,9 @@ void resetGame() {
     // Damsel
     generateFemaleName(damsel[0].name, sizeof(damsel[0].name));
     damsel[0].levelOfLove       = 0;
+    damsel[0].dead              = false;
+    damsel[0].active            = false;
+    damsel[0].followingPlayer   = false;
     g_state.knowsDamselName     = false;
     damsel[0].beingCarried      = false;
     damsel[0].completelyRescued = false;

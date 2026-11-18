@@ -510,6 +510,13 @@ void tryLoadGame() {
     equippedWeapon            = saveData.equippedWeapon;
     equippedRiddleStone       = saveData.equippedRiddleStone;
     succubusIsFriend          = saveData.succubusFriend;
+    nearSuccubus              = false;
+    if (succubusIsFriend) {
+        damsel[0].active          = false;
+        damsel[0].followingPlayer = false;
+        damsel[0].beingCarried    = false;
+        damsel[0].completelyRescued = false;
+    }
     kills                     = saveData.kills;
     hasMap                    = saveData.hasMap;
     playerNearClockEnemy      = saveData.playerNearClockEnemy;

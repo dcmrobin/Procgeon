@@ -497,7 +497,13 @@ void showStatusScreen() {
                                  damsel[0].followingPlayer;
             bool wasBeingCarried = damsel[0].beingCarried;
 
-            if (nearSuccubus) succubusIsFriend = true;
+            if (nearSuccubus) {
+                succubusIsFriend = true;
+                nearSuccubus = false;
+                damsel[0].active = false;
+                damsel[0].followingPlayer = false;
+                damsel[0].beingCarried = false;
+            }
 
             dungeon++;
             playerDX = 0;

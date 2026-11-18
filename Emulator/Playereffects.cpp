@@ -169,7 +169,15 @@ void handleHungerAndEffects() {
     }
 
     // ── Succubus pull ─────────────────────────────────────────────────────
-    if (!damsel[0].beingCarried && !succubusIsFriend) {
+    if (succubusIsFriend) {
+        nearSuccubus = false;
+    } else if (!damsel[0].beingCarried) {
+        nearSuccubus = false;
+        bool damselProtects = damsel[0].levelOfLove >= 6 &&
+                              damsel[0].followingPlayer &&
+                              !damsel[0].dead &&
+                              damsel[0].active;
+
         for (int i = 0; i < MAX_ENEMIES; i++) {
             if (enemies[i].hp <= 0) continue;
             if (strcmp(enemies[i].name, "succubus") != 0) continue;
@@ -178,11 +186,6 @@ void handleHungerAndEffects() {
             float sdx  = enemies[i].x - playerX;
             float sdy  = enemies[i].y - playerY;
             float sdSq = sdx * sdx + sdy * sdy;
-
-            bool damselProtects = damsel[0].levelOfLove >= 6 &&
-                                  damsel[0].followingPlayer &&
-                                  !damsel[0].dead &&
-                                  damsel[0].active;
 
             if (!damselProtects && sdSq < SUCCUBUS_PULL_RANGE_SQ) {
                 nearSuccubus = true;
@@ -199,6 +202,7 @@ void handleHungerAndEffects() {
                 dialogueTimeLength = SUCCUBUS_DIALOGUE_TIMER;
 
                 float sd = sqrtf(sdSq);
+                if (sd <= 0.0f) continue;
                 float nx = sdx / sd;
                 float ny = sdy / sd;
                 float newPX = playerX + nx * SUCCUBUS_PULL_STRENGTH;
@@ -225,8 +229,6 @@ void handleHungerAndEffects() {
                 playerSprite = (playerSprite == playerSpriteRight)
                                ? playerCarryingDamselSpriteRight
                                : playerCarryingDamselSpriteLeft;
-            } else {
-                nearSuccubus = false;
             }
         }
     }

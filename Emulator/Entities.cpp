@@ -260,6 +260,14 @@ void updateFairy() {
 static int damselMoveDelay = 0;
 
 void updateDamsel() {
+    if (succubusIsFriend) {
+        nearSuccubus = false;
+        damsel[0].followingPlayer = false;
+        damsel[0].beingCarried = false;
+        damsel[0].active = false;
+        return;
+    }
+
     if (damsel[0].dead) {
         damsel[0].followingPlayer = false;
         return;

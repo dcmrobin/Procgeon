@@ -64,12 +64,6 @@ be revealed as soon as the player is first teleported by it.
 BUG -> CAUSE NOTES FOR FUTURE FIXING SESSIONS
 ============================================
 
-1. Succubus / damsel logic drift
-Cause: multiple flags control the same narrative state (succubusIsFriend, damsel[0].followingPlayer, damsel[0].beingCarried,
-damsel[0].active, damselGotTaken, nearSuccubus, didNotRescueDamsel, etc.) and these are checked independently in
-Dungeon.cpp, Entities.cpp, Screens.cpp, and save/load logic. The state is not centralized, so the game can leave the damsel
-and succubus logic out of sync across levels or after load.
-
 2. Enemies dodge while player is invisible
 Cause: the avoidance / projectile-dodging logic in updateEnemies() runs without checking invisibleRingsNumber and without
 checking enemies[i].isFriend. That allows enemy movement to react to the player even when the player should be hidden, and also
