@@ -310,28 +310,38 @@ void handleItemActionMenu() {
                         GameItem& it = inventoryPages[p].items[i];
                         if (it.item == Null || it.weapon.type == NoWeapon) continue;
                         if (!seeAll && !it.isEquipped) continue;
-                        for (int w = 0; w < NUM_WEAPONS; w++) {
-                            if (weaponList[w].type != it.weapon.type) continue;
-                            WeaponType mt = weaponList[w].magicType;
-                            if (it.weapon.type != mt) {
-                                for (int m = 0; m < NUM_WEAPONS; m++) {
-                                    if (weaponList[m].type != mt) continue;
-                                    it.weapon  = weaponList[m];
-                                    it.canRust = weaponList[m].canRust;
-                                    snprintf(it.name,        sizeof(it.name),        "%s", weaponList[m].name);
-                                    snprintf(it.originalName,sizeof(it.originalName),"%s", weaponList[m].name);
-                                    snprintf(it.description, sizeof(it.description), "%s", weaponList[m].description);
-                                    equippedWeapon     = it;
-                                    playerAttackDamage = (int)equippedWeapon.weapon.damage;
-                                    attackDelayFrames  = equippedWeapon.weapon.attackDelay;
+                        if (it.weapon.type != it.weapon.magicType) {
+                            const WeaponItem* magicVariant = nullptr;
+                            for (int m = 0; m < NUM_WEAPONS; m++) {
+                                if (weaponList[m].type == it.weapon.magicType) {
+                                    magicVariant = &weaponList[m];
                                     break;
                                 }
-                            } else {
-                                it.weapon.damage      += 5;
-                                it.weapon.attackDelay  = max(5, it.weapon.attackDelay - 2);
                             }
-                            p = numInventoryPages; break;
+                            if (!magicVariant) {
+                                Serial.printf("No magic variant for weapon type %d\n",
+                                              static_cast<int>(it.weapon.type));
+                                continue;
+                            }
+                            it.weapon = *magicVariant;
+                            it.canRust = magicVariant->canRust;
+                            snprintf(it.name, sizeof(it.name), "%s", magicVariant->name);
+                            snprintf(it.originalName, sizeof(it.originalName),
+                                     "%s", magicVariant->name);
+                            snprintf(it.description, sizeof(it.description),
+                                     "%s", magicVariant->description);
+                        } else {
+                            it.weapon.damage += 5;
+                            it.weapon.attackDelay = max(5, it.weapon.attackDelay - 2);
                         }
+
+                        if (it.isEquipped) {
+                            equippedWeapon = it;
+                            playerAttackDamage = static_cast<int>(it.weapon.damage);
+                            attackDelayFrames = it.weapon.attackDelay;
+                        }
+                        p = numInventoryPages;
+                        break;
                     }
                 }
                 consumeOneFromStack(currentInventoryPageIndex, selectedInventoryIndex);
@@ -447,6 +457,7 @@ void handleItemActionMenu() {
             playRawSFX(sel.category == PotionCategory ? 6 : 5);
             playerFood += sel.hungerRecoverAmount;
             if (playerFood > 100) playerFood = 100;
+            if (playerFood < 0) playerFood = 0;
             playerHP   += sel.healthRecoverAmount;
             int maxHPNow = playerMaxHP - (sicknessRingsNumber * 20);
             if (playerHP > maxHPNow) playerHP = maxHPNow;
@@ -485,6 +496,9 @@ void handleItemActionMenu() {
                 playerFood += 15; if (playerFood > 100) playerFood = 100;
             }
             else if (sel.effectType == ParalysisEffect)                           { paralyzed=true; paralysisTimer=PARALYSIS_TIMER_DEFAULT; }
+
+            if (playerFood < 0) playerFood = 0;
+            starving = playerFood <= 0;
 
             if (sel.category == PotionCategory)
                 updatePotionName(sel);

@@ -438,6 +438,11 @@ void showStatusScreen() {
                     display.setCursor(0, 2);
                     display.print("The Damsel was captured!");
                 }
+            } else if (succubusIsFriend) {
+                display.drawBitmap(0, 0, aloneWizardScreen,
+                                   SCREEN_WIDTH, SCREEN_HEIGHT, 15);
+                display.setCursor(0, 117);
+                display.print("The succubus is left behind.");
             }
         }
     } else if (endlessMode) {
@@ -503,6 +508,8 @@ void showStatusScreen() {
                 damsel[0].active = false;
                 damsel[0].followingPlayer = false;
                 damsel[0].beingCarried = false;
+            } else if (succubusIsFriend) {
+                succubusIsFriend = false;
             }
 
             dungeon++;

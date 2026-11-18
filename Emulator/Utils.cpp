@@ -519,6 +519,8 @@ void tryLoadGame() {
     playerY    = saveData.playerY;
     playerHP   = saveData.hp;
     playerFood = saveData.food;
+    if (playerFood < 0) playerFood = 0;
+    starving = playerFood <= 0;
 
     if (equippedWeapon.item != Null && equippedWeapon.weapon.type != NoWeapon) {
         playerAttackDamage = (int)equippedWeapon.weapon.damage;

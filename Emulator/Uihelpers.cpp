@@ -73,17 +73,7 @@ void handleUIStateTransitions() {
                 }
                 break;
             case UI_INVENTORY:
-                // Cancel identify scroll if active (wasting it)
-                if (identifyingItem) {
-                    if (identifyScrollPage >= 0 && identifyScrollIndex >= 0) {
-                        inventoryPages[identifyScrollPage]
-                            .items[identifyScrollIndex] = { Null, PotionCategory, "Empty" };
-                        inventoryPages[identifyScrollPage].itemCount--;
-                    }
-                    identifyingItem    = false;
-                    identifyScrollPage = -1;
-                    identifyScrollIndex= -1;
-                }
+                if (identifyingItem) break;
                 if (hasMap) {
                     currentUIState = UI_MINIMAP;
                 } else {
@@ -129,7 +119,7 @@ void handleUIStateTransitions() {
         }
     }
 
-    if (b.startPressed && !b.startPressedPrev) {
+    if (!identifyingItem && b.startPressed && !b.startPressedPrev) {
         playRawSFX(9);
         if (currentUIState == UI_SPLASH) {
             playWav1.stop();

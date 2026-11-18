@@ -89,6 +89,7 @@ void handleHungerAndEffects() {
             if (drain < 1) drain = 1;
             playerFood -= drain;
         }
+        if (playerFood < 0) playerFood = 0;
         hungerTick = 0;
         starving   = (playerFood <= 0);
     }
@@ -170,7 +171,7 @@ void handleHungerAndEffects() {
 
     // ── Succubus pull ─────────────────────────────────────────────────────
     if (succubusIsFriend) {
-        nearSuccubus = false;
+        if (!statusScreen) nearSuccubus = false;
     } else if (!damsel[0].beingCarried) {
         nearSuccubus = false;
         bool damselProtects = damsel[0].levelOfLove >= 6 &&

@@ -28,6 +28,19 @@
 // ── forward declaration (defined in PlayerEffects.cpp) ───────────────────────
 void startCarryingDamsel(bool resetPickupTimer);
 
+static bool isFriendlySuccubusNearPlayer() {
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemies[i].hp <= 0 || !enemies[i].isFriend ||
+            strcmp(enemies[i].name, "succubus") != 0)
+            continue;
+
+        float dx = enemies[i].x - playerX;
+        float dy = enemies[i].y - playerY;
+        if (dx * dx + dy * dy <= SUCCUBUS_PULL_RANGE_SQ) return true;
+    }
+    return false;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // handleInput
 // ─────────────────────────────────────────────────────────────────────────────
@@ -428,6 +441,8 @@ void handleInput() {
             case Exit:
                 playRawSFX(11);
                 if (dungeon != bossfightLevel) {
+                    if (succubusIsFriend)
+                        nearSuccubus = isFriendlySuccubusNearPlayer();
                     if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
                         levelOfDamselDeath = dungeon;
                         damsel[0].active   = false;
