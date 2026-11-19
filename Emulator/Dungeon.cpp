@@ -379,7 +379,7 @@ void spawnEnemies(bool isBossfight) {
                                    false, 0.06f, "shooter", 20, dmgScale(0, dungeon),
                                    false, 0, 0, {}, nullptr, 20, false, false };
                     enemies[i].sprite = shooterAnimation[random(0, shooterAnimationLength)].frame;
-                } else if (random(0, 10) == 5 && dungeon > 6) {
+                } else if (random(0, 10) == 5 && dungeon > 0) {// else if (random(0, 10) == 5 && dungeon > 6) {
                     enemies[i] = { (float)ex, (float)ey, scale(30, dungeon - 11),
                                    false, 0.02f, "succubus", 50, dmgScale(110, dungeon),
                                    false, 0, 0, {}, nullptr, 50, false, false };
