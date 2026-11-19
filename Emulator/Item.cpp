@@ -108,7 +108,7 @@ char scrollNames[NUM_SCROLLS][20] = {
     "Blank scroll","Mapping scroll","Aggravate scroll","Destroy scroll",
     "Teleport scroll","Amnesia scroll","Lore scrap",
 };
-char scrollNamesRevealed[NUM_SCROLLS][20] = {
+char scrollNamesRevealed[NUM_SCROLLS][240] = {
     "Protect scroll","Identify scroll","Enchant scroll","Uncurse scroll",
     "Blank scroll","Mapping scroll","Aggravate scroll","Destroy scroll",
     "Teleport scroll","Amnesia scroll","Lore scrap",

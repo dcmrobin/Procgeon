@@ -232,7 +232,7 @@ struct GameState {
     bool    identifyingItem     = false;
     int     identifyScrollPage  = -1;
     int     identifyScrollIndex = -1;
-    char    itemResultMessage[150] = "";
+    char    itemResultMessage[200] = "";
 
     // Shop
     int shopSelectedIndex = 0;

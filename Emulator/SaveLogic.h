@@ -93,7 +93,7 @@ struct SaveData {
     // Large data (written to disk but not hashed)
     TileTypes dungeonMap[MAP_HEIGHT][MAP_WIDTH];
     char      scrollNames[NUM_SCROLLS][20];
-    char      scrollNamesRevealed[NUM_SCROLLS][20];
+    char      scrollNamesRevealed[NUM_SCROLLS][240];
     GameItem  itemList[NUM_ITEMS];
 };
 

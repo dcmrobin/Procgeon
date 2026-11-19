@@ -261,7 +261,7 @@ static int damselMoveDelay = 0;
 
 void updateDamsel() {
     if (succubusIsFriend) {
-        nearSuccubus = false;
+        if (!statusScreen) nearSuccubus = false;
         damsel[0].followingPlayer = false;
         damsel[0].beingCarried = false;
         damsel[0].active = false;

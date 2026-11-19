@@ -123,7 +123,7 @@ void renderShop() {
             display.print(shopItems[i].item.name);
 
             if (shopItems[i].price > 0) {
-                char priceStr[10];
+                char priceStr[30];
                 snprintf(priceStr, sizeof(priceStr), "%dg", shopItems[i].price);
                 display.setCursor(100, y);
                 display.print(priceStr);

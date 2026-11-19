@@ -28,17 +28,29 @@
 // ── forward declaration (defined in PlayerEffects.cpp) ───────────────────────
 void startCarryingDamsel(bool resetPickupTimer);
 
-static bool isFriendlySuccubusNearPlayer() {
-    for (int i = 0; i < MAX_ENEMIES; i++) {
-        if (enemies[i].hp <= 0 || !enemies[i].isFriend ||
-            strcmp(enemies[i].name, "succubus") != 0)
-            continue;
+static bool canSeeFriendlySuccubus() {
+    const int playerTileX = predictXtile(playerX);
+    const int playerTileY = predictYtile(playerY);
+    const int visibleRadiusSq = 200 - (invisibleRingsNumber * 50);
 
-        float dx = enemies[i].x - playerX;
-        float dy = enemies[i].y - playerY;
-        if (dx * dx + dy * dy <= SUCCUBUS_PULL_RANGE_SQ) return true;
-    }
-    return false;
+    const Enemy& succubus = enemies[0];
+    if (succubus.hp <= 0 || !succubus.isFriend ||
+        strcmp(succubus.name, "succubus") != 0)
+        return false;
+
+    const int succubusTileX = predictXtile(succubus.x);
+    const int succubusTileY = predictYtile(succubus.y);
+    const int dx = succubusTileX - playerTileX;
+    const int dy = succubusTileY - playerTileY;
+    if (dx * dx + dy * dy > visibleRadiusSq) return false;
+    if (!seeAll && !isVisible(playerTileX, playerTileY,
+                              succubusTileX, succubusTileY))
+        return false;
+
+    const float screenX = (succubus.x - offsetX) * tileSize;
+    const float screenY = (succubus.y - offsetY) * tileSize;
+    return screenX >= 0 && screenY >= 0 &&
+           screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -442,7 +454,7 @@ void handleInput() {
                 playRawSFX(11);
                 if (dungeon != bossfightLevel) {
                     if (succubusIsFriend)
-                        nearSuccubus = isFriendlySuccubusNearPlayer();
+                        nearSuccubus = canSeeFriendlySuccubus();
                     if (!damsel[0].dead && !damsel[0].followingPlayer && damsel[0].active) {
                         levelOfDamselDeath = dungeon;
                         damsel[0].active   = false;

@@ -21,15 +21,15 @@ struct WeaponItem {
 struct GameItem {
     GameItems   item        = Null;
     ItemCategory category   = PotionCategory;
-    char        name[40]    = "Null";
+    char        name[60]    = "Null";
     int         healthRecoverAmount = 0;
     int         hungerRecoverAmount = 0;
     int         AOEsize     = 0;
     int         AOEdamage   = 0;
     float       SpeedMultiplier = 0.0f;
-    char        description[110] = "";
-    char        originalName[20] = "";
-    char        itemResult[150]  = "";
+    char        description[200] = "";
+    char        originalName[50] = "";
+    char        itemResult[200]  = "";
     int         rarity      = 2;
     bool        oneTimeUse  = true;
     EffectType  effectType  = DefaultEffect;
@@ -110,7 +110,7 @@ extern WeaponItem       weaponList[NUM_WEAPONS];
 extern ScrollEffect     scrollEffects[NUM_SCROLLS];
 
 extern char scrollNames[NUM_SCROLLS][20];
-extern char scrollNamesRevealed[NUM_SCROLLS][20];
+extern char scrollNamesRevealed[NUM_SCROLLS][240];
 
 extern char ringTypes[NUM_RINGS][20];
 extern const RingEffectData ringEffects[NUM_RINGS];
