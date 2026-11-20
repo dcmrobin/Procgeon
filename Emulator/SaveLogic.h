@@ -15,6 +15,8 @@
 // v4: added goldCount; NUM_ITEMS 38→42; NUM_SCROLLS 10→11
 // v5: added ring reveal metadata to GameItem
 // v6: consolidated durable run progression fields
+// v7: tracks whether the succubus has used her first greeting
+// v8: tracks the intervening floor before later succubus greetings
 // ─────────────────────────────────────────────────────────────────────────────
 #define SAVE_MAGIC   0x54445653u   // "SVDT" little-endian
 

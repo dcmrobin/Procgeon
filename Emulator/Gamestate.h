@@ -63,6 +63,8 @@ struct ProgressionState {
     int  dungeon = 1;
     bool endlessMode = false;
     bool succubusIsFriend = false;
+    bool succubusFirstGreetingSaid = false;
+    bool succubusGreetingDelayPending = false;
     bool damselGotTaken = false;
     bool damselSayThanksForRescue = false;
     bool knowsDamselName = false;

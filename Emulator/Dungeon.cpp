@@ -342,13 +342,42 @@ void spawnEnemies(bool isBossfight) {
     if (!isBossfight) {
         // Friendly succubus if active
         if (succubusIsFriend && !generatedSuccubusFriend) {
+            static const char* const laterGreetings[] = {
+                "Sorry about trying to kill you earlier, darling.",
+                "When this is over, we'll have to get some rest...",
+                "I hope you have the stamina to keep up with me.",
+                "Enjoying the view? Mm, you'll see much more later.",
+                "Mmh- I can't wait for our quality time later...",
+                "I can't wait to see what's under that armour.",
+                "I must warn you, I am quite the handful.",
+                "I've got a mind to match my body, darling.",
+                "You'll never be bored with me around, handsome.",
+                "Oh, my desire is getting uncontrollable!",
+                "You had better be able to handle me, darling.",
+                "You own me now! But later you'll make me yours."
+            };
             generatedSuccubusFriend = true;
             currentDamselPortrait = succubusPortrait;
-            snprintf(currentDialogue, sizeof(g_state.currentDialogue),
-                     "%s", "You didn't try to kill me. I'll return the favour.");
-            playRawSFX(24);
-            showDialogue = true;
-            dialogueTimeLength = 600;
+            bool showGreeting = true;
+            if (!g_state.progression.succubusFirstGreetingSaid) {
+                snprintf(currentDialogue, sizeof(g_state.currentDialogue),
+                         "%s", "You didn't try to kill me. I'll return the favour.");
+                g_state.progression.succubusFirstGreetingSaid = true;
+                g_state.progression.succubusGreetingDelayPending = true;
+            } else if (g_state.progression.succubusGreetingDelayPending) {
+                g_state.progression.succubusGreetingDelayPending = false;
+                showGreeting = false;
+            } else {
+                const int greetingCount =
+                    sizeof(laterGreetings) / sizeof(laterGreetings[0]);
+                snprintf(currentDialogue, sizeof(g_state.currentDialogue), "%s",
+                         laterGreetings[random(0, greetingCount)]);
+            }
+            if (showGreeting) {
+                playRawSFX(24);
+                showDialogue = true;
+                dialogueTimeLength = 600;
+            }
             enemies[0] = { (float)playerX, playerY - 1.0f, 40, false, 0.06f,
                            "succubus", 30, 20, false, 0, 0, {}, nullptr, 30, false, true };
             enemies[0].sprite  = succubusIdleSprite;
